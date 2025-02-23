@@ -7,10 +7,12 @@ import huy.project.authentication_service.core.domain.entity.RoleEntity;
 import huy.project.authentication_service.core.domain.entity.RolePrivilegeEntity;
 import huy.project.authentication_service.core.domain.mapper.RoleMapper;
 import huy.project.authentication_service.core.exception.AppException;
+import huy.project.authentication_service.core.port.ICachePort;
 import huy.project.authentication_service.core.port.IRolePort;
 import huy.project.authentication_service.core.port.IRolePrivilegePort;
 import huy.project.authentication_service.core.validation.PrivilegeValidation;
 import huy.project.authentication_service.core.validation.RoleValidation;
+import huy.project.authentication_service.kernel.utils.CacheUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.util.Pair;
@@ -25,6 +27,7 @@ import java.util.List;
 public class CreateRoleUseCase {
     private final IRolePort rolePort;
     private final IRolePrivilegePort rolePrivilegePort;
+    private final ICachePort cachePort;
     private final RoleValidation roleValidation;
     private final PrivilegeValidation privilegeValidation;
 
@@ -54,6 +57,9 @@ public class CreateRoleUseCase {
                         .build())
                 .toList();
         rolePrivilegePort.saveAll(rolePrivileges);
+
+        // clear cache
+        cachePort.deleteFromCache(CacheUtils.CACHE_ALL_ROLES);
 
         return role;
     }

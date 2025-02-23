@@ -26,7 +26,7 @@ public class RedisCacheAdapter implements ICachePort {
     }
 
     @Override
-    public Object getFromCache(String key) {
+    public String getFromCache(String key) {
         try {
             return redisTemplate.opsForValue().get(key);
         } catch (Exception e) {

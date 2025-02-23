@@ -8,6 +8,7 @@ import huy.project.authentication_service.core.port.ICachePort;
 import huy.project.authentication_service.core.port.IRolePort;
 import huy.project.authentication_service.core.port.IRolePrivilegePort;
 import huy.project.authentication_service.kernel.utils.CacheUtils;
+import huy.project.authentication_service.kernel.utils.JsonUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -41,6 +42,13 @@ public class GetRoleUseCase {
     }
 
     public List<RoleEntity> getAllRoles() {
+        // ger from cache
+        String roleStr = cachePort.getFromCache(CacheUtils.CACHE_ALL_ROLES);
+        if (roleStr != null) {
+            return JsonUtils.fromJsonList(roleStr, RoleEntity.class);
+        }
+
+        // get from db
         List<RoleEntity> roles = rolePort.getAllRoles();
 
         List<Long> roleIds = roles.stream()
@@ -58,6 +66,9 @@ public class GetRoleUseCase {
             role.setPrivileges(privilegeIds.stream()
                     .map(privilegeMap::get).toList());
         });
+
+        // set to cache
+        cachePort.setToCache(CacheUtils.CACHE_ALL_ROLES, roles, CacheConstant.DEFAULT_TTL);
 
         return roles;
     }

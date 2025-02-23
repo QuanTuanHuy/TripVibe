@@ -30,6 +30,11 @@ public class RoleAdapter implements IRolePort {
     }
 
     @Override
+    public List<RoleEntity> getRolesByIds(List<Long> ids) {
+        return RoleMapper.INSTANCE.toListRoleEntity(roleRepository.findByIdIn(ids));
+    }
+
+    @Override
     public List<RoleEntity> getAllRoles() {
         return RoleMapper.INSTANCE.toListRoleEntity(roleRepository.findAll());
     }
