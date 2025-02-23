@@ -24,4 +24,9 @@ public class UserRoleAdapter implements IUserRolePort {
     public List<UserRoleEntity> getUserRolesByUserId(Long userId) {
         return UserRoleMapper.INSTANCE.toListEntity(userRoleRepository.findByUserId(userId));
     }
+
+    @Override
+    public void deleteByUserId(Long userId) {
+        userRoleRepository.deleteByUserId(userId);
+    }
 }

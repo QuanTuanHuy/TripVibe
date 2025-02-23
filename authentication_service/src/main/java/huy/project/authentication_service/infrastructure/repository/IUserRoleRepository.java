@@ -8,4 +8,5 @@ import java.util.List;
 @Repository
 public interface IUserRoleRepository extends IBaseRepository<UserRoleModel> {
     List<UserRoleModel> findByUserId(Long userId);
+    void deleteByUserId(Long userId);
 }

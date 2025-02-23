@@ -7,4 +7,5 @@ public interface IUserPort {
     UserEntity getUserByUsername(String username);
     UserEntity getUserByEmail(String email);
     UserEntity getUserById(Long id);
+    void deleteUserById(Long id);
 }

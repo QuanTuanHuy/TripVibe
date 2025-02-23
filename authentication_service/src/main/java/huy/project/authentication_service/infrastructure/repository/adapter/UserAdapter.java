@@ -31,4 +31,9 @@ public class UserAdapter implements IUserPort {
     public UserEntity getUserById(Long id) {
         return UserMapper.INSTANCE.toEntity(userRepository.findById(id).orElse(null));
     }
+
+    @Override
+    public void deleteUserById(Long id) {
+        userRepository.deleteById(id);
+    }
 }

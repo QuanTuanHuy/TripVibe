@@ -1,6 +1,7 @@
 package huy.project.authentication_service.ui.controller;
 
 import huy.project.authentication_service.core.domain.dto.request.CreateUserRequestDto;
+import huy.project.authentication_service.core.domain.dto.request.UpdateUserRequestDto;
 import huy.project.authentication_service.core.domain.entity.UserEntity;
 import huy.project.authentication_service.core.service.IUserService;
 import huy.project.authentication_service.ui.resource.Resource;
@@ -22,5 +23,19 @@ public class UserController {
     @GetMapping("/{userId}")
     public ResponseEntity<Resource<UserEntity>> getDetailUser(@PathVariable Long userId) {
         return ResponseEntity.ok(new Resource<>(userService.getDetailUser(userId)));
+    }
+
+    @PutMapping("/{userId}")
+    public ResponseEntity<Resource<UserEntity>> updateUser(
+            @PathVariable Long userId,
+            @RequestBody UpdateUserRequestDto req
+    ) {
+        return ResponseEntity.ok(new Resource<>(userService.updateUser(userId, req)));
+    }
+
+    @DeleteMapping("/{userId}")
+    public ResponseEntity<Resource<?>> deleteUser(@PathVariable Long userId) {
+        userService.deleteUser(userId);
+        return ResponseEntity.ok(new Resource<>(null));
     }
 }

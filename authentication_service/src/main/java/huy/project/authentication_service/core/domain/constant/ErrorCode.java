@@ -7,6 +7,7 @@ import org.springframework.http.HttpStatusCode;
 @Getter
 public enum ErrorCode {
     UNCATEGORIZED_EXCEPTION(100001, "Uncategorized error", HttpStatus.INTERNAL_SERVER_ERROR),
+    SUCCESS(0, "Success", HttpStatus.OK),
     ROLE_NAME_EXISTED(100002, "Role name is existed", HttpStatus.BAD_REQUEST),
     ROLE_NOT_FOUND(100003, "Role not found", HttpStatus.NOT_FOUND),
     PRIVILEGE_NAME_EXISTED(100004, "Privilege name is existed", HttpStatus.BAD_REQUEST),
