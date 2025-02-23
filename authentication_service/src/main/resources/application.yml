@@ -16,6 +16,31 @@ spring:
     redis:
       host: localhost
       port: 6379
-
+app:
+  service:
+#    cors:
+#      baseUrl: http://localhost:3000
+#      allowedMethods:
+#        - GET
+#        - POST
+#        - PUT
+#        - DELETE
+#        - PATCH
+  security:
+    jwt:
+      secret: MnAYFOKwxBOznHpxA3Wx4cJjeC3vYNtwzI6HRYT9SD++1BM9Pk32pTGETroljFsS
+      expiration: 86400000
+      header: Authorization
+      prefix: Bearer
+    filter:
+      publicUrls:
+        - first: /api/public/v1/users
+          second: POST
+        - first: /api/public/v1/auth
+          second: POST
+      protectedUrls:
+#        - urlPattern: /api/public/v1/roles
+#          roles:
+#            - ADMIN
 server:
   port: 8081
