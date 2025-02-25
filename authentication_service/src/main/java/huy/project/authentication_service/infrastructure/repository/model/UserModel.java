@@ -1,6 +1,5 @@
 package huy.project.authentication_service.infrastructure.repository.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 

@@ -3,8 +3,6 @@ package huy.project.authentication_service.infrastructure.repository.model;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.util.List;
-
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
