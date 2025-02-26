@@ -34,6 +34,7 @@ func All() fx.Option {
 		fx.Provide(usecase.NewCreateNotificationUseCase),
 		fx.Provide(usecase.NewDatabaseTransactionUseCase),
 		fx.Provide(usecase.NewGetNotificationUseCase),
+		fx.Provide(usecase.NewUpdateNotificationUseCase),
 
 		//Provide services
 		fx.Provide(service.NewNotificationService),

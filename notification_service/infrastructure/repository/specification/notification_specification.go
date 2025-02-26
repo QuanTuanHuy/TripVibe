@@ -25,12 +25,18 @@ func ToGetNotificationSpecification(params *request.NotificationParams) (string,
 		query += " DESC"
 	}
 
+	if params.Page != nil && params.PageSize != nil {
+		offset := (*params.Page) * *params.PageSize
+		query += " LIMIT ? OFFSET ?"
+		args = append(args, *params.PageSize, offset)
+	}
+
 	return query, args
 }
 
 func ToCountNotificationSpecification(params *request.NotificationParams) (string, []interface{}) {
 	query := "SELECT COUNT(*) FROM notifications WHERE 1 = 1"
-	var args []interface{}
+	args := make([]interface{}, 0)
 
 	if params.UserID != nil {
 		query += " AND receiver_id = ?"

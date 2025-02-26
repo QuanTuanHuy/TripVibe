@@ -34,7 +34,7 @@ func (n *NotificationController) CreateNotification(c *gin.Context) {
 }
 
 func (n *NotificationController) GetAllNotification(c *gin.Context) {
-	userID, err := strconv.ParseInt(c.Query("userID"), 10, 64)
+	userID, err := strconv.ParseInt(c.Query("userId"), 10, 64)
 	if err != nil {
 		log.Error(c, "Parse userID failed: ", err)
 		apihelper.AbortErrorHandle(c, common.GeneralBadRequest)
@@ -45,7 +45,7 @@ func (n *NotificationController) GetAllNotification(c *gin.Context) {
 	notiParams := &request.NotificationParams{}
 	notiParams.Page = &page
 	notiParams.PageSize = &pageSize
-	
+
 	notifications, err := n.notificationService.GetAllNotification(c, userID, notiParams)
 	if err != nil {
 		log.Error(c, "Get all notification failed: ", err)
@@ -54,6 +54,33 @@ func (n *NotificationController) GetAllNotification(c *gin.Context) {
 	}
 
 	apihelper.SuccessfulHandle(c, notifications)
+}
+
+func (n *NotificationController) UpdateNotification(c *gin.Context) {
+	// get notification id
+	notiID, err := strconv.ParseInt(c.Param("id"), 10, 64)
+	if err != nil {
+		log.Error(c, "Parse notification ID failed: ", err)
+		apihelper.AbortErrorHandle(c, common.GeneralBadRequest)
+		return
+	}
+
+	// get request body
+	var req request.UpdateNotificationRequestDto
+	if err := c.ShouldBindJSON(&req); err != nil {
+		log.Error(c, "Bind request failed: ", err)
+		apihelper.AbortErrorHandle(c, common.GeneralBadRequest)
+		return
+	}
+
+	notification, err := n.notificationService.UpdateNotification(c, notiID, &req)
+	if err != nil {
+		log.Error(c, "Update notification failed: ", err)
+		apihelper.AbortErrorHandle(c, common.GeneralServiceUnavailable)
+		return
+	}
+
+	apihelper.SuccessfulHandle(c, notification)
 }
 
 func NewNotificationController(notificationService service.INotificationService) *NotificationController {

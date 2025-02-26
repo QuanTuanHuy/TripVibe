@@ -20,5 +20,6 @@ func RegisterGinRouters(p RegisterRoutersIn) {
 	{
 		notificationV1.POST("", p.NotificationController.CreateNotification)
 		notificationV1.GET("", p.NotificationController.GetAllNotification)
+		notificationV1.PUT("/:id", p.NotificationController.UpdateNotification)
 	}
 }

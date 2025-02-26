@@ -11,4 +11,6 @@ type INotificationPort interface {
 	CreateNotification(ctx context.Context, tx *gorm.DB, notification *entity.NotificationEntity) (*entity.NotificationEntity, error)
 	GetAllNotification(ctx context.Context, notificationParams *request.NotificationParams) ([]*entity.NotificationEntity, error)
 	CountAllNotification(ctx context.Context, notificationParams *request.NotificationParams) (int64, error)
+	GetNotificationByID(ctx context.Context, notificationID int64) (*entity.NotificationEntity, error)
+	UpdateNotification(ctx context.Context, tx *gorm.DB, notification *entity.NotificationEntity) (*entity.NotificationEntity, error)
 }

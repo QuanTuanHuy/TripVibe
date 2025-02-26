@@ -13,12 +13,12 @@ type NotificationResponse struct {
 
 type GetNotificationResponse struct {
 	Notifications []*NotificationResponse `json:"notifications"`
-	TotalItems    int64                   `json:"total_items"`
-	TotalPages    int64                   `json:"total_pages"`
-	CurrentPage   int64                   `json:"current_page"`
-	PageSize      int64                   `json:"page_size"`
-	PreviousPage  *int64                  `json:"previous_page"`
-	NextPage      *int64                  `json:"next_page"`
+	TotalItems    int64                   `json:"totalItems"`
+	TotalPages    int64                   `json:"totalPages"`
+	CurrentPage   int64                   `json:"currentPage"`
+	PageSize      int64                   `json:"pageSize"`
+	PreviousPage  *int64                  `json:"previousPage"`
+	NextPage      *int64                  `json:"nextPage"`
 }
 
 func ToNotificationResponse(notification *entity.NotificationEntity) *NotificationResponse {
