@@ -32,3 +32,14 @@ func ToNotificationEntity(notification *model.NotificationModel) *entity.Notific
 		Status:     notification.Status,
 	}
 }
+
+func ToListNotificationEntity(notifications []*model.NotificationModel) []*entity.NotificationEntity {
+	if notifications == nil {
+		return nil
+	}
+	var entities []*entity.NotificationEntity
+	for _, notification := range notifications {
+		entities = append(entities, ToNotificationEntity(notification))
+	}
+	return entities
+}

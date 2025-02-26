@@ -33,6 +33,7 @@ func All() fx.Option {
 		//Provide usecase
 		fx.Provide(usecase.NewCreateNotificationUseCase),
 		fx.Provide(usecase.NewDatabaseTransactionUseCase),
+		fx.Provide(usecase.NewGetNotificationUseCase),
 
 		//Provide services
 		fx.Provide(service.NewNotificationService),

@@ -19,5 +19,6 @@ func RegisterGinRouters(p RegisterRoutersIn) {
 	notificationV1 := router.Group("public/v1/notifications")
 	{
 		notificationV1.POST("", p.NotificationController.CreateNotification)
+		notificationV1.GET("", p.NotificationController.GetAllNotification)
 	}
 }
