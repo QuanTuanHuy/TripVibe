@@ -8,6 +8,8 @@ import huy.project.accommodation_service.infrastructure.repository.model.Amenity
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 public class AmenityAdapter implements IAmenityPort {
@@ -23,5 +25,15 @@ public class AmenityAdapter implements IAmenityPort {
     public AmenityEntity getAmenityByName(String name) {
         return amenityRepository.findByName(name)
                 .map(AmenityMapper.INSTANCE::toEntity).orElse(null);
+    }
+
+    @Override
+    public List<AmenityEntity> getAmenitiesByGroupId(Long groupId) {
+        return AmenityMapper.INSTANCE.toListAmenity(amenityRepository.findByGroupId(groupId));
+    }
+
+    @Override
+    public List<AmenityEntity> getAmenitiesByGroupIds(List<Long> groupIds) {
+        return AmenityMapper.INSTANCE.toListAmenity(amenityRepository.findByGroupIdIn(groupIds));
     }
 }

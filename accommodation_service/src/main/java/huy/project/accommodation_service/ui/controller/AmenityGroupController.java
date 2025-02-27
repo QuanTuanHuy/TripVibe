@@ -6,10 +6,9 @@ import huy.project.accommodation_service.core.service.IAmenityGroupService;
 import huy.project.accommodation_service.ui.resource.Resource;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/public/v1/amenity_groups")
@@ -22,5 +21,17 @@ public class AmenityGroupController {
             @RequestBody CreateAmenityGroupRequestDto req
     ) {
         return ResponseEntity.ok(new Resource<>(amenityGroupService.createAmenityGroup(req)));
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<Resource<AmenityGroupEntity>> getAmenityGroupById(
+            @PathVariable Long id
+    ) {
+        return ResponseEntity.ok(new Resource<>(amenityGroupService.getAmenityGroupById(id)));
+    }
+
+    @GetMapping
+    public ResponseEntity<Resource<List<AmenityGroupEntity>>> getAllAmenityGroups() {
+        return ResponseEntity.ok(new Resource<>(amenityGroupService.getAllAmenityGroups()));
     }
 }

@@ -6,6 +6,8 @@ import lombok.Getter;
 import lombok.Setter;
 import org.springframework.data.repository.NoRepositoryBean;
 
+import java.util.List;
+
 @NoRepositoryBean
 @AllArgsConstructor
 @Getter
@@ -15,4 +17,5 @@ public class AmenityGroupEntity {
     private Long id;
     private String name;
     private String description;
+    private List<AmenityEntity> amenities;
 }

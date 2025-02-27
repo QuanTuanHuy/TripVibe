@@ -34,6 +34,8 @@ app:
       prefix: Bearer
     filter:
       publicUrls:
+        - first: /api/public/v1/amenity_groups/**
+          second: GET
       protectedUrls:
         - urlPattern: /api/public/v1/amenity_groups
           roles:

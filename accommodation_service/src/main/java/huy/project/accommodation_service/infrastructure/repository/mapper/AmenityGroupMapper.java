@@ -5,11 +5,15 @@ import huy.project.accommodation_service.infrastructure.repository.model.Amenity
 import org.mapstruct.Mapper;
 import org.mapstruct.factory.Mappers;
 
+import java.util.List;
+
 @Mapper
 public abstract class AmenityGroupMapper {
     public static final AmenityGroupMapper INSTANCE = Mappers.getMapper(AmenityGroupMapper.class);
 
-    public abstract AmenityGroupEntity toEntity(AmenityGroupModel amenity);
+    public abstract AmenityGroupEntity toEntity(AmenityGroupModel amenityGroup);
 
-    public abstract AmenityGroupModel toModel(AmenityGroupEntity amenity);
+    public abstract AmenityGroupModel toModel(AmenityGroupEntity amenityGroup);
+
+    public abstract List<AmenityGroupEntity> toListAmenityGroup(List<AmenityGroupModel> amenityGroups);
 }
