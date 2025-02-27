@@ -8,6 +8,8 @@ services:
       - "3309:3306"
     volumes:
       - db:/var/lib/mysql
+    networks:
+      - booking_network
 
   redis:
     image: redis:7.2.4-alpine
@@ -16,6 +18,26 @@ services:
       - ALLOW_EMPTY_PASSWORD=yes
     ports:
       - "6379:6379"
+    networks:
+      - booking_network
+
+  booking_postgre_db:
+    image: postgres:latest
+    container_name: booking_postgre_db
+    environment:
+      POSTGRES_USER: user_booking
+      POSTGRES_PASSWORD: secret
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres:/data/postgres
+    networks:
+      - booking_network
 volumes:
   db:
     driver: local
+  postgres:
+
+networks:
+  booking_network:
+    driver: bridge

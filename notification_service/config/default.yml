@@ -1,0 +1,8 @@
+app:
+  name: Notification Service
+  path: /notification_service/api
+  port: 8082
+  security:
+    http:
+      publicUrls:
+      protectedUrls:
