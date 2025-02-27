@@ -3,7 +3,7 @@ package huy.project.accommodation_service.core.validation;
 import huy.project.accommodation_service.core.domain.constant.ErrorCode;
 import huy.project.accommodation_service.core.domain.dto.request.UpdateAmenityRequestDto;
 import huy.project.accommodation_service.core.domain.entity.AmenityEntity;
-import huy.project.accommodation_service.core.domain.entity.CreateAmenityRequestDto;
+import huy.project.accommodation_service.core.domain.dto.request.CreateAmenityRequestDto;
 import huy.project.accommodation_service.core.port.IAmenityPort;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

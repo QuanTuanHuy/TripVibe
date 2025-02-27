@@ -2,7 +2,7 @@ package huy.project.accommodation_service.ui.controller;
 
 import huy.project.accommodation_service.core.domain.dto.request.UpdateAmenityRequestDto;
 import huy.project.accommodation_service.core.domain.entity.AmenityEntity;
-import huy.project.accommodation_service.core.domain.entity.CreateAmenityRequestDto;
+import huy.project.accommodation_service.core.domain.dto.request.CreateAmenityRequestDto;
 import huy.project.accommodation_service.core.service.IAmenityService;
 import huy.project.accommodation_service.ui.resource.Resource;
 import lombok.RequiredArgsConstructor;

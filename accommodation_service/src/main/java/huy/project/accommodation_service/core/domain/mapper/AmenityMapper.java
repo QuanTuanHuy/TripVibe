@@ -2,7 +2,7 @@ package huy.project.accommodation_service.core.domain.mapper;
 
 import huy.project.accommodation_service.core.domain.dto.request.UpdateAmenityRequestDto;
 import huy.project.accommodation_service.core.domain.entity.AmenityEntity;
-import huy.project.accommodation_service.core.domain.entity.CreateAmenityRequestDto;
+import huy.project.accommodation_service.core.domain.dto.request.CreateAmenityRequestDto;
 import org.mapstruct.Mapper;
 import org.mapstruct.factory.Mappers;
 

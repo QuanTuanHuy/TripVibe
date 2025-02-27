@@ -1,4 +1,4 @@
-package huy.project.accommodation_service.core.domain.entity;
+package huy.project.accommodation_service.core.domain.dto.request;
 
 import lombok.Getter;
 import lombok.Setter;

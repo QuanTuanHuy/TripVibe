@@ -2,7 +2,7 @@ package huy.project.accommodation_service.core.usecase;
 
 import huy.project.accommodation_service.core.domain.constant.ErrorCode;
 import huy.project.accommodation_service.core.domain.entity.AmenityEntity;
-import huy.project.accommodation_service.core.domain.entity.CreateAmenityRequestDto;
+import huy.project.accommodation_service.core.domain.dto.request.CreateAmenityRequestDto;
 import huy.project.accommodation_service.core.domain.mapper.AmenityMapper;
 import huy.project.accommodation_service.core.exception.AppException;
 import huy.project.accommodation_service.core.port.IAmenityPort;
