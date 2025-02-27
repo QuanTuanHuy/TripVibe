@@ -47,4 +47,9 @@ public class AmenityAdapter implements IAmenityPort {
     public void deleteAmenityById(Long id) {
         amenityRepository.deleteById(id);
     }
+
+    @Override
+    public void deleteAmenityByGroupId(Long groupId) {
+        amenityRepository.deleteByGroupId(groupId);
+    }
 }

@@ -6,7 +6,9 @@ import huy.project.accommodation_service.core.domain.entity.CreateAmenityRequest
 import huy.project.accommodation_service.core.domain.mapper.AmenityMapper;
 import huy.project.accommodation_service.core.exception.AppException;
 import huy.project.accommodation_service.core.port.IAmenityPort;
+import huy.project.accommodation_service.core.port.ICachePort;
 import huy.project.accommodation_service.core.validation.AmenityValidation;
+import huy.project.accommodation_service.kernel.utils.CacheUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.util.Pair;
@@ -18,6 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Slf4j
 public class CreateAmenityUseCase {
     private final IAmenityPort amenityPort;
+    private final ICachePort cachePort;
 
     private final AmenityValidation amenityValidation;
 
@@ -30,6 +33,12 @@ public class CreateAmenityUseCase {
         }
 
         AmenityEntity amenity = AmenityMapper.INSTANCE.toEntity(req);
-        return amenityPort.save(amenity);
+        amenity = amenityPort.save(amenity);
+
+        // clear cache
+        cachePort.deleteFromCache(CacheUtils.buildCacheKeyGetAmenityGroupById(amenity.getGroupId()));
+        cachePort.deleteFromCache(CacheUtils.CACHE_AMENITY_GROUP_LIST);
+
+        return amenity;
     }
 }

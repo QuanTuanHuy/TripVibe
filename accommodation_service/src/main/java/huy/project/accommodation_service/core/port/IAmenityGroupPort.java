@@ -9,4 +9,5 @@ public interface IAmenityGroupPort {
     AmenityGroupEntity getAmenityGroupById(Long id);
     AmenityGroupEntity getAmenityGroupByName(String name);
     List<AmenityGroupEntity> getAllAmenityGroups();
+    void deleteAmenityGroupById(Long id);
 }

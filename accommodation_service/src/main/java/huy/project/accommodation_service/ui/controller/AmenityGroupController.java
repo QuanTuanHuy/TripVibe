@@ -1,6 +1,7 @@
 package huy.project.accommodation_service.ui.controller;
 
 import huy.project.accommodation_service.core.domain.dto.request.CreateAmenityGroupRequestDto;
+import huy.project.accommodation_service.core.domain.dto.request.UpdateAmenityGroupRequestDto;
 import huy.project.accommodation_service.core.domain.entity.AmenityGroupEntity;
 import huy.project.accommodation_service.core.service.IAmenityGroupService;
 import huy.project.accommodation_service.ui.resource.Resource;
@@ -30,8 +31,22 @@ public class AmenityGroupController {
         return ResponseEntity.ok(new Resource<>(amenityGroupService.getAmenityGroupById(id)));
     }
 
+    @PutMapping("/{id}")
+    public ResponseEntity<Resource<AmenityGroupEntity>> updateAmenityGroup(
+            @PathVariable Long id,
+            @RequestBody UpdateAmenityGroupRequestDto req
+    ) {
+        return ResponseEntity.ok(new Resource<>(amenityGroupService.updateAmenityGroup(id, req)));
+    }
+
     @GetMapping
     public ResponseEntity<Resource<List<AmenityGroupEntity>>> getAllAmenityGroups() {
         return ResponseEntity.ok(new Resource<>(amenityGroupService.getAllAmenityGroups()));
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Resource<?>> deleteAmenityGroup(@PathVariable Long id) {
+        amenityGroupService.deleteAmenityGroupById(id);
+        return ResponseEntity.ok(new Resource<>(null));
     }
 }

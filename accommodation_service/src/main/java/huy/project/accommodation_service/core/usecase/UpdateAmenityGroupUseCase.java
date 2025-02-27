@@ -1,7 +1,7 @@
 package huy.project.accommodation_service.core.usecase;
 
 import huy.project.accommodation_service.core.domain.constant.ErrorCode;
-import huy.project.accommodation_service.core.domain.dto.request.CreateAmenityGroupRequestDto;
+import huy.project.accommodation_service.core.domain.dto.request.UpdateAmenityGroupRequestDto;
 import huy.project.accommodation_service.core.domain.entity.AmenityGroupEntity;
 import huy.project.accommodation_service.core.domain.mapper.AmenityGroupMapper;
 import huy.project.accommodation_service.core.exception.AppException;
@@ -18,26 +18,34 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class CreateAmenityGroupUseCase {
+public class UpdateAmenityGroupUseCase {
     private final IAmenityGroupPort amenityGroupPort;
     private final ICachePort cachePort;
 
     private final AmenityGroupValidation amenityGroupValidation;
 
     @Transactional(rollbackFor = Exception.class)
-    public AmenityGroupEntity createAmenityGroup(CreateAmenityGroupRequestDto req) {
-        Pair<Boolean, ErrorCode> validationResult = amenityGroupValidation.validateCreateAmenityGroupRequest(req);
+    public AmenityGroupEntity updateAmenityGroup(Long id, UpdateAmenityGroupRequestDto req) {
+        AmenityGroupEntity existedAmenityGroup = amenityGroupPort.getAmenityGroupById(id);
+        if (existedAmenityGroup == null) {
+            log.error("Amenity group not found with id: {}", id);
+            throw new AppException(ErrorCode.AMENITY_GROUP_NOT_FOUND);
+        }
+
+        Pair<Boolean, ErrorCode> validationResult = amenityGroupValidation
+                .validateUpdateAmenityGroupRequest(existedAmenityGroup, req);
         if (!validationResult.getFirst()) {
-            log.error("Create amenity group failed, name is existed, {}", req.getName());
+            log.error("Update amenity group failed, name is existed, {}", req.getName());
             throw new AppException(validationResult.getSecond());
         }
 
-        AmenityGroupEntity amenityGroup = AmenityGroupMapper.INSTANCE.toEntity(req);
-        amenityGroup = amenityGroupPort.save(amenityGroup);
+        AmenityGroupEntity newAmenityGroup = AmenityGroupMapper.INSTANCE.toEntity(existedAmenityGroup, req);
+        newAmenityGroup = amenityGroupPort.save(newAmenityGroup);
 
         // clear cache
         cachePort.deleteFromCache(CacheUtils.CACHE_AMENITY_GROUP_LIST);
+        cachePort.deleteFromCache(CacheUtils.buildCacheKeyGetAmenityGroupById(id));
 
-        return amenityGroup;
+        return newAmenityGroup;
     }
 }

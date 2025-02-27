@@ -37,4 +37,9 @@ public class AmenityGroupAdapter implements IAmenityGroupPort {
     public List<AmenityGroupEntity> getAllAmenityGroups() {
         return AmenityGroupMapper.INSTANCE.toListAmenityGroup(amenityGroupRepository.findAll());
     }
+
+    @Override
+    public void deleteAmenityGroupById(Long id) {
+        amenityGroupRepository.deleteById(id);
+    }
 }
