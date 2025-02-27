@@ -52,7 +52,7 @@ public class GetAmenityGroupUseCase {
 
     public List<AmenityGroupEntity> getAllAmenityGroups() {
         // get from cache
-        String cachedAmenityGroups = cachePort.getFromCache(CacheUtils.CACHE_PREFIX_AMENITY_GROUP_LIST);
+        String cachedAmenityGroups = cachePort.getFromCache(CacheUtils.CACHE_AMENITY_GROUP_LIST);
         if (cachedAmenityGroups != null) {
             return jsonUtils.fromJsonList(cachedAmenityGroups, AmenityGroupEntity.class);
         }
@@ -67,7 +67,7 @@ public class GetAmenityGroupUseCase {
         amenityGroups.forEach(group -> group.setAmenities(amenityGroupBy.get(group.getId())));
 
         // set to cache
-        cachePort.setToCache(CacheUtils.CACHE_PREFIX_AMENITY_GROUP_LIST, amenityGroups, CacheConstant.DEFAULT_TTL);
+        cachePort.setToCache(CacheUtils.CACHE_AMENITY_GROUP_LIST, amenityGroups, CacheConstant.DEFAULT_TTL);
 
         return amenityGroups;
     }

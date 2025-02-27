@@ -36,4 +36,15 @@ public class AmenityAdapter implements IAmenityPort {
     public List<AmenityEntity> getAmenitiesByGroupIds(List<Long> groupIds) {
         return AmenityMapper.INSTANCE.toListAmenity(amenityRepository.findByGroupIdIn(groupIds));
     }
+
+    @Override
+    public AmenityEntity getAmenityById(Long id) {
+        return amenityRepository.findById(id)
+                .map(AmenityMapper.INSTANCE::toEntity).orElse(null);
+    }
+
+    @Override
+    public void deleteAmenityById(Long id) {
+        amenityRepository.deleteById(id);
+    }
 }

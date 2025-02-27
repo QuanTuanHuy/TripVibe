@@ -5,8 +5,8 @@ spring:
   datasource:
     username: user_booking
     password: secret
-    driver-class-name: org.postgresql.Driver
     url: jdbc:postgresql://localhost:5433/db_accommodation_service
+    driver-class-name: org.postgresql.Driver
   jpa:
     hibernate:
       ddl-auto: update
