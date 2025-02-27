@@ -22,4 +22,8 @@ public class AmenityGroupValidation {
         }
         return Pair.of(true, ErrorCode.SUCCESS);
     }
+
+    public boolean isAmenityGroupExisted(Long id) {
+        return amenityGroupPort.getAmenityGroupById(id) != null;
+    }
 }

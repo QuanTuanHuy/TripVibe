@@ -38,6 +38,9 @@ app:
         - urlPattern: /api/public/v1/amenity_groups
           roles:
             - ADMIN
+        - urlPattern: /api/public/v1/amenities
+          roles:
+            - ADMIN
 
 server:
   port: 8083
