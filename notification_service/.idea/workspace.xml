@@ -4,20 +4,8 @@
     <option name="autoReloadType" value="ALL" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="4cff42b0-96a3-498e-bb25-0914fe5bcfb3" name="Changes" comment="get notification (but can't pagination)">
-      <change afterPath="$PROJECT_DIR$/core/domain/dto/request/update_notification_request.go" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/core/usecase/update_notification_usecase.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/.gitignore" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/modules.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/notification_service.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/notification_service.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/domain/dto/response/notification_response.go" beforeDir="false" afterPath="$PROJECT_DIR$/core/domain/dto/response/notification_response.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/port/notification_port.go" beforeDir="false" afterPath="$PROJECT_DIR$/core/port/notification_port.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/service/notification_service.go" beforeDir="false" afterPath="$PROJECT_DIR$/core/service/notification_service.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/infrastructure/repository/adapter/notification_adapter.go" beforeDir="false" afterPath="$PROJECT_DIR$/infrastructure/repository/adapter/notification_adapter.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/infrastructure/repository/specification/notification_specification.go" beforeDir="false" afterPath="$PROJECT_DIR$/infrastructure/repository/specification/notification_specification.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ui/bootstrap/all.go" beforeDir="false" afterPath="$PROJECT_DIR$/ui/bootstrap/all.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ui/controller/notification_controller.go" beforeDir="false" afterPath="$PROJECT_DIR$/ui/controller/notification_controller.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ui/router/router.go" beforeDir="false" afterPath="$PROJECT_DIR$/ui/router/router.go" afterDir="false" />
+    <list default="true" id="4cff42b0-96a3-498e-bb25-0914fe5bcfb3" name="Changes" comment="update notification and fix pagination get notification">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
