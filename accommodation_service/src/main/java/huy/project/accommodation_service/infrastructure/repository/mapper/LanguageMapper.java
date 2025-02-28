@@ -5,6 +5,8 @@ import huy.project.accommodation_service.infrastructure.repository.model.Languag
 import org.mapstruct.Mapper;
 import org.mapstruct.factory.Mappers;
 
+import java.util.List;
+
 @Mapper
 public abstract class LanguageMapper {
     public static final LanguageMapper INSTANCE = Mappers.getMapper(LanguageMapper.class);
@@ -12,4 +14,6 @@ public abstract class LanguageMapper {
     public abstract LanguageEntity toEntity(LanguageModel language);
 
     public abstract LanguageModel toModel(LanguageEntity language);
+
+    public abstract List<LanguageEntity> toListEntity(List<LanguageModel> languages);
 }
