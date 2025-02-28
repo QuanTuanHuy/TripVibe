@@ -5,8 +5,8 @@ spring:
   datasource:
     username: user_booking
     password: secret
-    driver-class-name: org.postgresql.Driver
     url: jdbc:postgresql://localhost:5433/db_accommodation_service
+    driver-class-name: org.postgresql.Driver
   jpa:
     hibernate:
       ddl-auto: update
@@ -15,3 +15,37 @@ spring:
     redis:
       host: localhost
       port: 6379
+
+app:
+#  service:
+  #    cors:
+  #      baseUrl: http://localhost:3000
+  #      allowedMethods:
+  #        - GET
+  #        - POST
+  #        - PUT
+  #        - DELETE
+  #        - PATCH
+  security:
+    jwt:
+      secret: MnAYFOKwxBOznHpxA3Wx4cJjeC3vYNtwzI6HRYT9SD++1BM9Pk32pTGETroljFsS
+      expiration: 86400000
+      header: Authorization
+      prefix: Bearer
+    filter:
+      publicUrls:
+        - first: /api/public/v1/amenity_groups/**
+          second: GET
+      protectedUrls:
+        - urlPattern: /api/public/v1/amenity_groups
+          roles:
+            - ADMIN
+        - urlPattern: /api/public/v1/amenities
+          roles:
+            - ADMIN
+        - urlPattern: /api/public/v1/languages
+          roles:
+            - ADMIN
+
+server:
+  port: 8083
