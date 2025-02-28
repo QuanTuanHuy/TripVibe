@@ -6,6 +6,7 @@ import huy.project.accommodation_service.core.domain.dto.response.PageInfo;
 import huy.project.accommodation_service.core.domain.entity.LanguageEntity;
 import huy.project.accommodation_service.core.service.ILanguageService;
 import huy.project.accommodation_service.core.usecase.CreateLanguageUseCase;
+import huy.project.accommodation_service.core.usecase.DeleteLanguageUseCase;
 import huy.project.accommodation_service.core.usecase.GetLanguageUseCase;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.util.Pair;
@@ -18,6 +19,7 @@ import java.util.List;
 public class LanguageService implements ILanguageService {
     private final CreateLanguageUseCase createLanguageUseCase;
     private final GetLanguageUseCase getLanguageUseCase;
+    private final DeleteLanguageUseCase deleteLanguageUseCase;
 
     @Override
     public LanguageEntity createLanguage(CreateLanguageRequestDto req) {
@@ -27,5 +29,10 @@ public class LanguageService implements ILanguageService {
     @Override
     public Pair<PageInfo, List<LanguageEntity>> getAllLanguages(GetLanguageParams params) {
         return getLanguageUseCase.getAllLanguages(params);
+    }
+
+    @Override
+    public void deleteLanguage(Long id) {
+        deleteLanguageUseCase.deleteLanguage(id);
     }
 }

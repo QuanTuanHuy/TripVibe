@@ -11,4 +11,5 @@ import java.util.List;
 public interface ILanguageService {
     LanguageEntity createLanguage(CreateLanguageRequestDto req);
     Pair<PageInfo, List<LanguageEntity>> getAllLanguages(GetLanguageParams params);
+    void deleteLanguage(Long id);
 }
