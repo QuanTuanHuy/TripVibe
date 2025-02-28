@@ -43,6 +43,9 @@ app:
         - urlPattern: /api/public/v1/amenities
           roles:
             - ADMIN
+        - urlPattern: /api/public/v1/languages
+          roles:
+            - ADMIN
 
 server:
   port: 8083

@@ -12,6 +12,8 @@ public enum ErrorCode {
     AMENITY_GROUP_NOT_FOUND(100003, "Amenity group not found", HttpStatus.NOT_FOUND),
     AMENITY_NAME_EXISTED(100004, "Amenity name existed", HttpStatus.BAD_REQUEST),
     AMENITY_NOT_FOUND(100005, "Amenity not found", HttpStatus.NOT_FOUND),
+    LANGUAGE_NAME_EXISTED(100006, "language name existed", HttpStatus.BAD_REQUEST),
+    LANGUAGE_CODE_EXISTED(100007, "language code existed", HttpStatus.BAD_REQUEST)
     ;
 
 
