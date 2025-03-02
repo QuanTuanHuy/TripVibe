@@ -36,6 +36,8 @@ app:
       publicUrls:
         - first: /api/public/v1/amenity_groups/**
           second: GET
+        - first: /api/public/v1/languages/**
+          second: GET
       protectedUrls:
         - urlPattern: /api/public/v1/amenity_groups
           roles:
