@@ -10,7 +10,7 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class GetImageUseCase {
-    private final IImagePort imagePort;;
+    private final IImagePort imagePort;
 
     public List<ImageEntity> getImagesByEntityIdAndType(Long entityId, String entityType) {
         return imagePort.getImagesByEntityIdAndType(entityId, entityType);
