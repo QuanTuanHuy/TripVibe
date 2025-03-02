@@ -12,6 +12,7 @@ import java.util.List;
 public class AmenityGroupEntity {
     private Long id;
     private String name;
+    private String type;
     private String description;
     private List<AmenityEntity> amenities;
 }

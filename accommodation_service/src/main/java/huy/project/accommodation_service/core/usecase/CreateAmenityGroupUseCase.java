@@ -1,5 +1,6 @@
 package huy.project.accommodation_service.core.usecase;
 
+import huy.project.accommodation_service.core.domain.constant.AmenityGroupType;
 import huy.project.accommodation_service.core.domain.constant.ErrorCode;
 import huy.project.accommodation_service.core.domain.dto.request.CreateAmenityGroupRequestDto;
 import huy.project.accommodation_service.core.domain.entity.AmenityGroupEntity;
@@ -33,6 +34,7 @@ public class CreateAmenityGroupUseCase {
         }
 
         AmenityGroupEntity amenityGroup = AmenityGroupMapper.INSTANCE.toEntity(req);
+        amenityGroup.setType(AmenityGroupType.of(req.getType()));
         amenityGroup = amenityGroupPort.save(amenityGroup);
 
         // clear cache

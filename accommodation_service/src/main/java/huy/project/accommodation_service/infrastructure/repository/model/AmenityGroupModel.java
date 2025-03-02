@@ -1,5 +1,6 @@
 package huy.project.accommodation_service.infrastructure.repository.model;
 
+import huy.project.accommodation_service.core.domain.constant.AmenityGroupType;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -17,6 +18,9 @@ public class AmenityGroupModel extends AuditTable {
 
     @Column(name = "name")
     private String name;
+
+    @Column(name = "type")
+    private String type;
 
     @Column(name = "description")
     private String description;
