@@ -38,6 +38,8 @@ app:
           second: GET
         - first: /api/public/v1/languages/**
           second: GET
+        - first: /api/public/v1/unit_names/**
+          second: GET
       protectedUrls:
         - urlPattern: /api/public/v1/amenity_groups
           roles:
@@ -46,6 +48,9 @@ app:
           roles:
             - ADMIN
         - urlPattern: /api/public/v1/languages
+          roles:
+            - ADMIN
+        - urlPattern: /api/public/v1/unit_names
           roles:
             - ADMIN
 
