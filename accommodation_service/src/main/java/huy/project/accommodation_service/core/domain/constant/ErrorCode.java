@@ -16,6 +16,7 @@ public enum ErrorCode {
     LANGUAGE_CODE_EXISTED(100007, "language code existed", HttpStatus.BAD_REQUEST),
     LANGUAGE_NOT_FOUND(100008, "language not found", HttpStatus.NOT_FOUND),
     UNIT_NAME_EXISTED(100009, "unit name existed", HttpStatus.BAD_REQUEST),
+    BED_TYPE_NAME_EXISTED(100010, "bed type name existed", HttpStatus.BAD_REQUEST),
     ;
 
 
