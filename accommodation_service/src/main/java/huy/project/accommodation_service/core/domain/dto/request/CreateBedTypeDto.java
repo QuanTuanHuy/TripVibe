@@ -5,8 +5,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class UpdateAmenityGroupRequestDto {
+public class CreateBedTypeDto {
     private String name;
-    private String type;
-    private String description;
+    private String size;
 }

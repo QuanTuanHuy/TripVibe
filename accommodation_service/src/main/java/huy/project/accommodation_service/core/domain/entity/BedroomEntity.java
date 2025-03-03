@@ -9,10 +9,10 @@ import java.util.List;
 @Getter
 @Setter
 @Builder
-public class AmenityGroupEntity {
+public class BedroomEntity {
     private Long id;
-    private String name;
-    private String type;
-    private String description;
-    private List<AmenityEntity> amenities;
+    private Long unitId;
+    private Integer quantity;
+
+    private List<BedEntity> beds;
 }

@@ -46,4 +46,15 @@ public class LanguageAdapter implements ILanguagePort {
         var result = languageRepository.findAll(LanguageSpecification.getLanguages(params), pageable);
         return Pair.of(PageUtils.getPageInfo(result), LanguageMapper.INSTANCE.toListEntity(result.getContent()));
     }
+
+    @Override
+    public void deleteLanguageById(Long id) {
+        languageRepository.deleteById(id);
+    }
+
+    @Override
+    public LanguageEntity getLanguageById(Long id) {
+        return languageRepository.findById(id)
+                .map(LanguageMapper.INSTANCE::toEntity).orElse(null);
+    }
 }

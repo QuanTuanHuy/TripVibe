@@ -41,4 +41,12 @@ public class LanguageController {
         ListDataResponse<LanguageEntity> response = ListDataResponse.of(result.getFirst(), result.getSecond());
         return ResponseEntity.ok(new Resource<>(response));
     }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Resource<?>> deleteLanguage(
+            @PathVariable Long id
+    ) {
+        languageService.deleteLanguage(id);
+        return ResponseEntity.ok(new Resource<>(null));
+    }
 }

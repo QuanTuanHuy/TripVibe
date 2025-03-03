@@ -1,6 +1,5 @@
 package huy.project.accommodation_service.infrastructure.repository.model;
 
-import huy.project.accommodation_service.core.domain.constant.AmenityGroupType;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -10,8 +9,8 @@ import lombok.*;
 @Setter
 @Builder
 @Entity
-@Table(name = "amenity_groups")
-public class AmenityGroupModel extends AuditTable {
+@Table(name = "bed_types")
+public class BedTypeModel extends AuditTable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -19,9 +18,6 @@ public class AmenityGroupModel extends AuditTable {
     @Column(name = "name")
     private String name;
 
-    @Column(name = "type")
-    private String type;
-
-    @Column(name = "description")
-    private String description;
+    @Column(name = "size")
+    private String size;
 }

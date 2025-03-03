@@ -2,17 +2,13 @@ package huy.project.accommodation_service.core.domain.entity;
 
 import lombok.*;
 
-import java.util.List;
-
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
 @Setter
 @Builder
-public class AmenityGroupEntity {
+public class AccommodationTypeEntity {
     private Long id;
     private String name;
-    private String type;
     private String description;
-    private List<AmenityEntity> amenities;
 }
