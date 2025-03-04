@@ -1,0 +1,21 @@
+package huy.project.accommodation_service.infrastructure.repository.adapter;
+
+import huy.project.accommodation_service.core.domain.entity.UnitEntity;
+import huy.project.accommodation_service.core.port.IUnitPort;
+import huy.project.accommodation_service.infrastructure.repository.IUnitRepository;
+import huy.project.accommodation_service.infrastructure.repository.mapper.UnitMapper;
+import huy.project.accommodation_service.infrastructure.repository.model.UnitModel;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+
+@Service
+@RequiredArgsConstructor
+public class UnitAdapter implements IUnitPort {
+    private final IUnitRepository unitRepository;
+
+    @Override
+    public UnitEntity save(UnitEntity unit) {
+        UnitModel unitModel = UnitMapper.INSTANCE.toModel(unit);
+        return UnitMapper.INSTANCE.toEntity(unitRepository.save(unitModel));
+    }
+}

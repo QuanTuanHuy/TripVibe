@@ -11,4 +11,6 @@ public interface IUnitNamePort {
     UnitNameEntity save(UnitNameEntity unitName);
     UnitNameEntity getUnitNameByName(String name);
     Pair<PageInfo, List<UnitNameEntity>> getUnitNames(UnitNameParams params);
+    List<UnitNameEntity> getUnitNamesByIds(List<Long> ids);
+    UnitNameEntity getUnitNameById(Long id);
 }

@@ -11,4 +11,5 @@ public interface IBedTypePort {
     BedTypeEntity save(BedTypeEntity bedType);
     BedTypeEntity getBedTypeByName(String name);
     Pair<PageInfo, List<BedTypeEntity>> getBedTypes(BedTypeParams params);
+    List<BedTypeEntity> getBedTypesByIds(List<Long> ids);
 }

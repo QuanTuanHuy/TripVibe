@@ -41,4 +41,14 @@ public class UnitNameAdapter implements IUnitNamePort {
 
         return Pair.of(pageInfo, UnitNameMapper.INSTANCE.toListEntity(result.getContent()));
     }
+
+    @Override
+    public List<UnitNameEntity> getUnitNamesByIds(List<Long> ids) {
+        return UnitNameMapper.INSTANCE.toListEntity(unitNameRepository.findByIdIn(ids));
+    }
+
+    @Override
+    public UnitNameEntity getUnitNameById(Long id) {
+        return unitNameRepository.findById(id).map(UnitNameMapper.INSTANCE::toEntity).orElse(null);
+    }
 }

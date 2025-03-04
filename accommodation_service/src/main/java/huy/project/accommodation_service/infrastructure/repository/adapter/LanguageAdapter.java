@@ -57,4 +57,9 @@ public class LanguageAdapter implements ILanguagePort {
         return languageRepository.findById(id)
                 .map(LanguageMapper.INSTANCE::toEntity).orElse(null);
     }
+
+    @Override
+    public List<LanguageEntity> getLanguagesByIds(List<Long> ids) {
+        return LanguageMapper.INSTANCE.toListEntity(languageRepository.findByIdIn(ids));
+    }
 }

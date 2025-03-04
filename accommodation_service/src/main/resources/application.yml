@@ -46,6 +46,8 @@ app:
           second: GET
         - first: /api/public/v1/price_types
           second: GET
+        - first: /api/public/v1/accommodations/**
+          second: GET
       protectedUrls:
         - urlPattern: /api/public/v1/amenity_groups
           roles:
@@ -63,6 +65,9 @@ app:
           roles:
             - ADMIN
         - urlPattern: /api/public/v1/accommodation_types
+          roles:
+            - ADMIN
+        - urlPattern: /api/public/v1/accommodations
           roles:
             - ADMIN
 

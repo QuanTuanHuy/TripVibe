@@ -7,7 +7,7 @@ import org.mapstruct.factory.Mappers;
 
 @Mapper
 public abstract class AccommodationMapper {
-    public static final AccommodationTypeMapper INSTANCE = Mappers.getMapper(AccommodationTypeMapper.class);
+    public static final AccommodationMapper INSTANCE = Mappers.getMapper(AccommodationMapper.class);
 
     public abstract AccommodationEntity toEntity(AccommodationModel model);
 

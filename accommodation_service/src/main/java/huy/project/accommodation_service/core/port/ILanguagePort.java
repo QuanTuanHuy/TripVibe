@@ -14,4 +14,5 @@ public interface ILanguagePort {
     Pair<PageInfo, List<LanguageEntity>> getLanguages(GetLanguageParams params);
     void deleteLanguageById(Long id);
     LanguageEntity getLanguageById(Long id);
+    List<LanguageEntity> getLanguagesByIds(List<Long> ids);
 }

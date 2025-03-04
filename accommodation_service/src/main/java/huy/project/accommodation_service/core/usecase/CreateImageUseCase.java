@@ -16,7 +16,7 @@ public class CreateImageUseCase {
     private final IImagePort imagePort;
 
     @Transactional(rollbackFor = Exception.class)
-    public List<ImageEntity> saveAll(List<ImageEntity> images) {
+    public List<ImageEntity> createImages(List<ImageEntity> images) {
         return imagePort.saveAll(images);
     }
 }
