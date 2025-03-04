@@ -19,6 +19,7 @@ public enum ErrorCode {
     BED_TYPE_NAME_EXISTED(100010, "bed type name existed", HttpStatus.BAD_REQUEST),
     LOCATION_NOT_FOUND(100011, "Location not found", HttpStatus.NOT_FOUND),
     ACCOMMODATION_TYPE_NAME_EXISTED(100012, "Accommodation type name existed", HttpStatus.BAD_REQUEST),
+    PRICE_TYPE_NOT_FOUND(100013, "Price type not found", HttpStatus.NOT_FOUND),
     ;
 
 
