@@ -6,4 +6,5 @@ import java.util.List;
 
 public interface IAccommodationLanguagePort {
     List<AccommodationLanguageEntity> saveAll(List<AccommodationLanguageEntity> accLanguages);
+    List<AccommodationLanguageEntity> getAccLanguagesByAccId(Long accId);
 }

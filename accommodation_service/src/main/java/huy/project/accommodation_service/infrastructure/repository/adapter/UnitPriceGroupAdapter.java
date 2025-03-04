@@ -20,4 +20,11 @@ public class UnitPriceGroupAdapter implements IUnitPriceGroupPort {
         List<UnitPriceGroupModel> priceGroupModels = UnitPriceGroupMapper.INSTANCE.toListModel(priceGroups);
         return UnitPriceGroupMapper.INSTANCE.toListEntity(unitPriceGroupRepository.saveAll(priceGroupModels));
     }
+
+    @Override
+    public List<UnitPriceGroupEntity> getPriceGroupsByUnitIds(List<Long> unitIds) {
+        return UnitPriceGroupMapper.INSTANCE.toListEntity(
+                unitPriceGroupRepository.findByUnitIdIn(unitIds)
+        );
+    }
 }

@@ -36,16 +36,16 @@ public class AccommodationModel extends AuditTable {
     private String description;
 
     @Column(name = "check_in_time_from")
-    private LocalTime checkInTimeFrom;
+    private Long checkInTimeFrom;
 
     @Column(name = "check_in_time_to")
-    private LocalTime checkInTimeTo;
+    private Long checkInTimeTo;
 
     @Column(name = "check_out_time_from")
-    private LocalTime checkOutTimeFrom;
+    private Long checkOutTimeFrom;
 
     @Column(name = "check_out_time_to")
-    private LocalTime checkOutTimeTo;
+    private Long checkOutTimeTo;
 
     @Column(name = "is_verified")
     private Boolean isVerified;

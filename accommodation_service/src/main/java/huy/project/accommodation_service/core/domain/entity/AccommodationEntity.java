@@ -2,7 +2,6 @@ package huy.project.accommodation_service.core.domain.entity;
 
 import lombok.*;
 
-import java.time.LocalTime;
 import java.util.List;
 
 @NoArgsConstructor
@@ -18,10 +17,10 @@ public class AccommodationEntity {
     private Long currencyId;
     private String name;
     private String description;
-    private LocalTime checkInTimeFrom;
-    private LocalTime checkInTimeTo;
-    private LocalTime checkOutTimeFrom;
-    private LocalTime checkOutTimeTo;
+    private Long checkInTimeFrom;
+    private Long checkInTimeTo;
+    private Long checkOutTimeFrom;
+    private Long checkOutTimeTo;
     private Boolean isVerified;
 
     private List<AccommodationAmenityEntity> amenities;

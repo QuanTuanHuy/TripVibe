@@ -1,6 +1,6 @@
 package huy.project.accommodation_service.core.usecase;
 
-import huy.project.accommodation_service.core.domain.constant.ImageType;
+import huy.project.accommodation_service.core.domain.constant.ImageEntityType;
 import huy.project.accommodation_service.core.domain.dto.request.CreateUnitDto;
 import huy.project.accommodation_service.core.domain.entity.*;
 import huy.project.accommodation_service.core.domain.mapper.UnitMapper;
@@ -77,7 +77,7 @@ public class CreateUnitUseCase {
         List<ImageEntity> unitImages = req.getImages().stream()
                 .map(image -> ImageEntity.builder()
                         .entityId(unitId)
-                        .entityType(ImageType.UNIT.getType())
+                        .entityType(ImageEntityType.UNIT.getType())
                         .url(image.getUrl())
                         .isPrimary(image.getIsPrimary())
                         .build())

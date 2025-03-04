@@ -20,4 +20,9 @@ public class UnitAmenityAdapter implements IUnitAmenityPort {
         List<UnitAmenityModel> unitAmenityModels = UnitAmenityMapper.INSTANCE.toListModel(unitAmenities);
         return UnitAmenityMapper.INSTANCE.toListEntity(unitAmenityRepository.saveAll(unitAmenityModels));
     }
+
+    @Override
+    public List<UnitAmenityEntity> getUnitAmenitiesByUnitIds(List<Long> unitIds) {
+        return UnitAmenityMapper.INSTANCE.toListEntity(unitAmenityRepository.findByUnitIdIn(unitIds));
+    }
 }

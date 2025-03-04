@@ -20,4 +20,9 @@ public class UnitPriceTypeAdapter implements IUnitPriceTypePort {
         List<UnitPriceTypeModel> unitPriceTypeModels = UnitPriceTypeMapper.INSTANCE.toListModel(unitPriceTypes);
         return UnitPriceTypeMapper.INSTANCE.toListEntity(unitPriceTypeRepository.saveAll(unitPriceTypeModels));
     }
+
+    @Override
+    public List<UnitPriceTypeEntity> getUnitPricesByUnitIds(List<Long> unitIds) {
+        return UnitPriceTypeMapper.INSTANCE.toListEntity(unitPriceTypeRepository.findByUnitIdIn(unitIds));
+    }
 }

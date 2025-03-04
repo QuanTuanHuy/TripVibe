@@ -6,4 +6,5 @@ import java.util.List;
 
 public interface IBedPort {
     List<BedEntity> saveAll(List<BedEntity> beds);
+    List<BedEntity> getBedsByBedroomIds(List<Long> bedroomIds);
 }

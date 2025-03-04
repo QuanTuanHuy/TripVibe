@@ -15,4 +15,8 @@ public class GetImageUseCase {
     public List<ImageEntity> getImagesByEntityIdAndType(Long entityId, String entityType) {
         return imagePort.getImagesByEntityIdAndType(entityId, entityType);
     }
+
+    public List<ImageEntity> getImagesByEntityIdsAndType(List<Long> entityIds, String entityType) {
+        return imagePort.getImagesByEntityIdsAndType(entityIds, entityType);
+    }
 }

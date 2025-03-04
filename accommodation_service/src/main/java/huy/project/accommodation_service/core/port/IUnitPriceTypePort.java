@@ -6,4 +6,5 @@ import java.util.List;
 
 public interface IUnitPriceTypePort {
     List<UnitPriceTypeEntity> saveAll(List<UnitPriceTypeEntity> unitPriceTypes);
+    List<UnitPriceTypeEntity> getUnitPricesByUnitIds(List<Long> unitIds);
 }

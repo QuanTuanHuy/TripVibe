@@ -22,4 +22,11 @@ public class AccommodationController {
         return ResponseEntity.ok(new Resource<>(accommodationService.createAccommodation(userId, req)));
     }
 
+    @GetMapping("/{id}")
+    public ResponseEntity<Resource<AccommodationEntity>> getDetailAccommodation(
+            @PathVariable Long id
+    ) {
+        return ResponseEntity.ok(new Resource<>(accommodationService.getDetailAccommodation(id)));
+    }
+
 }

@@ -21,4 +21,10 @@ public class AccommodationAmenityAdapter implements IAccommodationAmenityPort {
                 .toListModel(accommodationAmenities);
         return AccommodationAmenityMapper.INSTANCE.toListEntity(accommodationAmenityRepository.saveAll(accAmenityModels));
     }
+
+    @Override
+    public List<AccommodationAmenityEntity> getAccAmenitiesByAccId(Long accId) {
+        return AccommodationAmenityMapper.INSTANCE.toListEntity(
+                accommodationAmenityRepository.findByAccommodationId(accId));
+    }
 }

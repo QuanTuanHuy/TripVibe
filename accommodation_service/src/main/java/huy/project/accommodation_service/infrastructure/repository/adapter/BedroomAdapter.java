@@ -8,6 +8,8 @@ import huy.project.accommodation_service.infrastructure.repository.model.Bedroom
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 public class BedroomAdapter implements IBedroomPort {
@@ -17,5 +19,10 @@ public class BedroomAdapter implements IBedroomPort {
     public BedroomEntity save(BedroomEntity bedroom) {
         BedroomModel bedroomModel = BedroomMapper.INSTANCE.toModel(bedroom);
         return BedroomMapper.INSTANCE.toEntity(bedroomRepository.save(bedroomModel));
+    }
+
+    @Override
+    public List<BedroomEntity> getBedroomsByUnitIds(List<Long> unitIds) {
+        return BedroomMapper.INSTANCE.toListEntity(bedroomRepository.findByUnitIdIn(unitIds));
     }
 }

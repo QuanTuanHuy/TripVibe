@@ -20,4 +20,9 @@ public class BedAdapter implements IBedPort {
         List<BedModel> bedModels = BedMapper.INSTANCE.toListModel(beds);
         return BedMapper.INSTANCE.toListEntity(bedRepository.saveAll(bedModels));
     }
+
+    @Override
+    public List<BedEntity> getBedsByBedroomIds(List<Long> bedroomIds) {
+        return BedMapper.INSTANCE.toListEntity(bedRepository.findByBedroomIdIn(bedroomIds));
+    }
 }

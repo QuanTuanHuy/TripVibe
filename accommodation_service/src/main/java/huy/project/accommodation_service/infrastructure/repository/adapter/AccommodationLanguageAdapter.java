@@ -20,4 +20,11 @@ public class AccommodationLanguageAdapter implements IAccommodationLanguagePort 
         List<AccommodationLanguageModel> accLanguageModels = AccommodationLanguageMapper.INSTANCE.toListModel(accLanguages);
         return AccommodationLanguageMapper.INSTANCE.toListEntity(accLanguageRepository.saveAll(accLanguageModels));
     }
+
+    @Override
+    public List<AccommodationLanguageEntity> getAccLanguagesByAccId(Long accId) {
+        return AccommodationLanguageMapper.INSTANCE.toListEntity(
+                accLanguageRepository.findByAccommodationId(accId)
+        );
+    }
 }

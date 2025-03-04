@@ -25,4 +25,10 @@ public class AccommodationAdapter implements IAccommodationPort {
                 .map(AccommodationMapper.INSTANCE::toEntity)
                 .orElse(null);
     }
+
+    @Override
+    public AccommodationEntity getAccommodationById(Long id) {
+        return accommodationRepository.findById(id)
+                .map(AccommodationMapper.INSTANCE::toEntity).orElse(null);
+    }
 }
