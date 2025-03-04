@@ -8,10 +8,16 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.util.Pair;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 public class BedTypeValidation {
     private final IBedTypePort bedTypePort;
+
+    public boolean bedTypesExist(List<Long> ids) {
+        return bedTypePort.getBedTypesByIds(ids).size() == ids.size();
+    }
 
     public Pair<Boolean, ErrorCode> validateCreateBedTypeDto(CreateBedTypeDto req) {
         BedTypeEntity existedBedType = bedTypePort.getBedTypeByName(req.getName());

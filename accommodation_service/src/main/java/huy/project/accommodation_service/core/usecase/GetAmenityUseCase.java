@@ -19,4 +19,8 @@ public class GetAmenityUseCase {
     public List<AmenityEntity> getAmenitiesByGroupIds(List<Long> groupIds) {
         return amenityPort.getAmenitiesByGroupIds(groupIds);
     }
+
+    public List<AmenityEntity> getAmenitiesByIds(List<Long> ids) {
+        return amenityPort.getAmenitiesByIds(ids);
+    }
 }

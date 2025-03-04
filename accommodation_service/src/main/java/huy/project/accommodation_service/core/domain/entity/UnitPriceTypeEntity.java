@@ -11,7 +11,7 @@ public class UnitPriceTypeEntity {
     private Long id;
     private Long unitId;
     private Long priceTypeId;
-    private String percentage;
+    private Long percentage;
 
     private PriceTypeEntity priceType;
 }

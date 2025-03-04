@@ -18,4 +18,8 @@ public class GetUnitNameUseCase {
     public Pair<PageInfo, List<UnitNameEntity>> getUnitNames(UnitNameParams params) {
         return unitNamePort.getUnitNames(params);
     }
+
+    public List<UnitNameEntity> getUnitNamesByIds(List<Long> ids) {
+        return unitNamePort.getUnitNamesByIds(ids);
+    }
 }

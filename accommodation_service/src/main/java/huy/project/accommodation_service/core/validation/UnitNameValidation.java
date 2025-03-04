@@ -22,4 +22,8 @@ public class UnitNameValidation {
         }
         return Pair.of(true, ErrorCode.SUCCESS);
     }
+
+    public boolean unitNameExist(Long id) {
+        return unitNamePort.getUnitNameById(id) != null;
+    }
 }
