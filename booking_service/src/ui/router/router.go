@@ -1,0 +1,23 @@
+package router
+
+import (
+	"booking_service/ui/controller"
+	"github.com/gin-gonic/gin"
+	"github.com/golibs-starter/golib"
+	"go.uber.org/fx"
+)
+
+type RegisterRoutersIn struct {
+	fx.In
+	App                     *golib.App
+	Engine                  *gin.Engine
+	AccommodationController *controller.AccommodationController
+}
+
+func RegisterGinRouters(p RegisterRoutersIn) {
+	router := p.Engine.Group(p.App.Path())
+	accommodationV1 := router.Group("public/v1/accommodations")
+	{
+		accommodationV1.POST("", p.AccommodationController.CreateAccommodation)
+	}
+}

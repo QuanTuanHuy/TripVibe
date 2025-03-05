@@ -1,0 +1,4 @@
+app:
+  name: Booking Service
+  path: /booking_service/api
+  port: 8084
