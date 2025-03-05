@@ -4,7 +4,23 @@
     <option name="autoReloadType" value="ALL" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="4cff42b0-96a3-498e-bb25-0914fe5bcfb3" name="Changes" comment="success get data via http request" />
+    <list default="true" id="4cff42b0-96a3-498e-bb25-0914fe5bcfb3" name="Changes" comment="success get data via http request">
+      <change afterPath="$PROJECT_DIR$/../booking_service/src/core/domain/entity/accommodation.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../booking_service/src/core/domain/entity/base.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../booking_service/src/core/port/accommodation_port.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../booking_service/src/go.mod" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../booking_service/src/infrastructure/repository/adapter/accommodation_adapter.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../booking_service/src/infrastructure/repository/adapter/base.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../booking_service/src/infrastructure/repository/mapper/accommodation_mapper.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../booking_service/src/infrastructure/repository/model/accommodation.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../booking_service/src/infrastructure/repository/model/base.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../booking_service/src/ui/bootstrap/all.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../booking_service/src/ui/bootstrap/build.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.idea/compiler.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../.idea/compiler.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/go.mod" beforeDir="false" afterPath="$PROJECT_DIR$/go.mod" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/go.sum" beforeDir="false" afterPath="$PROJECT_DIR$/go.sum" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -61,10 +77,10 @@
     &quot;RunOnceActivity.go.formatter.settings.were.checked&quot;: &quot;true&quot;,
     &quot;RunOnceActivity.go.migrated.go.modules.settings&quot;: &quot;true&quot;,
     &quot;RunOnceActivity.go.modules.go.list.on.any.changes.was.set&quot;: &quot;true&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;feature/go__http__client&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;booking__service&quot;,
     &quot;go.import.settings.migrated&quot;: &quot;true&quot;,
     &quot;go.sdk.automatically.set&quot;: &quot;true&quot;,
-    &quot;last_opened_file_path&quot;: &quot;D:/User2/project/hotel_booking/notification_service&quot;,
+    &quot;last_opened_file_path&quot;: &quot;D:/User2/project/hotel_booking&quot;,
     &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
     &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
     &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
@@ -146,8 +162,8 @@
   <component name="SharedIndexes">
     <attachedChunks>
       <set>
-        <option value="bundled-gosdk-d297c17c1fbd-b87a2f8923ed-org.jetbrains.plugins.go.sharedIndexes.bundled-GO-243.21565.208" />
-        <option value="bundled-js-predefined-d6986cc7102b-e768b9ed790e-JavaScript-GO-243.21565.208" />
+        <option value="bundled-gosdk-d297c17c1fbd-57c114c3cede-org.jetbrains.plugins.go.sharedIndexes.bundled-GO-243.25659.52" />
+        <option value="bundled-js-predefined-d6986cc7102b-1632447f56bf-JavaScript-GO-243.25659.52" />
       </set>
     </attachedChunks>
   </component>
