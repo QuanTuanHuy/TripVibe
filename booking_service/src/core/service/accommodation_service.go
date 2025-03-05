@@ -9,13 +9,15 @@ import (
 type IAccommodationService interface {
 	CreateAccommodation(ctx context.Context, accommodation *entity.AccommodationEntity) (*entity.AccommodationEntity, error)
 	GetAccommodationByID(ctx context.Context, ID int64) (*entity.AccommodationEntity, error)
-	UpdateAccommodation(ctx context.Context, ID int64, accommodation *entity.AccommodationEntity) (*entity.AccommodationEntity, error)
+	UpdateAccommodation(ctx context.Context, accommodation *entity.AccommodationEntity) (*entity.AccommodationEntity, error)
 	DeleteAccommodation(ctx context.Context, ID int64) error
 }
 
 type AccommodationService struct {
 	createAccUseCase usecase.ICreateAccommodationUseCase
 	getAccUseCase    usecase.IGetAccommodationUseCase
+	deleteAccUseCase usecase.IDeleteAccommodationUseCase
+	updateAccUseCase usecase.IUpdateAccommodationUseCase
 }
 
 func (a AccommodationService) CreateAccommodation(ctx context.Context, accommodation *entity.AccommodationEntity) (*entity.AccommodationEntity, error) {
@@ -23,23 +25,25 @@ func (a AccommodationService) CreateAccommodation(ctx context.Context, accommoda
 }
 
 func (a AccommodationService) GetAccommodationByID(ctx context.Context, ID int64) (*entity.AccommodationEntity, error) {
-	return a.getAccUseCase.GetAccommodationById(ctx, ID)
+	return a.getAccUseCase.GetAccommodationByID(ctx, ID)
 }
 
-func (a AccommodationService) UpdateAccommodation(ctx context.Context, ID int64, accommodation *entity.AccommodationEntity) (*entity.AccommodationEntity, error) {
-	//TODO implement me
-	panic("implement me")
+func (a AccommodationService) UpdateAccommodation(ctx context.Context, accommodation *entity.AccommodationEntity) (*entity.AccommodationEntity, error) {
+	return a.updateAccUseCase.UpdateAccommodationByID(ctx, accommodation)
 }
 
 func (a AccommodationService) DeleteAccommodation(ctx context.Context, ID int64) error {
-	//TODO implement me
-	panic("implement me")
+	return a.deleteAccUseCase.DeleteAccommodationByID(ctx, ID)
 }
 
 func NewAccommodationService(createAccUseCase usecase.ICreateAccommodationUseCase,
-	getAccUseCase usecase.IGetAccommodationUseCase) IAccommodationService {
+	getAccUseCase usecase.IGetAccommodationUseCase,
+	deleteAccUseCase usecase.IDeleteAccommodationUseCase,
+	updateAccUseCase usecase.IUpdateAccommodationUseCase) IAccommodationService {
 	return &AccommodationService{
 		createAccUseCase: createAccUseCase,
 		getAccUseCase:    getAccUseCase,
+		deleteAccUseCase: deleteAccUseCase,
+		updateAccUseCase: updateAccUseCase,
 	}
 }

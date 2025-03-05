@@ -8,7 +8,7 @@ import (
 )
 
 type IGetAccommodationUseCase interface {
-	GetAccommodationById(ctx context.Context, ID int64) (*entity.AccommodationEntity, error)
+	GetAccommodationByID(ctx context.Context, ID int64) (*entity.AccommodationEntity, error)
 }
 
 type GetAccommodationUseCase struct {
@@ -16,14 +16,20 @@ type GetAccommodationUseCase struct {
 	unitPort port.IUnitPort
 }
 
-func (g GetAccommodationUseCase) GetAccommodationById(ctx context.Context, ID int64) (*entity.AccommodationEntity, error) {
+func (g GetAccommodationUseCase) GetAccommodationByID(ctx context.Context, ID int64) (*entity.AccommodationEntity, error) {
 	acc, err := g.accPort.GetAccommodationByID(ctx, ID)
 	if err != nil {
 		log.Error(ctx, "get accommodation by id failed", err)
 		return nil, err
 	}
 
-	//units, err := g.unitPort.
+	units, err := g.unitPort.GetUnitsByAccID(ctx, acc.ID)
+	if err != nil {
+		log.Error(ctx, "get units failed", err)
+		return nil, err
+	}
+	acc.Units = units
+
 	return acc, nil
 }
 

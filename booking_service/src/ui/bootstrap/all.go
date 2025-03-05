@@ -35,6 +35,8 @@ func All() fx.Option {
 		fx.Provide(usecase.NewDatabaseTransactionUseCase),
 		fx.Provide(usecase.NewCreateAccommodationUseCase),
 		fx.Provide(usecase.NewGetAccommodationUseCase),
+		fx.Provide(usecase.NewDeleteAccommodationUseCase),
+		fx.Provide(usecase.NewUpdateAccommodationUseCase),
 
 		//Provide services
 		fx.Provide(service.NewAccommodationService),

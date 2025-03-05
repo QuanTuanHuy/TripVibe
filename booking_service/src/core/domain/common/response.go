@@ -16,14 +16,12 @@ const (
 	GeneralForbidden = 403
 
 	//ErrBadRequest error
-	InvalidEmailErrCode = 400026
+	ErrCodeAccommodationNotFound = 1001
 )
 
 const (
-	InvalidEmailMessage = "Vui lòng cung cấp email hợp lệ!"
+	AccommodationNotFoundMessage = "accommodation not found"
 )
-
-const ()
 
 // ErrorResponse error response struct
 type ErrorResponse struct {
@@ -48,15 +46,15 @@ var errorResponseMap = map[int]ErrorResponse{
 		ServiceCode: GeneralUnauthorized,
 		Message:     "Unauthorized",
 	},
-	InvalidEmailErrCode: {
-		HTTPCode:    http.StatusBadRequest,
-		ServiceCode: InvalidEmailErrCode,
-		Message:     InvalidEmailMessage,
-	},
 	GeneralForbidden: {
 		HTTPCode:    http.StatusForbidden,
 		ServiceCode: GeneralForbidden,
 		Message:     "Forbidden",
+	},
+	ErrCodeAccommodationNotFound: {
+		HTTPCode:    http.StatusNotFound,
+		ServiceCode: ErrCodeAccommodationNotFound,
+		Message:     AccommodationNotFoundMessage,
 	},
 }
 

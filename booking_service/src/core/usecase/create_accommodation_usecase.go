@@ -22,7 +22,7 @@ type CreateAccommodationUseCase struct {
 
 func (c CreateAccommodationUseCase) CreateAccommodation(ctx context.Context, accommodation *entity.AccommodationEntity) (*entity.AccommodationEntity, error) {
 	// validate acc not existed
-	existedAcc, err := c.getAccUseCase.GetAccommodationById(ctx, accommodation.ID)
+	existedAcc, err := c.getAccUseCase.GetAccommodationByID(ctx, accommodation.ID)
 	if err != nil && err.Error() != constant.ErrAccommodationNotFound {
 		return nil, err
 	}

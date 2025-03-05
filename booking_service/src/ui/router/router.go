@@ -19,5 +19,8 @@ func RegisterGinRouters(p RegisterRoutersIn) {
 	accommodationV1 := router.Group("public/v1/accommodations")
 	{
 		accommodationV1.POST("", p.AccommodationController.CreateAccommodation)
+		accommodationV1.GET("/:id", p.AccommodationController.GetAccommodationDetail)
+		accommodationV1.DELETE("/:id", p.AccommodationController.DeleteAccommodationByID)
+		accommodationV1.PUT("", p.AccommodationController.UpdateAccommodation)
 	}
 }
