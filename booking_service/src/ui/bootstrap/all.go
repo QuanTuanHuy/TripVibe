@@ -30,6 +30,10 @@ func All() fx.Option {
 		fx.Provide(adapter.NewAccommodationAdapter),
 		fx.Provide(adapter.NewUnitAdapter),
 		fx.Provide(adapter.NewDatabaseTransactionAdapter),
+		fx.Provide(adapter.NewBookingAdapter),
+		fx.Provide(adapter.NewUserAdapter),
+		fx.Provide(adapter.NewBookingUnitAdapter),
+		fx.Provide(adapter.NewBookingPromotionAdapter),
 
 		//Provide usecase
 		fx.Provide(usecase.NewDatabaseTransactionUseCase),

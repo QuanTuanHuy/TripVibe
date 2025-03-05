@@ -2,6 +2,6 @@ package entity
 
 type AccommodationEntity struct {
 	BaseEntity
-	Name  string
-	Units []*UnitEntity
+	Name  string        `json:"name"`
+	Units []*UnitEntity `json:"units"`
 }

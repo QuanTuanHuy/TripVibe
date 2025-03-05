@@ -2,6 +2,6 @@ package entity
 
 type UnitEntity struct {
 	BaseEntity
-	Name            string
-	AccommodationID int64
+	Name            string `json:"name"`
+	AccommodationID int64  `json:"accommodationId"`
 }
