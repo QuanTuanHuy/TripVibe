@@ -7,4 +7,5 @@ const (
 	ErrUserNotFound              = "user not found"
 	ErrBookingUnitNotFound       = "booking unit not found"
 	ErrBookingPromotionNotFound  = "booking promotion not found"
+	ErrCacheKeyNil               = "cache key nil"
 )

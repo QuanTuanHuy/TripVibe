@@ -3,6 +3,7 @@ package bootstrap
 import (
 	"booking_service/core/service"
 	"booking_service/core/usecase"
+	"booking_service/infrastructure/cache"
 	"booking_service/infrastructure/repository/adapter"
 	"booking_service/ui/controller"
 	"booking_service/ui/router"
@@ -34,6 +35,7 @@ func All() fx.Option {
 		fx.Provide(adapter.NewUserAdapter),
 		fx.Provide(adapter.NewBookingUnitAdapter),
 		fx.Provide(adapter.NewBookingPromotionAdapter),
+		fx.Provide(cache.NewRedisCacheAdapter),
 
 		//Provide usecase
 		fx.Provide(usecase.NewDatabaseTransactionUseCase),

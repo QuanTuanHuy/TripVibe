@@ -2,6 +2,7 @@ package usecase
 
 import (
 	"booking_service/core/port"
+	"booking_service/kernel/utils"
 	"context"
 	"github.com/golibs-starter/golib/log"
 )
@@ -15,6 +16,7 @@ type DeleteAccommodationUseCase struct {
 	unitPort             port.IUnitPort
 	getAccUseCase        IGetAccommodationUseCase
 	dbTransactionUseCase IDatabaseTransactionUseCase
+	cachePort            port.ICachePort
 }
 
 func (d DeleteAccommodationUseCase) DeleteAccommodationByID(ctx context.Context, ID int64) error {
@@ -51,12 +53,20 @@ func (d DeleteAccommodationUseCase) DeleteAccommodationByID(ctx context.Context,
 		return errCommit
 	}
 
+	// delete from cache
+	go func() {
+		err = d.cachePort.DeleteFromCache(ctx, utils.BuildCacheKeyGetAccommodation(ID))
+		if err != nil {
+			log.Error(ctx, "delete accommodation from cache failed", err)
+		}
+	}()
+
 	return nil
 }
 
 func NewDeleteAccommodationUseCase(accPort port.IAccommodationPort, unitPort port.IUnitPort,
 	dbTransactionUseCase IDatabaseTransactionUseCase,
-	getAccUseCase IGetAccommodationUseCase) IDeleteAccommodationUseCase {
+	getAccUseCase IGetAccommodationUseCase, cachePort port.ICachePort) IDeleteAccommodationUseCase {
 	return &DeleteAccommodationUseCase{accPort: accPort, unitPort: unitPort, dbTransactionUseCase: dbTransactionUseCase,
-		getAccUseCase: getAccUseCase}
+		getAccUseCase: getAccUseCase, cachePort: cachePort}
 }
