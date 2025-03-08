@@ -7,4 +7,5 @@ import java.util.List;
 public interface IAccommodationAmenityPort {
     List<AccommodationAmenityEntity> saveAll(List<AccommodationAmenityEntity> accommodationAmenities);
     List<AccommodationAmenityEntity> getAccAmenitiesByAccId(Long accId);
+    void deleteByAccIdAndAmenities(Long accId, List<Long> amenityIds);
 }

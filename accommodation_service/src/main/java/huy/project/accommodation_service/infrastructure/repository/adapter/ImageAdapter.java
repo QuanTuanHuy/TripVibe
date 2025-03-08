@@ -35,4 +35,9 @@ public class ImageAdapter implements IImagePort {
     public void deleteImagesByEntityIdAndType(Long entityId, String entityType) {
         imageRepository.deleteByEntityIdAndEntityType(entityId, entityType);
     }
+
+    @Override
+    public void deleteImagesByIds(List<Long> ids) {
+        imageRepository.deleteByIdIn(ids);
+    }
 }

@@ -25,4 +25,16 @@ public class UnitAdapter implements IUnitPort {
     public List<UnitEntity> getUnitsByAccommodationId(Long accommodationId) {
         return UnitMapper.INSTANCE.toListEntity(unitRepository.findByAccommodationId(accommodationId));
     }
+
+    @Override
+    public UnitEntity getUnitByAccIdAndId(Long accId, Long id) {
+        return unitRepository.findByAccommodationIdAndId(accId, id)
+                .map(UnitMapper.INSTANCE::toEntity)
+                .orElse(null);
+    }
+
+    @Override
+    public void deleteUnitsByAccId(Long accId) {
+        unitRepository.deleteByAccommodationId(accId);
+    }
 }

@@ -24,6 +24,9 @@ public enum ErrorCode {
     PRICE_TYPE_NOT_FOUND(100013, "Price type not found", HttpStatus.NOT_FOUND),
     ACCOMMODATION_NAME_EXISTED(100014, "Accommodation name existed", HttpStatus.BAD_REQUEST),
     ACCOMMODATION_NOT_FOUND(100015, "Accommodation not found", HttpStatus.NOT_FOUND),
+    ACCOMMODATION_AMENITY_NOT_FOUND(100016, "Accommodation amenity not found", HttpStatus.NOT_FOUND),
+    UNIT_NOT_FOUND(100016, "Unit not found", HttpStatus.NOT_FOUND),
+    UNIT_IMAGE_NOT_FOUND(100017, "Unit image not found", HttpStatus.NOT_FOUND),
     ;
 
 

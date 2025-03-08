@@ -8,4 +8,5 @@ import java.util.List;
 @Repository
 public interface IAccommodationLanguageRepository extends IBaseRepository<AccommodationLanguageModel> {
     List<AccommodationLanguageModel> findByAccommodationId(Long accommodationId);
+    void deleteByAccommodationId(Long accId);
 }

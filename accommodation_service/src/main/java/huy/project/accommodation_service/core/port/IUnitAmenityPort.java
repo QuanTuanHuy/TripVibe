@@ -7,4 +7,5 @@ import java.util.List;
 public interface IUnitAmenityPort {
     List<UnitAmenityEntity> saveAll(List<UnitAmenityEntity> unitAmenities);
     List<UnitAmenityEntity> getUnitAmenitiesByUnitIds(List<Long> unitIds);
+    void deleteUnitAmenitiesByUnitIds(List<Long> unitIds);
 }

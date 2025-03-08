@@ -27,4 +27,9 @@ public class AccommodationLanguageAdapter implements IAccommodationLanguagePort 
                 accLanguageRepository.findByAccommodationId(accId)
         );
     }
+
+    @Override
+    public void deleteAccLanguagesByAccId(Long accId) {
+        accLanguageRepository.deleteByAccommodationId(accId);
+    }
 }

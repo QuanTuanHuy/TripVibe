@@ -10,4 +10,5 @@ public interface IImageRepository extends IBaseRepository<ImageModel> {
     List<ImageModel> findByEntityIdAndEntityType(Long entityId, String entityType);
     List<ImageModel> findByEntityIdInAndEntityType(List<Long> entityIds, String entityType);
     void deleteByEntityIdAndEntityType(Long entityId, String entityType);
+    void deleteByIdIn(List<Long> ids);
 }

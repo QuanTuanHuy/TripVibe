@@ -27,4 +27,9 @@ public class UnitPriceGroupAdapter implements IUnitPriceGroupPort {
                 unitPriceGroupRepository.findByUnitIdIn(unitIds)
         );
     }
+
+    @Override
+    public void deleteUnitPriceGroupByUnitIds(List<Long> unitIds) {
+        unitPriceGroupRepository.deleteByUnitIdIn(unitIds);
+    }
 }

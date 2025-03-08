@@ -6,4 +6,5 @@ public interface IAccommodationPort {
     AccommodationEntity save(AccommodationEntity accommodation);
     AccommodationEntity getAccommodationByName(String name);
     AccommodationEntity getAccommodationById(Long id);
+    void deleteAccommodationById(Long id);
 }

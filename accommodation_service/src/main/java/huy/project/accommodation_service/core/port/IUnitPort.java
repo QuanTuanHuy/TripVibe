@@ -7,4 +7,6 @@ import java.util.List;
 public interface IUnitPort {
     UnitEntity save(UnitEntity unit);
     List<UnitEntity> getUnitsByAccommodationId(Long accommodationId);
+    UnitEntity getUnitByAccIdAndId(Long accId, Long id);
+    void deleteUnitsByAccId(Long accId);
 }

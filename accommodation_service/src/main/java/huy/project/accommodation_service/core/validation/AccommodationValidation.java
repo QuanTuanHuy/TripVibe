@@ -38,4 +38,9 @@ public class AccommodationValidation {
 
         return Pair.of(true, ErrorCode.SUCCESS);
     }
+
+    public boolean accommodationExistToHost(Long userId, Long accId) {
+        var existedAcc = accommodationPort.getAccommodationById(accId);
+        return existedAcc != null && existedAcc.getHostId().equals(userId);
+    }
 }
