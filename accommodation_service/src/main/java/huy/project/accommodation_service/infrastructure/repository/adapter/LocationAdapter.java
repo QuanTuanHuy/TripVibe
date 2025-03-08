@@ -23,4 +23,9 @@ public class LocationAdapter implements ILocationPort {
     public LocationEntity getLocationById(Long id) {
         return locationRepository.findById(id).map(LocationMapper.INSTANCE::toEntity).orElse(null);
     }
+
+    @Override
+    public void deleteLocationById(Long id) {
+
+    }
 }

@@ -30,4 +30,8 @@ public class GetUnitAmenityUseCase {
                 .peek(unitAmenity -> unitAmenity.setAmenity(amenityMap.get(unitAmenity.getAmenityId())))
                 .toList();
     }
+
+    public List<UnitAmenityEntity> getUnitAmenitiesByUnitId(Long unitId) {
+        return unitAmenityPort.getUnitAmenitiesByUnitId(unitId);
+    }
 }
