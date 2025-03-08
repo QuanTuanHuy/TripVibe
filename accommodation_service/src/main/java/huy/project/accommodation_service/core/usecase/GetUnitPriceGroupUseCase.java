@@ -15,4 +15,8 @@ public class GetUnitPriceGroupUseCase {
     public List<UnitPriceGroupEntity> getUnitPriceGroupsByUnitIds(List<Long> unitIds) {
         return unitPriceGroupPort.getPriceGroupsByUnitIds(unitIds);
     }
+
+    public List<UnitPriceGroupEntity> getUnitPriceGroupsByUnitId(Long unitId) {
+        return unitPriceGroupPort.getPriceGroupsByUnitId(unitId);
+    }
 }

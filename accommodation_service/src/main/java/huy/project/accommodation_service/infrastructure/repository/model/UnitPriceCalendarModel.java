@@ -3,6 +3,7 @@ package huy.project.accommodation_service.infrastructure.repository.model;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.time.LocalDate;
 import java.util.Date;
 
 @NoArgsConstructor
@@ -21,7 +22,7 @@ public class UnitPriceCalendarModel extends AuditTable {
     private Long unitId;
 
     @Column(name = "date")
-    private Date date;
+    private LocalDate date;
 
     @Column(name = "price")
     private Long price;

@@ -45,4 +45,14 @@ public class AccommodationService implements IAccommodationService {
     public void updateUnitAmenity(Long userId, Long accId, Long unitId, UpdateUnitAmenityDto req) {
         updateUnitUseCase.updateUnitAmenity(userId, accId, unitId, req);
     }
+
+    @Override
+    public void updateUnitPriceGroup(Long userId, Long accId, Long unitId, UpdateUnitPriceGroupDto req) {
+        updateUnitUseCase.updateUnitPriceGroup(userId, accId, unitId, req);
+    }
+
+    @Override
+    public void updateUnitPriceCalendar(Long userId, Long accId, Long unitId, UpdateUnitPriceCalendarDto req) {
+        updateUnitUseCase.updateUnitPriceCalendar(userId, accId, unitId, req);
+    }
 }

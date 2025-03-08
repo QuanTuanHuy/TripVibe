@@ -29,7 +29,10 @@ public class UnitPriceGroupAdapter implements IUnitPriceGroupPort {
     }
 
     @Override
-    public void deleteUnitPriceGroupByUnitIds(List<Long> unitIds) {
-        unitPriceGroupRepository.deleteByUnitIdIn(unitIds);
+    public List<UnitPriceGroupEntity> getPriceGroupsByUnitId(Long unitId) {
+        return UnitPriceGroupMapper.INSTANCE.toListEntity(
+                unitPriceGroupRepository.findByUnitId(unitId)
+        );
     }
+
 }

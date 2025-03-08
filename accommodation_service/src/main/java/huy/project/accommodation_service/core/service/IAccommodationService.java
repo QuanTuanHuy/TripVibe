@@ -10,4 +10,6 @@ public interface IAccommodationService {
     void updateUnitImage(Long userId, Long accId, Long unitId, UpdateUnitImageDto req);
     void updateAccAmenity(Long userId, Long accId, UpdateAccAmenityDto req);
     void updateUnitAmenity(Long userId, Long accId, Long unitId, UpdateUnitAmenityDto req);
+    void updateUnitPriceGroup(Long userId, Long accId, Long unitId, UpdateUnitPriceGroupDto req);
+    void updateUnitPriceCalendar(Long userId, Long accId, Long unitId, UpdateUnitPriceCalendarDto req);
 }

@@ -2,20 +2,24 @@ package huy.project.accommodation_service.core.usecase;
 
 import huy.project.accommodation_service.core.domain.constant.ErrorCode;
 import huy.project.accommodation_service.core.domain.constant.ImageEntityType;
-import huy.project.accommodation_service.core.domain.dto.request.CreateUnitAmenityDto;
-import huy.project.accommodation_service.core.domain.dto.request.UpdateUnitAmenityDto;
-import huy.project.accommodation_service.core.domain.dto.request.UpdateUnitImageDto;
+import huy.project.accommodation_service.core.domain.dto.request.*;
 import huy.project.accommodation_service.core.domain.entity.ImageEntity;
 import huy.project.accommodation_service.core.domain.entity.UnitAmenityEntity;
+import huy.project.accommodation_service.core.domain.entity.UnitPriceCalendarEntity;
+import huy.project.accommodation_service.core.domain.entity.UnitPriceGroupEntity;
 import huy.project.accommodation_service.core.exception.AppException;
 import huy.project.accommodation_service.core.port.IImagePort;
 import huy.project.accommodation_service.core.port.IUnitAmenityPort;
+import huy.project.accommodation_service.core.port.IUnitPriceCalendarPort;
+import huy.project.accommodation_service.core.port.IUnitPriceGroupPort;
 import huy.project.accommodation_service.core.validation.AccommodationValidation;
+import huy.project.accommodation_service.kernel.utils.DateTimeUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -26,9 +30,12 @@ import java.util.stream.Collectors;
 public class UpdateUnitUseCase {
     private final GetUnitUseCase getUnitUseCase;
     private final GetUnitAmenityUseCase getUnitAmenityUseCase;
+    private final GetUnitPriceGroupUseCase getUnitPriceGroupUseCase;
 
     private final IImagePort imagePort;
     private final IUnitAmenityPort unitAmenityPort;
+    private final IUnitPriceGroupPort unitPriceGroupPort;
+    private final IUnitPriceCalendarPort unitPriceCalendarPort;
 
     private final AccommodationValidation accValidation;
 
@@ -96,6 +103,50 @@ public class UpdateUnitUseCase {
         if (!newAmenities.isEmpty()) {
             unitAmenityPort.saveAll(newAmenities);
         }
+    }
+
+    @Transactional(rollbackFor = Exception.class)
+    public void updateUnitPriceGroup(Long userId, Long accId, Long unitId, UpdateUnitPriceGroupDto req) {
+        validateUpdateUnit(userId, accId, unitId);
+
+        List<UnitPriceGroupEntity> priceGroups = getUnitPriceGroupUseCase.getUnitPriceGroupsByUnitId(unitId);
+
+        priceGroups.forEach(priceGroup ->
+            req.getNewPriceGroups().stream()
+                    .filter(dto -> dto.getNumberOfGuests().equals(priceGroup.getNumberOfGuests()))
+                    .findFirst()
+                    .ifPresent(newPriceGroup -> priceGroup.setPercentage(newPriceGroup.getPercentage()))
+        );
+
+        unitPriceGroupPort.saveAll(priceGroups);
+    }
+
+    @Transactional(rollbackFor = Exception.class)
+    public void updateUnitPriceCalendar(Long userId, Long accId, Long unitId, UpdateUnitPriceCalendarDto req) {
+        validateUpdateUnit(userId, accId, unitId);
+
+        LocalDate startDate = DateTimeUtils.convertUnixToLocalDate(req.getStartDate());
+        LocalDate endDate = DateTimeUtils.convertUnixToLocalDate(req.getEndDate());
+
+        // delete old price calendars
+        unitPriceCalendarPort.deletePriceByUnitIdAndDate(unitId, startDate, endDate);
+
+        // save new price calendars
+        List<LocalDate> dates = new ArrayList<>();
+        LocalDate currentDate = startDate;
+        while (!currentDate.isAfter(endDate)) {
+            dates.add(currentDate);
+            currentDate = currentDate.plusDays(1);
+        }
+
+        List<UnitPriceCalendarEntity> priceCalendars = dates.stream()
+                .map(date -> UnitPriceCalendarEntity.builder()
+                        .unitId(unitId)
+                        .date(date)
+                        .price(req.getPrice())
+                        .build())
+                .toList();
+        unitPriceCalendarPort.saveAll(priceCalendars);
     }
 
     private void validateUpdateUnit(Long userId, Long accId, Long unitId) {

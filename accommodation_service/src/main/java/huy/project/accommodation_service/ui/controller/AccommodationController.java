@@ -71,4 +71,26 @@ public class AccommodationController {
         accommodationService.addUnitToAccommodation(userId, id, req);
         return ResponseEntity.ok(new Resource<>(null));
     }
+
+    @PostMapping("/{id}/units/{unitId}/price_groups")
+    public ResponseEntity<Resource<?>> updateUnitPriceGroup(
+            @PathVariable Long id,
+            @PathVariable Long unitId,
+            @RequestBody UpdateUnitPriceGroupDto req
+    ) {
+        Long userId = AuthenUtils.getCurrentUserId();
+        accommodationService.updateUnitPriceGroup(userId, id, unitId, req);
+        return ResponseEntity.ok(new Resource<>(null));
+    }
+
+    @PostMapping("/{id}/units/{unitId}/price_calendars")
+    public ResponseEntity<Resource<?>> updateUnitPriceCalendar(
+            @PathVariable Long id,
+            @PathVariable Long unitId,
+            @RequestBody UpdateUnitPriceCalendarDto req
+    ) {
+        Long userId = AuthenUtils.getCurrentUserId();
+        accommodationService.updateUnitPriceCalendar(userId, id, unitId, req);
+        return ResponseEntity.ok(new Resource<>(null));
+    }
 }
