@@ -49,4 +49,8 @@ public class GetAccommodationUseCase {
 
         return accommodation;
     }
+
+    public AccommodationEntity getAccommodationById(Long id) {
+        return accommodationPort.getAccommodationById(id);
+    }
 }

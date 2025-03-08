@@ -9,4 +9,5 @@ public interface IImagePort {
     List<ImageEntity> getImagesByEntityIdAndType(Long entityId, String entityType);
     List<ImageEntity> getImagesByEntityIdsAndType(List<Long> entityIds, String entityType);
     void deleteImagesByEntityIdAndType(Long entityId, String entityType);
+    void deleteImagesByIds(List<Long> ids);
 }

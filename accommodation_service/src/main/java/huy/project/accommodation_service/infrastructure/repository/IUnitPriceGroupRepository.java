@@ -8,4 +8,5 @@ import java.util.List;
 @Repository
 public interface IUnitPriceGroupRepository extends IBaseRepository<UnitPriceGroupModel> {
     List<UnitPriceGroupModel> findByUnitIdIn(List<Long> unitIds);
+    List<UnitPriceGroupModel> findByUnitId(Long unitId);
 }

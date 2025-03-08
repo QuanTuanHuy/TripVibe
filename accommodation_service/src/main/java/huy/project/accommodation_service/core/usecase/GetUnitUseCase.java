@@ -64,4 +64,8 @@ public class GetUnitUseCase {
                     unit.setPriceGroups(priceGroup.get(unit.getId()));
                 }).toList();
     }
+
+    public UnitEntity getUnitByAccIdAndId(Long accId, Long unitId) {
+        return unitPort.getUnitByAccIdAndId(accId, unitId);
+    }
 }

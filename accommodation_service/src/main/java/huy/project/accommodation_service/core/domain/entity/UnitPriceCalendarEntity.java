@@ -2,7 +2,7 @@ package huy.project.accommodation_service.core.domain.entity;
 
 import lombok.*;
 
-import java.util.Date;
+import java.time.LocalDate;
 
 @NoArgsConstructor
 @AllArgsConstructor
@@ -12,6 +12,6 @@ import java.util.Date;
 public class UnitPriceCalendarEntity {
     private Long id;
     private Long unitId;
-    private Date date;
+    private LocalDate date;
     private Long price;
 }

@@ -27,4 +27,11 @@ public class AccommodationAmenityAdapter implements IAccommodationAmenityPort {
         return AccommodationAmenityMapper.INSTANCE.toListEntity(
                 accommodationAmenityRepository.findByAccommodationId(accId));
     }
+
+    @Override
+    public void deleteByAccIdAndAmenities(Long accId, List<Long> amenityIds) {
+        accommodationAmenityRepository.deleteByAccommodationIdAndAmenityIdIn(accId, amenityIds);
+    }
+
+
 }

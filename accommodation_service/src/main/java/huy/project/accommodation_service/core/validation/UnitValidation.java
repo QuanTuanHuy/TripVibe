@@ -8,6 +8,7 @@ import huy.project.accommodation_service.core.exception.AppException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.util.Pair;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 
 import java.util.List;
 
@@ -24,18 +25,22 @@ public class UnitValidation {
             return Pair.of(false, ErrorCode.UNIT_NAME_NOT_FOUND);
         }
 
-        List<Long> amenityIds = req.getAmenities().stream()
-                .map(CreateUnitAmenityDto::getAmenityId)
-                .toList();
-        if (!amenityValidation.amenitiesExist(amenityIds)) {
-            return Pair.of(false, ErrorCode.AMENITY_NOT_FOUND);
+        if (!CollectionUtils.isEmpty(req.getAmenities())) {
+            List<Long> amenityIds = req.getAmenities().stream()
+                    .map(CreateUnitAmenityDto::getAmenityId)
+                    .toList();
+            if (!amenityValidation.amenitiesExist(amenityIds)) {
+                return Pair.of(false, ErrorCode.AMENITY_NOT_FOUND);
+            }
         }
 
-        List<Long> priceTypeIds = req.getPriceTypes().stream()
-                .map(CreateUnitPriceTypeDto::getPriceTypeId)
-                .toList();
-        if (!priceTypeValidation.priceTypesExist(priceTypeIds)) {
-            throw new AppException(ErrorCode.PRICE_TYPE_NOT_FOUND);
+        if (!CollectionUtils.isEmpty(req.getPriceTypes())) {
+            List<Long> priceTypeIds = req.getPriceTypes().stream()
+                    .map(CreateUnitPriceTypeDto::getPriceTypeId)
+                    .toList();
+            if (!priceTypeValidation.priceTypesExist(priceTypeIds)) {
+                throw new AppException(ErrorCode.PRICE_TYPE_NOT_FOUND);
+            }
         }
 
         return Pair.of(true, ErrorCode.SUCCESS);

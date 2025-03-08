@@ -27,4 +27,12 @@ public class UnitPriceGroupAdapter implements IUnitPriceGroupPort {
                 unitPriceGroupRepository.findByUnitIdIn(unitIds)
         );
     }
+
+    @Override
+    public List<UnitPriceGroupEntity> getPriceGroupsByUnitId(Long unitId) {
+        return UnitPriceGroupMapper.INSTANCE.toListEntity(
+                unitPriceGroupRepository.findByUnitId(unitId)
+        );
+    }
+
 }

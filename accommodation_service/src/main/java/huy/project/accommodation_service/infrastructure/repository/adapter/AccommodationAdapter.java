@@ -31,4 +31,9 @@ public class AccommodationAdapter implements IAccommodationPort {
         return accommodationRepository.findById(id)
                 .map(AccommodationMapper.INSTANCE::toEntity).orElse(null);
     }
+
+    @Override
+    public void deleteAccommodationById(Long id) {
+        accommodationRepository.deleteById(id);
+    }
 }
