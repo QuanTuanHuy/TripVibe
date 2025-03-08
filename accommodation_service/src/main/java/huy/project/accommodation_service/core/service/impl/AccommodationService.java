@@ -1,13 +1,9 @@
 package huy.project.accommodation_service.core.service.impl;
 
-import huy.project.accommodation_service.core.domain.dto.request.CreateAccommodationDto;
-import huy.project.accommodation_service.core.domain.dto.request.UpdateAccAmenityDto;
-import huy.project.accommodation_service.core.domain.dto.request.UpdateUnitImageDto;
+import huy.project.accommodation_service.core.domain.dto.request.*;
 import huy.project.accommodation_service.core.domain.entity.AccommodationEntity;
 import huy.project.accommodation_service.core.service.IAccommodationService;
-import huy.project.accommodation_service.core.usecase.CreateAccommodationUseCase;
-import huy.project.accommodation_service.core.usecase.GetAccommodationUseCase;
-import huy.project.accommodation_service.core.usecase.UpdateAccommodationUseCase;
+import huy.project.accommodation_service.core.usecase.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -17,6 +13,8 @@ public class AccommodationService implements IAccommodationService {
     private final CreateAccommodationUseCase createAccommodationUseCase;
     private final GetAccommodationUseCase getAccommodationUseCase;
     private final UpdateAccommodationUseCase updateAccommodationUseCase;
+    private final UpdateUnitUseCase updateUnitUseCase;
+    private final AddUnitUseCase addUnitUseCase;
 
     @Override
     public AccommodationEntity createAccommodation(Long userId, CreateAccommodationDto req) {
@@ -29,17 +27,22 @@ public class AccommodationService implements IAccommodationService {
     }
 
     @Override
-    public void deleteAccommodation(Long id) {
-
+    public void addUnitToAccommodation(Long userId, Long accId, CreateUnitDto req) {
+        addUnitUseCase.addUnit(userId, accId, req);
     }
 
     @Override
     public void updateUnitImage(Long userId, Long accId, Long unitId, UpdateUnitImageDto req) {
-        updateAccommodationUseCase.updateUnitImage(userId, accId, unitId, req);
+        updateUnitUseCase.updateUnitImage(userId, accId, unitId, req);
     }
 
     @Override
     public void updateAccAmenity(Long userId, Long accId, UpdateAccAmenityDto req) {
         updateAccommodationUseCase.updateAccAmenity(userId, accId, req);
+    }
+
+    @Override
+    public void updateUnitAmenity(Long userId, Long accId, Long unitId, UpdateUnitAmenityDto req) {
+        updateUnitUseCase.updateUnitAmenity(userId, accId, unitId, req);
     }
 }

@@ -8,5 +8,6 @@ import java.util.List;
 @Repository
 public interface IUnitAmenityRepository extends IBaseRepository<UnitAmenityModel> {
     List<UnitAmenityModel> findByUnitIdIn(List<Long> unitIds);
-    void deleteByUnitIdIn(List<Long> unitIds);
+    List<UnitAmenityModel> findByUnitId(Long unitId);
+    void deleteByUnitIdAndAmenityIdIn(Long unitId, List<Long> amenityIds);
 }

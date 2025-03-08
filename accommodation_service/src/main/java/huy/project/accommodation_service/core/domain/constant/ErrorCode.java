@@ -27,6 +27,7 @@ public enum ErrorCode {
     ACCOMMODATION_AMENITY_NOT_FOUND(100016, "Accommodation amenity not found", HttpStatus.NOT_FOUND),
     UNIT_NOT_FOUND(100016, "Unit not found", HttpStatus.NOT_FOUND),
     UNIT_IMAGE_NOT_FOUND(100017, "Unit image not found", HttpStatus.NOT_FOUND),
+    UNIT_AMENITY_NOT_FOUND(100018, "Unit amenity not found", HttpStatus.NOT_FOUND),
     ;
 
 

@@ -1,8 +1,6 @@
 package huy.project.accommodation_service.ui.controller;
 
-import huy.project.accommodation_service.core.domain.dto.request.CreateAccommodationDto;
-import huy.project.accommodation_service.core.domain.dto.request.UpdateAccAmenityDto;
-import huy.project.accommodation_service.core.domain.dto.request.UpdateUnitImageDto;
+import huy.project.accommodation_service.core.domain.dto.request.*;
 import huy.project.accommodation_service.core.domain.entity.AccommodationEntity;
 import huy.project.accommodation_service.core.service.IAccommodationService;
 import huy.project.accommodation_service.kernel.utils.AuthenUtils;
@@ -53,4 +51,24 @@ public class AccommodationController {
         return ResponseEntity.ok(new Resource<>(null));
     }
 
+    @PostMapping("/{id}/units/{unitId}/amenities")
+    public ResponseEntity<Resource<?>> updateUnitAmenity(
+            @PathVariable Long id,
+            @PathVariable Long unitId,
+            @RequestBody UpdateUnitAmenityDto req
+    ) {
+        Long userId = AuthenUtils.getCurrentUserId();
+        accommodationService.updateUnitAmenity(userId, id, unitId, req);
+        return ResponseEntity.ok(new Resource<>(null));
+    }
+
+    @PostMapping("/{id}/units")
+    public ResponseEntity<Resource<?>> addUnitToAccommodation(
+            @PathVariable Long id,
+            @RequestBody CreateUnitDto req
+    ) {
+        Long userId = AuthenUtils.getCurrentUserId();
+        accommodationService.addUnitToAccommodation(userId, id, req);
+        return ResponseEntity.ok(new Resource<>(null));
+    }
 }

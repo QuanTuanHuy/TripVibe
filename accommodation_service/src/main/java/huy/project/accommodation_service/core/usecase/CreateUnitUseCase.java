@@ -11,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 
 import java.util.List;
 
@@ -43,46 +44,54 @@ public class CreateUnitUseCase {
         final Long unitId = unit.getId();
 
         // create unit amenities
-        List<UnitAmenityEntity> unitAmenities = req.getAmenities().stream()
-                .map(amenity -> UnitAmenityEntity.builder()
-                        .unitId(unitId)
-                        .amenityId(amenity.getAmenityId())
-                        .fee(amenity.getFee())
-                        .needToReserve(amenity.getNeedToReserve())
-                        .build())
-                .toList();
-        unitAmenityPort.saveAll(unitAmenities);
+        if (!CollectionUtils.isEmpty(req.getAmenities())) {
+            List<UnitAmenityEntity> unitAmenities = req.getAmenities().stream()
+                    .map(amenity -> UnitAmenityEntity.builder()
+                            .unitId(unitId)
+                            .amenityId(amenity.getAmenityId())
+                            .fee(amenity.getFee())
+                            .needToReserve(amenity.getNeedToReserve())
+                            .build())
+                    .toList();
+            unitAmenityPort.saveAll(unitAmenities);
+        }
 
         // create unit price types
-        List<UnitPriceTypeEntity> unitPriceTypes = req.getPriceTypes().stream()
-                .map(priceType -> UnitPriceTypeEntity.builder()
-                        .unitId(unitId)
-                        .priceTypeId(priceType.getPriceTypeId())
-                        .percentage(priceType.getPercentage())
-                        .build())
-                .toList();
-        unitPriceTypePort.saveAll(unitPriceTypes);
+        if (!CollectionUtils.isEmpty(req.getPriceTypes())) {
+            List<UnitPriceTypeEntity> unitPriceTypes = req.getPriceTypes().stream()
+                    .map(priceType -> UnitPriceTypeEntity.builder()
+                            .unitId(unitId)
+                            .priceTypeId(priceType.getPriceTypeId())
+                            .percentage(priceType.getPercentage())
+                            .build())
+                    .toList();
+            unitPriceTypePort.saveAll(unitPriceTypes);
+        }
 
         // create unit price groups
-        List<UnitPriceGroupEntity> unitPriceGroups = req.getPriceGroups().stream()
-                .map(priceGroup -> UnitPriceGroupEntity.builder()
-                        .unitId(unitId)
-                        .numberOfGuests(priceGroup.getNumberOfGuests())
-                        .percentage(priceGroup.getPercentage())
-                        .build())
-                .toList();
-        unitPriceGroupPort.saveAll(unitPriceGroups);
+        if (!CollectionUtils.isEmpty(req.getPriceGroups())) {
+            List<UnitPriceGroupEntity> unitPriceGroups = req.getPriceGroups().stream()
+                    .map(priceGroup -> UnitPriceGroupEntity.builder()
+                            .unitId(unitId)
+                            .numberOfGuests(priceGroup.getNumberOfGuests())
+                            .percentage(priceGroup.getPercentage())
+                            .build())
+                    .toList();
+            unitPriceGroupPort.saveAll(unitPriceGroups);
+        }
 
         // create unit images
-        List<ImageEntity> unitImages = req.getImages().stream()
-                .map(image -> ImageEntity.builder()
-                        .entityId(unitId)
-                        .entityType(ImageEntityType.UNIT.getType())
-                        .url(image.getUrl())
-                        .isPrimary(image.getIsPrimary())
-                        .build())
-                .toList();
-        imagePort.saveAll(unitImages);
+        if (!CollectionUtils.isEmpty(req.getImages())) {
+            List<ImageEntity> unitImages = req.getImages().stream()
+                    .map(image -> ImageEntity.builder()
+                            .entityId(unitId)
+                            .entityType(ImageEntityType.UNIT.getType())
+                            .url(image.getUrl())
+                            .isPrimary(image.getIsPrimary())
+                            .build())
+                    .toList();
+            imagePort.saveAll(unitImages);
+        }
 
         // create bedrooms
         req.getBedrooms().forEach(bedroom ->
