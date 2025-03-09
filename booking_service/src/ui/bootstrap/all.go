@@ -5,6 +5,7 @@ import (
 	"booking_service/core/usecase"
 	"booking_service/infrastructure/repository/adapter"
 	"booking_service/ui/controller"
+	consumer "booking_service/ui/kafka"
 	"booking_service/ui/router"
 	"github.com/golibs-starter/golib"
 	golibdata "github.com/golibs-starter/golib-data"
@@ -43,6 +44,9 @@ func All() fx.Option {
 
 		//Provide controller
 		fx.Provide(controller.NewAccommodationController),
+
+		//Provide handler
+		fx.Provide(consumer.NewAccommodationHandler),
 
 		// Provide gin http server auto config,
 		// actuator endpoints and application routers
