@@ -3,6 +3,7 @@ package bootstrap
 import (
 	"booking_service/core/service"
 	"booking_service/core/usecase"
+	"booking_service/infrastructure/kafka"
 	"booking_service/infrastructure/repository/adapter"
 	"booking_service/ui/controller"
 	consumer "booking_service/ui/kafka"
@@ -45,8 +46,13 @@ func All() fx.Option {
 		//Provide controller
 		fx.Provide(controller.NewAccommodationController),
 
-		//Provide handler
+		//Kafka
+		fx.Provide(kafka.NewConsumerGroupHandler),
 		fx.Provide(consumer.NewAccommodationHandler),
+		fx.Invoke(kafka.ConsumerGroup),
+
+		//postgres
+		fx.Invoke(RunDatabase),
 
 		// Provide gin http server auto config,
 		// actuator endpoints and application routers

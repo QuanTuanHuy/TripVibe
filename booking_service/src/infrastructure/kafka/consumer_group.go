@@ -1,6 +1,7 @@
 package kafka
 
 import (
+	consumer "booking_service/ui/kafka"
 	"context"
 	"fmt"
 	"github.com/IBM/sarama"
@@ -14,8 +15,14 @@ type MyConsumerGroupHandler struct {
 	handlers map[string]MessageHandler
 }
 
-func NewConsumerGroupHandler(name string, handlers map[string]MessageHandler) MyConsumerGroupHandler {
-	return MyConsumerGroupHandler{
+func NewConsumerGroupHandler(accHandler *consumer.AccommodationHandler) *MyConsumerGroupHandler {
+	name := "booking_service"
+
+	handlers := map[string]MessageHandler{
+		"booking_service.accommodation": accHandler,
+	}
+
+	return &MyConsumerGroupHandler{
 		handlers: handlers,
 		name:     name,
 	}
@@ -55,7 +62,11 @@ func (h MyConsumerGroupHandler) ConsumeClaim(sess sarama.ConsumerGroupSession, c
 	}
 }
 
-func ConsumerGroup(bootstrapServers string, topics []string, group string, name MyConsumerGroupHandler) {
+func ConsumerGroup(name *MyConsumerGroupHandler) {
+	bootstrapServers := "localhost:9094"
+	group := "booking_service"
+	topics := []string{"booking_service.accommodation"}
+
 	config := sarama.NewConfig()
 	config.Consumer.Return.Errors = true
 	ctx, cancel := context.WithCancel(context.Background())

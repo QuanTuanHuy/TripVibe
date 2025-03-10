@@ -6,11 +6,5 @@ import (
 )
 
 func main() {
-	// migrate database
-	bootstrap.RunDatabase()
-
-	// kafka
-	bootstrap.RunKafkaConsumer()
-
 	fx.New(bootstrap.All()).Run()
 }
