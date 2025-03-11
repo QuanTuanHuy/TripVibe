@@ -17,4 +17,5 @@ type BookingEntity struct {
 
 	Units      []*BookingUnitEntity      `json:"units"`
 	Promotions []*BookingPromotionEntity `json:"promotions"`
+	Tourist    *UserEntity               `json:"tourist"`
 }

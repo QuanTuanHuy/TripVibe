@@ -7,10 +7,30 @@ import (
 	"booking_service/kernel/apihelper"
 	"github.com/gin-gonic/gin"
 	"github.com/golibs-starter/golib/log"
+	"strconv"
 )
 
 type BookingController struct {
 	bookingService service.IBookingService
+}
+
+func (b *BookingController) GetDetailBooking(c *gin.Context) {
+	var userID int64 = 1
+	bookingID, err := strconv.ParseInt(c.Param("id"), 10, 64)
+	if err != nil {
+		log.Error(c, "error binding request ", err)
+		apihelper.AbortErrorHandle(c, common.GeneralBadRequest)
+		return
+	}
+
+	booking, err := b.bookingService.GetDetailBooking(c, userID, bookingID)
+	if err != nil {
+		log.Error(c, "error getting booking ", err)
+		apihelper.AbortErrorHandle(c, common.GeneralBadRequest)
+		return
+	}
+
+	apihelper.SuccessfulHandle(c, booking)
 }
 
 func (b *BookingController) CreateBooking(c *gin.Context) {

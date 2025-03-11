@@ -28,5 +28,6 @@ func RegisterGinRouters(p RegisterRoutersIn) {
 	bookingV1 := router.Group("public/v1/bookings")
 	{
 		bookingV1.POST("", p.BookingController.CreateBooking)
+		bookingV1.GET("/:id", p.BookingController.GetDetailBooking)
 	}
 }

@@ -15,6 +15,18 @@ type BookingAdapter struct {
 	base
 }
 
+func (b BookingAdapter) GetBookingByUserIDAndID(ctx context.Context, userID int64, ID int64) (*entity.BookingEntity, error) {
+	var bookingModel model.BookingModel
+	if err := b.db.WithContext(ctx).Where("id = ? AND tourist_id = ?", ID, userID).
+		First(&bookingModel).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, errors.New(constant.ErrBookingNotFound)
+		}
+		return nil, err
+	}
+	return mapper.ToBookingEntity(&bookingModel), nil
+}
+
 func (b BookingAdapter) CreateBooking(ctx context.Context, tx *gorm.DB, booking *entity.BookingEntity) (*entity.BookingEntity, error) {
 	bookingModel := mapper.ToBookingModel(booking)
 	if err := tx.WithContext(ctx).Create(&bookingModel).Error; err != nil {
