@@ -9,7 +9,7 @@
         <outputRelativeToContentRoot value="true" />
         <module name="authentication_service" />
       </profile>
-      <profile name="Annotation profile for accommodation_service" enabled="true">
+      <profile name="Annotation profile for search_service" enabled="true">
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
@@ -22,6 +22,7 @@
           <entry name="$MAVEN_REPOSITORY$/org/mapstruct/mapstruct/1.6.2/mapstruct-1.6.2.jar" />
         </processorPath>
         <module name="accommodation_service" />
+        <module name="search_service" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
@@ -32,6 +33,7 @@
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
       <module name="accommodation_service" options="-parameters" />
       <module name="authentication_service" options="-parameters" />
+      <module name="search_service" options="-parameters" />
     </option>
   </component>
 </project>
