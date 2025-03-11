@@ -10,9 +10,10 @@ func ToBookingPromotionModel(bookingPromotion *entity.BookingPromotionEntity) *m
 		BaseModel: model.BaseModel{
 			ID: bookingPromotion.ID,
 		},
-		PromotionID: bookingPromotion.PromotionID,
-		BookingID:   bookingPromotion.BookingID,
-		Percentage:  bookingPromotion.Percentage,
+		PromotionID:   bookingPromotion.PromotionID,
+		PromotionName: bookingPromotion.PromotionName,
+		BookingID:     bookingPromotion.BookingID,
+		Percentage:    bookingPromotion.Percentage,
 	}
 }
 
@@ -23,9 +24,10 @@ func ToBookingPromotionEntity(bookingPromotion *model.BookingPromotionModel) *en
 			CreatedAt: bookingPromotion.CreatedAt.Unix(),
 			UpdatedAt: bookingPromotion.UpdatedAt.Unix(),
 		},
-		PromotionID: bookingPromotion.PromotionID,
-		BookingID:   bookingPromotion.BookingID,
-		Percentage:  bookingPromotion.Percentage,
+		PromotionID:   bookingPromotion.PromotionID,
+		PromotionName: bookingPromotion.PromotionName,
+		BookingID:     bookingPromotion.BookingID,
+		Percentage:    bookingPromotion.Percentage,
 	}
 }
 

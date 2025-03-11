@@ -1,0 +1,84 @@
+package controller
+
+import (
+	"booking_service/core/domain/common"
+	"booking_service/core/domain/dto/request"
+	"booking_service/core/domain/dto/response"
+	"booking_service/core/service"
+	"booking_service/kernel/apihelper"
+	"booking_service/kernel/utils"
+	"github.com/gin-gonic/gin"
+	"github.com/golibs-starter/golib/log"
+	"strconv"
+)
+
+type BookingController struct {
+	bookingService service.IBookingService
+}
+
+func (b *BookingController) GetAllBookings(c *gin.Context) {
+	userID, err := strconv.ParseInt(c.Query("userId"), 10, 64)
+	if err != nil {
+		log.Error(c, "error binding request ", err)
+		apihelper.AbortErrorHandle(c, common.GeneralBadRequest)
+		return
+	}
+
+	pageSize, page := utils.GetPagingParams(c)
+	var params request.BookingParams
+	params.UserID = &userID
+	params.Page = &page
+	params.PageSize = &pageSize
+
+	getBookingResponse, err := b.bookingService.GetAllBookings(c, &params)
+	if err != nil {
+		log.Error(c, "error getting bookings ", err)
+		apihelper.AbortErrorHandle(c, common.GeneralBadRequest)
+		return
+	}
+	apihelper.SuccessfulHandle(c, getBookingResponse)
+
+}
+
+func (b *BookingController) GetDetailBooking(c *gin.Context) {
+	var userID int64 = 1
+	bookingID, err := strconv.ParseInt(c.Param("id"), 10, 64)
+	if err != nil {
+		log.Error(c, "error binding request ", err)
+		apihelper.AbortErrorHandle(c, common.GeneralBadRequest)
+		return
+	}
+
+	booking, err := b.bookingService.GetDetailBooking(c, userID, bookingID)
+	if err != nil {
+		log.Error(c, "error getting booking ", err)
+		apihelper.AbortErrorHandle(c, common.GeneralBadRequest)
+		return
+	}
+
+	apihelper.SuccessfulHandle(c, response.ToBookingResponse(booking))
+}
+
+func (b *BookingController) CreateBooking(c *gin.Context) {
+	var req request.CreateBookingDto
+	if err := c.ShouldBindJSON(&req); err != nil {
+		log.Error(c, "error binding request ", err)
+		apihelper.AbortErrorHandle(c, common.GeneralBadRequest)
+		return
+	}
+
+	booking, err := b.bookingService.CreateBooking(c, &req)
+	if err != nil {
+		log.Error(c, "error creating booking ", err)
+		apihelper.AbortErrorHandle(c, common.GeneralBadRequest)
+		return
+	}
+
+	apihelper.SuccessfulHandle(c, response.ToBookingResponse(booking))
+}
+
+func NewBookingController(bookingService service.IBookingService) *BookingController {
+	return &BookingController{
+		bookingService: bookingService,
+	}
+}

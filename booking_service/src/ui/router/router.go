@@ -12,6 +12,7 @@ type RegisterRoutersIn struct {
 	App                     *golib.App
 	Engine                  *gin.Engine
 	AccommodationController *controller.AccommodationController
+	BookingController       *controller.BookingController
 }
 
 func RegisterGinRouters(p RegisterRoutersIn) {
@@ -22,5 +23,12 @@ func RegisterGinRouters(p RegisterRoutersIn) {
 		accommodationV1.GET("/:id", p.AccommodationController.GetAccommodationDetail)
 		accommodationV1.DELETE("/:id", p.AccommodationController.DeleteAccommodationByID)
 		accommodationV1.PUT("", p.AccommodationController.UpdateAccommodation)
+	}
+
+	bookingV1 := router.Group("public/v1/bookings")
+	{
+		bookingV1.POST("", p.BookingController.CreateBooking)
+		bookingV1.GET("/:id", p.BookingController.GetDetailBooking)
+		bookingV1.GET("", p.BookingController.GetAllBookings)
 	}
 }

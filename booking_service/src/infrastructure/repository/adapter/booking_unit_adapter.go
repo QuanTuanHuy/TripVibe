@@ -15,6 +15,17 @@ type BookingUnitAdapter struct {
 	base
 }
 
+func (b BookingUnitAdapter) GetBookingUnitsByBookingIDs(ctx context.Context, bookingIDs []int64) ([]*entity.BookingUnitEntity, error) {
+	var bookingUnitModels []*model.BookingUnitModel
+	if err := b.db.WithContext(ctx).Model(&model.BookingUnitModel{}).
+		Where("booking_id IN (?)", bookingIDs).Find(&bookingUnitModels).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, errors.New(constant.ErrBookingUnitNotFound)
+		}
+	}
+	return mapper.ToListBookingUnitEntity(bookingUnitModels), nil
+}
+
 func (b BookingUnitAdapter) CreateBookingUnits(ctx context.Context, tx *gorm.DB, bookingUnits []*entity.BookingUnitEntity) ([]*entity.BookingUnitEntity, error) {
 	bookingUnitModels := mapper.ToListBookingUnitModel(bookingUnits)
 	if err := tx.WithContext(ctx).Create(bookingUnitModels).Error; err != nil {
