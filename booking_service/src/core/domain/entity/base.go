@@ -1,7 +1,7 @@
 package entity
 
 type BaseEntity struct {
-	ID        int64
-	CreatedAt int64
-	UpdatedAt int64
+	ID        int64 `json:"id"`
+	CreatedAt int64 `json:"createdAt"`
+	UpdatedAt int64 `json:"updatedAt"`
 }
