@@ -3,11 +3,13 @@ package bootstrap
 import (
 	"booking_service/core/service"
 	"booking_service/core/usecase"
+	"booking_service/infrastructure/cache"
 	"booking_service/infrastructure/kafka"
 	"booking_service/infrastructure/repository/adapter"
 	"booking_service/ui/controller"
 	consumer "booking_service/ui/kafka"
 	"booking_service/ui/router"
+	"context"
 	"github.com/golibs-starter/golib"
 	golibdata "github.com/golibs-starter/golib-data"
 	golibgin "github.com/golibs-starter/golib-gin"
@@ -31,6 +33,11 @@ func All() fx.Option {
 		//Provide port implementation
 		fx.Provide(adapter.NewAccommodationAdapter),
 		fx.Provide(adapter.NewUnitAdapter),
+		fx.Provide(adapter.NewBookingAdapter),
+		fx.Provide(adapter.NewBookingUnitAdapter),
+		fx.Provide(adapter.NewBookingPromotionAdapter),
+		fx.Provide(adapter.NewUserAdapter),
+		fx.Provide(cache.NewRedisCacheAdapter),
 		fx.Provide(adapter.NewDatabaseTransactionAdapter),
 
 		//Provide usecase
@@ -39,17 +46,15 @@ func All() fx.Option {
 		fx.Provide(usecase.NewGetAccommodationUseCase),
 		fx.Provide(usecase.NewDeleteAccommodationUseCase),
 		fx.Provide(usecase.NewUpdateAccommodationUseCase),
+		fx.Provide(usecase.NewCreateBookingUseCase),
 
 		//Provide services
 		fx.Provide(service.NewAccommodationService),
+		fx.Provide(service.NewBookingService),
 
 		//Provide controller
 		fx.Provide(controller.NewAccommodationController),
-
-		//Kafka
-		fx.Provide(kafka.NewConsumerGroupHandler),
-		fx.Provide(consumer.NewAccommodationHandler),
-		fx.Invoke(kafka.ConsumerGroup),
+		fx.Provide(controller.NewBookingController),
 
 		//postgres
 		fx.Invoke(RunDatabase),
@@ -60,5 +65,22 @@ func All() fx.Option {
 		fx.Invoke(router.RegisterGinRouters),
 
 		golibgin.OnStopHttpServerOpt(),
+
+		//Kafka
+		fx.Provide(kafka.NewConsumerGroupHandler),
+		fx.Provide(consumer.NewAccommodationHandler),
+
+		// Run Kafka consumer in its own goroutine using FX lifecycle hooks.
+		fx.Invoke(func(lc fx.Lifecycle, consumerGroupHandler *kafka.MyConsumerGroupHandler) {
+			lc.Append(fx.Hook{
+				OnStart: func(ctx context.Context) error {
+					go kafka.ConsumerGroup(consumerGroupHandler)
+					return nil
+				},
+				OnStop: func(ctx context.Context) error {
+					return nil
+				},
+			})
+		}),
 	)
 }

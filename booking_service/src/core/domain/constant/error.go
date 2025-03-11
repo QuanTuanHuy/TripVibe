@@ -3,6 +3,7 @@ package constant
 const (
 	ErrAccommodationNotFound     = "accommodation not found"
 	ErrAccommodationAlreadyExist = "accommodation already exist"
+	ErrUnitNotFound              = "unit not found"
 	ErrBookingNotFound           = "booking not found"
 	ErrUserNotFound              = "user not found"
 	ErrBookingUnitNotFound       = "booking unit not found"
