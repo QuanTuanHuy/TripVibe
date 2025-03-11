@@ -56,7 +56,7 @@ public class GetUnitUseCase {
 
         return units.stream()
                 .peek(unit -> {
-                    unit.setUnitName(unitNameMap.get(unit.getId()));
+                    unit.setUnitName(unitNameMap.get(unit.getUnitNameId()));
                     unit.setAmenities(unitAmenityGroup.get(unit.getId()));
                     unit.setBedrooms(bedroomGroup.get(unit.getId()));
                     unit.setImages(imageGroup.get(unit.getId()));

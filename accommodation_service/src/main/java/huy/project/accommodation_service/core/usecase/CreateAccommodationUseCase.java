@@ -1,13 +1,17 @@
 package huy.project.accommodation_service.core.usecase;
 
 import huy.project.accommodation_service.core.domain.constant.ImageEntityType;
+import huy.project.accommodation_service.core.domain.constant.TopicConstant;
 import huy.project.accommodation_service.core.domain.dto.request.CreateAccommodationDto;
 import huy.project.accommodation_service.core.domain.entity.*;
+import huy.project.accommodation_service.core.domain.kafka.CreateAccommodationMessage;
+import huy.project.accommodation_service.core.domain.kafka.CreateUnitMessage;
 import huy.project.accommodation_service.core.domain.mapper.AccommodationMapper;
 import huy.project.accommodation_service.core.exception.AppException;
 import huy.project.accommodation_service.core.port.IAccommodationAmenityPort;
 import huy.project.accommodation_service.core.port.IAccommodationLanguagePort;
 import huy.project.accommodation_service.core.port.IAccommodationPort;
+import huy.project.accommodation_service.core.port.IKafkaPublisher;
 import huy.project.accommodation_service.core.validation.AccommodationValidation;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -27,6 +31,10 @@ public class CreateAccommodationUseCase {
     private final CreateLocationUseCase createLocationUseCase;
     private final CreateImageUseCase createImageUseCase;
     private final CreateUnitUseCase createUnitUseCase;
+    private final GetAccommodationUseCase getAccommodationUseCase;
+    private final GetUnitUseCase getUnitUseCase;
+
+    private final IKafkaPublisher kafkaPublisher;
 
     private final AccommodationValidation accValidation;
 
@@ -81,8 +89,25 @@ public class CreateAccommodationUseCase {
         // create accommodation units
         req.getUnits().forEach(unit -> createUnitUseCase.createUnit(accommodationId, unit));
 
-        log.info("create accommodation: {}", accommodation);
+        handleAfterCreateAccommodation(accommodationId);
 
         return accommodation;
+    }
+
+    public void handleAfterCreateAccommodation(Long accId) {
+        AccommodationEntity accommodation = getAccommodationUseCase.getAccommodationById(accId);
+        List<UnitEntity> units = getUnitUseCase.getUnitsByAccommodationId(accId);
+
+        CreateAccommodationMessage message = CreateAccommodationMessage.builder()
+                .id(accommodation.getId())
+                .name(accommodation.getName())
+                .units(units.stream().map(unit -> CreateUnitMessage.builder()
+                        .id(unit.getId())
+                        .name(unit.getUnitName().getName())
+                        .build())
+                        .toList())
+                .build();
+
+        kafkaPublisher.pushAsync(message.toKafkaBaseDto(), TopicConstant.BookingCommand.TOPIC, "");
     }
 }

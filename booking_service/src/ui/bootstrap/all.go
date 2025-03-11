@@ -3,9 +3,10 @@ package bootstrap
 import (
 	"booking_service/core/service"
 	"booking_service/core/usecase"
-	"booking_service/infrastructure/cache"
+	"booking_service/infrastructure/kafka"
 	"booking_service/infrastructure/repository/adapter"
 	"booking_service/ui/controller"
+	consumer "booking_service/ui/kafka"
 	"booking_service/ui/router"
 	"github.com/golibs-starter/golib"
 	golibdata "github.com/golibs-starter/golib-data"
@@ -31,11 +32,6 @@ func All() fx.Option {
 		fx.Provide(adapter.NewAccommodationAdapter),
 		fx.Provide(adapter.NewUnitAdapter),
 		fx.Provide(adapter.NewDatabaseTransactionAdapter),
-		fx.Provide(adapter.NewBookingAdapter),
-		fx.Provide(adapter.NewUserAdapter),
-		fx.Provide(adapter.NewBookingUnitAdapter),
-		fx.Provide(adapter.NewBookingPromotionAdapter),
-		fx.Provide(cache.NewRedisCacheAdapter),
 
 		//Provide usecase
 		fx.Provide(usecase.NewDatabaseTransactionUseCase),
@@ -49,6 +45,14 @@ func All() fx.Option {
 
 		//Provide controller
 		fx.Provide(controller.NewAccommodationController),
+
+		//Kafka
+		fx.Provide(kafka.NewConsumerGroupHandler),
+		fx.Provide(consumer.NewAccommodationHandler),
+		fx.Invoke(kafka.ConsumerGroup),
+
+		//postgres
+		fx.Invoke(RunDatabase),
 
 		// Provide gin http server auto config,
 		// actuator endpoints and application routers
