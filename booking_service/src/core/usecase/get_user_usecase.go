@@ -12,11 +12,16 @@ import (
 
 type IGetUserUseCase interface {
 	GetUserByID(ctx context.Context, ID int64) (*entity.UserEntity, error)
+	GetUsersByIDs(ctx context.Context, IDs []int64) ([]*entity.UserEntity, error)
 }
 
 type GetUserUseCase struct {
 	userPort  port.IUserPort
 	cachePort port.ICachePort
+}
+
+func (g GetUserUseCase) GetUsersByIDs(ctx context.Context, IDs []int64) ([]*entity.UserEntity, error) {
+	return g.userPort.GetUsersByIDs(ctx, IDs)
 }
 
 func (g GetUserUseCase) GetUserByID(ctx context.Context, ID int64) (*entity.UserEntity, error) {

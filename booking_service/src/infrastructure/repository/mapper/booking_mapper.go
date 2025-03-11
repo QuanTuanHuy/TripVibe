@@ -47,3 +47,11 @@ func ToBookingModel(booking *entity.BookingEntity) *model.BookingModel {
 		FinalAmount:     booking.FinalAmount,
 	}
 }
+
+func ToListBookingEntity(bookings []*model.BookingModel) []*entity.BookingEntity {
+	var bookingEntities []*entity.BookingEntity
+	for _, booking := range bookings {
+		bookingEntities = append(bookingEntities, ToBookingEntity(booking))
+	}
+	return bookingEntities
+}

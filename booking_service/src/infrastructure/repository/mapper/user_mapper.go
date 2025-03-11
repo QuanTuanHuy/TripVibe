@@ -30,3 +30,11 @@ func ToUserModel(user *entity.UserEntity) *model.UserModel {
 		PhoneNumber: user.PhoneNumber,
 	}
 }
+
+func ToListUserEntity(users []*model.UserModel) []*entity.UserEntity {
+	var userEntities []*entity.UserEntity
+	for _, user := range users {
+		userEntities = append(userEntities, ToUserEntity(user))
+	}
+	return userEntities
+}

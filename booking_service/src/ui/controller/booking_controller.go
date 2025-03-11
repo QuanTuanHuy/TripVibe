@@ -3,8 +3,10 @@ package controller
 import (
 	"booking_service/core/domain/common"
 	"booking_service/core/domain/dto/request"
+	"booking_service/core/domain/dto/response"
 	"booking_service/core/service"
 	"booking_service/kernel/apihelper"
+	"booking_service/kernel/utils"
 	"github.com/gin-gonic/gin"
 	"github.com/golibs-starter/golib/log"
 	"strconv"
@@ -12,6 +14,30 @@ import (
 
 type BookingController struct {
 	bookingService service.IBookingService
+}
+
+func (b *BookingController) GetAllBookings(c *gin.Context) {
+	userID, err := strconv.ParseInt(c.Query("userId"), 10, 64)
+	if err != nil {
+		log.Error(c, "error binding request ", err)
+		apihelper.AbortErrorHandle(c, common.GeneralBadRequest)
+		return
+	}
+
+	pageSize, page := utils.GetPagingParams(c)
+	var params request.BookingParams
+	params.UserID = &userID
+	params.Page = &page
+	params.PageSize = &pageSize
+
+	getBookingResponse, err := b.bookingService.GetAllBookings(c, &params)
+	if err != nil {
+		log.Error(c, "error getting bookings ", err)
+		apihelper.AbortErrorHandle(c, common.GeneralBadRequest)
+		return
+	}
+	apihelper.SuccessfulHandle(c, getBookingResponse)
+
 }
 
 func (b *BookingController) GetDetailBooking(c *gin.Context) {
@@ -30,7 +56,7 @@ func (b *BookingController) GetDetailBooking(c *gin.Context) {
 		return
 	}
 
-	apihelper.SuccessfulHandle(c, booking)
+	apihelper.SuccessfulHandle(c, response.ToBookingResponse(booking))
 }
 
 func (b *BookingController) CreateBooking(c *gin.Context) {
@@ -48,7 +74,7 @@ func (b *BookingController) CreateBooking(c *gin.Context) {
 		return
 	}
 
-	apihelper.SuccessfulHandle(c, booking)
+	apihelper.SuccessfulHandle(c, response.ToBookingResponse(booking))
 }
 
 func NewBookingController(bookingService service.IBookingService) *BookingController {

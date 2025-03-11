@@ -15,6 +15,18 @@ type UserAdapter struct {
 	base
 }
 
+func (u UserAdapter) GetUsersByIDs(ctx context.Context, IDs []int64) ([]*entity.UserEntity, error) {
+	var userModels []*model.UserModel
+	if err := u.db.WithContext(ctx).Model(&model.UserModel{}).
+		Where("id IN (?)", IDs).Find(&userModels).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, errors.New(constant.ErrUserNotFound)
+		}
+		return nil, err
+	}
+	return mapper.ToListUserEntity(userModels), nil
+}
+
 func (u UserAdapter) UpdateUserByID(ctx context.Context, tx *gorm.DB, user *entity.UserEntity) (*entity.UserEntity, error) {
 	userModel := mapper.ToUserModel(user)
 	if err := tx.WithContext(ctx).Model(&model.UserModel{}).

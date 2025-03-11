@@ -15,6 +15,18 @@ type BookingPromotionAdapter struct {
 	base
 }
 
+func (b BookingPromotionAdapter) GetBookingPromotionsByBookingIDs(ctx context.Context, bookingIDs []int64) ([]*entity.BookingPromotionEntity, error) {
+	var bookingPromotionModels []*model.BookingPromotionModel
+	if err := b.db.WithContext(ctx).Model(&model.BookingPromotionModel{}).
+		Where("booking_id IN (?)", bookingIDs).
+		Find(&bookingPromotionModels).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, errors.New(constant.ErrBookingPromotionNotFound)
+		}
+	}
+	return mapper.ToListBookingPromotionEntity(bookingPromotionModels), nil
+}
+
 func (b BookingPromotionAdapter) CreateBookingPromotions(ctx context.Context, tx *gorm.DB, bookingPromotions []*entity.BookingPromotionEntity) ([]*entity.BookingPromotionEntity, error) {
 	bookingPromotionModels := mapper.ToListBookingPromotionModel(bookingPromotions)
 	if err := tx.WithContext(ctx).Create(&bookingPromotionModels).Error; err != nil {

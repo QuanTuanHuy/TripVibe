@@ -8,10 +8,15 @@ import (
 
 type IGetBookingUnitUseCase interface {
 	GetBookingUnitsByBookingID(ctx context.Context, bookingID int64) ([]*entity.BookingUnitEntity, error)
+	GetBookingUnitsByBookingIDs(ctx context.Context, bookingIDs []int64) ([]*entity.BookingUnitEntity, error)
 }
 
 type GetBookingUnitUseCase struct {
 	bookingUnitPort port.IBookingUnitPort
+}
+
+func (g GetBookingUnitUseCase) GetBookingUnitsByBookingIDs(ctx context.Context, bookingIDs []int64) ([]*entity.BookingUnitEntity, error) {
+	return g.bookingUnitPort.GetBookingUnitsByBookingIDs(ctx, bookingIDs)
 }
 
 func (g GetBookingUnitUseCase) GetBookingUnitsByBookingID(ctx context.Context, bookingID int64) ([]*entity.BookingUnitEntity, error) {

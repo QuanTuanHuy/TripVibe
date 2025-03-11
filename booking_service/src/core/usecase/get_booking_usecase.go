@@ -2,6 +2,7 @@ package usecase
 
 import (
 	"booking_service/core/domain/constant"
+	"booking_service/core/domain/dto/request"
 	"booking_service/core/domain/entity"
 	"booking_service/core/port"
 	"booking_service/kernel/utils"
@@ -12,6 +13,8 @@ import (
 
 type IGetBookingUseCase interface {
 	GetDetailBooking(ctx context.Context, userID int64, bookingID int64) (*entity.BookingEntity, error)
+	GetAllBookings(ctx context.Context, params *request.BookingParams) ([]*entity.BookingEntity, error)
+	CountAllBookings(ctx context.Context, params *request.BookingParams) (int64, error)
 }
 
 type GetBookingUseCase struct {
@@ -20,6 +23,66 @@ type GetBookingUseCase struct {
 	getBookingPromotionUseCase IGetBookingPromotionUseCase
 	getUserUseCase             IGetUserUseCase
 	cachePort                  port.ICachePort
+}
+
+func (g GetBookingUseCase) GetAllBookings(ctx context.Context, params *request.BookingParams) ([]*entity.BookingEntity, error) {
+	bookings, err := g.bookingPort.GetAllBookings(ctx, params)
+	if err != nil {
+		log.Error(ctx, "get all bookings failed ", err)
+		return nil, err
+	}
+
+	bookingIDs := make([]int64, 0, len(bookings))
+	for _, booking := range bookings {
+		bookingIDs = append(bookingIDs, booking.ID)
+	}
+
+	bookingUnits, err := g.getBookingUnitUseCase.GetBookingUnitsByBookingIDs(ctx, bookingIDs)
+	if err != nil {
+		log.Error(ctx, "get booking units by booking ids failed ", err)
+		return nil, err
+	}
+	bookingUnitGroup := make(map[int64][]*entity.BookingUnitEntity)
+	for _, bookingUnit := range bookingUnits {
+		bookingUnitGroup[bookingUnit.BookingID] = append(bookingUnitGroup[bookingUnit.BookingID], bookingUnit)
+	}
+
+	bookingPromotions, err := g.getBookingPromotionUseCase.GetBookingPromotionsByBookingIDs(ctx, bookingIDs)
+	if err != nil {
+		log.Error(ctx, "get booking promotions by booking ids failed ", err)
+		return nil, err
+	}
+	bookingPromotionGroup := make(map[int64][]*entity.BookingPromotionEntity)
+	for _, bookingPromotion := range bookingPromotions {
+		bookingPromotionGroup[bookingPromotion.BookingID] =
+			append(bookingPromotionGroup[bookingPromotion.BookingID], bookingPromotion)
+	}
+
+	touristIDs := make([]int64, 0, len(bookings))
+	for _, booking := range bookings {
+		touristIDs = append(touristIDs, booking.TouristID)
+	}
+	tourists, err := g.getUserUseCase.GetUsersByIDs(ctx, touristIDs)
+	if err != nil {
+		log.Error(ctx, "get users by ids failed ", err)
+		return nil, err
+	}
+	touristMap := make(map[int64]*entity.UserEntity)
+	for _, tourist := range tourists {
+		touristMap[tourist.ID] = tourist
+	}
+
+	for _, booking := range bookings {
+		booking.Units = bookingUnitGroup[booking.ID]
+		booking.Promotions = bookingPromotionGroup[booking.ID]
+		booking.Tourist = touristMap[booking.TouristID]
+	}
+
+	return bookings, nil
+}
+
+func (g GetBookingUseCase) CountAllBookings(ctx context.Context, params *request.BookingParams) (int64, error) {
+	return g.bookingPort.CountAllBookings(ctx, params)
 }
 
 func (g GetBookingUseCase) GetDetailBooking(ctx context.Context, userID int64, bookingID int64) (*entity.BookingEntity, error) {
