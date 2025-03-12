@@ -31,9 +31,4 @@ app:
       prefix: Bearer
     filter:
       publicUrls:
-        - first: /api/public/v1/search/**
-          second: GET
       protectedUrls:
-        - urlPattern: /api/public/v1/**
-          roles:
-            - ADMIN
