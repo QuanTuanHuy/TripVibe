@@ -23,4 +23,9 @@ public class PassportAdapter implements IPassportPort {
     public void deletePassportById(Long id) {
         passportRepository.deleteById(id);
     }
+
+    @Override
+    public PassportEntity getPassportById(Long id) {
+        return PassportMapper.INSTANCE.toEntity(passportRepository.findById(id).orElse(null));
+    }
 }
