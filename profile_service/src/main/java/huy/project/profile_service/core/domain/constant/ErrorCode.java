@@ -10,6 +10,8 @@ public enum ErrorCode {
     SUCCESS(0, "Success", HttpStatus.OK),
     TOURIST_ALREADY_EXISTS(100002, "Tourist already exists", HttpStatus.BAD_REQUEST),
     TOURIST_NOT_FOUND(100003, "Tourist not found", HttpStatus.NOT_FOUND),
+    FRIEND_NOT_FOUND(100004, "Friend not found", HttpStatus.NOT_FOUND),
+    DELETE_FRIEND_FORBIDDEN(100005, "Delete friend not allowed", HttpStatus.FORBIDDEN),
     ;
 
 

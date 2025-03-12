@@ -15,7 +15,6 @@ import java.time.LocalDate;
 @Table(name = "tourists")
 public class TouristModel extends AuditTable {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     @Column(name = "name")
     private String name;

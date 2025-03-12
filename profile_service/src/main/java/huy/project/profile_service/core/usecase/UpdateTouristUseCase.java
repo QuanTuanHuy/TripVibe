@@ -1,14 +1,18 @@
 package huy.project.profile_service.core.usecase;
 
 import huy.project.profile_service.core.domain.constant.ErrorCode;
+import huy.project.profile_service.core.domain.dto.request.CreateCreditCardDto;
 import huy.project.profile_service.core.domain.dto.request.UpdateTouristDto;
+import huy.project.profile_service.core.domain.entity.CreditCardEntity;
 import huy.project.profile_service.core.domain.entity.LocationEntity;
 import huy.project.profile_service.core.domain.entity.PassportEntity;
 import huy.project.profile_service.core.domain.entity.TouristEntity;
 import huy.project.profile_service.core.domain.exception.AppException;
+import huy.project.profile_service.core.domain.mapper.CreditCardMapper;
 import huy.project.profile_service.core.domain.mapper.LocationMapper;
 import huy.project.profile_service.core.domain.mapper.PassportMapper;
 import huy.project.profile_service.core.domain.mapper.TouristMapper;
+import huy.project.profile_service.core.port.ICreditCardPort;
 import huy.project.profile_service.core.port.ILocationPort;
 import huy.project.profile_service.core.port.IPassportPort;
 import huy.project.profile_service.core.port.ITouristPort;
@@ -24,6 +28,8 @@ public class UpdateTouristUseCase {
     private final ITouristPort touristPort;
     private final ILocationPort locationPort;
     private final IPassportPort passportPort;
+    private final ICreditCardPort creditCardPort;
+    private final GetTouristUseCase getTouristUseCase;
 
     @Transactional(rollbackFor = Exception.class)
     public TouristEntity updateTourist(Long id, UpdateTouristDto req) {
@@ -55,5 +61,18 @@ public class UpdateTouristUseCase {
 
         tourist = touristPort.save(tourist);
         return tourist;
+    }
+
+    @Transactional(rollbackFor = Exception.class)
+    public CreditCardEntity addCreditCardToTourist(Long touristId, CreateCreditCardDto req) {
+        TouristEntity tourist = getTouristUseCase.getTouristById(touristId);
+
+        CreditCardEntity creditCard = CreditCardMapper.INSTANCE.toEntity(req);
+        creditCard = creditCardPort.save(creditCard);
+
+        tourist.setCreditCardId(creditCard.getId());
+        touristPort.save(tourist);
+
+        return creditCard;
     }
 }
