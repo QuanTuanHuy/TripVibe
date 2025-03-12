@@ -24,6 +24,17 @@
         <module name="accommodation_service" />
         <module name="search_service" />
       </profile>
+      <profile name="Annotation profile for profile_service" enabled="true">
+        <sourceOutputDir name="target/generated-sources/annotations" />
+        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
+        <outputRelativeToContentRoot value="true" />
+        <processorPath useClasspath="false">
+          <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok/1.18.36/lombok-1.18.36.jar" />
+          <entry name="$MAVEN_REPOSITORY$/org/mapstruct/mapstruct-processor/1.6.2/mapstruct-processor-1.6.2.jar" />
+          <entry name="$MAVEN_REPOSITORY$/org/mapstruct/mapstruct/1.6.2/mapstruct-1.6.2.jar" />
+        </processorPath>
+        <module name="profile_service" />
+      </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
       <module name="api_gateway" target="17" />
@@ -33,6 +44,7 @@
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
       <module name="accommodation_service" options="-parameters" />
       <module name="authentication_service" options="-parameters" />
+      <module name="profile_service" options="-parameters" />
       <module name="search_service" options="-parameters" />
     </option>
   </component>

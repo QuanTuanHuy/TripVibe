@@ -1,0 +1,30 @@
+spring:
+  application:
+    name: profile_service
+  datasource:
+    username: user_booking
+    password: secret
+    url: jdbc:postgresql://localhost:5433/db_profile_service
+    driver-class-name: org.postgresql.Driver
+  data:
+    redis:
+      host: localhost
+      port: 6379
+server:
+  port: 8086
+
+app:
+  security:
+    jwt:
+      secret: MnAYFOKwxBOznHpxA3Wx4cJjeC3vYNtwzI6HRYT9SD++1BM9Pk32pTGETroljFsS
+      expiration: 86400000
+      header: Authorization
+      prefix: Bearer
+    filter:
+      publicUrls:
+        - first: /api/public/v1/search/**
+          second: GET
+      protectedUrls:
+        - urlPattern: /api/public/v1/**
+          roles:
+            - ADMIN
