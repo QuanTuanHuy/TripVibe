@@ -1,12 +1,15 @@
 package huy.project.authentication_service.core.usecase;
 
 import huy.project.authentication_service.core.domain.constant.ErrorCode;
+import huy.project.authentication_service.core.domain.constant.TopicConstant;
+import huy.project.authentication_service.core.domain.dto.kafka.CreateTouristMessage;
 import huy.project.authentication_service.core.domain.dto.request.CreateUserRequestDto;
 import huy.project.authentication_service.core.domain.entity.RoleEntity;
 import huy.project.authentication_service.core.domain.entity.UserEntity;
 import huy.project.authentication_service.core.domain.entity.UserRoleEntity;
 import huy.project.authentication_service.core.domain.mapper.UserMapper;
 import huy.project.authentication_service.core.exception.AppException;
+import huy.project.authentication_service.core.port.IPublisherPort;
 import huy.project.authentication_service.core.port.IUserPort;
 import huy.project.authentication_service.core.port.IUserRolePort;
 import huy.project.authentication_service.core.validation.RoleValidation;
@@ -31,6 +34,8 @@ public class CreateUserUseCase {
     private final UserValidation userValidation;
 
     private final PasswordEncoder passwordEncoder;
+
+    private final IPublisherPort publisherPort;
 
 
     @Transactional(rollbackFor = Exception.class)
@@ -68,6 +73,18 @@ public class CreateUserUseCase {
                 .toList();
         userRolePort.saveAll(userRoles);
 
+        handleAfterCreateUser(user);
+
         return user;
+    }
+
+    public void handleAfterCreateUser(UserEntity user) {
+        // send message to create tourist
+        CreateTouristMessage message = CreateTouristMessage.builder()
+                .userId(user.getId())
+                .email(user.getEmail())
+                .build();
+        var kafkaBaseDto = message.toKafkaBaseDto();
+        publisherPort.pushAsync(kafkaBaseDto, TopicConstant.TouristCommand.TOPIC, null);
     }
 }
