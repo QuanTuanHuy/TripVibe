@@ -15,4 +15,5 @@ public class UpdateTouristDto {
     private String gender;
     private UpdateLocationDto location;
     private UpdatePassportDto passport;
+    private UpdateUserSettingDto userSetting;
 }

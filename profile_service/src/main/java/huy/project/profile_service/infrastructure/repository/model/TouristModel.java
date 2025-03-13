@@ -34,6 +34,8 @@ public class TouristModel extends AuditTable {
     private Long passportId;
     @Column(name = "credit_card_id")
     private Long creditCardId;
+    @Column(name = "user_setting_id")
+    private Long userSettingId;
     @Column(name = "member_level")
     private Integer memberLevel;
     @Column(name = "is_active")

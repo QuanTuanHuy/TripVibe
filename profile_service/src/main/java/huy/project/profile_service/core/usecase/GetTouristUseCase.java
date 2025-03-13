@@ -16,6 +16,7 @@ public class GetTouristUseCase {
     private final ILocationPort locationPort;
     private final IPassportPort passportPort;
     private final ICreditCardPort creditCardPort;
+    private final IUserSettingPort userSettingPort;
 
     public TouristEntity getTouristById(Long id) {
         var tourist = touristPort.getTouristById(id);
@@ -36,6 +37,9 @@ public class GetTouristUseCase {
         }
         if (tourist.getCreditCardId() != null) {
             tourist.setCreditCard(creditCardPort.getCreditCardById(tourist.getCreditCardId()));
+        }
+        if (tourist.getUserSettingId() != null) {
+            tourist.setUserSetting(userSettingPort.getUserSettingById(tourist.getUserSettingId()));
         }
         return tourist;
     }
