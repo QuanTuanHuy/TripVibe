@@ -23,7 +23,9 @@ public class AccommodationService implements IAccommodationService {
 
     @Override
     public AccommodationEntity getDetailAccommodation(Long id) {
-        return getAccommodationUseCase.getDetailAccommodation(id);
+        var accommodation = getAccommodationUseCase.getDetailAccommodation(id);
+        getAccommodationUseCase.pushTouristViewHistory(id);
+        return accommodation;
     }
 
     @Override
