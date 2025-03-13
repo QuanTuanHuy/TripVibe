@@ -3,19 +3,11 @@ package huy.project.profile_service.core.usecase;
 import huy.project.profile_service.core.domain.constant.ErrorCode;
 import huy.project.profile_service.core.domain.dto.request.CreateCreditCardDto;
 import huy.project.profile_service.core.domain.dto.request.UpdateTouristDto;
-import huy.project.profile_service.core.domain.entity.CreditCardEntity;
-import huy.project.profile_service.core.domain.entity.LocationEntity;
-import huy.project.profile_service.core.domain.entity.PassportEntity;
-import huy.project.profile_service.core.domain.entity.TouristEntity;
+import huy.project.profile_service.core.domain.entity.*;
 import huy.project.profile_service.core.domain.exception.AppException;
-import huy.project.profile_service.core.domain.mapper.CreditCardMapper;
-import huy.project.profile_service.core.domain.mapper.LocationMapper;
-import huy.project.profile_service.core.domain.mapper.PassportMapper;
-import huy.project.profile_service.core.domain.mapper.TouristMapper;
-import huy.project.profile_service.core.port.ICreditCardPort;
-import huy.project.profile_service.core.port.ILocationPort;
-import huy.project.profile_service.core.port.IPassportPort;
-import huy.project.profile_service.core.port.ITouristPort;
+import huy.project.profile_service.core.domain.mapper.*;
+import huy.project.profile_service.core.port.*;
+import huy.project.profile_service.kernel.utils.CacheUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -29,7 +21,10 @@ public class UpdateTouristUseCase {
     private final ILocationPort locationPort;
     private final IPassportPort passportPort;
     private final ICreditCardPort creditCardPort;
+    private final IUserSettingPort userSettingPort;
     private final GetTouristUseCase getTouristUseCase;
+
+    private final ICachePort cachePort;
 
     @Transactional(rollbackFor = Exception.class)
     public TouristEntity updateTourist(Long id, UpdateTouristDto req) {
@@ -59,7 +54,20 @@ public class UpdateTouristUseCase {
             tourist.setPassportId(passport.getId());
         }
 
+        if (req.getUserSetting() != null) {
+            if (tourist.getUserSettingId() != null) {
+                 userSettingPort.deleteUserSetting(tourist.getUserSettingId());
+            }
+            UserSettingEntity userSetting = UserSettingMapper.INSTANCE.toEntity(req.getUserSetting());
+            userSetting = userSettingPort.save(userSetting);
+            tourist.setUserSettingId(userSetting.getId());
+        }
+
         tourist = touristPort.save(tourist);
+
+        // clear cache
+        cachePort.deleteFromCache(CacheUtils.buildCacheKeyGetTouristById(tourist.getId()));
+
         return tourist;
     }
 
@@ -72,6 +80,9 @@ public class UpdateTouristUseCase {
 
         tourist.setCreditCardId(creditCard.getId());
         touristPort.save(tourist);
+
+        // clear cache
+        cachePort.deleteFromCache(CacheUtils.buildCacheKeyGetTouristById(tourist.getId()));
 
         return creditCard;
     }

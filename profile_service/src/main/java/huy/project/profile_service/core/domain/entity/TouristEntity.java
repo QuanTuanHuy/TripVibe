@@ -20,10 +20,12 @@ public class TouristEntity {
     private Long locationId;
     private Long passportId;
     private Long creditCardId;
+    private Long userSettingId;
     private Integer memberLevel;
     private Boolean isActive;
 
     private LocationEntity location;
     private PassportEntity passport;
     private CreditCardEntity creditCard;
+    private UserSettingEntity userSetting;
 }

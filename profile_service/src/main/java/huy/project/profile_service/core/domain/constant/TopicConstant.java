@@ -9,4 +9,10 @@ public class TopicConstant {
         public static final String TOPIC = "tourist_service.tourist";
         public static final String CREATE_TOURIST = "create_tourist";
     }
+
+    @UtilityClass
+    public class ViewHistoryCommand {
+        public static final String TOPIC = "tourist_service.view_history";
+        public static final String CREATE_VIEW_HISTORY = "create_view_history";
+    }
 }

@@ -25,23 +25,19 @@ public class TouristController {
         return ResponseEntity.ok(new Resource<>(touristService.getDetailTourist(userId)));
     }
 
-    @PutMapping("/{id}")
+    @PutMapping("/me")
     public ResponseEntity<Resource<TouristEntity>> updateTourist(
-            @PathVariable("id") Long id,
             @RequestBody UpdateTouristDto req
     ) {
-        return ResponseEntity.ok(new Resource<>(touristService.updateTourist(id, req)));
+        Long touristId = AuthenUtils.getCurrentUserId();
+        return ResponseEntity.ok(new Resource<>(touristService.updateTourist(touristId, req)));
     }
 
-    @PostMapping("/{touristId}/credit_cards")
+    @PostMapping("/me/credit_cards")
     public ResponseEntity<Resource<CreditCardEntity>> addCreditCardToTourist(
-            @PathVariable("touristId") Long touristId,
             @RequestBody CreateCreditCardDto req
     ) {
-        Long userId = AuthenUtils.getCurrentUserId();
-        if (!userId.equals(touristId)) {
-            return ResponseEntity.badRequest().build();
-        }
+        Long touristId = AuthenUtils.getCurrentUserId();
         return ResponseEntity.ok(new Resource<>(touristService.addCreditCardToTourist(touristId, req)));
     }
 }
