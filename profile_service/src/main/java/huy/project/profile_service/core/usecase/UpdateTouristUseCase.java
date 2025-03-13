@@ -7,6 +7,7 @@ import huy.project.profile_service.core.domain.entity.*;
 import huy.project.profile_service.core.domain.exception.AppException;
 import huy.project.profile_service.core.domain.mapper.*;
 import huy.project.profile_service.core.port.*;
+import huy.project.profile_service.kernel.utils.CacheUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -22,6 +23,8 @@ public class UpdateTouristUseCase {
     private final ICreditCardPort creditCardPort;
     private final IUserSettingPort userSettingPort;
     private final GetTouristUseCase getTouristUseCase;
+
+    private final ICachePort cachePort;
 
     @Transactional(rollbackFor = Exception.class)
     public TouristEntity updateTourist(Long id, UpdateTouristDto req) {
@@ -61,6 +64,10 @@ public class UpdateTouristUseCase {
         }
 
         tourist = touristPort.save(tourist);
+
+        // clear cache
+        cachePort.deleteFromCache(CacheUtils.buildCacheKeyGetTouristById(tourist.getId()));
+
         return tourist;
     }
 
@@ -73,6 +80,9 @@ public class UpdateTouristUseCase {
 
         tourist.setCreditCardId(creditCard.getId());
         touristPort.save(tourist);
+
+        // clear cache
+        cachePort.deleteFromCache(CacheUtils.buildCacheKeyGetTouristById(tourist.getId()));
 
         return creditCard;
     }
