@@ -1,5 +1,6 @@
 package huy.project.search_service.ui.controller;
 
+import huy.project.search_service.core.domain.dto.request.AccommodationParams;
 import huy.project.search_service.core.domain.entity.AccommodationEntity;
 import huy.project.search_service.core.service.IAccommodationService;
 import huy.project.search_service.ui.resource.Resource;
@@ -20,6 +21,13 @@ public class AccommodationController {
             @RequestBody AccommodationEntity req
     ) {
         return ResponseEntity.ok(new Resource<>(accommodationService.createAccommodation(req)));
+    }
+
+    @PostMapping("/search")
+    public ResponseEntity<Resource<?>> getAccommodation(
+            @RequestBody AccommodationParams params
+    ) {
+        return ResponseEntity.ok(new Resource<>(accommodationService.getAccommodation(params)));
     }
 
     @GetMapping("/{id}")
