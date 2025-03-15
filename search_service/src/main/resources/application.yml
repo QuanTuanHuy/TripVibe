@@ -1,6 +1,11 @@
 spring:
   application:
     name: search_service
+  elasticsearch:
+    uris: http://localhost:9200
+    connection-timeout: 5s
+    socket-timeout: 5s
+
   data:
     redis:
       host: localhost
@@ -9,6 +14,10 @@ server:
   port: 8085
 
 app:
+  elasticsearch:
+    url: localhost:9200
+    password: GdL=WfNXaAui4QTJaoIN
+    username: elastic
   security:
     jwt:
       secret: MnAYFOKwxBOznHpxA3Wx4cJjeC3vYNtwzI6HRYT9SD++1BM9Pk32pTGETroljFsS
