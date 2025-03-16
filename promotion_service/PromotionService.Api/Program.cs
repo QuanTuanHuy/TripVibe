@@ -23,6 +23,7 @@ builder.Services.AddScoped<IDbTransactionPort, DbTransactionAdapter>();
 
 // Register use cases
 builder.Services.AddScoped<ICreatePromotionTypeUseCase, CreatePromotionTypeUseCase>();
+builder.Services.AddScoped<IGetPromotionTypeUseCase, GetPromotionTypeUseCase>();
 
 // Register services
 builder.Services.AddScoped<IPromotionTypeService, PromotionTypeService>();
