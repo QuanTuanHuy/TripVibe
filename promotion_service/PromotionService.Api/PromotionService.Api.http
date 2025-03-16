@@ -1,0 +1,6 @@
+@PromotionService.Api_HostAddress = http://localhost:8087
+
+GET {{PromotionService.Api_HostAddress}}/promotion_service/api/public/v1/promotion_types/
+Accept: application/json
+
+###
