@@ -1,7 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using PromotionService.Core.Domain.Dto.Request;
 using PromotionService.Core.Domain.Entity;
-using PromotionService.Core.Domain.Port;
+using PromotionService.Core.Port;
 using PromotionService.Infrastructure.Repository.Mapper;
 using PromotionService.Infrastructure.Repository.Model;
 

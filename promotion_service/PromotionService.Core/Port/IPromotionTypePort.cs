@@ -1,7 +1,7 @@
 ﻿using PromotionService.Core.Domain.Dto.Request;
 using PromotionService.Core.Domain.Entity;
 
-namespace PromotionService.Core.Domain.Port;
+namespace PromotionService.Core.Port;
 
 public interface IPromotionTypePort
 {

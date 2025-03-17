@@ -1,7 +1,8 @@
 ﻿using PromotionService.Core.Domain.Entity;
 using PromotionService.Core.Domain.Port;
+using PromotionService.Core.Port;
 
-namespace PromotionService.Core.Domain.UseCase.Impl;
+namespace PromotionService.Core.UseCase.Impl;
 
 public class CreatePromotionTypeUseCase : ICreatePromotionTypeUseCase
 {

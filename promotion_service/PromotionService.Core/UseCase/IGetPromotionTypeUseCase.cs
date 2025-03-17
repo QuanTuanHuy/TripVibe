@@ -1,7 +1,7 @@
 ﻿using PromotionService.Core.Domain.Dto.Request;
 using PromotionService.Core.Domain.Entity;
 
-namespace PromotionService.Core.Domain.UseCase;
+namespace PromotionService.Core.UseCase;
 
 public interface IGetPromotionTypeUseCase
 {

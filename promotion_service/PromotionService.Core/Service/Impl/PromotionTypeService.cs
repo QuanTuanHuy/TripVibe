@@ -1,8 +1,8 @@
 ﻿using PromotionService.Core.Domain.Dto.Request;
 using PromotionService.Core.Domain.Entity;
-using PromotionService.Core.Domain.UseCase;
+using PromotionService.Core.UseCase;
 
-namespace PromotionService.Core.Domain.Service.Impl;
+namespace PromotionService.Core.Service.Impl;
 
 public class PromotionTypeService : IPromotionTypeService
 {

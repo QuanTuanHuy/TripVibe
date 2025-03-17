@@ -1,9 +1,10 @@
 using Microsoft.EntityFrameworkCore;
 using PromotionService.Core.Domain.Port;
-using PromotionService.Core.Domain.Service;
-using PromotionService.Core.Domain.Service.Impl;
-using PromotionService.Core.Domain.UseCase;
-using PromotionService.Core.Domain.UseCase.Impl;
+using PromotionService.Core.Port;
+using PromotionService.Core.Service;
+using PromotionService.Core.Service.Impl;
+using PromotionService.Core.UseCase;
+using PromotionService.Core.UseCase.Impl;
 using PromotionService.Infrastructure.Repository;
 using PromotionService.Infrastructure.Repository.Adapter;
 

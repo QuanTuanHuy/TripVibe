@@ -4,15 +4,15 @@ namespace PromotionService.Core.Domain.Dto.Request;
 
 public class CreatePromotionTypeDto
 {
-    public string name { get; set; }
-    public string description { get; set; }
+    public string Name { get; set; }
+    public string Description { get; set; }
 
     public PromotionTypeEntity toEntity()
     {
         return new PromotionTypeEntity
         {
-            Name = name,
-            Description = description
+            Name = Name,
+            Description = Description
         };
     }
 }

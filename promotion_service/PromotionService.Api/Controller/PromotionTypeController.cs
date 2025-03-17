@@ -2,7 +2,7 @@
 using PromotionService.Core.Domain.Dto.Request;
 using PromotionService.Core.Domain.Dto.Response;
 using PromotionService.Core.Domain.Entity;
-using PromotionService.Core.Domain.Service;
+using PromotionService.Core.Service;
 
 namespace PromotionService.Api.Controller;
 
