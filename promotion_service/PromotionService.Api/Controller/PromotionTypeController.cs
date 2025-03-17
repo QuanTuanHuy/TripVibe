@@ -38,4 +38,11 @@ public class PromotionTypeController : ControllerBase
         return Ok(response);
 
     }
+    
+    [HttpPut("{id}")]
+    public async Task<IActionResult> UpdatePromotionTypeAsync(long id, [FromBody] UpdatePromotionTypeDto req)
+    {
+        var updatedPromotionType = await _promotionTypeService.UpdatePromotionTypeAsync(id, req);
+        return Ok(updatedPromotionType);
+    }
 }

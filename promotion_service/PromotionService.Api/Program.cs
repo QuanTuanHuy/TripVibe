@@ -21,13 +21,17 @@ builder.Services.AddDbContext<PromotionDbContext>(options =>
 // Register repositories
 builder.Services.AddScoped<IPromotionTypePort, PromotionTypeAdapter>();
 builder.Services.AddScoped<IDbTransactionPort, DbTransactionAdapter>();
+builder.Services.AddScoped<IConditionPort, ConditionAdapter>();
 
 // Register use cases
 builder.Services.AddScoped<ICreatePromotionTypeUseCase, CreatePromotionTypeUseCase>();
 builder.Services.AddScoped<IGetPromotionTypeUseCase, GetPromotionTypeUseCase>();
+builder.Services.AddScoped<IUpdatePromotionTypeUseCase, UpdatePromotionTypeUseCase>();
+builder.Services.AddScoped<ICreateConditionUseCase, CreateConditionUseCase>();
 
 // Register services
 builder.Services.AddScoped<IPromotionTypeService, PromotionTypeService>();
+builder.Services.AddScoped<IConditionService, ConditionService>();
 
 var app = builder.Build();
 

@@ -30,6 +30,27 @@ public class PromotionTypeAdapter : IPromotionTypePort
         return PromotionTypeMapper.ToEntity(promotionType);
     }
 
+    public async Task<PromotionTypeEntity> UpdatePromotionTypeAsync(long id, PromotionTypeEntity promotionType)
+    {
+        var existingPromotionType = await _dbContext.PromotionTypes
+            .FirstOrDefaultAsync(p => p.Id == id);
+    
+        if (existingPromotionType == null)
+        {
+            throw new KeyNotFoundException($"Promotion type with ID {id} not found");
+        }
+
+        // Update properties
+        existingPromotionType.Name = promotionType.Name;
+        existingPromotionType.Description = promotionType.Description;
+
+        // Save changes
+        await _dbContext.SaveChangesAsync();
+    
+        // Return updated entity
+        return PromotionTypeMapper.ToEntity(existingPromotionType);
+    }
+
     public async Task<List<PromotionTypeEntity>> GetPromotionTypesAsync(PromotionTypeParams queryParams)
     {
         var query = ApplyFiltersAndSorting(_dbContext.PromotionTypes.AsQueryable(), queryParams);

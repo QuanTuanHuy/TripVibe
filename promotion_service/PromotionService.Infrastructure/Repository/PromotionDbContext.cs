@@ -10,6 +10,7 @@ public class PromotionDbContext : DbContext
     }
     
     public DbSet<PromotionTypeModel> PromotionTypes { get; set; } = null!;
+    public DbSet<ConditionModel> Conditions { get; set; } = null!;
     
     // protected override void OnModelCreating(ModelBuilder modelBuilder)
     // {
