@@ -1,31 +1,32 @@
 ﻿using PromotionService.Core.Domain.Entity;
 using PromotionService.Core.Domain.Port;
+using PromotionService.Core.Port;
 
-namespace PromotionService.Core.Domain.UseCase.Impl;
+namespace PromotionService.Core.UseCase.Impl;
 
 public class CreatePromotionTypeUseCase : ICreatePromotionTypeUseCase
 {
-    private readonly IPromotionTypePort promotionTypePort;
-    private readonly IDbTransactionPort dbTransactionPort;
+    private readonly IPromotionTypePort _promotionTypePort;
+    private readonly IDbTransactionPort _dbTransactionPort;
 
     public CreatePromotionTypeUseCase(IPromotionTypePort promotionTypePort, IDbTransactionPort dbTransactionPort)
     {
-        this.promotionTypePort = promotionTypePort;
-        this.dbTransactionPort = dbTransactionPort;
+        _promotionTypePort = promotionTypePort;
+        _dbTransactionPort = dbTransactionPort;
     }
     
     public async Task<PromotionTypeEntity> CreatePromotionAsync(PromotionTypeEntity promotionType)
     {
-        return await dbTransactionPort.ExecuteInTransactionAsync(async () =>
+        // validate promotion type name not exist
+        var existingPromotionType = await _promotionTypePort.GetPromotionTypeByNameAsync(promotionType.Name);
+        if (existingPromotionType != null)
         {
-            // validate promotion type name not exist
-            var existingPromotionType = await promotionTypePort.GetPromotionTypeByNameAsync(promotionType.Name);
-            if (existingPromotionType != null)
-            {
-                throw new Exception("Promotion type name already exists");
-            }
+            throw new Exception("Promotion type name already exists");
+        }
         
-            return await promotionTypePort.AddPromotionTypeAsync(promotionType);
+        return await _dbTransactionPort.ExecuteInTransactionAsync(async () =>
+        {
+            return await _promotionTypePort.AddPromotionTypeAsync(promotionType);
         });
     }
 }

@@ -1,19 +1,22 @@
 ﻿using PromotionService.Core.Domain.Dto.Request;
 using PromotionService.Core.Domain.Entity;
-using PromotionService.Core.Domain.UseCase;
+using PromotionService.Core.UseCase;
 
-namespace PromotionService.Core.Domain.Service.Impl;
+namespace PromotionService.Core.Service.Impl;
 
 public class PromotionTypeService : IPromotionTypeService
 {
     private readonly ICreatePromotionTypeUseCase createPromotionTypeUseCase;
     private readonly IGetPromotionTypeUseCase getPromotionTypeUseCase;
+    private readonly IUpdatePromotionTypeUseCase updatePromotionTypeUseCase;
     
     public PromotionTypeService(ICreatePromotionTypeUseCase createPromotionTypeUseCase,
-        IGetPromotionTypeUseCase getPromotionTypeUseCase)
+        IGetPromotionTypeUseCase getPromotionTypeUseCase,
+        IUpdatePromotionTypeUseCase updatePromotionTypeUseCase)
     {
         this.createPromotionTypeUseCase = createPromotionTypeUseCase;
         this.getPromotionTypeUseCase = getPromotionTypeUseCase;
+        this.updatePromotionTypeUseCase = updatePromotionTypeUseCase;
     }
     
     public async Task<PromotionTypeEntity> CreatePromotionTypeAsync(PromotionTypeEntity promotionType)
@@ -24,5 +27,10 @@ public class PromotionTypeService : IPromotionTypeService
     public async Task<(List<PromotionTypeEntity>, int)> GetPromotionTypesAsync(PromotionTypeParams queryParams)
     {
         return await getPromotionTypeUseCase.GetPromotionTypesAsync(queryParams);
+    }
+
+    public async Task<PromotionTypeEntity> UpdatePromotionTypeAsync(long id, UpdatePromotionTypeDto req)
+    {
+        return await updatePromotionTypeUseCase.UpdatePromotionTypeAsync(id, req);
     }
 }

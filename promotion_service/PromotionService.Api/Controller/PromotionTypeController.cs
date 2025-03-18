@@ -2,7 +2,7 @@
 using PromotionService.Core.Domain.Dto.Request;
 using PromotionService.Core.Domain.Dto.Response;
 using PromotionService.Core.Domain.Entity;
-using PromotionService.Core.Domain.Service;
+using PromotionService.Core.Service;
 
 namespace PromotionService.Api.Controller;
 
@@ -37,5 +37,12 @@ public class PromotionTypeController : ControllerBase
 
         return Ok(response);
 
+    }
+    
+    [HttpPut("{id}")]
+    public async Task<IActionResult> UpdatePromotionTypeAsync(long id, [FromBody] UpdatePromotionTypeDto req)
+    {
+        var updatedPromotionType = await _promotionTypeService.UpdatePromotionTypeAsync(id, req);
+        return Ok(updatedPromotionType);
     }
 }

@@ -1,8 +1,8 @@
 ﻿using PromotionService.Core.Domain.Dto.Request;
 using PromotionService.Core.Domain.Entity;
-using PromotionService.Core.Domain.Port;
+using PromotionService.Core.Port;
 
-namespace PromotionService.Core.Domain.UseCase.Impl;
+namespace PromotionService.Core.UseCase.Impl;
 
 public class GetPromotionTypeUseCase : IGetPromotionTypeUseCase
 {
@@ -16,5 +16,10 @@ public class GetPromotionTypeUseCase : IGetPromotionTypeUseCase
     public async Task<(List<PromotionTypeEntity>, int)> GetPromotionTypesAsync(PromotionTypeParams queryParams)
     {
         return await _promotionTypePort.GetPromotionTypesWithCountAsync(queryParams);
+    }
+
+    public async Task<PromotionTypeEntity> GetPromotionTypeByIdAsync(long id)
+    {
+        return await _promotionTypePort.GetPromotionTypeByIdAsync(id);
     }
 }

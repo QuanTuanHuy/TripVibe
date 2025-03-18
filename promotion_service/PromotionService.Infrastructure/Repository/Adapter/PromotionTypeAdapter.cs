@@ -1,7 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using PromotionService.Core.Domain.Dto.Request;
 using PromotionService.Core.Domain.Entity;
-using PromotionService.Core.Domain.Port;
+using PromotionService.Core.Port;
 using PromotionService.Infrastructure.Repository.Mapper;
 using PromotionService.Infrastructure.Repository.Model;
 
@@ -28,6 +28,27 @@ public class PromotionTypeAdapter : IPromotionTypePort
     {
         var promotionType = await _dbContext.PromotionTypes.FirstOrDefaultAsync(x => x.Name == name);
         return PromotionTypeMapper.ToEntity(promotionType);
+    }
+
+    public async Task<PromotionTypeEntity> UpdatePromotionTypeAsync(long id, PromotionTypeEntity promotionType)
+    {
+        var existingPromotionType = await _dbContext.PromotionTypes
+            .FirstOrDefaultAsync(p => p.Id == id);
+    
+        if (existingPromotionType == null)
+        {
+            throw new KeyNotFoundException($"Promotion type with ID {id} not found");
+        }
+
+        // Update properties
+        existingPromotionType.Name = promotionType.Name;
+        existingPromotionType.Description = promotionType.Description;
+
+        // Save changes
+        await _dbContext.SaveChangesAsync();
+    
+        // Return updated entity
+        return PromotionTypeMapper.ToEntity(existingPromotionType);
     }
 
     public async Task<List<PromotionTypeEntity>> GetPromotionTypesAsync(PromotionTypeParams queryParams)
@@ -93,5 +114,11 @@ public class PromotionTypeAdapter : IPromotionTypePort
         }
         
         return query;
+    }
+
+    public async Task<PromotionTypeEntity> GetPromotionTypeByIdAsync(long id)
+    {
+        var promotionType = await _dbContext.PromotionTypes.FirstOrDefaultAsync(x => x.Id == id);
+        return PromotionTypeMapper.ToEntity(promotionType);
     }
 }

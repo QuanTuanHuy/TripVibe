@@ -5,7 +5,12 @@ namespace PromotionService.Infrastructure.Repository.Model;
 [Table("promotion_types")]
 public class PromotionTypeModel
 {
+    [Column("id")]
     public long Id { get; set; }
-    public string Name { get; set; } = string.Empty;
-    public string Description { get; set; } = string.Empty;
+    
+    [Column("name")]
+    public string Name { get; set; }
+    
+    [Column("description")]
+    public string Description { get; set; }
 }

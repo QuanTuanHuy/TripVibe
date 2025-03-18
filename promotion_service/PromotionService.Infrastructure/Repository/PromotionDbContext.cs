@@ -10,9 +10,8 @@ public class PromotionDbContext : DbContext
     }
     
     public DbSet<PromotionTypeModel> PromotionTypes { get; set; } = null!;
+    public DbSet<ConditionModel> Conditions { get; set; } = null!;
+    public DbSet<PromotionConditionModel> PromotionConditions { get; set; } = null!;
+    public DbSet<PromotionModel> Promotions { get; set; } = null!;
     
-    // protected override void OnModelCreating(ModelBuilder modelBuilder)
-    // {
-    //     modelBuilder.Entity<PromotionTypeModel>().ToTable("promotion_types");
-    // }
 }
