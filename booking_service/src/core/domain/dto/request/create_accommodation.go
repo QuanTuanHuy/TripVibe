@@ -3,9 +3,10 @@ package request
 import "booking_service/core/domain/entity"
 
 type CreateAccommodationDto struct {
-	ID    int64            `json:"id"`
-	Name  string           `json:"name"`
-	Units []*CreateUnitDto `json:"units"`
+	ID      int64            `json:"id"`
+	Name    string           `json:"name"`
+	OwnerID int64            `json:"ownerId"`
+	Units   []*CreateUnitDto `json:"units"`
 }
 
 type CreateUnitDto struct {
@@ -18,7 +19,8 @@ func ToAccommodationEntity(dto *CreateAccommodationDto) *entity.AccommodationEnt
 		BaseEntity: entity.BaseEntity{
 			ID: dto.ID,
 		},
-		Name: dto.Name,
+		OwnerID: dto.OwnerID,
+		Name:    dto.Name,
 	}
 
 	for _, unitDto := range dto.Units {

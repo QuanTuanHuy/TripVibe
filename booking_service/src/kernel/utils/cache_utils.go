@@ -3,9 +3,9 @@ package utils
 import "fmt"
 
 var (
-	CachePrefixAccommodation = "accommodation::%d"
+	CachePrefixAccommodation = "booking_service.accommodation::%d"
 	CachePrefixBooking       = "booking::%d"
-	CachePrefixUser          = "user::%d"
+	CachePrefixUser          = "booking_service.user::%d"
 )
 
 func BuildCacheKeyGetAccommodation(ID int64) string {

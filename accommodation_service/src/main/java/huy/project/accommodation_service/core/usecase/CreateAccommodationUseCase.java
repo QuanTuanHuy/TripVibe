@@ -100,6 +100,7 @@ public class CreateAccommodationUseCase {
 
         CreateAccommodationMessage message = CreateAccommodationMessage.builder()
                 .id(accommodation.getId())
+                .ownerId(accommodation.getHostId())
                 .name(accommodation.getName())
                 .units(units.stream().map(unit -> CreateUnitMessage.builder()
                         .id(unit.getId())
