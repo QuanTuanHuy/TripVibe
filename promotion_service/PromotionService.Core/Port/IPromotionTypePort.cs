@@ -10,4 +10,6 @@ public interface IPromotionTypePort
     Task<PromotionTypeEntity> UpdatePromotionTypeAsync(long id, PromotionTypeEntity promotionType);
     Task<List<PromotionTypeEntity>> GetPromotionTypesAsync(PromotionTypeParams queryParams);
     Task<(List<PromotionTypeEntity> Items, int TotalCount)> GetPromotionTypesWithCountAsync(PromotionTypeParams queryParams);
+
+    Task<PromotionTypeEntity> GetPromotionTypeByIdAsync(long id);
 }

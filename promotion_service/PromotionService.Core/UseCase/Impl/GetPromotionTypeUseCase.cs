@@ -17,4 +17,9 @@ public class GetPromotionTypeUseCase : IGetPromotionTypeUseCase
     {
         return await _promotionTypePort.GetPromotionTypesWithCountAsync(queryParams);
     }
+
+    public async Task<PromotionTypeEntity> GetPromotionTypeByIdAsync(long id)
+    {
+        return await _promotionTypePort.GetPromotionTypeByIdAsync(id);
+    }
 }
