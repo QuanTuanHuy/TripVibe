@@ -115,4 +115,10 @@ public class PromotionTypeAdapter : IPromotionTypePort
         
         return query;
     }
+
+    public async Task<PromotionTypeEntity> GetPromotionTypeByIdAsync(long id)
+    {
+        var promotionType = await _dbContext.PromotionTypes.FirstOrDefaultAsync(x => x.Id == id);
+        return PromotionTypeMapper.ToEntity(promotionType);
+    }
 }
