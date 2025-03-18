@@ -32,6 +32,8 @@ builder.Services.AddScoped<IUpdatePromotionTypeUseCase, UpdatePromotionTypeUseCa
 builder.Services.AddScoped<ICreateConditionUseCase, CreateConditionUseCase>();
 builder.Services.AddScoped<ICreatePromotionUseCase, CreatePromotionUseCase>();
 builder.Services.AddScoped<IGetConditionUseCase, GetConditionUseCase>();
+builder.Services.AddScoped<IGetPromotionConditionUseCase, GetPromotionConditionUseCase>();
+builder.Services.AddScoped<IGetPromotionUseCase, GetPromotionUseCase>();
 
 // Register services
 builder.Services.AddScoped<IPromotionTypeService, PromotionTypeService>();

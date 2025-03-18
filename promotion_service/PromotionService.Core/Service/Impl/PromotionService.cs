@@ -6,15 +6,22 @@ namespace PromotionService.Core.Service.Impl;
 
 public class PromotionService : IPromotionService
 {
-    private readonly ICreatePromotionUseCase createPromotionUseCase;
+    private readonly ICreatePromotionUseCase _createPromotionUseCase;
+    private readonly IGetPromotionUseCase _getPromotionUseCase;
     
-    public PromotionService(ICreatePromotionUseCase createPromotionUseCase)
+    public PromotionService(ICreatePromotionUseCase createPromotionUseCase, IGetPromotionUseCase getPromotionUseCase)
     {
-        this.createPromotionUseCase = createPromotionUseCase;
+        _createPromotionUseCase = createPromotionUseCase;
+        _getPromotionUseCase = getPromotionUseCase;
     }
-    
+
     public async Task<PromotionEntity> CreatePromotionAsync(CreatePromotionDto promotion)
     {
-        return await createPromotionUseCase.CreatePromotionAsync(promotion);
+        return await _createPromotionUseCase.CreatePromotionAsync(promotion);
+    }
+
+    public async Task<(List<PromotionEntity>, int)> GetPromotionsAsync(PromotionParams queryParams)
+    {
+        return await _getPromotionUseCase.GetPromotionsAsync(queryParams);
     }
 }

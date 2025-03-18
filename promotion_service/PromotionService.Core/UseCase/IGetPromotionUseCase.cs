@@ -1,10 +1,9 @@
 using PromotionService.Core.Domain.Dto.Request;
 using PromotionService.Core.Domain.Entity;
 
-namespace PromotionService.Core.Service;
+namespace PromotionService.Core.UseCase;
 
-public interface IPromotionService
+public interface IGetPromotionUseCase
 {
-    Task<PromotionEntity> CreatePromotionAsync(CreatePromotionDto promotion);
     Task<(List<PromotionEntity>, int)> GetPromotionsAsync(PromotionParams queryParams);
 }
