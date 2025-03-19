@@ -7,4 +7,5 @@ import java.util.List;
 public interface IBedroomPort {
     BedroomEntity save(BedroomEntity bedroom);
     List<BedroomEntity> getBedroomsByUnitIds(List<Long> unitIds);
+    List<BedroomEntity> getBedroomsByUnitId(Long unitId);
 }

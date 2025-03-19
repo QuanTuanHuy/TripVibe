@@ -18,13 +18,23 @@ public class GetBedroomUseCase {
 
     public List<BedroomEntity> getBedroomsByUnitIds(List<Long> unitIds) {
         List<BedroomEntity> bedrooms = bedroomPort.getBedroomsByUnitIds(unitIds);
+        setBedToBedroom(bedrooms);
 
+        return bedrooms;
+    }
+
+    public List<BedroomEntity> getBedroomsByUnitId(Long unitId) {
+        List<BedroomEntity> bedrooms = bedroomPort.getBedroomsByUnitId(unitId);
+        setBedToBedroom(bedrooms);
+
+        return bedrooms;
+    }
+
+    private void setBedToBedroom(List<BedroomEntity> bedrooms) {
         List<Long> bedroomIds = bedrooms.stream().map(BedroomEntity::getId).toList();
         List<BedEntity> beds = bedPort.getBedsByBedroomIds(bedroomIds);
         var bedGroup = beds.stream().collect(Collectors.groupingBy(BedEntity::getBedroomId));
 
-        return bedrooms.stream()
-                .peek(bedroom -> bedroom.setBeds(bedGroup.get(bedroom.getId())))
-                .toList();
+        bedrooms.forEach(bedroom -> bedroom.setBeds(bedGroup.get(bedroom.getId())));
     }
 }

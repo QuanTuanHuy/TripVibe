@@ -28,7 +28,7 @@ public class GetAccommodationUseCase {
         return accommodation;
     }
 
-    public Pair<PageInfo, List<AccommodationEntity>> getAccommodation(AccommodationParams params) {
+    public Pair<PageInfo, List<AccommodationEntity>> getAccommodations(AccommodationParams params) {
         return accommodationPort.getAccommodations(params);
     }
 }

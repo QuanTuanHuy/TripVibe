@@ -22,10 +22,10 @@ public class LocationModel extends AuditTable {
     private Long provinceId;
 
     @Column(name = "longitude")
-    private Long longitude;
+    private Double longitude;
 
     @Column(name = "latitude")
-    private Long latitude;
+    private Double latitude;
 
     @Column(name = "detail_address")
     private String detailAddress;

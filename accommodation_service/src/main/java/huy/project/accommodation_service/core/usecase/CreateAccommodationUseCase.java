@@ -4,8 +4,7 @@ import huy.project.accommodation_service.core.domain.constant.ImageEntityType;
 import huy.project.accommodation_service.core.domain.constant.TopicConstant;
 import huy.project.accommodation_service.core.domain.dto.request.CreateAccommodationDto;
 import huy.project.accommodation_service.core.domain.entity.*;
-import huy.project.accommodation_service.core.domain.kafka.CreateAccommodationMessage;
-import huy.project.accommodation_service.core.domain.kafka.CreateUnitMessage;
+import huy.project.accommodation_service.core.domain.kafka.*;
 import huy.project.accommodation_service.core.domain.mapper.AccommodationMapper;
 import huy.project.accommodation_service.core.exception.AppException;
 import huy.project.accommodation_service.core.port.IAccommodationAmenityPort;
@@ -32,7 +31,6 @@ public class CreateAccommodationUseCase {
     private final CreateImageUseCase createImageUseCase;
     private final CreateUnitUseCase createUnitUseCase;
     private final GetAccommodationUseCase getAccommodationUseCase;
-    private final GetUnitUseCase getUnitUseCase;
 
     private final IKafkaPublisher kafkaPublisher;
 
@@ -95,20 +93,16 @@ public class CreateAccommodationUseCase {
     }
 
     public void handleAfterCreateAccommodation(Long accId) {
-        AccommodationEntity accommodation = getAccommodationUseCase.getAccommodationById(accId);
-        List<UnitEntity> units = getUnitUseCase.getUnitsByAccommodationId(accId);
+        var accommodation = getAccommodationUseCase.getDetailAccommodation(accId);
 
-        CreateAccommodationMessage message = CreateAccommodationMessage.builder()
-                .id(accommodation.getId())
-                .ownerId(accommodation.getHostId())
-                .name(accommodation.getName())
-                .units(units.stream().map(unit -> CreateUnitMessage.builder()
-                        .id(unit.getId())
-                        .name(unit.getUnitName().getName())
-                        .build())
-                        .toList())
-                .build();
+        // create accommodation in booking service
+        var message = CreateAccommodationMessage.from(accommodation);
+
+        // create accommodation in search service
+        var messageElastic = CreateAccElasticMessage.from(accommodation);
 
         kafkaPublisher.pushAsync(message.toKafkaBaseDto(), TopicConstant.BookingCommand.TOPIC, "");
+        kafkaPublisher.pushAsync(messageElastic.toKafkaBaseDto(), TopicConstant.SearchCommand.TOPIC, "");
     }
+
 }

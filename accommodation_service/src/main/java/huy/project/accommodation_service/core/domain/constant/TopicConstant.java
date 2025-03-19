@@ -12,8 +12,15 @@ public class TopicConstant {
     }
 
     @UtilityClass
-    public class ViewHistoryCommand {
+    public class TouristCommand {
         public static final String TOPIC = "tourist_service.view_history";
         public static final String CREATE_VIEW_HISTORY = "create_view_history";
+    }
+
+    @UtilityClass
+    public class SearchCommand {
+        public static final String TOPIC = "search_service.accommodation";
+        public static final String CREATE_ACCOMMODATION = "create_accommodation";
+        public static final String ADD_UNIT_TO_ACC = "add_unit_to_accommodation";
     }
 }

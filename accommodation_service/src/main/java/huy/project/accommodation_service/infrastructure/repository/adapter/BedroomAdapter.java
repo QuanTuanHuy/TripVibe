@@ -25,4 +25,9 @@ public class BedroomAdapter implements IBedroomPort {
     public List<BedroomEntity> getBedroomsByUnitIds(List<Long> unitIds) {
         return BedroomMapper.INSTANCE.toListEntity(bedroomRepository.findByUnitIdIn(unitIds));
     }
+
+    @Override
+    public List<BedroomEntity> getBedroomsByUnitId(Long unitId) {
+        return BedroomMapper.INSTANCE.toListEntity(bedroomRepository.findByUnitId(unitId));
+    }
 }

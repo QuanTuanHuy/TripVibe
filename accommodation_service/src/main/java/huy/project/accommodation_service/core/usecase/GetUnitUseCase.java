@@ -68,6 +68,9 @@ public class GetUnitUseCase {
     public UnitEntity getUnitByAccIdAndId(Long accId, Long unitId) {
         var unit = unitPort.getUnitByAccIdAndId(accId, unitId);
         unit.setUnitName(getUnitNameUseCase.getUnitNameById(unit.getUnitNameId()));
+        unit.setImages(getImageUseCase.getImagesByEntityIdAndType(unitId, ImageEntityType.UNIT.getType()));
+        unit.setBedrooms(getBedroomUseCase.getBedroomsByUnitId(unitId));
+        unit.setAmenities(getUnitAmenityUseCase.getUnitAmenitiesByUnitId(unitId));
         return unit;
     }
 }
