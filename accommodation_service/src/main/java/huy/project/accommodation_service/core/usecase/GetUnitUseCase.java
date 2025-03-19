@@ -66,6 +66,8 @@ public class GetUnitUseCase {
     }
 
     public UnitEntity getUnitByAccIdAndId(Long accId, Long unitId) {
-        return unitPort.getUnitByAccIdAndId(accId, unitId);
+        var unit = unitPort.getUnitByAccIdAndId(accId, unitId);
+        unit.setUnitName(getUnitNameUseCase.getUnitNameById(unit.getUnitNameId()));
+        return unit;
     }
 }

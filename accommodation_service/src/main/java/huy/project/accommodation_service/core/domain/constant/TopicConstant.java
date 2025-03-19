@@ -8,6 +8,7 @@ public class TopicConstant {
     public class BookingCommand {
         public static final String TOPIC = "booking_service.accommodation";
         public static final String CREATE_ACCOMMODATION = "create_accommodation";
+        public static final String ADD_UNIT_TO_ACC = "add_unit_to_accommodation";
     }
 
     @UtilityClass

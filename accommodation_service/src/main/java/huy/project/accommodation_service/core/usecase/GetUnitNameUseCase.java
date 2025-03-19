@@ -22,4 +22,8 @@ public class GetUnitNameUseCase {
     public List<UnitNameEntity> getUnitNamesByIds(List<Long> ids) {
         return unitNamePort.getUnitNamesByIds(ids);
     }
+
+    public UnitNameEntity getUnitNameById(Long id) {
+        return unitNamePort.getUnitNameById(id);
+    }
 }
