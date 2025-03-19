@@ -51,6 +51,7 @@ func All() fx.Option {
 		fx.Provide(usecase.NewGetUserUseCase),
 		fx.Provide(usecase.NewGetBookingPromotionUseCase),
 		fx.Provide(usecase.NewGetBookingUnitUseCase),
+		fx.Provide(usecase.NewUpdateBookingUseCase),
 
 		//Provide services
 		fx.Provide(service.NewAccommodationService),

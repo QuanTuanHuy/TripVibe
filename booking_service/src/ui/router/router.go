@@ -30,5 +30,7 @@ func RegisterGinRouters(p RegisterRoutersIn) {
 		bookingV1.POST("", p.BookingController.CreateBooking)
 		bookingV1.GET("/:id", p.BookingController.GetDetailBooking)
 		bookingV1.GET("", p.BookingController.GetAllBookings)
+		bookingV1.PUT("/:id/approve", p.BookingController.ApproveBooking)
+		bookingV1.PUT("/:id/reject", p.BookingController.RejectBooking)
 	}
 }

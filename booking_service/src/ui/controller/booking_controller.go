@@ -2,6 +2,7 @@ package controller
 
 import (
 	"booking_service/core/domain/common"
+	"booking_service/core/domain/constant"
 	"booking_service/core/domain/dto/request"
 	"booking_service/core/domain/dto/response"
 	"booking_service/core/service"
@@ -75,6 +76,54 @@ func (b *BookingController) CreateBooking(c *gin.Context) {
 	}
 
 	apihelper.SuccessfulHandle(c, response.ToBookingResponse(booking))
+}
+
+func (b *BookingController) ApproveBooking(c *gin.Context) {
+	var userID int64 = 1
+
+	bookingID, err := strconv.ParseInt(c.Param("id"), 10, 64)
+	if err != nil {
+		log.Error(c, "error parsing bookingId ", err)
+		apihelper.AbortErrorHandle(c, common.GeneralBadRequest)
+		return
+	}
+
+	err = b.bookingService.ApproveBooking(c, userID, bookingID)
+	if err != nil {
+		log.Error(c, "error approving booking ", err)
+		if err.Error() == constant.ErrForbiddenApprovedBooking {
+			apihelper.AbortErrorHandle(c, common.GeneralForbidden)
+			return
+		}
+		apihelper.AbortErrorHandle(c, common.GeneralServiceUnavailable)
+		return
+	}
+
+	apihelper.SuccessfulHandle(c, true)
+}
+
+func (b *BookingController) RejectBooking(c *gin.Context) {
+	var userID int64 = 1
+
+	bookingID, err := strconv.ParseInt(c.Param("id"), 10, 64)
+	if err != nil {
+		log.Error(c, "error parsing bookingId ", err)
+		apihelper.AbortErrorHandle(c, common.GeneralBadRequest)
+		return
+	}
+
+	err = b.bookingService.RejectBooking(c, userID, bookingID)
+	if err != nil {
+		log.Error(c, "error rejecting booking ", err)
+		if err.Error() == constant.ErrForbiddenRejectBooking {
+			apihelper.AbortErrorHandle(c, common.GeneralForbidden)
+			return
+		}
+		apihelper.AbortErrorHandle(c, common.GeneralServiceUnavailable)
+		return
+	}
+
+	apihelper.SuccessfulHandle(c, true)
 }
 
 func NewBookingController(bookingService service.IBookingService) *BookingController {

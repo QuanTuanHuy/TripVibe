@@ -9,4 +9,6 @@ const (
 	ErrBookingUnitNotFound       = "booking unit not found"
 	ErrBookingPromotionNotFound  = "booking promotion not found"
 	ErrCacheKeyNil               = "cache key nil"
+	ErrForbiddenApprovedBooking  = "forbidden approved booking"
+	ErrForbiddenRejectBooking    = "forbidden reject booking"
 )
