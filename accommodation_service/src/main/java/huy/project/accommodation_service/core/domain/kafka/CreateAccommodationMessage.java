@@ -14,6 +14,7 @@ import java.util.List;
 public class CreateAccommodationMessage {
     private Long id;
     private String name;
+    private Long ownerId;
     private List<CreateUnitMessage> units;
 
     public KafkaBaseDto<CreateAccommodationMessage> toKafkaBaseDto() {

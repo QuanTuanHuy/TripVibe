@@ -1,5 +1,8 @@
 package constant
 
 const (
-	PENDING = "PENDING"
+	PENDING   = "PENDING"
+	APPROVED  = "APPROVED"
+	CANCELLED = "CANCELLED"
+	REJECTED  = "REJECTED"
 )

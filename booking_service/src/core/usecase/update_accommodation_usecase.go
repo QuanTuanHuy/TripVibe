@@ -1,6 +1,7 @@
 package usecase
 
 import (
+	"booking_service/core/domain/dto/request"
 	"booking_service/core/domain/entity"
 	"booking_service/core/port"
 	"booking_service/kernel/utils"
@@ -10,6 +11,7 @@ import (
 
 type IUpdateAccommodationUseCase interface {
 	UpdateAccommodationByID(ctx context.Context, accommodation *entity.AccommodationEntity) (*entity.AccommodationEntity, error)
+	AddUnitToAccommodation(ctx context.Context, req *request.AddUnitToAccommodationDto) (*entity.UnitEntity, error)
 }
 
 type UpdateAccommodationUseCase struct {
@@ -18,6 +20,46 @@ type UpdateAccommodationUseCase struct {
 	cachePort            port.ICachePort
 	getAccUseCase        IGetAccommodationUseCase
 	dbTransactionUseCase IDatabaseTransactionUseCase
+}
+
+func (u UpdateAccommodationUseCase) AddUnitToAccommodation(ctx context.Context, req *request.AddUnitToAccommodationDto) (*entity.UnitEntity, error) {
+	_, err := u.getAccUseCase.GetAccommodationByID(ctx, req.AccommodationID)
+	if err != nil {
+		log.Error(ctx, "GetAccommodationByID error ", err)
+		return nil, err
+	}
+
+	tx := u.dbTransactionUseCase.StartTransaction()
+	defer func() {
+		if errRollBack := u.dbTransactionUseCase.Rollback(tx); errRollBack != nil {
+			log.Error(ctx, "Rollback add unit to accommodation failed, : ", errRollBack)
+		} else {
+			log.Info(ctx, "Rollback add unit to accommodation success")
+		}
+	}()
+
+	unit := request.ToUnitEntity(req)
+	unit, err = u.unitPort.CreateUnit(ctx, tx, unit)
+	if err != nil {
+		log.Error(ctx, "Create unit failed, : ", err)
+		return nil, err
+	}
+
+	errCommit := u.dbTransactionUseCase.Commit(tx)
+	if errCommit != nil {
+		log.Error(ctx, "Commit add unit to accommodation failed, : ", errCommit)
+		return nil, errCommit
+	}
+
+	// delete from cache
+	go func() {
+		err := u.cachePort.DeleteFromCache(ctx, utils.BuildCacheKeyGetAccommodation(req.AccommodationID))
+		if err != nil {
+			log.Error(ctx, "Delete accommodation cache failed, : ", err)
+		}
+	}()
+
+	return unit, nil
 }
 
 func (u UpdateAccommodationUseCase) UpdateAccommodationByID(ctx context.Context, accommodation *entity.AccommodationEntity) (*entity.AccommodationEntity, error) {

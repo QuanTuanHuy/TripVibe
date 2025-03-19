@@ -1,6 +1,7 @@
 package service
 
 import (
+	"booking_service/core/domain/dto/request"
 	"booking_service/core/domain/entity"
 	"booking_service/core/usecase"
 	"context"
@@ -11,6 +12,7 @@ type IAccommodationService interface {
 	GetAccommodationByID(ctx context.Context, ID int64) (*entity.AccommodationEntity, error)
 	UpdateAccommodation(ctx context.Context, accommodation *entity.AccommodationEntity) (*entity.AccommodationEntity, error)
 	DeleteAccommodation(ctx context.Context, ID int64) error
+	AddUnitToAccommodation(ctx context.Context, req *request.AddUnitToAccommodationDto) (*entity.UnitEntity, error)
 }
 
 type AccommodationService struct {
@@ -18,6 +20,10 @@ type AccommodationService struct {
 	getAccUseCase    usecase.IGetAccommodationUseCase
 	deleteAccUseCase usecase.IDeleteAccommodationUseCase
 	updateAccUseCase usecase.IUpdateAccommodationUseCase
+}
+
+func (a AccommodationService) AddUnitToAccommodation(ctx context.Context, req *request.AddUnitToAccommodationDto) (*entity.UnitEntity, error) {
+	return a.updateAccUseCase.AddUnitToAccommodation(ctx, req)
 }
 
 func (a AccommodationService) CreateAccommodation(ctx context.Context, accommodation *entity.AccommodationEntity) (*entity.AccommodationEntity, error) {

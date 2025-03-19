@@ -2,6 +2,7 @@ package entity
 
 type AccommodationEntity struct {
 	BaseEntity
-	Name  string        `json:"name"`
-	Units []*UnitEntity `json:"units"`
+	Name    string        `json:"name"`
+	OwnerID int64         `json:"ownerId"`
+	Units   []*UnitEntity `json:"units"`
 }

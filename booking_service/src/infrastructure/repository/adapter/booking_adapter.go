@@ -17,6 +17,14 @@ type BookingAdapter struct {
 	base
 }
 
+func (b BookingAdapter) UpdateBooking(ctx context.Context, tx *gorm.DB, booking *entity.BookingEntity) (*entity.BookingEntity, error) {
+	bookingModel := mapper.ToBookingModel(booking)
+	if err := tx.WithContext(ctx).Where("id = ?", bookingModel.ID).Updates(bookingModel).Error; err != nil {
+		return nil, err
+	}
+	return mapper.ToBookingEntity(bookingModel), nil
+}
+
 func (b BookingAdapter) GetAllBookings(ctx context.Context, params *request.BookingParams) ([]*entity.BookingEntity, error) {
 	var bookingModels []*model.BookingModel
 	query, args := specification.ToGetBookingSpecification(params)

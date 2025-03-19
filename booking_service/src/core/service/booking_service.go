@@ -14,11 +14,22 @@ type IBookingService interface {
 	CreateBooking(ctx context.Context, req *request.CreateBookingDto) (*entity.BookingEntity, error)
 	GetDetailBooking(ctx context.Context, userID int64, bookingID int64) (*entity.BookingEntity, error)
 	GetAllBookings(ctx context.Context, params *request.BookingParams) (*response.GetBookingResponse, error)
+	ApproveBooking(ctx context.Context, userID int64, bookingID int64) error
+	RejectBooking(ctx context.Context, userID int64, bookingID int64) error
 }
 
 type BookingService struct {
 	createBookingUseCase usecase.ICreateBookingUseCase
 	getBookingUseCase    usecase.IGetBookingUseCase
+	updateBookingUseCase usecase.IUpdateBookingUseCase
+}
+
+func (b BookingService) ApproveBooking(ctx context.Context, userID int64, bookingID int64) error {
+	return b.updateBookingUseCase.ApproveBooking(ctx, userID, bookingID)
+}
+
+func (b BookingService) RejectBooking(ctx context.Context, userID int64, bookingID int64) error {
+	return b.updateBookingUseCase.RejectBooking(ctx, userID, bookingID)
 }
 
 func (b BookingService) GetAllBookings(ctx context.Context, params *request.BookingParams) (*response.GetBookingResponse, error) {
@@ -49,9 +60,11 @@ func (b BookingService) CreateBooking(ctx context.Context, req *request.CreateBo
 }
 
 func NewBookingService(createBookingUseCase usecase.ICreateBookingUseCase,
-	getBookingUseCase usecase.IGetBookingUseCase) IBookingService {
+	getBookingUseCase usecase.IGetBookingUseCase,
+	updateBookingUseCase usecase.IUpdateBookingUseCase) IBookingService {
 	return &BookingService{
 		createBookingUseCase: createBookingUseCase,
 		getBookingUseCase:    getBookingUseCase,
+		updateBookingUseCase: updateBookingUseCase,
 	}
 }

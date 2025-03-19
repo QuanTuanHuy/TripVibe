@@ -12,7 +12,8 @@ func ToAccommodationEntity(accommodation *model.AccommodationModel) *entity.Acco
 			CreatedAt: accommodation.CreatedAt.Unix(),
 			UpdatedAt: accommodation.UpdatedAt.Unix(),
 		},
-		Name: accommodation.Name,
+		Name:    accommodation.Name,
+		OwnerID: accommodation.OwnerID,
 	}
 }
 
@@ -21,6 +22,7 @@ func ToAccommodationModel(accommodation *entity.AccommodationEntity) *model.Acco
 		BaseModel: model.BaseModel{
 			ID: accommodation.ID,
 		},
-		Name: accommodation.Name,
+		Name:    accommodation.Name,
+		OwnerID: accommodation.OwnerID,
 	}
 }

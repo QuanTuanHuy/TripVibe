@@ -81,6 +81,101 @@ func (g GetBookingUseCase) GetAllBookings(ctx context.Context, params *request.B
 	return bookings, nil
 }
 
+//func (g GetBookingUseCase) GetAllBookings(ctx context.Context, params *request.BookingParams) ([]*entity.BookingEntity, error) {
+//	bookings, err := g.bookingPort.GetAllBookings(ctx, params)
+//	if err != nil {
+//		log.Error(ctx, "get all bookings failed ", err)
+//		return nil, err
+//	}
+//
+//	if len(bookings) == 0 {
+//		return bookings, nil
+//	}
+//
+//	// Extract IDs
+//	bookingIDs := make([]int64, 0, len(bookings))
+//	touristIDs := make([]int64, 0, len(bookings))
+//	for _, booking := range bookings {
+//		bookingIDs = append(bookingIDs, booking.ID)
+//		touristIDs = append(touristIDs, booking.TouristID)
+//	}
+//
+//	// Create error channel and wait group
+//	errCh := make(chan error, 3)
+//	var wg sync.WaitGroup
+//	wg.Add(3)
+//
+//	// Shared results
+//	var bookingUnits []*entity.BookingUnitEntity
+//	var bookingPromotions []*entity.BookingPromotionEntity
+//	var tourists []*entity.UserEntity
+//
+//	// get booking units
+//	go func() {
+//		defer wg.Done()
+//		var err error
+//		bookingUnits, err = g.getBookingUnitUseCase.GetBookingUnitsByBookingIDs(ctx, bookingIDs)
+//		if err != nil {
+//			log.Error(ctx, "get booking units failed ", err)
+//			errCh <- err
+//		}
+//	}()
+//
+//	// get booking promotions
+//	go func() {
+//		defer wg.Done()
+//		var err error
+//		bookingPromotions, err = g.getBookingPromotionUseCase.GetBookingPromotionsByBookingIDs(ctx, bookingIDs)
+//		if err != nil {
+//			log.Error(ctx, "get booking promotions failed ", err)
+//			errCh <- err
+//		}
+//	}()
+//
+//	// get tourists
+//	go func() {
+//		defer wg.Done()
+//		var err error
+//		tourists, err = g.getUserUseCase.GetUsersByIDs(ctx, touristIDs)
+//		if err != nil {
+//			log.Error(ctx, "get users failed ", err)
+//			errCh <- err
+//		}
+//	}()
+//
+//	wg.Wait()
+//
+//	select {
+//	case err := <-errCh:
+//		log.Error(ctx, "get booking units failed ", err)
+//		return nil, err
+//	default:
+//	}
+//
+//	bookingUnitGroup := make(map[int64][]*entity.BookingUnitEntity)
+//	for _, unit := range bookingUnits {
+//		bookingUnitGroup[unit.BookingID] = append(bookingUnitGroup[unit.BookingID], unit)
+//	}
+//
+//	bookingPromotionGroup := make(map[int64][]*entity.BookingPromotionEntity)
+//	for _, promo := range bookingPromotions {
+//		bookingPromotionGroup[promo.BookingID] = append(bookingPromotionGroup[promo.BookingID], promo)
+//	}
+//
+//	touristMap := make(map[int64]*entity.UserEntity)
+//	for _, tourist := range tourists {
+//		touristMap[tourist.ID] = tourist
+//	}
+//
+//	for _, booking := range bookings {
+//		booking.Units = bookingUnitGroup[booking.ID]
+//		booking.Promotions = bookingPromotionGroup[booking.ID]
+//		booking.Tourist = touristMap[booking.TouristID]
+//	}
+//
+//	return bookings, nil
+//}
+
 func (g GetBookingUseCase) CountAllBookings(ctx context.Context, params *request.BookingParams) (int64, error) {
 	return g.bookingPort.CountAllBookings(ctx, params)
 }
