@@ -6,14 +6,26 @@ using PromotionService.Core.Service;
 using PromotionService.Core.Service.Impl;
 using PromotionService.Core.UseCase;
 using PromotionService.Core.UseCase.Impl;
+using PromotionService.Infrastructure.Redis;
 using PromotionService.Infrastructure.Repository;
 using PromotionService.Infrastructure.Repository.Adapter;
+using PromotionService.Kernel.Utils;
+using StackExchange.Redis;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
+
+// Redis configuration
+builder.Services.AddSingleton<JsonUtils>();
+builder.Services.AddSingleton<IConnectionMultiplexer>(sp => 
+{
+    string redisConnection = builder.Configuration.GetConnectionString("Redis") ?? "localhost:6379";
+    return ConnectionMultiplexer.Connect(redisConnection);
+});
+builder.Services.AddSingleton<ICachePort, RedisCacheAdapter>();
 
 // Configure database
 builder.Services.AddDbContext<PromotionDbContext>(options =>
