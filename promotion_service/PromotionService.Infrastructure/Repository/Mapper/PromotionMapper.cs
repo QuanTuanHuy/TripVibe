@@ -5,7 +5,7 @@ namespace PromotionService.Infrastructure.Repository.Mapper;
 
 public class PromotionMapper
 {
-    public static PromotionEntity ToEntity(PromotionModel promotion)
+    public static PromotionEntity ToEntity(PromotionModel? promotion)
     {
         if (promotion == null)
         {

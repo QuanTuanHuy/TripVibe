@@ -17,4 +17,5 @@ public class PromotionEntity
     
     public PromotionTypeEntity PromotionType { get; set; }
     public List<PromotionConditionEntity> Conditions { get; set; }
+    public List<PromotionUnitEntity> Units { get; set; }
 }

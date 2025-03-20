@@ -7,4 +7,6 @@ public interface IPromotionService
 {
     Task<PromotionEntity> CreatePromotionAsync(CreatePromotionDto promotion);
     Task<(List<PromotionEntity>, int)> GetPromotionsAsync(PromotionParams queryParams);
+    Task<PromotionEntity> GetDetailPromotionAsync(long id);
+    Task StopPromotionAsync(long userId, long id);
 }

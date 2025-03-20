@@ -8,11 +8,14 @@ public class GetPromotionUseCase : IGetPromotionUseCase
 {
     private readonly IPromotionPort _promotionPort;
     private readonly IGetPromotionConditionUseCase _getPromotionConditionUseCase;
+    private readonly IGetPromotionUnitUseCase _getPromotionUnitUseCase;
 
-    public GetPromotionUseCase(IPromotionPort promotionPort, IGetPromotionConditionUseCase getPromotionConditionUseCase)
+    public GetPromotionUseCase(IPromotionPort promotionPort, IGetPromotionConditionUseCase getPromotionConditionUseCase,
+        IGetPromotionUnitUseCase getPromotionUnitUseCase)
     {
         _promotionPort = promotionPort;
         _getPromotionConditionUseCase = getPromotionConditionUseCase;
+        _getPromotionUnitUseCase = getPromotionUnitUseCase;
     }
 
     public async Task<(List<PromotionEntity>, int)> GetPromotionsAsync(PromotionParams queryParams)
@@ -27,9 +30,13 @@ public class GetPromotionUseCase : IGetPromotionUseCase
         var promotionIds = promotions.Select(p => p.Id).ToList();
 
         var promotionConditions = await _getPromotionConditionUseCase.GetConditionsByPromotionIdsAsync(promotionIds);
-
         var conditionsByPromotionId = promotionConditions
             .GroupBy(pc => pc.PromotionId)
+            .ToDictionary(g => g.Key, g => g.ToList());
+
+        var promotionUnits = await _getPromotionUnitUseCase.GetPromotionUnitsByPromotionIdsAsync(promotionIds);
+        var unitsByPromotionId = promotionUnits
+            .GroupBy(pu => pu.PromotionId)
             .ToDictionary(g => g.Key, g => g.ToList());
 
         foreach (var promotion in promotions)
@@ -38,13 +45,28 @@ public class GetPromotionUseCase : IGetPromotionUseCase
             {
                 promotion.Conditions = conditions;
             }
-            else
+
+            if (unitsByPromotionId.TryGetValue(promotion.Id, out var units))
             {
-                promotion.Conditions = new List<PromotionConditionEntity>();
+                promotion.Units = units;
             }
         }
 
         return (promotions, count);
+    }
+
+    public async Task<PromotionEntity> GetDetailPromotionAsync(long id)
+    {
+        var promotion = await _promotionPort.GetPromotionByIdAsync(id);
+        if (promotion == null)
+        {
+            throw new Exception("Promotion not found");
+        }
+
+        promotion.Conditions = await _getPromotionConditionUseCase.GetConditionsByPromotionIdAsync(id);
+        promotion.Units = await _getPromotionUnitUseCase.GetPromotionUnitsByPromotionIdAsync(id);
+
+        return promotion;
     }
 
 }

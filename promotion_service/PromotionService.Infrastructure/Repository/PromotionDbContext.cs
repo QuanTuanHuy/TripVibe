@@ -13,5 +13,6 @@ public class PromotionDbContext : DbContext
     public DbSet<ConditionModel> Conditions { get; set; } = null!;
     public DbSet<PromotionConditionModel> PromotionConditions { get; set; } = null!;
     public DbSet<PromotionModel> Promotions { get; set; } = null!;
+    public DbSet<PromotionUnitModel> PromotionUnits { get; set; } = null!;
     
 }

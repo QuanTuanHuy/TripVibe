@@ -37,4 +37,19 @@ public class PromotionController : ControllerBase
 
         return Ok(response);
     }
+
+    [HttpGet("{id}")]
+    public async Task<IActionResult> GetDetailPromotionAsync(long id)
+    {
+        var promotion = await _promotionService.GetDetailPromotionAsync(id);
+        return Ok(promotion);
+    }
+
+    [HttpPut("{id}/stop")]
+    public async Task<IActionResult> StopPromotionAsync(long id)
+    {
+        // now hardcoding the userId to 1
+        await _promotionService.StopPromotionAsync(1, id);
+        return Ok(true);
+    }
 }

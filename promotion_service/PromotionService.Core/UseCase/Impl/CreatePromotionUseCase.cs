@@ -11,6 +11,7 @@ public class CreatePromotionUseCase : ICreatePromotionUseCase
     private readonly IPromotionPort _promotionPort;
     private readonly IPromotionConditionPort _promotionConditionPort;
     private readonly IDbTransactionPort _dbTransactionPort;
+    private readonly IPromotionUnitPort _promotionUnitPort;
     private readonly IGetPromotionTypeUseCase _getPromotionTypeUseCase;
     private readonly IGetConditionUseCase _getConditionUseCase;
     private readonly ILogger<CreatePromotionUseCase> _logger;
@@ -18,6 +19,7 @@ public class CreatePromotionUseCase : ICreatePromotionUseCase
     public CreatePromotionUseCase(IPromotionPort promotionPort,
         IPromotionConditionPort promotionConditionPort,
         IDbTransactionPort dbTransactionPort,
+        IPromotionUnitPort promotionUnitPort,
         IGetPromotionTypeUseCase getPromotionTypeUseCase,
         IGetConditionUseCase getConditionUseCase,
         ILogger<CreatePromotionUseCase> logger
@@ -26,6 +28,7 @@ public class CreatePromotionUseCase : ICreatePromotionUseCase
         _promotionPort = promotionPort;
         _promotionConditionPort = promotionConditionPort;
         _dbTransactionPort = dbTransactionPort;
+        _promotionUnitPort = promotionUnitPort;
         _getPromotionTypeUseCase = getPromotionTypeUseCase;
         _getConditionUseCase = getConditionUseCase;
         _logger = logger;
@@ -55,19 +58,11 @@ public class CreatePromotionUseCase : ICreatePromotionUseCase
         {
             var promotion = await _promotionPort.CreatePromotionAsync(req.ToEntity());
 
-            // create promotion condition list
-            var promotionConditions = new List<PromotionConditionEntity>();
-            foreach (var condition in req.Conditions)
-            {
-                var promotionCondition = new PromotionConditionEntity
-                {
-                    PromotionId = promotion.Id,
-                    ConditionId = condition.ConditionId,
-                    ConditionValue = condition.ConditionValue
-                };
-                promotionConditions.Add(promotionCondition);
-            }
+            var promotionConditions = req.Conditions.Select(c => c.ToEntity(promotion.Id)).ToList();
             await _promotionConditionPort.CreatePromotionConditionsAsync(promotionConditions);
+
+            var promotionUnits = req.Units.Select(unit => unit.ToEntity(promotion.Id)).ToList();
+            await _promotionUnitPort.CreatePromotionUnitsAsync(promotionUnits);
 
             return promotion;
         });

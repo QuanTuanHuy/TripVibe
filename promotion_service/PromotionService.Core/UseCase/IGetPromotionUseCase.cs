@@ -6,4 +6,5 @@ namespace PromotionService.Core.UseCase;
 public interface IGetPromotionUseCase
 {
     Task<(List<PromotionEntity>, int)> GetPromotionsAsync(PromotionParams queryParams);
+    Task<PromotionEntity> GetDetailPromotionAsync(long id);
 }
