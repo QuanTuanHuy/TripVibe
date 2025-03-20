@@ -17,7 +17,7 @@ public class CreateViewHistoryMessage {
 
     public KafkaBaseDto<CreateViewHistoryMessage> toKafkaBaseDto() {
         return KafkaBaseDto.<CreateViewHistoryMessage>builder()
-                .cmd(TopicConstant.ViewHistoryCommand.CREATE_VIEW_HISTORY)
+                .cmd(TopicConstant.TouristCommand.CREATE_VIEW_HISTORY)
                 .data(this)
                 .timestamp(Instant.now().toEpochMilli())
                 .build();

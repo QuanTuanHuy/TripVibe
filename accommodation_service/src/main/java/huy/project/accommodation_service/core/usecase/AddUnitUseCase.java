@@ -3,8 +3,8 @@ package huy.project.accommodation_service.core.usecase;
 import huy.project.accommodation_service.core.domain.constant.ErrorCode;
 import huy.project.accommodation_service.core.domain.constant.TopicConstant;
 import huy.project.accommodation_service.core.domain.dto.request.CreateUnitDto;
+import huy.project.accommodation_service.core.domain.kafka.AddUnitToAccElasticMessage;
 import huy.project.accommodation_service.core.domain.kafka.AddUnitToAccMessage;
-import huy.project.accommodation_service.core.domain.kafka.CreateUnitMessage;
 import huy.project.accommodation_service.core.exception.AppException;
 import huy.project.accommodation_service.core.port.ICachePort;
 import huy.project.accommodation_service.core.port.IKafkaPublisher;
@@ -45,13 +45,10 @@ public class AddUnitUseCase {
     private void pushMessageToKafka(Long accId, Long unitId) {
         var unit = getUnitUseCase.getUnitByAccIdAndId(accId, unitId);
 
-        var message = AddUnitToAccMessage.builder()
-                .accommodationId(accId)
-                .unit(CreateUnitMessage.builder()
-                        .id(unitId)
-                        .name(unit.getUnitName().getName())
-                        .build())
-                .build();
+        var message = AddUnitToAccMessage.from(unit);
+        var messageElastic = AddUnitToAccElasticMessage.from(unit);
+
         kafkaPublisher.pushAsync(message.toKafkaBaseDto(), TopicConstant.BookingCommand.TOPIC, null);
+        kafkaPublisher.pushAsync(messageElastic.toKafkaBaseDto(), TopicConstant.SearchCommand.TOPIC, null);
     }
 }

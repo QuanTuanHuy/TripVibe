@@ -10,7 +10,7 @@ import lombok.Setter;
 public class CreateLocationDto {
     private Long countryId;
     private Long provinceId;
-    private Long longitude;
-    private Long latitude;
+    private Double longitude;
+    private Double latitude;
     private String detailAddress;
 }

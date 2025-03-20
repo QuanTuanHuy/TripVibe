@@ -3,6 +3,8 @@ package huy.project.search_service.core.service;
 import huy.project.search_service.core.domain.dto.request.AccommodationParams;
 import huy.project.search_service.core.domain.dto.response.PageInfo;
 import huy.project.search_service.core.domain.entity.AccommodationEntity;
+import huy.project.search_service.core.domain.entity.UnitEntity;
+import huy.project.search_service.core.usecase.AddUnitUseCase;
 import huy.project.search_service.core.usecase.CreateAccommodationUseCase;
 import huy.project.search_service.core.usecase.DeleteAccommodationUseCase;
 import huy.project.search_service.core.usecase.GetAccommodationUseCase;
@@ -18,6 +20,7 @@ public class AccommodationService implements IAccommodationService{
     private final CreateAccommodationUseCase createAccommodationUseCase;
     private final GetAccommodationUseCase getAccommodationUseCase;
     private final DeleteAccommodationUseCase deleteAccommodationUseCase;
+    private final AddUnitUseCase addUnitUseCase;
 
     @Override
     public AccommodationEntity createAccommodation(AccommodationEntity accommodation) {
@@ -35,7 +38,12 @@ public class AccommodationService implements IAccommodationService{
     }
 
     @Override
-    public Pair<PageInfo, List<AccommodationEntity>> getAccommodation(AccommodationParams params) {
-        return getAccommodationUseCase.getAccommodation(params);
+    public void addUnitToAccommodation(Long accId, UnitEntity unit) {
+        addUnitUseCase.addUnitToAccommodation(accId, unit);
+    }
+
+    @Override
+    public Pair<PageInfo, List<AccommodationEntity>> getAccommodations(AccommodationParams params) {
+        return getAccommodationUseCase.getAccommodations(params);
     }
 }

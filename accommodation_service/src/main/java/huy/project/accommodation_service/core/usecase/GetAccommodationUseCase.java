@@ -65,7 +65,7 @@ public class GetAccommodationUseCase {
                 .accommodationId(accId)
                 .timestamp(Instant.now().toEpochMilli())
                 .build();
-        kafkaPublisher.pushAsync(message.toKafkaBaseDto(), TopicConstant.ViewHistoryCommand.TOPIC, null);
+        kafkaPublisher.pushAsync(message.toKafkaBaseDto(), TopicConstant.TouristCommand.TOPIC, null);
     }
 
     public AccommodationEntity getAccommodationById(Long id) {

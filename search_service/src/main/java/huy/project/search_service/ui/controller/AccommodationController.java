@@ -27,7 +27,7 @@ public class AccommodationController {
     public ResponseEntity<Resource<?>> getAccommodation(
             @RequestBody AccommodationParams params
     ) {
-        return ResponseEntity.ok(new Resource<>(accommodationService.getAccommodation(params)));
+        return ResponseEntity.ok(new Resource<>(accommodationService.getAccommodations(params)));
     }
 
     @GetMapping("/{id}")
