@@ -2,6 +2,7 @@ using Microsoft.Extensions.Logging;
 using PromotionService.Core.Domain.Dto.Request;
 using PromotionService.Core.Domain.Entity;
 using PromotionService.Core.Domain.Port;
+using PromotionService.Core.Exception;
 using PromotionService.Core.Port;
 
 namespace PromotionService.Core.UseCase.Impl;
@@ -41,7 +42,7 @@ public class CreatePromotionUseCase : ICreatePromotionUseCase
         if (promotionType == null)
         {
             _logger.LogError("Promotion type not found");
-            throw new Exception("Promotion type not found");
+            throw new AppException(Domain.Constant.ErrorCode.PROMOTION_TYPE_NOT_FOUND);
         }
 
         // validate condition is exist
@@ -50,7 +51,7 @@ public class CreatePromotionUseCase : ICreatePromotionUseCase
         if (conditions.Count != conditionIds.Count)
         {
             _logger.LogError("some condition not found");
-            throw new Exception("some condition not found");
+            throw new AppException(Domain.Constant.ErrorCode.PROMOTION_CONDITION_NOT_FOUND);
         }
 
         // create promotion

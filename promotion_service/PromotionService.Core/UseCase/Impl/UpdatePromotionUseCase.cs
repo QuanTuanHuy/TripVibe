@@ -3,6 +3,7 @@ namespace PromotionService.Core.UseCase.Impl
     using System.Threading.Tasks;
     using Microsoft.Extensions.Logging;
     using PromotionService.Core.Domain.Port;
+    using PromotionService.Core.Exception;
     using PromotionService.Core.Port;
 
     public class UpdatePromotionUseCase : IUpdatePromotionUseCase
@@ -27,7 +28,11 @@ namespace PromotionService.Core.UseCase.Impl
                 _logger.LogError("Promotion is already stopped");
                 return;
             }
-            // need to check user is owner of accommodation in promotion
+            if (promotion.CreatedBy != userId)
+            {
+                _logger.LogError($"User {userId} is not allowed to stop this promotion {id}");
+                throw new AppException(Domain.Constant.ErrorCode.GENERAL_FORBIDDEN);
+            }
 
             promotion.IsActive = false;
 

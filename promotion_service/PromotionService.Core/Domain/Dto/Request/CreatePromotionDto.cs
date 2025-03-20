@@ -4,6 +4,7 @@ namespace PromotionService.Core.Domain.Dto.Request
 {
     public class CreatePromotionDto
     {
+        public long CreatedBy { get; set; }
         public long TypeId { get; set; }
         public long AccommodationId { get; set; }
         public string Name { get; set; }
@@ -22,6 +23,7 @@ namespace PromotionService.Core.Domain.Dto.Request
         {
             return new PromotionEntity
             {
+                CreatedBy = CreatedBy,
                 TypeId = TypeId,
                 AccommodationId = AccommodationId,
                 Name = Name,

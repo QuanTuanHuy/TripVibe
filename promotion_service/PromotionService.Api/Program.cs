@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using PromotionService.Api.Middleware;
 using PromotionService.Core.Domain.Port;
 using PromotionService.Core.Port;
 using PromotionService.Core.Service;
@@ -43,6 +44,8 @@ builder.Services.AddScoped<IPromotionTypeService, PromotionTypeService>();
 builder.Services.AddScoped<IConditionService, ConditionService>();
 builder.Services.AddScoped<IPromotionService, PromotionService.Core.Service.Impl.PromotionService>();
 var app = builder.Build();
+
+app.UseMiddleware<ExceptionHandlingMiddleware>();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())

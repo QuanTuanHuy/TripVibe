@@ -1,5 +1,6 @@
 using PromotionService.Core.Domain.Dto.Request;
 using PromotionService.Core.Domain.Entity;
+using PromotionService.Core.Exception;
 using PromotionService.Core.Port;
 
 namespace PromotionService.Core.UseCase.Impl;
@@ -60,7 +61,7 @@ public class GetPromotionUseCase : IGetPromotionUseCase
         var promotion = await _promotionPort.GetPromotionByIdAsync(id);
         if (promotion == null)
         {
-            throw new Exception("Promotion not found");
+            throw new AppException(Domain.Constant.ErrorCode.PROMOTION_TYPE_NOT_FOUND);
         }
 
         promotion.Conditions = await _getPromotionConditionUseCase.GetConditionsByPromotionIdAsync(id);

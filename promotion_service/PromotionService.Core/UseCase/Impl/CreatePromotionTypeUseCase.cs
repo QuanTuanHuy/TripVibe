@@ -1,5 +1,6 @@
 ﻿using PromotionService.Core.Domain.Entity;
 using PromotionService.Core.Domain.Port;
+using PromotionService.Core.Exception;
 using PromotionService.Core.Port;
 
 namespace PromotionService.Core.UseCase.Impl;
@@ -21,7 +22,7 @@ public class CreatePromotionTypeUseCase : ICreatePromotionTypeUseCase
         var existingPromotionType = await _promotionTypePort.GetPromotionTypeByNameAsync(promotionType.Name);
         if (existingPromotionType != null)
         {
-            throw new Exception("Promotion type name already exists");
+            throw new AppException(Domain.Constant.ErrorCode.PROMOTION_TYPE_NAME_EXIST);
         }
         
         return await _dbTransactionPort.ExecuteInTransactionAsync(async () =>

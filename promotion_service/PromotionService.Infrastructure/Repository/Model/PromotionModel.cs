@@ -7,6 +7,9 @@ public class PromotionModel
 {
     [Column("id")]
     public long Id { get; set; }
+
+    [Column("created_by")]
+    public long CreatedBy { get; set; }
     
     [Column("type_id")]
     public long TypeId { get; set; }

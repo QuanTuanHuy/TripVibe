@@ -15,6 +15,7 @@ public class PromotionMapper
         return new PromotionEntity
         {
             Id = promotion.Id,
+            CreatedBy = promotion.CreatedBy,
             TypeId = promotion.TypeId,
             AccommodationId = promotion.AccommodationId,
             Name = promotion.Name,
@@ -39,6 +40,7 @@ public class PromotionMapper
         return new PromotionModel
         {
             Id = promotionEntity.Id,
+            CreatedBy = promotionEntity.CreatedBy,
             TypeId = promotionEntity.TypeId,
             AccommodationId = promotionEntity.AccommodationId,
             Name = promotionEntity.Name,
