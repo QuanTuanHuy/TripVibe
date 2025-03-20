@@ -42,7 +42,12 @@ func (b *BookingController) GetAllBookings(c *gin.Context) {
 }
 
 func (b *BookingController) GetDetailBooking(c *gin.Context) {
-	var userID int64 = 1
+	userID, ok := c.Get("userID")
+	if !ok {
+		log.Error(c, "error getting user id from context")
+		return
+	}
+
 	bookingID, err := strconv.ParseInt(c.Param("id"), 10, 64)
 	if err != nil {
 		log.Error(c, "error binding request ", err)
@@ -50,7 +55,7 @@ func (b *BookingController) GetDetailBooking(c *gin.Context) {
 		return
 	}
 
-	booking, err := b.bookingService.GetDetailBooking(c, userID, bookingID)
+	booking, err := b.bookingService.GetDetailBooking(c, userID.(int64), bookingID)
 	if err != nil {
 		log.Error(c, "error getting booking ", err)
 		apihelper.AbortErrorHandle(c, common.GeneralBadRequest)
@@ -61,12 +66,19 @@ func (b *BookingController) GetDetailBooking(c *gin.Context) {
 }
 
 func (b *BookingController) CreateBooking(c *gin.Context) {
+	userID, ok := c.Get("userID")
+	if !ok {
+		log.Error(c, "error getting user id from context")
+		return
+	}
+
 	var req request.CreateBookingDto
 	if err := c.ShouldBindJSON(&req); err != nil {
 		log.Error(c, "error binding request ", err)
 		apihelper.AbortErrorHandle(c, common.GeneralBadRequest)
 		return
 	}
+	req.Tourist.TouristID = userID.(int64)
 
 	booking, err := b.bookingService.CreateBooking(c, &req)
 	if err != nil {
@@ -79,7 +91,11 @@ func (b *BookingController) CreateBooking(c *gin.Context) {
 }
 
 func (b *BookingController) ApproveBooking(c *gin.Context) {
-	var userID int64 = 1
+	userID, ok := c.Get("userID")
+	if !ok {
+		log.Error(c, "error getting user id from context")
+		return
+	}
 
 	bookingID, err := strconv.ParseInt(c.Param("id"), 10, 64)
 	if err != nil {
@@ -88,7 +104,7 @@ func (b *BookingController) ApproveBooking(c *gin.Context) {
 		return
 	}
 
-	err = b.bookingService.ApproveBooking(c, userID, bookingID)
+	err = b.bookingService.ApproveBooking(c, userID.(int64), bookingID)
 	if err != nil {
 		log.Error(c, "error approving booking ", err)
 		if err.Error() == constant.ErrForbiddenApprovedBooking {
@@ -103,7 +119,11 @@ func (b *BookingController) ApproveBooking(c *gin.Context) {
 }
 
 func (b *BookingController) RejectBooking(c *gin.Context) {
-	var userID int64 = 1
+	userID, ok := c.Get("userID")
+	if !ok {
+		log.Error(c, "error getting user id from context")
+		return
+	}
 
 	bookingID, err := strconv.ParseInt(c.Param("id"), 10, 64)
 	if err != nil {
@@ -112,7 +132,7 @@ func (b *BookingController) RejectBooking(c *gin.Context) {
 		return
 	}
 
-	err = b.bookingService.RejectBooking(c, userID, bookingID)
+	err = b.bookingService.RejectBooking(c, userID.(int64), bookingID)
 	if err != nil {
 		log.Error(c, "error rejecting booking ", err)
 		if err.Error() == constant.ErrForbiddenRejectBooking {

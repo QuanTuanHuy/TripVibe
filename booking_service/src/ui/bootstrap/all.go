@@ -8,6 +8,7 @@ import (
 	"booking_service/infrastructure/repository/adapter"
 	"booking_service/ui/controller"
 	consumer "booking_service/ui/kafka"
+	"booking_service/ui/middleware"
 	"booking_service/ui/router"
 	"context"
 	"github.com/golibs-starter/golib"
@@ -60,6 +61,9 @@ func All() fx.Option {
 		//Provide controller
 		fx.Provide(controller.NewAccommodationController),
 		fx.Provide(controller.NewBookingController),
+
+		//Provide jwt
+		fx.Provide(middleware.NewJWTConfig),
 
 		//postgres
 		fx.Invoke(RunDatabase),
