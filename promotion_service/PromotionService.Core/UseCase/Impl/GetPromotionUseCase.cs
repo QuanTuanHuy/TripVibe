@@ -86,7 +86,7 @@ public class GetPromotionUseCase : IGetPromotionUseCase
         promotion.Units = await _getPromotionUnitUseCase.GetPromotionUnitsByPromotionIdAsync(id);
 
         // set to cache
-        await _cachePort.SetToCacheAsync(cacheKey, promotion, TimeSpan.FromSeconds(CacheConstant.DEFAULT_TTL));
+        await _cachePort.SetToCacheAsync(cacheKey, promotion, CacheConstant.DEFAULT_TTL);
         
         return promotion;
     }

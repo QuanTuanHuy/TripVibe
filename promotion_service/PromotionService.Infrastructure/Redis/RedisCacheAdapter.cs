@@ -23,13 +23,13 @@ namespace PromotionService.Infrastructure.Redis
             _logger = logger;
         }
 
-        public async Task SetToCacheAsync<T>(string key, T value, TimeSpan? expiry)
+        public async Task SetToCacheAsync<T>(string key, T value, long expiry)
         {
             try
             {
                 string valueStr = _jsonUtils.ToJson(value);
                 _logger.LogInformation("Setting cache value for key {Key}: {Value}", key, valueStr);
-                await _redisDb.StringSetAsync(key, valueStr, expiry);
+                await _redisDb.StringSetAsync(key, valueStr, TimeSpan.FromSeconds(expiry));
             }
             catch (Exception ex)
             {
