@@ -82,6 +82,16 @@ public class AccommodationController {
         return ResponseEntity.ok(new Resource<>(null));
     }
 
+    @PostMapping("/{id}/units/{unitId}/restore")
+    public ResponseEntity<Resource<?>> restoreUnit(
+            @PathVariable Long id,
+            @PathVariable Long unitId
+    ) {
+        Long userId = AuthenUtils.getCurrentUserId();
+        accommodationService.restoreUnit(userId, id, unitId);
+        return ResponseEntity.ok(new Resource<>(null));
+    }
+
     @PostMapping("/{id}/units/{unitId}/price_groups")
     public ResponseEntity<Resource<?>> updateUnitPriceGroup(
             @PathVariable Long id,

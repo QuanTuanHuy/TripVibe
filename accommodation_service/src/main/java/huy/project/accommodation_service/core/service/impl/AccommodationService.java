@@ -16,6 +16,7 @@ public class AccommodationService implements IAccommodationService {
     private final UpdateUnitUseCase updateUnitUseCase;
     private final AddUnitUseCase addUnitUseCase;
     private final DeleteUnitUseCase deleteUnitUseCase;
+    private final RestoreUnitUseCase restoreUnitUseCase;
 
     @Override
     public AccommodationEntity createAccommodation(Long userId, CreateAccommodationDto req) {
@@ -62,5 +63,10 @@ public class AccommodationService implements IAccommodationService {
     @Override
     public void deleteUnit(Long userId, Long accId, Long unitId) {
         deleteUnitUseCase.deleteUnit(userId, accId, unitId);
+    }
+
+    @Override
+    public void restoreUnit(Long userId, Long accId, Long unitId) {
+        restoreUnitUseCase.restoreUnit(userId, accId, unitId);
     }
 }
