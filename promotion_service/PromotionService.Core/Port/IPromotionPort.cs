@@ -7,4 +7,6 @@ public interface IPromotionPort
 {
     Task<PromotionEntity> CreatePromotionAsync(PromotionEntity promotion);
     Task<(List<PromotionEntity>, int)> GetPromotionsAsync(PromotionParams queryParams);
+    Task<PromotionEntity> GetPromotionByIdAsync(long id);
+    Task UpdatePromotionAsync(PromotionEntity promotion);
 }

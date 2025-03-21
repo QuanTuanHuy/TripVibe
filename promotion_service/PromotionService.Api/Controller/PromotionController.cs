@@ -21,7 +21,7 @@ public class PromotionController : ControllerBase
     public async Task<IActionResult> CreatePromotionAsync([FromBody] CreatePromotionDto req)
     {
         var createdPromotion = await _promotionService.CreatePromotionAsync(req);
-        return Ok(createdPromotion);
+        return Ok(Resource<PromotionEntity>.Success(createdPromotion));
     }
 
     [HttpGet]
@@ -35,6 +35,21 @@ public class PromotionController : ControllerBase
             PageInfo = PageInfo.toPageInfo(queryParams.Page, queryParams.PageSize, totalCount)
         };
 
-        return Ok(response);
+        return Ok(Resource<PagedResponse<PromotionEntity>>.Success(response));
+    }
+
+    [HttpGet("{id}")]
+    public async Task<IActionResult> GetDetailPromotionAsync(long id)
+    {
+        var promotion = await _promotionService.GetDetailPromotionAsync(id);
+        return Ok(Resource<PromotionEntity>.Success(promotion));
+    }
+
+    [HttpPut("{id}/stop")]
+    public async Task<IActionResult> StopPromotionAsync(long id)
+    {
+        // now hardcoding the userId to 1
+        await _promotionService.StopPromotionAsync(1, id);
+        return Ok(Resource<bool>.Success(true));
     }
 }

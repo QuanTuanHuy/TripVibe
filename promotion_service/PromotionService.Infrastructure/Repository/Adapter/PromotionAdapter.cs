@@ -4,10 +4,6 @@ using PromotionService.Core.Domain.Entity;
 using PromotionService.Core.Port;
 using PromotionService.Infrastructure.Repository.Mapper;
 using PromotionService.Infrastructure.Repository.Model;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace PromotionService.Infrastructure.Repository.Adapter;
 
@@ -26,6 +22,25 @@ public class PromotionAdapter : IPromotionPort
         var result = await _dbContext.Promotions.AddAsync(promotionModel);
         await _dbContext.SaveChangesAsync();
         return PromotionMapper.ToEntity(result.Entity);
+    }
+
+    public async Task<PromotionEntity> GetPromotionByIdAsync(long id)
+    {
+        var promotionModel = await _dbContext.Promotions.FindAsync(id);
+        return PromotionMapper.ToEntity(promotionModel);
+    }
+
+    public async Task UpdatePromotionAsync(PromotionEntity promotion)
+    {
+        var promotionModel = await _dbContext.Promotions.FindAsync(promotion.Id);
+        if (promotionModel == null)
+        {
+            throw new KeyNotFoundException($"Promotion with ID {promotion.Id} not found");
+        }
+
+        promotionModel.IsActive = promotion.IsActive;
+
+        await _dbContext.SaveChangesAsync();
     }
 
     public async Task<(List<PromotionEntity>, int)> GetPromotionsAsync(PromotionParams queryParams)

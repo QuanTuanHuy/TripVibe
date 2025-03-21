@@ -3,6 +3,7 @@
 public class PromotionEntity
 {
     public long Id { get; set; }
+    public long CreatedBy { get; set; }
     public long TypeId { get; set; }
     public long AccommodationId { get; set; }
     public string Name { get; set; }
@@ -17,4 +18,5 @@ public class PromotionEntity
     
     public PromotionTypeEntity PromotionType { get; set; }
     public List<PromotionConditionEntity> Conditions { get; set; }
+    public List<PromotionUnitEntity> Units { get; set; }
 }

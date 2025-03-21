@@ -1,8 +1,10 @@
 ﻿using Microsoft.Extensions.Logging;
+using PromotionService.Core.Domain.Constant;
 using PromotionService.Core.Domain.Dto.Request;
 using PromotionService.Core.Domain.Entity;
 using PromotionService.Core.Domain.Mapper;
 using PromotionService.Core.Domain.Port;
+using PromotionService.Core.Exception;
 using PromotionService.Core.Port;
 
 namespace PromotionService.Core.UseCase.Impl;
@@ -30,7 +32,7 @@ public class CreateConditionUseCase : ICreateConditionUseCase
         if (existedCondition != null)
         {
             _logger.LogError("Condition name already exists");
-            throw new Exception("Condition name already exists");
+            throw new AppException(ErrorCode.PROMOTION_CONDITION_NAME_EXIST);
         }
         
         return await _transactionPort.ExecuteInTransactionAsync(async () =>
