@@ -14,4 +14,5 @@ public interface IAccommodationService {
     void deleteAccommodation(Long id);
     void addUnitToAccommodation(Long accId, UnitEntity unit);
     Pair<PageInfo, List<AccommodationEntity>> getAccommodations(AccommodationParams params);
+    void deleteUnit(Long accId, Long unitId);
 }

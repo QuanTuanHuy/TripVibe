@@ -79,7 +79,7 @@ public class GetPromotionUseCase : IGetPromotionUseCase
         var promotion = await _promotionPort.GetPromotionByIdAsync(id);
         if (promotion == null)
         {
-            throw new AppException(Domain.Constant.ErrorCode.PROMOTION_NOT_FOUND);
+            throw new AppException(ErrorCode.PROMOTION_NOT_FOUND);
         }
 
         promotion.Conditions = await _getPromotionConditionUseCase.GetConditionsByPromotionIdAsync(id);

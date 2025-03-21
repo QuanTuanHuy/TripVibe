@@ -7,3 +7,10 @@ type KafkaBaseDto struct {
 	Timestamp    int64  `json:"timestamp"`
 	Data         any    `json:"data"`
 }
+
+type DomainEventDto struct {
+	EventID   string `json:"eventId"`
+	EventType string `json:"eventType"`
+	Timestamp int64  `json:"timestamp"`
+	Data      any    `json:"data"`
+}

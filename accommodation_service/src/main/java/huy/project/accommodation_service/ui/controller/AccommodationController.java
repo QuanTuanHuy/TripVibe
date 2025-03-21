@@ -72,6 +72,16 @@ public class AccommodationController {
         return ResponseEntity.ok(new Resource<>(null));
     }
 
+    @DeleteMapping("/{id}/units/{unitId}")
+    public ResponseEntity<Resource<?>> deleteUnit(
+            @PathVariable Long id,
+            @PathVariable Long unitId
+    ) {
+        Long userId = AuthenUtils.getCurrentUserId();
+        accommodationService.deleteUnit(userId, id, unitId);
+        return ResponseEntity.ok(new Resource<>(null));
+    }
+
     @PostMapping("/{id}/units/{unitId}/price_groups")
     public ResponseEntity<Resource<?>> updateUnitPriceGroup(
             @PathVariable Long id,
