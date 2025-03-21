@@ -17,6 +17,7 @@ public class UnitEntity {
     private Long pricePerNight;
     private Long maxGuest;
     private Boolean useSharedBathroom;
+    private Boolean isDeleted;
 
     private UnitNameEntity unitName;
     private List<ImageEntity> images;

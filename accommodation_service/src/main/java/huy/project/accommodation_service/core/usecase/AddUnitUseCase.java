@@ -42,7 +42,7 @@ public class AddUnitUseCase {
         cachePort.deleteFromCache(CacheUtils.buildCacheKeyGetAccommodationById(accId));
     }
 
-    private void pushMessageToKafka(Long accId, Long unitId) {
+    public void pushMessageToKafka(Long accId, Long unitId) {
         var unit = getUnitUseCase.getUnitByAccIdAndId(accId, unitId);
 
         var message = AddUnitToAccMessage.from(unit);

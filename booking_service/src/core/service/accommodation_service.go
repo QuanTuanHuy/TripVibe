@@ -13,13 +13,19 @@ type IAccommodationService interface {
 	UpdateAccommodation(ctx context.Context, accommodation *entity.AccommodationEntity) (*entity.AccommodationEntity, error)
 	DeleteAccommodation(ctx context.Context, ID int64) error
 	AddUnitToAccommodation(ctx context.Context, req *request.AddUnitToAccommodationDto) (*entity.UnitEntity, error)
+	DeleteUnit(ctx context.Context, accID, unitID int64) error
 }
 
 type AccommodationService struct {
-	createAccUseCase usecase.ICreateAccommodationUseCase
-	getAccUseCase    usecase.IGetAccommodationUseCase
-	deleteAccUseCase usecase.IDeleteAccommodationUseCase
-	updateAccUseCase usecase.IUpdateAccommodationUseCase
+	createAccUseCase  usecase.ICreateAccommodationUseCase
+	getAccUseCase     usecase.IGetAccommodationUseCase
+	deleteAccUseCase  usecase.IDeleteAccommodationUseCase
+	updateAccUseCase  usecase.IUpdateAccommodationUseCase
+	deleteUnitUseCase usecase.IDeleteUnitUseCase
+}
+
+func (a AccommodationService) DeleteUnit(ctx context.Context, accID, unitID int64) error {
+	return a.deleteUnitUseCase.DeleteUnit(ctx, accID, unitID)
 }
 
 func (a AccommodationService) AddUnitToAccommodation(ctx context.Context, req *request.AddUnitToAccommodationDto) (*entity.UnitEntity, error) {
@@ -45,11 +51,13 @@ func (a AccommodationService) DeleteAccommodation(ctx context.Context, ID int64)
 func NewAccommodationService(createAccUseCase usecase.ICreateAccommodationUseCase,
 	getAccUseCase usecase.IGetAccommodationUseCase,
 	deleteAccUseCase usecase.IDeleteAccommodationUseCase,
-	updateAccUseCase usecase.IUpdateAccommodationUseCase) IAccommodationService {
+	updateAccUseCase usecase.IUpdateAccommodationUseCase,
+	deleteUnitUseCase usecase.IDeleteUnitUseCase) IAccommodationService {
 	return &AccommodationService{
-		createAccUseCase: createAccUseCase,
-		getAccUseCase:    getAccUseCase,
-		deleteAccUseCase: deleteAccUseCase,
-		updateAccUseCase: updateAccUseCase,
+		createAccUseCase:  createAccUseCase,
+		getAccUseCase:     getAccUseCase,
+		deleteAccUseCase:  deleteAccUseCase,
+		updateAccUseCase:  updateAccUseCase,
+		deleteUnitUseCase: deleteUnitUseCase,
 	}
 }

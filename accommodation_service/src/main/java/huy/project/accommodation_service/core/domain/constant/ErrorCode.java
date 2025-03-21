@@ -28,6 +28,10 @@ public enum ErrorCode {
     UNIT_NOT_FOUND(100016, "Unit not found", HttpStatus.NOT_FOUND),
     UNIT_IMAGE_NOT_FOUND(100017, "Unit image not found", HttpStatus.NOT_FOUND),
     UNIT_AMENITY_NOT_FOUND(100018, "Unit amenity not found", HttpStatus.NOT_FOUND),
+    FORBIDDEN_DELETE_UNIT(100019, "Forbidden to delete unit", HttpStatus.FORBIDDEN),
+    FORBIDDEN_RESTORE_UNIT(100020, "Forbidden to restore unit", HttpStatus.FORBIDDEN),
+    UNIT_ALREADY_DELETED(100020, "Unit already deleted", HttpStatus.BAD_REQUEST),
+    UNIT_NOT_DELETED(100021, "Unit not deleted", HttpStatus.BAD_REQUEST),
     ;
 
 

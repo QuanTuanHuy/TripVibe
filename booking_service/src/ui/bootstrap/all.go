@@ -53,6 +53,7 @@ func All() fx.Option {
 		fx.Provide(usecase.NewGetBookingPromotionUseCase),
 		fx.Provide(usecase.NewGetBookingUnitUseCase),
 		fx.Provide(usecase.NewUpdateBookingUseCase),
+		fx.Provide(usecase.NewDeleteUnitUseCase),
 
 		//Provide services
 		fx.Provide(service.NewAccommodationService),
@@ -78,6 +79,7 @@ func All() fx.Option {
 		//Kafka
 		fx.Provide(kafka.NewConsumerGroupHandler),
 		fx.Provide(consumer.NewAccommodationHandler),
+		fx.Provide(consumer.NewAccommodationEventHandler),
 
 		// Run Kafka consumer in its own goroutine using FX lifecycle hooks.
 		fx.Invoke(func(lc fx.Lifecycle, consumerGroupHandler *kafka.MyConsumerGroupHandler) {

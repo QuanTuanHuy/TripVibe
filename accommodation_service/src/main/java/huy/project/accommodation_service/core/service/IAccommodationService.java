@@ -12,4 +12,6 @@ public interface IAccommodationService {
     void updateUnitAmenity(Long userId, Long accId, Long unitId, UpdateUnitAmenityDto req);
     void updateUnitPriceGroup(Long userId, Long accId, Long unitId, UpdateUnitPriceGroupDto req);
     void updateUnitPriceCalendar(Long userId, Long accId, Long unitId, UpdateUnitPriceCalendarDto req);
+    void deleteUnit(Long userId, Long accId, Long unitId);
+    void restoreUnit(Long userId, Long accId, Long unitId);
 }

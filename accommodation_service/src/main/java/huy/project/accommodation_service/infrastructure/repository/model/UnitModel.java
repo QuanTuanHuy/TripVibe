@@ -32,4 +32,7 @@ public class UnitModel extends AuditTable {
 
     @Column(name = "use_shared_bathroom")
     private Boolean useSharedBathroom;
+
+    @Column(name = "is_deleted")
+    private Boolean isDeleted;
 }

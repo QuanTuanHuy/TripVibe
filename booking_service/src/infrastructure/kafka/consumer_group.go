@@ -15,11 +15,13 @@ type MyConsumerGroupHandler struct {
 	handlers map[string]MessageHandler
 }
 
-func NewConsumerGroupHandler(accHandler *consumer.AccommodationHandler) *MyConsumerGroupHandler {
+func NewConsumerGroupHandler(accHandler *consumer.AccommodationHandler,
+	accEventHandler *consumer.AccommodationEventHandler) *MyConsumerGroupHandler {
 	name := "booking_service"
 
 	handlers := map[string]MessageHandler{
 		"booking_service.accommodation": accHandler,
+		"accommodation_service.event":   accEventHandler,
 	}
 
 	return &MyConsumerGroupHandler{
@@ -65,7 +67,7 @@ func (h MyConsumerGroupHandler) ConsumeClaim(sess sarama.ConsumerGroupSession, c
 func ConsumerGroup(name *MyConsumerGroupHandler) {
 	bootstrapServers := "localhost:9094"
 	group := "booking_service"
-	topics := []string{"booking_service.accommodation"}
+	topics := []string{"booking_service.accommodation", "accommodation_service.event"}
 
 	config := sarama.NewConfig()
 	config.Consumer.Return.Errors = true
