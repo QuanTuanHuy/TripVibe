@@ -1,0 +1,39 @@
+spring:
+  application:
+    name: file_service
+  datasource:
+    username: user_booking
+    password: secret
+    url: jdbc:postgresql://localhost:5433/db_file_service
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 50MB
+      enabled: true
+
+server:
+  port: 8088
+  servlet:
+    context-path: /file_service
+
+app:
+  file-storage:
+    upload-dir: D:\User2\booking_storage
+    allowed-extensions: jpg, jpeg, png, pdf
+    max-file-size: 10485760
+    download-url: http://localhost:8088/file_service/api/public/v1/file_storage/download/
+  security:
+    jwt:
+      secret: MnAYFOKwxBOznHpxA3Wx4cJjeC3vYNtwzI6HRYT9SD++1BM9Pk32pTGETroljFsS
+      expiration: 86400000
+      header: Authorization
+      prefix: Bearer
+    filter:
+      publicUrls:
+        - first: /api/public/v1/file_storage/download/**
+          second: GET
+      protectedUrls:

@@ -1,0 +1,14 @@
+package huy.project.file_service.core.service;
+
+import huy.project.file_service.core.domain.entity.FileResourceEntity;
+import org.springframework.core.io.Resource;
+import org.springframework.data.util.Pair;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.util.List;
+
+public interface IFileStorageService {
+    List<FileResourceEntity> storeFiles(Long userId, MultipartFile[] files);
+    Pair<Resource, FileResourceEntity> downloadFile(Long id);
+    void deleteFiles(Long userId, List<Long> id);
+}
