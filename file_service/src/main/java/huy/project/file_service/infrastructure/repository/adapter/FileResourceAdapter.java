@@ -7,19 +7,28 @@ import huy.project.file_service.infrastructure.repository.mapper.FileResourceMap
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 public class FileResourceAdapter implements IFileResourcePort {
     private final IFileResourceRepository fileResourceRepository;
 
     @Override
-    public FileResourceEntity save(FileResourceEntity fileResource) {
-        var fileResourceModel = FileResourceMapper.toModel(fileResource);
-        return FileResourceMapper.toEntity(fileResourceRepository.save(fileResourceModel));
+    public List<FileResourceEntity> saveAll(List<FileResourceEntity> fileResources) {
+        var fileResourceModels = fileResources.stream()
+                .map(FileResourceMapper::toModel).toList();
+        return fileResourceRepository.saveAll(fileResourceModels).stream()
+                .map(FileResourceMapper::toEntity).toList();
     }
 
     @Override
     public FileResourceEntity getFileResourceById(Long id) {
         return FileResourceMapper.toEntity(fileResourceRepository.findById(id).orElse(null));
+    }
+
+    @Override
+    public void deleteFileById(Long id) {
+        fileResourceRepository.deleteById(id);
     }
 }

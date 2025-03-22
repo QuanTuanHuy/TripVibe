@@ -13,6 +13,8 @@ public enum ErrorCode {
     FILE_TOO_LARGE(100004, "File is too large", HttpStatus.BAD_REQUEST),
     FILE_TYPE_NOT_SUPPORTED(100005, "File type is not supported", HttpStatus.BAD_REQUEST),
     FILE_NOT_FOUND(100006, "File not found", HttpStatus.NOT_FOUND),
+    DELETE_FILE_ERROR(100007, "Could not delete file", HttpStatus.INTERNAL_SERVER_ERROR),
+    FORBIDDEN_DELETE_FILE(100008, "Forbidden to delete file", HttpStatus.FORBIDDEN)
     ;
 
 

@@ -67,6 +67,17 @@ public class FileStorageAdapter implements IFileStoragePort {
         return fileStorageLocation.resolve(fileName).normalize();
     }
 
+    @Override
+    public void deleteFile(String fileName) {
+        try {
+            Path filePath = getFilePath(fileName);
+            Files.deleteIfExists(filePath);
+        } catch (IOException e) {
+            log.error("Could not delete file, err: ", e);
+            throw new AppException(ErrorCode.DELETE_FILE_ERROR);
+        }
+    }
+
     private String generateFileName(MultipartFile file) {
         String originalFileName = StringUtils.cleanPath(Objects.requireNonNull(file.getOriginalFilename()));
         String extension = getFileExtension(originalFileName);

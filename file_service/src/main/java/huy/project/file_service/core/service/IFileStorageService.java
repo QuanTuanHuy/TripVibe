@@ -5,7 +5,10 @@ import org.springframework.core.io.Resource;
 import org.springframework.data.util.Pair;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.List;
+
 public interface IFileStorageService {
-    FileResourceEntity storeFile(Long userId, MultipartFile file);
+    List<FileResourceEntity> storeFiles(Long userId, MultipartFile[] files);
     Pair<Resource, FileResourceEntity> downloadFile(Long id);
+    void deleteFiles(Long userId, List<Long> id);
 }
