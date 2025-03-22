@@ -19,7 +19,7 @@ public class AccommodationController {
     public ResponseEntity<Resource<AccommodationEntity>> createAccommodation(
             @RequestBody CreateAccommodationDto req
     ) {
-        Long userId = 1L;
+        Long userId = AuthenUtils.getCurrentUserId();
         return ResponseEntity.ok(new Resource<>(accommodationService.createAccommodation(userId, req)));
     }
 

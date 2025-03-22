@@ -2,16 +2,15 @@ package huy.project.accommodation_service.core.usecase;
 
 import huy.project.accommodation_service.core.domain.constant.ErrorCode;
 import huy.project.accommodation_service.core.domain.constant.ImageEntityType;
+import huy.project.accommodation_service.core.domain.constant.TopicConstant;
 import huy.project.accommodation_service.core.domain.dto.request.*;
 import huy.project.accommodation_service.core.domain.entity.ImageEntity;
 import huy.project.accommodation_service.core.domain.entity.UnitAmenityEntity;
 import huy.project.accommodation_service.core.domain.entity.UnitPriceCalendarEntity;
 import huy.project.accommodation_service.core.domain.entity.UnitPriceGroupEntity;
+import huy.project.accommodation_service.core.domain.kafka.DeleteFileMessage;
 import huy.project.accommodation_service.core.exception.AppException;
-import huy.project.accommodation_service.core.port.IImagePort;
-import huy.project.accommodation_service.core.port.IUnitAmenityPort;
-import huy.project.accommodation_service.core.port.IUnitPriceCalendarPort;
-import huy.project.accommodation_service.core.port.IUnitPriceGroupPort;
+import huy.project.accommodation_service.core.port.*;
 import huy.project.accommodation_service.core.validation.AccommodationValidation;
 import huy.project.accommodation_service.kernel.utils.DateTimeUtils;
 import lombok.RequiredArgsConstructor;
@@ -37,6 +36,8 @@ public class UpdateUnitUseCase {
     private final IUnitPriceGroupPort unitPriceGroupPort;
     private final IUnitPriceCalendarPort unitPriceCalendarPort;
 
+    private final IKafkaPublisher kafkaPublisher;
+
     private final AccommodationValidation accValidation;
 
     @Transactional(rollbackFor = Exception.class)
@@ -56,6 +57,7 @@ public class UpdateUnitUseCase {
         // save new images
         var newImages = req.getNewImages().stream()
                 .map(image -> ImageEntity.builder()
+                        .id(image.getId())
                         .entityId(unitId)
                         .entityType(ImageEntityType.UNIT.getType())
                         .url(image.getUrl())
@@ -63,6 +65,16 @@ public class UpdateUnitUseCase {
                         .build())
                 .toList();
         imagePort.saveAll(newImages);
+
+        pushToKafka(userId, req.getDeleteImageIds());
+    }
+
+    private void pushToKafka(Long userId, List<Long> imageIds) {
+        var deleteFileMessage = DeleteFileMessage.builder()
+                .userId(userId)
+                .ids(imageIds)
+                .build();
+        kafkaPublisher.pushAsync(deleteFileMessage.toKafkaBaseDto(), TopicConstant.FileCommand.TOPIC, null);
     }
 
     @Transactional(rollbackFor = Exception.class)
