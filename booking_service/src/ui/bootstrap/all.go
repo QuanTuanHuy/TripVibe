@@ -11,6 +11,7 @@ import (
 	"booking_service/ui/middleware"
 	"booking_service/ui/router"
 	"context"
+
 	"github.com/golibs-starter/golib"
 	golibdata "github.com/golibs-starter/golib-data"
 	golibgin "github.com/golibs-starter/golib-gin"
@@ -62,6 +63,7 @@ func All() fx.Option {
 		//Provide controller
 		fx.Provide(controller.NewAccommodationController),
 		fx.Provide(controller.NewBookingController),
+		fx.Provide(controller.NewInternalBookingController),
 
 		//Provide jwt
 		fx.Provide(middleware.NewJWTConfig),

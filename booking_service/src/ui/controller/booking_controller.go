@@ -18,22 +18,48 @@ type BookingController struct {
 }
 
 func (b *BookingController) GetAllBookings(c *gin.Context) {
-	userID, err := strconv.ParseInt(c.Query("userId"), 10, 64)
-	if err != nil {
-		log.Error(c, "error binding request ", err)
-		apihelper.AbortErrorHandle(c, common.GeneralBadRequest)
-		return
-	}
-
-	pageSize, page := utils.GetPagingParams(c)
 	var params request.BookingParams
-	params.UserID = &userID
+	pageSize, page := utils.GetPagingParams(c)
 	params.Page = &page
 	params.PageSize = &pageSize
 
+	if userIDStr := c.Query("userId"); userIDStr != "" {
+		userID, err := strconv.ParseInt(userIDStr, 10, 64)
+		if err != nil {
+			log.Error(c, "error parsing userId", err)
+			apihelper.AbortErrorHandle(c, common.GeneralBadRequest)
+			return
+		}
+		params.UserID = &userID
+	}
+
+	if accommodationIDStr := c.Query("accommodationId"); accommodationIDStr != "" {
+		accommodationID, err := strconv.ParseInt(accommodationIDStr, 10, 64)
+		if err != nil {
+			log.Error(c, "error parsing accommodationId", err)
+			apihelper.AbortErrorHandle(c, common.GeneralBadRequest)
+			return
+		}
+		params.AccommodationID = &accommodationID
+	}
+
+	if unitIDStr := c.Query("unitId"); unitIDStr != "" {
+		unitID, err := strconv.ParseInt(unitIDStr, 10, 64)
+		if err != nil {
+			log.Error(c, "error parsing unitId", err)
+			apihelper.AbortErrorHandle(c, common.GeneralBadRequest)
+			return
+		}
+		params.UnitID = &unitID
+	}
+
+	if status := c.Query("status"); status != "" {
+		params.Status = &status
+	}
+
 	getBookingResponse, err := b.bookingService.GetAllBookings(c, &params)
 	if err != nil {
-		log.Error(c, "error getting bookings ", err)
+		log.Error(c, "error getting bookings", err)
 		apihelper.AbortErrorHandle(c, common.GeneralBadRequest)
 		return
 	}

@@ -7,6 +7,7 @@ import (
 	"booking_service/core/usecase"
 	"booking_service/kernel/utils"
 	"context"
+
 	"github.com/golibs-starter/golib/log"
 )
 
@@ -16,6 +17,7 @@ type IBookingService interface {
 	GetAllBookings(ctx context.Context, params *request.BookingParams) (*response.GetBookingResponse, error)
 	ApproveBooking(ctx context.Context, userID int64, bookingID int64) error
 	RejectBooking(ctx context.Context, userID int64, bookingID int64) error
+	GetCompletedBookingByUserIdAndUnitId(ctx context.Context, userId int64, unitId int64) (*entity.BookingEntity, error)
 }
 
 type BookingService struct {
@@ -57,6 +59,10 @@ func (b BookingService) GetDetailBooking(ctx context.Context, userID int64, book
 
 func (b BookingService) CreateBooking(ctx context.Context, req *request.CreateBookingDto) (*entity.BookingEntity, error) {
 	return b.createBookingUseCase.CreateBooking(ctx, req)
+}
+
+func (b BookingService) GetCompletedBookingByUserIdAndUnitId(ctx context.Context, userId int64, unitId int64) (*entity.BookingEntity, error) {
+	return b.getBookingUseCase.GetCompletedBookingByUserIdAndUnitId(ctx, userId, unitId)
 }
 
 func NewBookingService(createBookingUseCase usecase.ICreateBookingUseCase,

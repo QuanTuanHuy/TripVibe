@@ -3,8 +3,18 @@ package specification
 import "booking_service/core/domain/dto/request"
 
 func ToGetBookingSpecification(params *request.BookingParams) (string, []any) {
-	query := "SELECT * FROM bookings WHERE 1 = 1"
+	query := "SELECT * FROM bookings b"
 	args := make([]any, 0)
+
+	if params.UnitID != nil {
+		query += " LEFT JOIN bookings_units bu ON b.id = bu.booking_id"
+	}
+	query += " WHERE 1 = 1"
+
+	if params.UnitID != nil {
+		query += " AND bu.unit_id = ?"
+		args = append(args, *params.UnitID)
+	}
 
 	if params.UserID != nil {
 		query += " AND tourist_id = ?"
@@ -22,7 +32,7 @@ func ToGetBookingSpecification(params *request.BookingParams) (string, []any) {
 	if params.OrderBy != nil {
 		query += " ORDER BY " + *params.OrderBy
 	} else {
-		query += " ORDER BY created_at"
+		query += " ORDER BY b.created_at"
 	}
 
 	if params.Direct != nil {
@@ -41,8 +51,18 @@ func ToGetBookingSpecification(params *request.BookingParams) (string, []any) {
 }
 
 func ToCountBookingSpecification(params *request.BookingParams) (string, []any) {
-	query := "SELECT COUNT(*) FROM bookings WHERE 1 = 1"
+	query := "SELECT * FROM bookings b"
 	args := make([]any, 0)
+
+	if params.UnitID != nil {
+		query += " LEFT JOIN bookings_units bu ON b.id = bu.booking_id"
+	}
+	query += " WHERE 1 = 1"
+
+	if params.UnitID != nil {
+		query += " AND bu.unit_id = ?"
+		args = append(args, *params.UnitID)
+	}
 
 	if params.UserID != nil {
 		query += " AND tourist_id = ?"
