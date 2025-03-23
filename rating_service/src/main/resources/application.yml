@@ -16,8 +16,22 @@ spring:
 
 server:
   port: 8089
+  servlet:
+    context-path: /rating_service
+
+feign:
+  client:
+    config:
+      default:
+        connectTimeout: 5000
+        readTimeout: 5000
+        loggerLevel: full
 
 app:
+  services:
+    booking_service:
+      url: localhost:8084/booking_service/
+    internal-token:
   security:
     jwt:
       secret: MnAYFOKwxBOznHpxA3Wx4cJjeC3vYNtwzI6HRYT9SD++1BM9Pk32pTGETroljFsS
