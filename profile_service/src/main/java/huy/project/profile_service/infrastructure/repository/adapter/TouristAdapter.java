@@ -8,6 +8,8 @@ import huy.project.profile_service.infrastructure.repository.model.TouristModel;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 public class TouristAdapter implements ITouristPort {
@@ -22,5 +24,10 @@ public class TouristAdapter implements ITouristPort {
     @Override
     public TouristEntity getTouristById(Long id) {
         return TouristMapper.INSTANCE.toEntity(touristRepository.findById(id).orElse(null));
+    }
+
+    @Override
+    public List<TouristEntity> getTouristsByIds(List<Long> ids) {
+        return TouristMapper.INSTANCE.toListEntity(touristRepository.findByIdIn(ids));
     }
 }

@@ -9,4 +9,5 @@ public interface IUnitPort {
     List<UnitEntity> getUnitsByAccommodationId(Long accommodationId);
     UnitEntity getUnitByAccIdAndId(Long accId, Long id);
     void deleteUnitsByAccId(Long accId);
+    List<UnitEntity> getUnitsByIds(List<Long> ids);
 }

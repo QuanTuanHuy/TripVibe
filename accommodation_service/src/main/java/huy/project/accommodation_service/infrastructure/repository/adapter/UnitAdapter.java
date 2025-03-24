@@ -37,4 +37,11 @@ public class UnitAdapter implements IUnitPort {
     public void deleteUnitsByAccId(Long accId) {
         unitRepository.deleteByAccommodationId(accId);
     }
+
+    @Override
+    public List<UnitEntity> getUnitsByIds(List<Long> ids) {
+        return unitRepository.findByIdIn(ids).stream()
+                .map(UnitMapper.INSTANCE::toEntity)
+                .toList();
+    }
 }

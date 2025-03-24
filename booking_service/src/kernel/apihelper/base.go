@@ -2,16 +2,20 @@ package apihelper
 
 import (
 	"booking_service/core/domain/common"
-	"github.com/gin-gonic/gin"
 	"net/http"
+
+	"github.com/gin-gonic/gin"
 )
 
 // AbortErrorHandle handle abort error
 func AbortErrorHandle(c *gin.Context, code int) {
 	errorResponse := common.GetErrorResponse(code)
 	c.JSON(errorResponse.HTTPCode, gin.H{
-		"code":    errorResponse.ServiceCode,
-		"message": errorResponse.Message,
+		"meta": gin.H{
+			"code":    errorResponse.ServiceCode,
+			"message": errorResponse.Message,
+		},
+		"data": nil,
 	})
 }
 
@@ -28,18 +32,22 @@ func AbortErrorHandleCustomMessage(c *gin.Context, code int, message string) {
 // AbortErrorResponseHandle handle abort with error response
 func AbortErrorResponseHandle(c *gin.Context, errorResponse *common.ErrorResponse) {
 	c.JSON(errorResponse.HTTPCode, gin.H{
-		"code":    errorResponse.ServiceCode,
-		"message": errorResponse.Message,
-		"data":    nil,
+		"meta": gin.H{
+			"code":    errorResponse.ServiceCode,
+			"message": errorResponse.Message,
+		},
+		"data": nil,
 	})
 }
 
 // SuccessfulHandle handle successful response
 func SuccessfulHandle(c *gin.Context, data interface{}) {
 	c.JSON(http.StatusOK, gin.H{
-		"code":    http.StatusOK,
-		"message": http.StatusText(http.StatusOK),
-		"data":    data,
+		"meta": gin.H{
+			"code":    http.StatusOK,
+			"message": "Success",
+		},
+		"data": data,
 	})
 }
 

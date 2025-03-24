@@ -73,4 +73,17 @@ public class GetUnitUseCase {
         unit.setAmenities(getUnitAmenityUseCase.getUnitAmenitiesByUnitId(unitId));
         return unit;
     }
+
+    public List<UnitEntity> getUnitsByIds(List<Long> ids) {
+        var units = unitPort.getUnitsByIds(ids);
+
+        List<Long> unitNameIds = units.stream().map(UnitEntity::getUnitNameId).distinct().toList();
+        List<UnitNameEntity> unitNames = getUnitNameUseCase.getUnitNamesByIds(unitNameIds);
+        var unitNamesMap = unitNames.stream()
+                .collect(Collectors.toMap(UnitNameEntity::getId, Function.identity()));
+
+        return units.stream().peek(unit ->
+                unit.setUnitName(unitNamesMap.get(unit.getUnitNameId())))
+                .toList();
+    }
 }

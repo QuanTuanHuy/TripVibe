@@ -1,6 +1,7 @@
 package huy.project.profile_service.core.domain.mapper;
 
 import huy.project.profile_service.core.domain.dto.request.UpdateTouristDto;
+import huy.project.profile_service.core.domain.dto.response.UserProfileDto;
 import huy.project.profile_service.core.domain.entity.TouristEntity;
 import org.mapstruct.Mapper;
 import org.mapstruct.factory.Mappers;
@@ -26,5 +27,14 @@ public abstract class TouristMapper {
         if (req.getDateOfBirth() != null) {
             existedTourist.setDateOfBirth(req.getDateOfBirth());
         }
+    }
+
+    public UserProfileDto toDto(TouristEntity tourist) {
+        return UserProfileDto.builder()
+                .userId(tourist.getId())
+                .name(tourist.getName())
+                .email(tourist.getEmail())
+                .countryId(tourist.getLocation().getCountryId())
+                .build();
     }
 }

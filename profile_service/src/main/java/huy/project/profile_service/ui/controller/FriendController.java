@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("profile_service/api/public/v1/friends")
+@RequestMapping("/api/public/v1/friends")
 @RequiredArgsConstructor
 public class FriendController {
     private final IFriendService friendService;

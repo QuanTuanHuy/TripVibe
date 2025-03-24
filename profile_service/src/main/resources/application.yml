@@ -13,6 +13,7 @@ spring:
   jpa:
     hibernate:
       ddl-auto: update
+    show-sql: true
   kafka:
     bootstrap-servers: localhost:9094
     consumer:
@@ -21,6 +22,8 @@ spring:
       value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
 server:
   port: 8086
+  servlet:
+    context-path: /profile_service
 
 app:
   security:

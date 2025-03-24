@@ -4,6 +4,7 @@ import (
 	"booking_service/core/domain/constant"
 	"booking_service/ui/controller"
 	"booking_service/ui/middleware"
+
 	"github.com/gin-gonic/gin"
 	"github.com/golibs-starter/golib"
 	"go.uber.org/fx"
@@ -11,11 +12,12 @@ import (
 
 type RegisterRoutersIn struct {
 	fx.In
-	App                     *golib.App
-	Engine                  *gin.Engine
-	JWTConfig               *middleware.JWTConfig
-	AccommodationController *controller.AccommodationController
-	BookingController       *controller.BookingController
+	App                       *golib.App
+	Engine                    *gin.Engine
+	JWTConfig                 *middleware.JWTConfig
+	AccommodationController   *controller.AccommodationController
+	BookingController         *controller.BookingController
+	InternalBookingController *controller.InternalBookingController
 }
 
 func RegisterGinRouters(p RegisterRoutersIn) {
@@ -42,5 +44,14 @@ func RegisterGinRouters(p RegisterRoutersIn) {
 	{
 		bookingV1.PUT("/:id/approve", p.BookingController.ApproveBooking)
 		bookingV1.PUT("/:id/reject", p.BookingController.RejectBooking)
+	}
+
+	internalV1 := router.Group("/internal/v1")
+	internalV1.Use(middleware.JWTAuthMiddleware(p.JWTConfig))
+	{
+		internalBookings := internalV1.Group("/bookings")
+		{
+			internalBookings.GET("/find", p.InternalBookingController.GetCompletedBookingByUserIdAndUnitId)
+		}
 	}
 }

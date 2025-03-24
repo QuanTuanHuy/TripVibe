@@ -20,7 +20,7 @@
         </processorPath>
         <module name="file_service" />
       </profile>
-      <profile name="Annotation profile for profile_service" enabled="true">
+      <profile name="Annotation profile for rating_service" enabled="true">
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
@@ -34,6 +34,7 @@
         </processorPath>
         <module name="profile_service" />
         <module name="accommodation_service" />
+        <module name="rating_service" />
         <module name="search_service" />
       </profile>
     </annotationProcessing>
@@ -47,6 +48,7 @@
       <module name="authentication_service" options="-parameters" />
       <module name="file_service" options="-parameters" />
       <module name="profile_service" options="-parameters" />
+      <module name="rating_service" options="-parameters" />
       <module name="search_service" options="-parameters" />
     </option>
   </component>

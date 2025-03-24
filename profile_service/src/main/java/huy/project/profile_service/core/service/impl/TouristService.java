@@ -11,6 +11,8 @@ import huy.project.profile_service.core.usecase.UpdateTouristUseCase;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 public class TouristService implements ITouristService {
@@ -36,5 +38,10 @@ public class TouristService implements ITouristService {
     @Override
     public TouristEntity getDetailTourist(Long id) {
         return getTouristUseCase.getDetailTourist(id);
+    }
+
+    @Override
+    public List<TouristEntity> getTouristsByIds(List<Long> touristIds) {
+        return getTouristUseCase.getTouristsByIds(touristIds);
     }
 }

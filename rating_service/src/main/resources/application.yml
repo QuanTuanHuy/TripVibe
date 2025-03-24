@@ -1,0 +1,40 @@
+spring:
+  application:
+    name: rating_service
+  datasource:
+    username: user_booking
+    password: secret
+    url: jdbc:postgresql://localhost:5433/db_rating_service
+    driver-class-name: org.postgresql.Driver
+  data:
+    redis:
+      host: localhost
+      port: 6379
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+
+server:
+  port: 8089
+  servlet:
+    context-path: /rating_service
+
+app:
+  services:
+    booking_service:
+      url: localhost:8084/booking_service/
+    profile_service:
+      url: localhost:8086/profile_service/
+    accommodation_service:
+      url: localhost:8083/accommodation_service/
+    internal-token:
+  security:
+    jwt:
+      secret: MnAYFOKwxBOznHpxA3Wx4cJjeC3vYNtwzI6HRYT9SD++1BM9Pk32pTGETroljFsS
+      expiration: 86400000
+      header: Authorization
+      prefix: Bearer
+    filter:
+      publicUrls:
+      protectedUrls:
