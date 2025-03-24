@@ -2,6 +2,7 @@ package huy.project.profile_service.core.usecase;
 
 import huy.project.profile_service.core.domain.constant.CacheConstant;
 import huy.project.profile_service.core.domain.constant.ErrorCode;
+import huy.project.profile_service.core.domain.entity.LocationEntity;
 import huy.project.profile_service.core.domain.entity.TouristEntity;
 import huy.project.profile_service.core.domain.exception.AppException;
 import huy.project.profile_service.core.port.*;
@@ -9,6 +10,11 @@ import huy.project.profile_service.kernel.utils.CacheUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
+
+import java.util.List;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -57,5 +63,21 @@ public class GetTouristUseCase {
         cachePort.setToCache(key, tourist, CacheConstant.DEFAULT_TTL);
 
         return tourist;
+    }
+
+    public List<TouristEntity> getTouristsByIds(List<Long> touristIds) {
+        var tourists = touristPort.getTouristsByIds(touristIds);
+        if (CollectionUtils.isEmpty(tourists)) {
+            return tourists;
+        }
+
+        List<Long> locationIds = tourists.stream().map(TouristEntity::getLocationId).toList();
+        List<LocationEntity> locations = locationPort.getLocationsByIds(locationIds);
+        var locationMap = locations.stream()
+                .collect(Collectors.toMap(LocationEntity::getId, Function.identity()));
+
+        return tourists.stream()
+                .peek(tourist -> tourist.setLocation(locationMap.get(tourist.getLocationId())))
+                .toList();
     }
 }

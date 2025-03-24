@@ -1,7 +1,7 @@
 package huy.project.rating_service.infrastructure.client.adapter;
 
 import huy.project.rating_service.core.domain.constant.ErrorCode;
-import huy.project.rating_service.core.domain.dto.BookingDto;
+import huy.project.rating_service.core.domain.dto.response.BookingDto;
 import huy.project.rating_service.core.domain.exception.exception.AppException;
 import huy.project.rating_service.core.port.IBookingPort;
 import huy.project.rating_service.infrastructure.client.IBookingClient;

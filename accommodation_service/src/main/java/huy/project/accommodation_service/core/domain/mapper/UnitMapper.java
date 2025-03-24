@@ -1,6 +1,7 @@
 package huy.project.accommodation_service.core.domain.mapper;
 
 import huy.project.accommodation_service.core.domain.dto.request.CreateUnitDto;
+import huy.project.accommodation_service.core.domain.dto.response.UnitDto;
 import huy.project.accommodation_service.core.domain.entity.UnitEntity;
 import org.mapstruct.Mapper;
 import org.mapstruct.factory.Mappers;
@@ -17,6 +18,14 @@ public abstract class UnitMapper {
                 .pricePerNight(req.getPricePerNight())
                 .maxGuest(req.getMaxGuest())
                 .useSharedBathroom(req.getUseSharedBathroom())
+                .build();
+    }
+
+    public UnitDto toDto(UnitEntity unit) {
+        return UnitDto.builder()
+                .id(unit.getId())
+                .name(unit.getUnitName().getName())
+                .accommodationId(unit.getAccommodationId())
                 .build();
     }
 }

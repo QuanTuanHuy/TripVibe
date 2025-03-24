@@ -1,7 +1,7 @@
 package huy.project.rating_service.core.usecase;
 
 import huy.project.rating_service.core.domain.constant.ErrorCode;
-import huy.project.rating_service.core.domain.dto.CreateRatingDto;
+import huy.project.rating_service.core.domain.dto.request.CreateRatingDto;
 import huy.project.rating_service.core.domain.entity.RatingEntity;
 import huy.project.rating_service.core.domain.exception.exception.AppException;
 import huy.project.rating_service.core.domain.mapper.RatingMapper;

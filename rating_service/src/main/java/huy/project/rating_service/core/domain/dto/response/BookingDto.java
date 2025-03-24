@@ -1,4 +1,4 @@
-package huy.project.rating_service.core.domain.dto;
+package huy.project.rating_service.core.domain.dto.response;
 
 import lombok.*;
 

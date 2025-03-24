@@ -8,6 +8,7 @@ import org.mapstruct.Named;
 import org.mapstruct.factory.Mappers;
 
 import java.time.Instant;
+import java.util.List;
 
 @Mapper
 public abstract class RatingMapper {
@@ -21,4 +22,6 @@ public abstract class RatingMapper {
     public Long fromInstantToLong(Instant instant) {
         return instant.toEpochMilli();
     }
+
+    public abstract List<RatingEntity> toListEntity(List<RatingModel> ratings);
 }

@@ -11,7 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("profile_service/api/public/v1/view_histories")
+@RequestMapping("/api/public/v1/view_histories")
 @RequiredArgsConstructor
 public class ViewHistoryController {
     private final IViewHistoryService viewHistoryService;

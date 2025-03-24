@@ -13,7 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("profile_service/api/public/v1/tourists")
+@RequestMapping("/api/public/v1/tourists")
 @RequiredArgsConstructor
 @Slf4j
 public class TouristController {
