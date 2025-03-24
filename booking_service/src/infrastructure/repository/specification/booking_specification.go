@@ -51,7 +51,7 @@ func ToGetBookingSpecification(params *request.BookingParams) (string, []any) {
 }
 
 func ToCountBookingSpecification(params *request.BookingParams) (string, []any) {
-	query := "SELECT * FROM bookings b"
+	query := "SELECT COUNT(*) FROM bookings b"
 	args := make([]any, 0)
 
 	if params.UnitID != nil {
