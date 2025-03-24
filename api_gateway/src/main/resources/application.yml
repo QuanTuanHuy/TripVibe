@@ -1,0 +1,49 @@
+server:
+  port: 8080
+
+app:
+  api-prefix: api/public/v1
+
+spring:
+  application:
+    name: api_gateway
+  cloud:
+    gateway:
+      mvc:
+        routes:
+          - id: authentication_service
+            uri: http://localhost:8081
+            predicates:
+              - Path=/authentication_service/${app.api-prefix}/**
+          - id: accommodation_service
+            uri: http://localhost:8083
+            predicates:
+              - Path=/accommodation_service/${app.api-prefix}/**
+          - id: search_service
+            uri: http://localhost:8085
+            predicates:
+              - Path=/search_service/${app.api-prefix}/**
+          - id: booking_service
+            uri: http://localhost:8084
+            predicates:
+              - Path=/booking_service/${app.api-prefix}/**
+          - id: file_service
+            uri: http://localhost:8088
+            predicates:
+              - Path=/file_service/${app.api-prefix}/**
+          - id: profile_service
+            uri: http://localhost:8086
+            predicates:
+              - Path=/profile_service/${app.api-prefix}/**
+          - id: rating_service
+            uri: http://localhost:8089
+            predicates:
+              - Path=/rating_service/${app.api-prefix}/**
+          - id: promotion_service
+            uri: http://localhost:8087
+            predicates:
+              - Path=/promotion_service/${app.api-prefix}/**
+          - id: notification_service
+            uri: http://localhost:8082
+            predicates:
+              - Path=/notification_service${app.api-prefix}/**

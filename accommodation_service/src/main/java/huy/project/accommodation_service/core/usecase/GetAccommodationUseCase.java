@@ -59,7 +59,16 @@ public class GetAccommodationUseCase {
     }
 
     public void pushTouristViewHistory(Long accId) {
-        Long userId = AuthenUtils.getCurrentUserId();
+        long userId = 0L;
+        try {
+            userId = AuthenUtils.getCurrentUserId();
+        } catch (Exception e) {
+            log.info("User not login, skip push view history");
+        }
+
+        if (userId == 0) {
+            return;
+        }
         CreateViewHistoryMessage message = CreateViewHistoryMessage.builder()
                 .touristId(userId)
                 .accommodationId(accId)
