@@ -18,6 +18,8 @@ spring:
       value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
 server:
   port: 8085
+  servlet:
+    context-path: /search_service
 
 app:
   elasticsearch:

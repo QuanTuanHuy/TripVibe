@@ -10,7 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("search_service/api/public/v1/accommodations")
+@RequestMapping("/api/public/v1/accommodations")
 @RequiredArgsConstructor
 @Slf4j
 public class AccommodationController {
