@@ -9,4 +9,6 @@ public interface IPromotionTypeService
     Task<(List<PromotionTypeEntity>, int)> GetPromotionTypesAsync(PromotionTypeParams queryParams);
     Task<PromotionTypeEntity> UpdatePromotionTypeAsync(long id, UpdatePromotionTypeDto req);
     Task DeletePromotionTypeAsync(long id);
+    Task<List<PromotionTypeConditionEntity>> AddConditionsToPromotionTypeAsync(long promotionTypeId, AddConditionToPromotionTypeDto req);
+    Task<PromotionTypeEntity> GetPromotionTypeByIdAsync(long id);
 }

@@ -39,6 +39,13 @@ public class PromotionTypeController : ControllerBase
         return Ok(response);
 
     }
+
+    [HttpGet("{id}")]
+    public async Task<IActionResult> GetPromotionTypeByIdAsync(long id)
+    {
+        var promotionType = await _promotionTypeService.GetPromotionTypeByIdAsync(id);
+        return Ok(Resource<PromotionTypeEntity>.Success(promotionType));
+    }
     
     [HttpPut("{id}")]
     public async Task<IActionResult> UpdatePromotionTypeAsync(long id, [FromBody] UpdatePromotionTypeDto req)
@@ -52,5 +59,12 @@ public class PromotionTypeController : ControllerBase
     {
         await _promotionTypeService.DeletePromotionTypeAsync(id);
         return Ok(Resource<object>.Success(null));
+    }
+
+    [HttpPost("{id}/conditions")]
+    public async Task<IActionResult> AddConditionsToPromotionTypeAsync(long id, [FromBody] AddConditionToPromotionTypeDto req)
+    {
+        var conditions = await _promotionTypeService.AddConditionsToPromotionTypeAsync(id, req);
+        return Ok(Resource<List<PromotionTypeConditionEntity>>.Success(conditions));
     }
 }

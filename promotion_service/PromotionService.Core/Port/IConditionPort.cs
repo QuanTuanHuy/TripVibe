@@ -1,4 +1,5 @@
-﻿using PromotionService.Core.Domain.Entity;
+﻿using PromotionService.Core.Domain.Dto.Request;
+using PromotionService.Core.Domain.Entity;
 
 namespace PromotionService.Core.Port;
 
@@ -7,4 +8,6 @@ public interface IConditionPort
     Task<ConditionEntity> CreateConditionAsync(ConditionEntity condition);
     Task<ConditionEntity> GetConditionByNameAsync(string name);
     Task<List<ConditionEntity>> GetConditionsByIdsAsync(List<long> ids);
+    Task<ConditionEntity> UpdateConditionAsync(ConditionEntity condition);
+    Task<ConditionEntity> GetConditionByIdAsync(long id);
 }

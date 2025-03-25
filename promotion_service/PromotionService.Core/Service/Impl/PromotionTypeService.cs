@@ -10,16 +10,19 @@ public class PromotionTypeService : IPromotionTypeService
     private readonly IGetPromotionTypeUseCase getPromotionTypeUseCase;
     private readonly IUpdatePromotionTypeUseCase updatePromotionTypeUseCase;
     private readonly IDeletePromotionTypeUseCase deletePromotionTypeUseCase;
+    private readonly IAddConditionToPromotionTypeUseCase addConditionToPromotionTypeUseCase;
     
     public PromotionTypeService(ICreatePromotionTypeUseCase createPromotionTypeUseCase,
         IGetPromotionTypeUseCase getPromotionTypeUseCase,
         IUpdatePromotionTypeUseCase updatePromotionTypeUseCase,
-        IDeletePromotionTypeUseCase deletePromotionTypeUseCase)
+        IDeletePromotionTypeUseCase deletePromotionTypeUseCase,
+        IAddConditionToPromotionTypeUseCase addConditionToPromotionTypeUseCase)
     {
         this.createPromotionTypeUseCase = createPromotionTypeUseCase;
         this.getPromotionTypeUseCase = getPromotionTypeUseCase;
         this.updatePromotionTypeUseCase = updatePromotionTypeUseCase;
         this.deletePromotionTypeUseCase = deletePromotionTypeUseCase;
+        this.addConditionToPromotionTypeUseCase = addConditionToPromotionTypeUseCase;
     }
     
     public async Task<PromotionTypeEntity> CreatePromotionTypeAsync(PromotionTypeEntity promotionType)
@@ -40,5 +43,13 @@ public class PromotionTypeService : IPromotionTypeService
     public async Task DeletePromotionTypeAsync(long id)
     {
         await deletePromotionTypeUseCase.DeletePromotionTypeAsync(id);
+    }
+
+    public async Task<List<PromotionTypeConditionEntity>> AddConditionsToPromotionTypeAsync(long promotionTypeId, AddConditionToPromotionTypeDto req) {
+        return await addConditionToPromotionTypeUseCase.AddConditionToPromotionTypeAsync(promotionTypeId, req);
+    }
+
+    public async Task<PromotionTypeEntity> GetPromotionTypeByIdAsync(long id) {
+        return await getPromotionTypeUseCase.GetPromotionTypeByIdAsync(id);
     }
 }

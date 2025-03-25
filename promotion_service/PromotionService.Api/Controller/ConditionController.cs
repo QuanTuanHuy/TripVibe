@@ -22,5 +22,12 @@ public class ConditionController : ControllerBase
         var createdCondition = await _conditionService.CreateConditionAsync(req);
         return Ok(Resource<ConditionEntity>.Success(createdCondition));
     }
-    
+
+    [HttpPut("{id}")]
+    public async Task<IActionResult> UpdateConditionAsync(long id, [FromBody] UpdateConditionDto req)
+    {
+        var updatedCondition = await _conditionService.UpdateConditionAsync(id, req);
+        return Ok(Resource<ConditionEntity>.Success(updatedCondition));
+    }
+
 }

@@ -48,4 +48,20 @@ public class ConditionAdapter : IConditionPort
             .Where(c => ids.Contains(c.Id))
             .Select(c => ConditionMapper.ToEntity(c)).ToListAsync();
     }
+
+    public async Task<ConditionEntity> UpdateConditionAsync(ConditionEntity condition)
+    {
+        var conditionModel = ConditionMapper.ToModel(condition);
+        _dbContext.Conditions.Update(conditionModel);
+        await _dbContext.SaveChangesAsync();
+        return ConditionMapper.ToEntity(conditionModel);
+    }
+
+    public async Task<ConditionEntity> GetConditionByIdAsync(long id)
+    {
+        var condition = await _dbContext.Conditions
+            .AsNoTracking()
+            .FirstOrDefaultAsync(c => c.Id == id);
+        return ConditionMapper.ToEntity(condition);
+    }
 }

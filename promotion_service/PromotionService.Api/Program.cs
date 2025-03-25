@@ -38,6 +38,8 @@ builder.Services.AddScoped<IConditionPort, ConditionAdapter>();
 builder.Services.AddScoped<IPromotionConditionPort, PromotionConditionAdapter>();
 builder.Services.AddScoped<IPromotionPort, PromotionAdapter>();
 builder.Services.AddScoped<IPromotionUnitPort, PromotionUnitAdapter>();
+builder.Services.AddScoped<IPromotionTypeConditionPort, PromotionTypeConditionAdapter>();
+
 
 // Register use cases
 builder.Services.AddScoped<ICreatePromotionTypeUseCase, CreatePromotionTypeUseCase>();
@@ -51,6 +53,8 @@ builder.Services.AddScoped<IGetPromotionUseCase, GetPromotionUseCase>();
 builder.Services.AddScoped<IGetPromotionUnitUseCase, GetPromotionUnitUseCase>();
 builder.Services.AddScoped<IUpdatePromotionUseCase, UpdatePromotionUseCase>();
 builder.Services.AddScoped<IDeletePromotionTypeUseCase, DeletePromotionTypeUseCase>();
+builder.Services.AddScoped<IUpdateConditionUseCase, UpdateConditionUseCase>();
+builder.Services.AddScoped<IAddConditionToPromotionTypeUseCase, AddConditionToPromotionTypeUseCase>();
 
 // Register services
 builder.Services.AddScoped<IPromotionTypeService, PromotionTypeService>();
