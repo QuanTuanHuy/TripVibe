@@ -50,6 +50,7 @@ builder.Services.AddScoped<IGetPromotionConditionUseCase, GetPromotionConditionU
 builder.Services.AddScoped<IGetPromotionUseCase, GetPromotionUseCase>();
 builder.Services.AddScoped<IGetPromotionUnitUseCase, GetPromotionUnitUseCase>();
 builder.Services.AddScoped<IUpdatePromotionUseCase, UpdatePromotionUseCase>();
+builder.Services.AddScoped<IDeletePromotionTypeUseCase, DeletePromotionTypeUseCase>();
 
 // Register services
 builder.Services.AddScoped<IPromotionTypeService, PromotionTypeService>();

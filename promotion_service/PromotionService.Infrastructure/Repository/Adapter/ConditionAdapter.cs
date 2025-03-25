@@ -35,13 +35,16 @@ public class ConditionAdapter : IConditionPort
 
     public async Task<ConditionEntity> GetConditionByNameAsync(string name)
     {
-        var condition = await _dbContext.Conditions.FirstOrDefaultAsync(c => c.Name == name);
+        var condition = await _dbContext.Conditions
+            .AsNoTracking()
+            .FirstOrDefaultAsync(c => c.Name == name);
         return ConditionMapper.ToEntity(condition);
     }
 
     public async Task<List<ConditionEntity>> GetConditionsByIdsAsync(List<long> ids)
     {
         return await _dbContext.Conditions
+            .AsNoTracking()
             .Where(c => ids.Contains(c.Id))
             .Select(c => ConditionMapper.ToEntity(c)).ToListAsync();
     }

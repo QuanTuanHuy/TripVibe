@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.OpenApi.Any;
 using PromotionService.Core.Domain.Dto.Request;
 using PromotionService.Core.Domain.Dto.Response;
 using PromotionService.Core.Domain.Entity;
@@ -44,5 +45,12 @@ public class PromotionTypeController : ControllerBase
     {
         var updatedPromotionType = await _promotionTypeService.UpdatePromotionTypeAsync(id, req);
         return Ok(updatedPromotionType);
+    }
+
+    [HttpDelete("{id}")]
+    public async Task<IActionResult> DeletePromotionTypeAsync(long id)
+    {
+        await _promotionTypeService.DeletePromotionTypeAsync(id);
+        return Ok(Resource<object>.Success(null));
     }
 }

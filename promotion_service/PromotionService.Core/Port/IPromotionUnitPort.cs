@@ -7,5 +7,7 @@ namespace PromotionService.Core.Port
         Task CreatePromotionUnitsAsync(List<PromotionUnitEntity> promotionUnits);
         Task<List<PromotionUnitEntity>> GetPromotionUnitsByPromotionIdAsync(long promotionId);
         Task<List<PromotionUnitEntity>> GetPromotionUnitsByPromotionIdsAsync(List<long> promotionIds);
+        Task DeletePromotionUnitsByPromotionIdsAsync(List<long> promotionIds);
+        Task DeletePromotionUnitsByPromotionIdAsync(long promotionId);
     }
 }

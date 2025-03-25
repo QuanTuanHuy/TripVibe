@@ -26,26 +26,22 @@ public class PromotionAdapter : IPromotionPort
 
     public async Task<PromotionEntity> GetPromotionByIdAsync(long id)
     {
-        var promotionModel = await _dbContext.Promotions.FindAsync(id);
+        var promotionModel = await _dbContext.Promotions.AsNoTracking()
+            .FirstOrDefaultAsync(p => p.Id == id);
         return PromotionMapper.ToEntity(promotionModel);
     }
 
     public async Task UpdatePromotionAsync(PromotionEntity promotion)
     {
-        var promotionModel = await _dbContext.Promotions.FindAsync(promotion.Id);
-        if (promotionModel == null)
-        {
-            throw new KeyNotFoundException($"Promotion with ID {promotion.Id} not found");
-        }
-
-        promotionModel.IsActive = promotion.IsActive;
+        var promotionMode = PromotionMapper.ToModel(promotion);
+        _dbContext.Promotions.Update(promotionMode);
 
         await _dbContext.SaveChangesAsync();
     }
 
     public async Task<(List<PromotionEntity>, int)> GetPromotionsAsync(PromotionParams queryParams)
     {
-        var query = _dbContext.Promotions.AsQueryable();
+        var query = _dbContext.Promotions.AsNoTracking().AsQueryable();
 
         // Apply filters
         if (!string.IsNullOrEmpty(queryParams.Name))
@@ -123,5 +119,20 @@ public class PromotionAdapter : IPromotionPort
             default:
                 return query.OrderByDescending(p => p.Id);
         }
+    }
+
+    public async Task DeletePromotionsByTypeIdAsync(long typeId) {
+        await _dbContext.Promotions
+            .Where(p => p.TypeId == typeId)
+            .ExecuteDeleteAsync();
+    }
+
+    public async Task<List<PromotionEntity>> GetPromotionsByTypeIdAsync(long typeId) {
+        var promotions = await _dbContext.Promotions
+            .AsNoTracking()
+            .Where(p => p.TypeId == typeId)
+            .ToListAsync();
+
+        return promotions.Select(PromotionMapper.ToEntity).ToList();
     }
 }

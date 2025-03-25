@@ -37,4 +37,8 @@ public class PromotionService : IPromotionService
     {
         await _updatePromotionUseCase.StopPromotionAsync(userId, id);
     }
+
+    public async Task<PromotionEntity> UpdatePromotionAsync(long userId, long id, UpdatePromotionDto req) {
+        return await _updatePromotionUseCase.UpdatePromotionAsync(userId, id, req);
+    }
 }

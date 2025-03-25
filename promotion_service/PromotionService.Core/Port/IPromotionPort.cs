@@ -9,4 +9,6 @@ public interface IPromotionPort
     Task<(List<PromotionEntity>, int)> GetPromotionsAsync(PromotionParams queryParams);
     Task<PromotionEntity> GetPromotionByIdAsync(long id);
     Task UpdatePromotionAsync(PromotionEntity promotion);
+    Task DeletePromotionsByTypeIdAsync(long typeId);
+    Task<List<PromotionEntity>> GetPromotionsByTypeIdAsync(long typeId);
 }

@@ -11,7 +11,8 @@ namespace PromotionService.Core.Domain.Constant
         PROMOTION_NOT_FOUND = 100004,
         GENERAL_FORBIDDEN = 100005,
         PROMOTION_CONDITION_NOT_FOUND = 100006,
-        PROMOTION_CONDITION_NAME_EXIST = 100007
+        PROMOTION_CONDITION_NAME_EXIST = 100007,
+        INVALID_TIME_RANGE = 100008
     }
 
     public static class ErrorCodeExtensions

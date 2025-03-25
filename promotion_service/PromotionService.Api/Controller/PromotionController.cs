@@ -45,6 +45,13 @@ public class PromotionController : ControllerBase
         return Ok(Resource<PromotionEntity>.Success(promotion));
     }
 
+    [HttpPut("{id}")]
+    public async Task<IActionResult> UpdatePromotionAsync(long id, [FromBody] UpdatePromotionDto req)
+    {
+        var updatedPromotion = await _promotionService.UpdatePromotionAsync(1, id, req);
+        return Ok(Resource<PromotionEntity>.Success(updatedPromotion));
+    }
+
     [HttpPut("{id}/stop")]
     public async Task<IActionResult> StopPromotionAsync(long id)
     {
