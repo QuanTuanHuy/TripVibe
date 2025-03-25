@@ -26,14 +26,36 @@ namespace PromotionService.Infrastructure.Repository.Adapter
 
         public async Task<List<PromotionUnitEntity>> GetPromotionUnitsByPromotionIdAsync(long promotionId)
         {
-            var promotionUnitModels = await _dbContext.PromotionUnits.Where(x => x.PromotionId == promotionId).ToListAsync();
+            var promotionUnitModels = await _dbContext.PromotionUnits
+                .AsNoTracking()
+                .Where(x => x.PromotionId == promotionId)
+                .ToListAsync();
             return promotionUnitModels.Select(PromotionUnitMapper.ToEntity).ToList();
         }
 
         public async Task<List<PromotionUnitEntity>> GetPromotionUnitsByPromotionIdsAsync(List<long> promotionIds)
         {
-            var promotionUnitModels = await _dbContext.PromotionUnits.Where(x => promotionIds.Contains(x.PromotionId)).ToListAsync();
+            var promotionUnitModels = await _dbContext.PromotionUnits
+                .AsNoTracking()
+                .Where(x => promotionIds.Contains(x.PromotionId))
+                .ToListAsync();
             return promotionUnitModels.Select(PromotionUnitMapper.ToEntity).ToList();
+        }
+
+        public async Task DeletePromotionUnitsByPromotionIdsAsync(List<long> promotionIds)
+        {
+            await _dbContext.PromotionUnits
+                .Where(pu => promotionIds.Contains(pu.PromotionId))
+                .ExecuteDeleteAsync();
+            await _dbContext.SaveChangesAsync();
+        }
+
+        public async Task DeletePromotionUnitsByPromotionIdAsync(long promotionId)
+        {
+            await _dbContext.PromotionUnits
+                .Where(pu => pu.PromotionId == promotionId)
+                .ExecuteDeleteAsync();
+            await _dbContext.SaveChangesAsync();
         }
     }
 }

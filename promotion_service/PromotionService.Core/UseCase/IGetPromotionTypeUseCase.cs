@@ -7,4 +7,5 @@ public interface IGetPromotionTypeUseCase
 {
     Task<(List<PromotionTypeEntity>, int)> GetPromotionTypesAsync(PromotionTypeParams queryParams);
     Task<PromotionTypeEntity> GetPromotionTypeByIdAsync(long id);
+    Task<List<PromotionTypeConditionEntity>> GetPromotionTypeConditionByPromotionTypeIdAsync(long promotionTypeId);
 }

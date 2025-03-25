@@ -11,7 +11,10 @@ namespace PromotionService.Core.Domain.Constant
         PROMOTION_NOT_FOUND = 100004,
         GENERAL_FORBIDDEN = 100005,
         PROMOTION_CONDITION_NOT_FOUND = 100006,
-        PROMOTION_CONDITION_NAME_EXIST = 100007
+        PROMOTION_CONDITION_NAME_EXIST = 100007,
+        INVALID_TIME_RANGE = 100008,
+        CONDITION_NOT_FOUND = 100009,
+        CONDITION_NAME_EXIST = 100010,
     }
 
     public static class ErrorCodeExtensions
@@ -27,6 +30,9 @@ namespace PromotionService.Core.Domain.Constant
                 ErrorCode.PROMOTION_NOT_FOUND => "Promotion not found",
                 ErrorCode.PROMOTION_CONDITION_NOT_FOUND => "Promotion condition not found",
                 ErrorCode.PROMOTION_CONDITION_NAME_EXIST => "Promotion condition name existed",
+                ErrorCode.INVALID_TIME_RANGE => "Invalid time range",
+                ErrorCode.CONDITION_NOT_FOUND => "Condition not found",
+                ErrorCode.CONDITION_NAME_EXIST => "Condition name existed",
                 ErrorCode.GENERAL_FORBIDDEN => "forbidden",
                 _ => "Unknown error"
             };
@@ -43,6 +49,9 @@ namespace PromotionService.Core.Domain.Constant
                 ErrorCode.PROMOTION_NOT_FOUND => HttpStatusCode.NotFound,
                 ErrorCode.PROMOTION_CONDITION_NOT_FOUND => HttpStatusCode.NotFound,
                 ErrorCode.PROMOTION_CONDITION_NAME_EXIST => HttpStatusCode.BadRequest,
+                ErrorCode.INVALID_TIME_RANGE => HttpStatusCode.BadRequest,
+                ErrorCode.CONDITION_NOT_FOUND => HttpStatusCode.NotFound,
+                ErrorCode.CONDITION_NAME_EXIST => HttpStatusCode.BadRequest,
                 _ => HttpStatusCode.InternalServerError
             };
         }

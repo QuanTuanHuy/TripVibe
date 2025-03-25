@@ -6,4 +6,5 @@ namespace PromotionService.Core.Service;
 public interface IConditionService
 {
     Task<ConditionEntity> CreateConditionAsync(CreateConditionDto condition);
+    Task<ConditionEntity> UpdateConditionAsync(long id, UpdateConditionDto req);
 }

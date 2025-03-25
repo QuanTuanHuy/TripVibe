@@ -1,6 +1,8 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using PromotionService.Core.Domain.Constant;
 using PromotionService.Core.Domain.Dto.Request;
 using PromotionService.Core.Domain.Entity;
+using PromotionService.Core.Exception;
 using PromotionService.Core.Port;
 using PromotionService.Infrastructure.Repository.Mapper;
 using PromotionService.Infrastructure.Repository.Model;
@@ -10,12 +12,12 @@ namespace PromotionService.Infrastructure.Repository.Adapter;
 public class PromotionTypeAdapter : IPromotionTypePort
 {
     private readonly PromotionDbContext _dbContext;
-    
+
     public PromotionTypeAdapter(PromotionDbContext dbContext)
     {
         _dbContext = dbContext;
     }
-    
+
     public async Task<PromotionTypeEntity> AddPromotionTypeAsync(PromotionTypeEntity promotionType)
     {
         var promotionTypeModel = PromotionTypeMapper.ToModel(promotionType);
@@ -26,34 +28,23 @@ public class PromotionTypeAdapter : IPromotionTypePort
 
     public async Task<PromotionTypeEntity> GetPromotionTypeByNameAsync(string name)
     {
-        var promotionType = await _dbContext.PromotionTypes.FirstOrDefaultAsync(x => x.Name == name);
+        var promotionType = await _dbContext.PromotionTypes
+            .AsNoTracking()
+            .FirstOrDefaultAsync(x => x.Name == name);
         return PromotionTypeMapper.ToEntity(promotionType);
     }
 
     public async Task<PromotionTypeEntity> UpdatePromotionTypeAsync(long id, PromotionTypeEntity promotionType)
     {
-        var existingPromotionType = await _dbContext.PromotionTypes
-            .FirstOrDefaultAsync(p => p.Id == id);
-    
-        if (existingPromotionType == null)
-        {
-            throw new KeyNotFoundException($"Promotion type with ID {id} not found");
-        }
-
-        // Update properties
-        existingPromotionType.Name = promotionType.Name;
-        existingPromotionType.Description = promotionType.Description;
-
-        // Save changes
+        var promotionModel = PromotionTypeMapper.ToModel(promotionType);
+        _dbContext.PromotionTypes.Update(promotionModel);
         await _dbContext.SaveChangesAsync();
-    
-        // Return updated entity
-        return PromotionTypeMapper.ToEntity(existingPromotionType);
+        return PromotionTypeMapper.ToEntity(promotionModel);
     }
 
     public async Task<List<PromotionTypeEntity>> GetPromotionTypesAsync(PromotionTypeParams queryParams)
     {
-        var query = ApplyFiltersAndSorting(_dbContext.PromotionTypes.AsQueryable(), queryParams);
+        var query = ApplyFiltersAndSorting(_dbContext.PromotionTypes.AsNoTracking().AsQueryable(), queryParams);
 
         // Apply pagination
         query = query.Skip(queryParams.Page * queryParams.PageSize)
@@ -65,15 +56,15 @@ public class PromotionTypeAdapter : IPromotionTypePort
 
     public async Task<int> CountPromotionTypesAsync(PromotionTypeParams queryParams)
     {
-        var query = ApplyFilters(_dbContext.PromotionTypes.AsQueryable(), queryParams);
+        var query = ApplyFilters(_dbContext.PromotionTypes.AsNoTracking().AsQueryable(), queryParams);
         return await query.CountAsync();
     }
-    
+
     public async Task<(List<PromotionTypeEntity> Items, int TotalCount)> GetPromotionTypesWithCountAsync(PromotionTypeParams queryParams)
     {
         var items = await GetPromotionTypesAsync(queryParams);
         var totalCount = await CountPromotionTypesAsync(queryParams);
-        
+
         return (items, totalCount);
     }
 
@@ -84,22 +75,22 @@ public class PromotionTypeAdapter : IPromotionTypePort
         {
             query = query.Where(pt => pt.Name.Contains(queryParams.Name));
         }
-        
+
         return query;
     }
-    
+
     private IQueryable<PromotionTypeModel> ApplyFiltersAndSorting(IQueryable<PromotionTypeModel> query, PromotionTypeParams queryParams)
     {
         // Apply filters first
         query = ApplyFilters(query, queryParams);
-        
+
         // Apply sorting
         if (!string.IsNullOrEmpty(queryParams.SortBy))
         {
             switch (queryParams.SortBy.ToLower())
             {
                 case "name":
-                    query = queryParams.SortOrder?.ToLower() == "desc" 
+                    query = queryParams.SortOrder?.ToLower() == "desc"
                         ? query.OrderByDescending(pt => pt.Name)
                         : query.OrderBy(pt => pt.Name);
                     break;
@@ -112,13 +103,22 @@ public class PromotionTypeAdapter : IPromotionTypePort
         {
             query = query.OrderBy(pt => pt.Id);
         }
-        
+
         return query;
     }
 
     public async Task<PromotionTypeEntity> GetPromotionTypeByIdAsync(long id)
     {
-        var promotionType = await _dbContext.PromotionTypes.FirstOrDefaultAsync(x => x.Id == id);
+        var promotionType = await _dbContext.PromotionTypes
+            .AsNoTracking()
+            .FirstOrDefaultAsync(x => x.Id == id);
         return PromotionTypeMapper.ToEntity(promotionType);
+    }
+
+    public async Task DeletePromotionTypeAsync(long id)
+    {
+        await _dbContext.PromotionTypes
+            .Where(p => p.Id == id)
+            .ExecuteDeleteAsync();
     }
 }
