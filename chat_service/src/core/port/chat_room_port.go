@@ -10,4 +10,5 @@ type IChatRoomPort interface {
 	CreateChatRoom(ctx context.Context, tx *gorm.DB, chatRoom *entity.ChatRoomEntity) (*entity.ChatRoomEntity, error)
 	UpdateChatRoom(ctx context.Context, tx *gorm.DB, chatRoom *entity.ChatRoomEntity) (*entity.ChatRoomEntity, error)
 	GetChatRoomByBookingID(ctx context.Context, bookingID int64) (*entity.ChatRoomEntity, error)
+	GetChatRoomByID(ctx context.Context, chatRoomID int64) (*entity.ChatRoomEntity, error)
 }

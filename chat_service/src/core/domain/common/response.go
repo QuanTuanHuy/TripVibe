@@ -14,6 +14,7 @@ const (
 
 	//GeneralForbidden error
 	GeneralForbidden = 403
+	GeneralNotFound  = 404
 
 	//ErrBadRequest error
 	ErrCodeChatroomNotFound = 1001
@@ -46,6 +47,11 @@ var errorResponseMap = map[int]ErrorResponse{
 		HTTPCode:    http.StatusForbidden,
 		ServiceCode: GeneralForbidden,
 		Message:     "Forbidden",
+	},
+	GeneralNotFound: {
+		HTTPCode:    http.StatusNotFound,
+		ServiceCode: GeneralNotFound,
+		Message:     "Not Found",
 	},
 }
 

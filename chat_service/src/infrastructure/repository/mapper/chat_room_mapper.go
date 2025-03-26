@@ -6,6 +6,9 @@ import (
 )
 
 func ToChatRoomEntity(chatRoom *model.ChatRoomModel) *entity.ChatRoomEntity {
+	if chatRoom == nil {
+		return nil
+	}
 	return &entity.ChatRoomEntity{
 		BaseEntity: entity.BaseEntity{
 			ID:        chatRoom.ID,
@@ -18,6 +21,9 @@ func ToChatRoomEntity(chatRoom *model.ChatRoomModel) *entity.ChatRoomEntity {
 }
 
 func ToChatRoomModel(chatRoom *entity.ChatRoomEntity) *model.ChatRoomModel {
+	if chatRoom == nil {
+		return nil
+	}
 	return &model.ChatRoomModel{
 		BaseModel: model.BaseModel{
 			ID: chatRoom.ID,

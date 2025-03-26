@@ -7,6 +7,9 @@ import (
 )
 
 func ToParticipantEntity(participant *model.ParticipantModel) *entity.ParticipantEntity {
+	if participant == nil {
+		return nil
+	}
 	return &entity.ParticipantEntity{
 		UserID:   participant.UserID,
 		UserName: participant.UserName,
@@ -15,6 +18,9 @@ func ToParticipantEntity(participant *model.ParticipantModel) *entity.Participan
 }
 
 func ToParticipantModel(participant *entity.ParticipantEntity) *model.ParticipantModel {
+	if participant == nil {
+		return nil
+	}
 	return &model.ParticipantModel{
 		UserID:   participant.UserID,
 		UserName: participant.UserName,

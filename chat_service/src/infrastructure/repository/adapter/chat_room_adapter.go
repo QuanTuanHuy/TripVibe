@@ -15,6 +15,17 @@ type ChatRoomAdapter struct {
 	base
 }
 
+func (c ChatRoomAdapter) GetChatRoomByID(ctx context.Context, chatRoomID int64) (*entity.ChatRoomEntity, error) {
+	var chatRoom model.ChatRoomModel
+	if err := c.db.WithContext(ctx).Where("id = ?", chatRoomID).First(&chatRoom).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, errors.New(constant.ErrChatRoomNotFound)
+		}
+		return nil, err
+	}
+	return mapper.ToChatRoomEntity(&chatRoom), nil
+}
+
 func (c ChatRoomAdapter) CreateChatRoom(ctx context.Context, tx *gorm.DB, chatRoom *entity.ChatRoomEntity) (*entity.ChatRoomEntity, error) {
 	chatRoomModel := mapper.ToChatRoomModel(chatRoom)
 	if err := tx.WithContext(ctx).Create(chatRoomModel).Error; err != nil {

@@ -6,6 +6,9 @@ import (
 )
 
 func ToRoomParticipantEntity(roomParticipant *model.RoomParticipantModel) *entity.RoomParticipantEntity {
+	if roomParticipant == nil {
+		return nil
+	}
 	return &entity.RoomParticipantEntity{
 		BaseEntity: entity.BaseEntity{
 			ID:        roomParticipant.ID,
@@ -18,6 +21,9 @@ func ToRoomParticipantEntity(roomParticipant *model.RoomParticipantModel) *entit
 }
 
 func ToRoomParticipantModel(roomParticipant *entity.RoomParticipantEntity) *model.RoomParticipantModel {
+	if roomParticipant == nil {
+		return nil
+	}
 	return &model.RoomParticipantModel{
 		BaseModel: model.BaseModel{
 			ID: roomParticipant.ID,

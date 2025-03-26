@@ -8,4 +8,5 @@ import (
 
 type IRoomParticipantPort interface {
 	CreateRoomParticipants(ctx context.Context, tx *gorm.DB, roomParticipants []*entity.RoomParticipantEntity) ([]*entity.RoomParticipantEntity, error)
+	GetByRoomIDAndParticipantID(ctx context.Context, roomID, participantID int64) (*entity.RoomParticipantEntity, error)
 }
