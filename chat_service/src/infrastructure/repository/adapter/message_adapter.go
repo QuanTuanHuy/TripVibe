@@ -9,11 +9,36 @@ import (
 	"chat_service/infrastructure/repository/mapper"
 	"chat_service/infrastructure/repository/model"
 	"context"
+	"github.com/golibs-starter/golib/log"
 	"gorm.io/gorm"
 )
 
 type MessageAdapter struct {
 	base
+}
+
+func (m MessageAdapter) CountUnreadMessages(ctx context.Context, roomID, userID int64) (int64, error) {
+	var count int64
+	if err := m.db.WithContext(ctx).
+		Model(model.MessageModel{}).
+		Where("chat_room_id = ? AND sender_id != ? AND is_read = false", roomID, userID).
+		Count(&count).Error; err != nil {
+		log.Error(ctx, "Error counting unread messages: ", err)
+		return 0, err
+	}
+	return count, nil
+}
+
+func (m MessageAdapter) MarkMessageAsRead(ctx context.Context, tx *gorm.DB, roomID, userID, messageID int64) error {
+	result := tx.WithContext(ctx).
+		Exec("UPDATE messages SET is_read = true WHERE id <= ? AND chat_room_id = ? AND sender_id != ?",
+			messageID, roomID, userID)
+
+	if result.Error != nil {
+		log.Error(ctx, "Error marking message as read: ", result.Error)
+		return result.Error
+	}
+	return nil
 }
 
 func (m MessageAdapter) GetMessagesByIDs(ctx context.Context, messageIDs []int64) ([]*entity.MessageEntity, error) {

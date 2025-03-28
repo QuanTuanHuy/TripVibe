@@ -19,9 +19,11 @@ func RegisterGinRouters(p RegisterRoutersIn) {
 
 	chatV1 := router.Group("/public/v1/chats")
 	{
-		chatV1.POST("/new_room", p.ChatController.CreateChatRoom)
-		chatV1.POST("/:roomId/send_message", p.ChatController.SendMessage)
-		chatV1.GET("/:roomId/messages", p.ChatController.GetMessagesByRoomID)
+		chatV1.POST("/rooms", p.ChatController.CreateChatRoom)
+		chatV1.POST("/rooms/:roomId/send_message", p.ChatController.SendMessage)
+		chatV1.GET("/rooms/:roomId/messages", p.ChatController.GetMessagesByRoomID)
 		chatV1.GET("/rooms", p.ChatController.GetChatRooms)
+		chatV1.POST("/rooms/:roomId/messages/:messageId/read", p.ChatController.MarkMessageAsRead)
+		chatV1.GET("/rooms/:roomId/unread", p.ChatController.CountUnreadMessages)
 	}
 }

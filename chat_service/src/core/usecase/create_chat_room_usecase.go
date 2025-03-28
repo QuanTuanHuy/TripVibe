@@ -3,6 +3,7 @@ package usecase
 import (
 	"chat_service/core/domain/constant"
 	"chat_service/core/domain/dto"
+	"chat_service/core/domain/dto/request"
 	"chat_service/core/domain/entity"
 	"chat_service/core/port"
 	"context"
@@ -26,6 +27,21 @@ func (c CreateChatRoomUseCase) CreateChatRoom(ctx context.Context, bookingID int
 	if err != nil && err.Error() != constant.ErrChatRoomNotFound {
 		log.Error(ctx, "Get chat room by booking id failed, ", err)
 		return nil, err
+	}
+
+	// check existed chat room
+	params := &request.ChatRoomQueryParams{
+		UserID:     &tourist.UserID,
+		ChatUserID: &owner.UserID,
+	}
+	chatRooms, err := c.chatRoomPort.GetChatRooms(ctx, params)
+	if err != nil {
+		log.Error(ctx, "Get chat rooms failed, ", err)
+		return nil, err
+	}
+	if len(chatRooms) > 0 {
+		log.Info(ctx, "Chat room already existed, ID: ", chatRooms[0].ID)
+		return chatRooms[0], nil
 	}
 
 	chatRoom := &entity.ChatRoomEntity{

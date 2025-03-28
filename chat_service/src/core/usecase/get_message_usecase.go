@@ -14,11 +14,23 @@ import (
 type IGetMessageUseCase interface {
 	GetMessagesByRoomId(ctx context.Context, userID, chatRoomID int64, params *request.MessageQueryParams) ([]*entity.MessageEntity, *response.PaginationResult, error)
 	GetMessagesByIDs(ctx context.Context, IDs []int64) ([]*entity.MessageEntity, error)
+	CountUnreadMessages(ctx context.Context, roomID, userID int64) (int64, error)
 }
 
 type GetMessageUseCase struct {
 	getChatRoomUseCase IGetChatRoomUseCase
 	messagePort        port.IMessagePort
+}
+
+func (g GetMessageUseCase) CountUnreadMessages(ctx context.Context, roomID, userID int64) (int64, error) {
+	// check permission
+	_, err := g.getChatRoomUseCase.GetChatRoomById(ctx, roomID, userID)
+	if err != nil {
+		log.Error(ctx, "Get chat room by id failed, ", err)
+		return 0, err
+	}
+
+	return g.messagePort.CountUnreadMessages(ctx, roomID, userID)
 }
 
 func (g GetMessageUseCase) GetMessagesByIDs(ctx context.Context, IDs []int64) ([]*entity.MessageEntity, error) {

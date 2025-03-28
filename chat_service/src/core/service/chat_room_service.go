@@ -7,14 +7,18 @@ import (
 	"chat_service/core/domain/dto/response"
 	"chat_service/core/domain/entity"
 	"chat_service/core/usecase"
+	"chat_service/kernel/utils"
 	"context"
+	"github.com/golibs-starter/golib/log"
 )
 
 type IChatRoomService interface {
 	CreateChatRoom(ctx context.Context, bookingID int64, tourist *dto.ParticipantDto, owner *dto.ParticipantDto) (*entity.ChatRoomEntity, error)
 	CreateMessage(ctx context.Context, roomID, senderID int64, content string, messageType constant.MessageType) (*entity.MessageEntity, error)
 	GetMessagesByRoomId(ctx context.Context, userID, chatRoomID int64, params *request.MessageQueryParams) ([]*entity.MessageEntity, *response.PaginationResult, error)
-	GetChatRooms(ctx context.Context, params *request.ChatRoomQueryParams) ([]*entity.ChatRoomEntity, error)
+	GetChatRooms(ctx context.Context, params *request.ChatRoomQueryParams) (*response.GetChatRoomResponse, error)
+	MarkMessageAsRead(ctx context.Context, roomID, userID, messageID int64) error
+	CountUnreadMessages(ctx context.Context, roomID, userID int64) (int64, error)
 }
 
 type ChatRoomService struct {
@@ -22,10 +26,35 @@ type ChatRoomService struct {
 	createMessageUseCase  usecase.ICreateMessageUseCase
 	getMessageUseCase     usecase.IGetMessageUseCase
 	getChatRoomUseCase    usecase.IGetChatRoomUseCase
+	updateMessageUseCase  usecase.IUpdateMessageUseCase
 }
 
-func (c ChatRoomService) GetChatRooms(ctx context.Context, params *request.ChatRoomQueryParams) ([]*entity.ChatRoomEntity, error) {
-	return c.getChatRoomUseCase.GetChatRooms(ctx, params)
+func (c ChatRoomService) CountUnreadMessages(ctx context.Context, roomID, userID int64) (int64, error) {
+	return c.getMessageUseCase.CountUnreadMessages(ctx, roomID, userID)
+}
+
+func (c ChatRoomService) MarkMessageAsRead(ctx context.Context, roomID, userID, messageID int64) error {
+	return c.updateMessageUseCase.MarkMessageAsRead(ctx, roomID, userID, messageID)
+}
+
+func (c ChatRoomService) GetChatRooms(ctx context.Context, params *request.ChatRoomQueryParams) (*response.GetChatRoomResponse, error) {
+	chatRooms, err := c.getChatRoomUseCase.GetChatRooms(ctx, params)
+	if err != nil {
+		log.Error(ctx, "get chat rooms failed, ", err)
+		return nil, err
+	}
+
+	total, err := c.getChatRoomUseCase.CountChatRooms(ctx, params)
+	if err != nil {
+		log.Error(ctx, "count chat rooms failed, ", err)
+		return nil, err
+	}
+
+	page := int64(*params.Page)
+	pageSize := int64(*params.PageSize)
+	nextPage, prevPage, totalPage := utils.CalculateParameterForGetRequest(page, pageSize, total)
+
+	return response.ToGetChatRoomResponse(chatRooms, page, pageSize, totalPage, total, prevPage, nextPage), nil
 }
 
 func (c ChatRoomService) GetMessagesByRoomId(ctx context.Context, userID, chatRoomID int64, params *request.MessageQueryParams) ([]*entity.MessageEntity, *response.PaginationResult, error) {
@@ -43,11 +72,13 @@ func (c ChatRoomService) CreateChatRoom(ctx context.Context, bookingID int64, to
 func NewChatRoomService(createChatRoomUseCase usecase.ICreateChatRoomUseCase,
 	createMessageUseCase usecase.ICreateMessageUseCase,
 	getMessageUseCase usecase.IGetMessageUseCase,
-	getChatRoomUseCase usecase.IGetChatRoomUseCase) IChatRoomService {
+	getChatRoomUseCase usecase.IGetChatRoomUseCase,
+	updateMessageUseCase usecase.IUpdateMessageUseCase) IChatRoomService {
 	return &ChatRoomService{
 		createChatRoomUseCase: createChatRoomUseCase,
 		createMessageUseCase:  createMessageUseCase,
 		getMessageUseCase:     getMessageUseCase,
 		getChatRoomUseCase:    getChatRoomUseCase,
+		updateMessageUseCase:  updateMessageUseCase,
 	}
 }

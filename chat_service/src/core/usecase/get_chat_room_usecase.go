@@ -13,6 +13,7 @@ import (
 type IGetChatRoomUseCase interface {
 	GetChatRoomById(ctx context.Context, roomID, userID int64) (*entity.ChatRoomEntity, error)
 	GetChatRooms(ctx context.Context, params *request.ChatRoomQueryParams) ([]*entity.ChatRoomEntity, error)
+	CountChatRooms(ctx context.Context, params *request.ChatRoomQueryParams) (int64, error)
 }
 
 type GetChatRoomUseCase struct {
@@ -20,6 +21,10 @@ type GetChatRoomUseCase struct {
 	roomParticipantPort   port.IRoomParticipantPort
 	messagePort           port.IMessagePort
 	getParticipantUseCase IGetParticipantUseCase
+}
+
+func (g GetChatRoomUseCase) CountChatRooms(ctx context.Context, params *request.ChatRoomQueryParams) (int64, error) {
+	return g.chatRoomPort.CountChatRooms(ctx, params)
 }
 
 func (g GetChatRoomUseCase) GetChatRooms(ctx context.Context, params *request.ChatRoomQueryParams) ([]*entity.ChatRoomEntity, error) {
@@ -46,7 +51,7 @@ func (g GetChatRoomUseCase) GetChatRooms(ctx context.Context, params *request.Ch
 	// get last message
 	messageIDs := make([]int64, 0)
 	for _, chatRoom := range chatRooms {
-		messageIDs = append(messageIDs, chatRoom.ID)
+		messageIDs = append(messageIDs, chatRoom.LastMessageID)
 	}
 	messages, err := g.messagePort.GetMessagesByIDs(ctx, messageIDs)
 	if err != nil {

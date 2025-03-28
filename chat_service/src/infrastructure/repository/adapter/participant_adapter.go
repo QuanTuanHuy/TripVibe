@@ -17,7 +17,7 @@ type ParticipantAdapter struct {
 
 func (p ParticipantAdapter) GetParticipantByID(ctx context.Context, participantID int64) (*entity.ParticipantEntity, error) {
 	var participantModel model.ParticipantModel
-	if err := p.db.WithContext(ctx).Where("id = ?", participantID).First(&participantModel).Error; err != nil {
+	if err := p.db.WithContext(ctx).Where("user_id = ?", participantID).First(&participantModel).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, errors.New(constant.ErrParticipantNotFound)
 		}
