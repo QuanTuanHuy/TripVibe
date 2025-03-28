@@ -84,6 +84,7 @@ public class CreateUnitUseCase {
         if (!CollectionUtils.isEmpty(req.getImages())) {
             List<ImageEntity> unitImages = req.getImages().stream()
                     .map(image -> ImageEntity.builder()
+                            .id(image.getId())
                             .entityId(unitId)
                             .entityType(ImageEntityType.UNIT.getType())
                             .url(image.getUrl())

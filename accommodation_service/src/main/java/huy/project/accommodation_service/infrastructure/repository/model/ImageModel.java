@@ -12,7 +12,6 @@ import lombok.*;
 @Table(name = "images")
 public class ImageModel extends AuditTable {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Column(name = "url")

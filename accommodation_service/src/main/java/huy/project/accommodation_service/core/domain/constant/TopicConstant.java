@@ -17,6 +17,12 @@ public class TopicConstant {
         public static final String CREATE_VIEW_HISTORY = "create_view_history";
     }
 
+    public class FileCommand {
+        public static final String TOPIC = "file_service.file_storage";
+        public static final String DELETE_FILE = "delete_file";
+    }
+
+
     @UtilityClass
     public class SearchCommand {
         public static final String TOPIC = "search_service.accommodation";

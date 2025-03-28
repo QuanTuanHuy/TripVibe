@@ -76,6 +76,7 @@ public class CreateAccommodationUseCase {
         // create accommodation images
         List<ImageEntity> accImages = req.getImages().stream()
                 .map(image -> ImageEntity.builder()
+                        .id(image.getId())
                         .entityType(ImageEntityType.ACCOMMODATION.getType())
                         .entityId(accommodationId)
                         .url(image.getUrl())

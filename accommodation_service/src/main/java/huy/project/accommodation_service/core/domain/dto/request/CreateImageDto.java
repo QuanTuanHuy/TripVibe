@@ -8,6 +8,7 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 public class CreateImageDto {
+    private Long id;
     private String url;
     private Boolean isPrimary;
 }
