@@ -14,12 +14,18 @@ type IChatRoomService interface {
 	CreateChatRoom(ctx context.Context, bookingID int64, tourist *dto.ParticipantDto, owner *dto.ParticipantDto) (*entity.ChatRoomEntity, error)
 	CreateMessage(ctx context.Context, roomID, senderID int64, content string, messageType constant.MessageType) (*entity.MessageEntity, error)
 	GetMessagesByRoomId(ctx context.Context, userID, chatRoomID int64, params *request.MessageQueryParams) ([]*entity.MessageEntity, *response.PaginationResult, error)
+	GetChatRooms(ctx context.Context, params *request.ChatRoomQueryParams) ([]*entity.ChatRoomEntity, error)
 }
 
 type ChatRoomService struct {
 	createChatRoomUseCase usecase.ICreateChatRoomUseCase
 	createMessageUseCase  usecase.ICreateMessageUseCase
 	getMessageUseCase     usecase.IGetMessageUseCase
+	getChatRoomUseCase    usecase.IGetChatRoomUseCase
+}
+
+func (c ChatRoomService) GetChatRooms(ctx context.Context, params *request.ChatRoomQueryParams) ([]*entity.ChatRoomEntity, error) {
+	return c.getChatRoomUseCase.GetChatRooms(ctx, params)
 }
 
 func (c ChatRoomService) GetMessagesByRoomId(ctx context.Context, userID, chatRoomID int64, params *request.MessageQueryParams) ([]*entity.MessageEntity, *response.PaginationResult, error) {
@@ -36,10 +42,12 @@ func (c ChatRoomService) CreateChatRoom(ctx context.Context, bookingID int64, to
 
 func NewChatRoomService(createChatRoomUseCase usecase.ICreateChatRoomUseCase,
 	createMessageUseCase usecase.ICreateMessageUseCase,
-	getMessageUseCase usecase.IGetMessageUseCase) IChatRoomService {
+	getMessageUseCase usecase.IGetMessageUseCase,
+	getChatRoomUseCase usecase.IGetChatRoomUseCase) IChatRoomService {
 	return &ChatRoomService{
 		createChatRoomUseCase: createChatRoomUseCase,
 		createMessageUseCase:  createMessageUseCase,
 		getMessageUseCase:     getMessageUseCase,
+		getChatRoomUseCase:    getChatRoomUseCase,
 	}
 }

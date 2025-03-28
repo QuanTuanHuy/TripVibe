@@ -16,6 +16,16 @@ type MessageAdapter struct {
 	base
 }
 
+func (m MessageAdapter) GetMessagesByIDs(ctx context.Context, messageIDs []int64) ([]*entity.MessageEntity, error) {
+	var messageModels []*model.MessageModel
+	if err := m.db.WithContext(ctx).
+		Where("id IN (?)", messageIDs).
+		Find(&messageModels).Error; err != nil {
+		return nil, err
+	}
+	return mapper.ToMessageEntities(messageModels), nil
+}
+
 func (m MessageAdapter) GetMessagesByRoomId(ctx context.Context, chatRoomID int64, params *request.MessageQueryParams) ([]*entity.MessageEntity, *response.PaginationResult, error) {
 	var messageModels []*model.MessageModel
 

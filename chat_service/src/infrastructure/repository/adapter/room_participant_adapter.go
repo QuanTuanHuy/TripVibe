@@ -15,6 +15,14 @@ type RoomParticipantAdapter struct {
 	base
 }
 
+func (r RoomParticipantAdapter) GetByRoomIDs(ctx context.Context, roomIDs []int64) ([]*entity.RoomParticipantEntity, error) {
+	var roomParticipantModels []*model.RoomParticipantModel
+	if err := r.db.WithContext(ctx).Where("chat_room_id IN (?)", roomIDs).Find(&roomParticipantModels).Error; err != nil {
+		return nil, err
+	}
+	return mapper.ToRoomParticipantEntities(roomParticipantModels), nil
+}
+
 func (r RoomParticipantAdapter) GetByRoomIDAndParticipantID(ctx context.Context, roomID, participantID int64) (*entity.RoomParticipantEntity, error) {
 	var roomParticipant model.RoomParticipantModel
 	if err := r.db.WithContext(ctx).Where("chat_room_id = ? AND participant_id = ?", roomID, participantID).First(&roomParticipant).Error; err != nil {

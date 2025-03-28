@@ -22,5 +22,6 @@ func RegisterGinRouters(p RegisterRoutersIn) {
 		chatV1.POST("/new_room", p.ChatController.CreateChatRoom)
 		chatV1.POST("/:roomId/send_message", p.ChatController.SendMessage)
 		chatV1.GET("/:roomId/messages", p.ChatController.GetMessagesByRoomID)
+		chatV1.GET("/rooms", p.ChatController.GetChatRooms)
 	}
 }

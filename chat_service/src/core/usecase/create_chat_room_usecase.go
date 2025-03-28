@@ -46,7 +46,7 @@ func (c CreateChatRoomUseCase) CreateChatRoom(ctx context.Context, bookingID int
 		return nil, err
 	}
 	// create participants
-	existedTourist, err := c.participantPort.GetParticipantsById(ctx, tourist.UserID)
+	existedTourist, err := c.participantPort.GetParticipantByID(ctx, tourist.UserID)
 	if err != nil && err.Error() != constant.ErrParticipantNotFound {
 		log.Error(ctx, "Get tourist failed, ", err)
 		return nil, err
@@ -64,7 +64,7 @@ func (c CreateChatRoomUseCase) CreateChatRoom(ctx context.Context, bookingID int
 		}
 	}
 
-	existedOwner, err := c.participantPort.GetParticipantsById(ctx, owner.UserID)
+	existedOwner, err := c.participantPort.GetParticipantByID(ctx, owner.UserID)
 	if err != nil && err.Error() != constant.ErrParticipantNotFound {
 		log.Error(ctx, "Get owner failed, ", err)
 		return nil, err

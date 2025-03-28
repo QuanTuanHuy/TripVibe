@@ -8,5 +8,6 @@ import (
 
 type IParticipantPort interface {
 	CreateParticipant(ctx context.Context, tx *gorm.DB, participant *entity.ParticipantEntity) (*entity.ParticipantEntity, error)
-	GetParticipantsById(ctx context.Context, participantId int64) (*entity.ParticipantEntity, error)
+	GetParticipantsByIDs(ctx context.Context, participantIDs []int64) ([]*entity.ParticipantEntity, error)
+	GetParticipantByID(ctx context.Context, participantID int64) (*entity.ParticipantEntity, error)
 }

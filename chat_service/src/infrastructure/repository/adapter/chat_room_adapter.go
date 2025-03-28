@@ -2,10 +2,12 @@ package adapter
 
 import (
 	"chat_service/core/domain/constant"
+	"chat_service/core/domain/dto/request"
 	"chat_service/core/domain/entity"
 	"chat_service/core/port"
 	"chat_service/infrastructure/repository/mapper"
 	"chat_service/infrastructure/repository/model"
+	"chat_service/infrastructure/repository/specification"
 	"context"
 	"errors"
 	"gorm.io/gorm"
@@ -13,6 +15,29 @@ import (
 
 type ChatRoomAdapter struct {
 	base
+}
+
+func (c ChatRoomAdapter) CountChatRooms(ctx context.Context, params *request.ChatRoomQueryParams) (int64, error) {
+	var count int64
+	query, args := specification.ToCountChatRoomSpecification(params)
+	if err := c.db.WithContext(ctx).
+		Model(&model.ChatRoomModel{}).
+		Raw(query, args...).
+		Count(&count).Error; err != nil {
+		return 0, err
+	}
+	return count, nil
+}
+
+func (c ChatRoomAdapter) GetChatRooms(ctx context.Context, params *request.ChatRoomQueryParams) ([]*entity.ChatRoomEntity, error) {
+	var chatRoomModels []*model.ChatRoomModel
+	query, args := specification.ToGetChatRoomSpecification(params)
+	if err := c.db.WithContext(ctx).
+		Raw(query, args...).
+		Find(&chatRoomModels).Error; err != nil {
+		return nil, err
+	}
+	return mapper.ToChatRoomEntities(chatRoomModels), nil
 }
 
 func (c ChatRoomAdapter) GetChatRoomByID(ctx context.Context, chatRoomID int64) (*entity.ChatRoomEntity, error) {

@@ -13,11 +13,16 @@ import (
 
 type IGetMessageUseCase interface {
 	GetMessagesByRoomId(ctx context.Context, userID, chatRoomID int64, params *request.MessageQueryParams) ([]*entity.MessageEntity, *response.PaginationResult, error)
+	GetMessagesByIDs(ctx context.Context, IDs []int64) ([]*entity.MessageEntity, error)
 }
 
 type GetMessageUseCase struct {
 	getChatRoomUseCase IGetChatRoomUseCase
 	messagePort        port.IMessagePort
+}
+
+func (g GetMessageUseCase) GetMessagesByIDs(ctx context.Context, IDs []int64) ([]*entity.MessageEntity, error) {
+	return g.messagePort.GetMessagesByIDs(ctx, IDs)
 }
 
 func (g GetMessageUseCase) GetMessagesByRoomId(ctx context.Context, userID, chatRoomID int64, params *request.MessageQueryParams) ([]*entity.MessageEntity, *response.PaginationResult, error) {

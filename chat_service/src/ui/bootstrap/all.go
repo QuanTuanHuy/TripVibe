@@ -39,6 +39,7 @@ func All() fx.Option {
 		fx.Provide(usecase.NewGetChatRoomUseCase),
 		fx.Provide(usecase.NewCreateMessageUseCase),
 		fx.Provide(usecase.NewGetMessageUseCase),
+		fx.Provide(usecase.NewGetParticipantUseCase),
 
 		//Provide services
 		fx.Provide(service.NewChatRoomService),

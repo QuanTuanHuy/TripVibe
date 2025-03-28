@@ -7,6 +7,7 @@ import (
 	request2 "chat_service/core/domain/dto/request"
 	"chat_service/core/service"
 	"chat_service/kernel/apihelper"
+	"chat_service/kernel/utils"
 	"chat_service/ui/resource/request"
 	"github.com/gin-gonic/gin"
 	"github.com/golibs-starter/golib/log"
@@ -19,6 +20,57 @@ type ChatController struct {
 
 func NewChatController(chatRoomService service.IChatRoomService) *ChatController {
 	return &ChatController{chatRoomService: chatRoomService}
+}
+
+func (ch *ChatController) GetChatRooms(c *gin.Context) {
+	var userID, chatUserID int64
+	var err error
+	userIDFromContext, exists := c.Get("userID")
+	if exists {
+		userID = userIDFromContext.(int64)
+	} else {
+		// Fallback: lấy từ query parameter
+		userIDStr := c.Query("userId")
+		if userIDStr == "" {
+			log.Error(c, "User ID is required")
+			apihelper.AbortErrorHandle(c, common.GeneralBadRequest)
+			return
+		}
+
+		userID, err = strconv.ParseInt(userIDStr, 10, 64)
+		if err != nil {
+			log.Error(c, "Parse user id failed, ", err)
+			apihelper.AbortErrorHandle(c, common.GeneralBadRequest)
+			return
+		}
+	}
+
+	chatUserIDStr := c.Query("chatUserId")
+	if chatUserIDStr != "" {
+		chatUserID, err = strconv.ParseInt(chatUserIDStr, 10, 64)
+		if err != nil {
+			log.Error(c, "Parse chat user id failed, ", err)
+			apihelper.AbortErrorHandle(c, common.GeneralBadRequest)
+			return
+		}
+	}
+
+	pageSize, page := utils.GetPagingParams(c)
+
+	var params request2.ChatRoomQueryParams
+	params.UserID = &userID
+	params.ChatUserID = &chatUserID
+	params.Page = &page
+	params.PageSize = &pageSize
+
+	chatRooms, err := ch.chatRoomService.GetChatRooms(c, &params)
+	if err != nil {
+		log.Error(c, "Get chat rooms failed, ", err)
+		apihelper.AbortErrorHandle(c, common.GeneralServiceUnavailable)
+		return
+	}
+
+	apihelper.SuccessfulHandle(c, chatRooms)
 }
 
 func (ch *ChatController) GetMessagesByRoomID(c *gin.Context) {

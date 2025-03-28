@@ -32,3 +32,11 @@ func ToChatRoomModel(chatRoom *entity.ChatRoomEntity) *model.ChatRoomModel {
 		LastMessageID: chatRoom.LastMessageID,
 	}
 }
+
+func ToChatRoomEntities(chatRooms []*model.ChatRoomModel) []*entity.ChatRoomEntity {
+	var entities []*entity.ChatRoomEntity
+	for _, cr := range chatRooms {
+		entities = append(entities, ToChatRoomEntity(cr))
+	}
+	return entities
+}
