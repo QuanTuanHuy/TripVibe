@@ -3,6 +3,7 @@ package bootstrap
 import (
 	"chat_service/core/service"
 	"chat_service/core/usecase"
+	"chat_service/infrastructure"
 	"chat_service/infrastructure/repository/adapter"
 	"chat_service/ui/controller"
 	"chat_service/ui/router"
@@ -47,6 +48,10 @@ func All() fx.Option {
 
 		//Provide controller
 		fx.Provide(controller.NewChatController),
+		fx.Provide(controller.NewWebSocketController),
+
+		//Provide websocket manager
+		fx.Provide(infrastructure.NewWebSocketManager),
 
 		//Provide jwt
 

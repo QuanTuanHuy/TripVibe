@@ -19,6 +19,7 @@ type IChatRoomService interface {
 	GetChatRooms(ctx context.Context, params *request.ChatRoomQueryParams) (*response.GetChatRoomResponse, error)
 	MarkMessageAsRead(ctx context.Context, roomID, userID, messageID int64) error
 	CountUnreadMessages(ctx context.Context, roomID, userID int64) (int64, error)
+	GetChatRoomByID(ctx context.Context, userID, chatRoomID int64) (*entity.ChatRoomEntity, error)
 }
 
 type ChatRoomService struct {
@@ -27,6 +28,10 @@ type ChatRoomService struct {
 	getMessageUseCase     usecase.IGetMessageUseCase
 	getChatRoomUseCase    usecase.IGetChatRoomUseCase
 	updateMessageUseCase  usecase.IUpdateMessageUseCase
+}
+
+func (c ChatRoomService) GetChatRoomByID(ctx context.Context, userID, chatRoomID int64) (*entity.ChatRoomEntity, error) {
+	return c.getChatRoomUseCase.GetChatRoomById(ctx, userID, chatRoomID)
 }
 
 func (c ChatRoomService) CountUnreadMessages(ctx context.Context, roomID, userID int64) (int64, error) {
