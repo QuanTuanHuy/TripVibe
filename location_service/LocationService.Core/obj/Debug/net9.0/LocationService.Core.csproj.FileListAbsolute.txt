@@ -1,0 +1,12 @@
+D:\User2\project\hotel_booking\location_service\LocationService.Core\bin\Debug\net9.0\LocationService.Core.deps.json
+D:\User2\project\hotel_booking\location_service\LocationService.Core\bin\Debug\net9.0\LocationService.Core.dll
+D:\User2\project\hotel_booking\location_service\LocationService.Core\bin\Debug\net9.0\LocationService.Core.pdb
+D:\User2\project\hotel_booking\location_service\LocationService.Core\obj\Debug\net9.0\LocationService.Core.GeneratedMSBuildEditorConfig.editorconfig
+D:\User2\project\hotel_booking\location_service\LocationService.Core\obj\Debug\net9.0\LocationService.Core.AssemblyInfoInputs.cache
+D:\User2\project\hotel_booking\location_service\LocationService.Core\obj\Debug\net9.0\LocationService.Core.AssemblyInfo.cs
+D:\User2\project\hotel_booking\location_service\LocationService.Core\obj\Debug\net9.0\LocationService.Core.csproj.CoreCompileInputs.cache
+D:\User2\project\hotel_booking\location_service\LocationService.Core\obj\Debug\net9.0\LocationService.Core.sourcelink.json
+D:\User2\project\hotel_booking\location_service\LocationService.Core\obj\Debug\net9.0\LocationService.Core.dll
+D:\User2\project\hotel_booking\location_service\LocationService.Core\obj\Debug\net9.0\refint\LocationService.Core.dll
+D:\User2\project\hotel_booking\location_service\LocationService.Core\obj\Debug\net9.0\LocationService.Core.pdb
+D:\User2\project\hotel_booking\location_service\LocationService.Core\obj\Debug\net9.0\ref\LocationService.Core.dll
