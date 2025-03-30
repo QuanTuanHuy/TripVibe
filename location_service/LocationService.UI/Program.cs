@@ -1,3 +1,4 @@
+using LocationService.Core.Domain.Port;
 using LocationService.Core.Port;
 using LocationService.Core.Service;
 using LocationService.Core.UseCase;
@@ -7,6 +8,7 @@ using LocationService.UI.Middleware;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
+
 
 // Add services to the container.
 builder.Services.AddControllers();
@@ -28,14 +30,20 @@ builder.Services.AddDbContext<LocationDbContext>(options =>
 // Register repositories
 builder.Services.AddScoped<ICountryPort, CountryAdapter>();
 builder.Services.AddScoped<IDbTransactionPort, DbTransactionAdapter>();
+builder.Services.AddScoped<IProvincePort, ProvinceAdapter>();
 
 
 // Register use cases
 builder.Services.AddScoped<ICreateCountryUseCase, CreateCountryUseCase>();
+builder.Services.AddScoped<IGetCountryUseCase, GetCountryUseCase>();
+builder.Services.AddScoped<ICreateProvinceUseCase, CreateProvinceUseCase>();
+builder.Services.AddScoped<IGetProvinceUseCase, GetProvinceUseCase>();
 
 
 // Register services
 builder.Services.AddScoped<ICountryService, CountryService>();
+builder.Services.AddScoped<IProvinceService, ProvinceService>();
+
 var app = builder.Build();
 
 // middleware

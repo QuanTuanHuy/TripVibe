@@ -37,5 +37,13 @@ namespace LocationService.Infrastructure.Repository.Adapter
             await _dbContext.SaveChangesAsync();
             return CountryMapper.ToEntity(countryModel);
         }
+
+        public async Task<CountryEntity> GetCountryByIdAsync(long id)
+        {
+            var countryModel = await _dbContext.Countries
+                .AsNoTracking()
+                .FirstOrDefaultAsync(c => c.Id == id);
+            return CountryMapper.ToEntity(countryModel);
+        }
     }
 }

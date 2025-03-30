@@ -8,6 +8,8 @@ namespace LocationService.Core.Domain.Constant
         SUCCESS = 0,
         COUNTRY_NAME_ALREADY_EXISTS = 100002,
         COUNTRY_CODE_ALREADY_EXISTS = 100003,
+        COUNTRY_NOT_FOUND = 100004,
+        PROVINCE_CODE_ALREADY_EXISTS = 100005,
     }
 
     public static class ErrorCodeExtensions
@@ -20,6 +22,8 @@ namespace LocationService.Core.Domain.Constant
                 ErrorCode.SUCCESS => "Success",
                 ErrorCode.COUNTRY_NAME_ALREADY_EXISTS => "Country name already exists",
                 ErrorCode.COUNTRY_CODE_ALREADY_EXISTS => "Country code already exists",
+                ErrorCode.COUNTRY_NOT_FOUND => "Country not found",
+                ErrorCode.PROVINCE_CODE_ALREADY_EXISTS => "Province code already exists",
                 _ => "Unknown error"
             };
         }
@@ -31,6 +35,8 @@ namespace LocationService.Core.Domain.Constant
                 ErrorCode.SUCCESS => HttpStatusCode.OK,
                 ErrorCode.COUNTRY_NAME_ALREADY_EXISTS => HttpStatusCode.BadRequest,
                 ErrorCode.COUNTRY_CODE_ALREADY_EXISTS => HttpStatusCode.BadRequest,
+                ErrorCode.COUNTRY_NOT_FOUND => HttpStatusCode.NotFound,
+                ErrorCode.PROVINCE_CODE_ALREADY_EXISTS => HttpStatusCode.BadRequest,
                 _ => HttpStatusCode.InternalServerError
             };
         }

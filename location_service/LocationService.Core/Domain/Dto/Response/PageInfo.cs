@@ -8,7 +8,7 @@ public class PageInfo
     public int nextPage { get; set; }
     public int previousPage { get; set; }
 
-    public static PageInfo toPageInfo(int currentPage, int pageSize, int totalRecord)
+    public static PageInfo ToPageInfo(int currentPage, int pageSize, int totalRecord)
     {
         int totalPage = totalRecord / pageSize;
         if (totalRecord % pageSize > 0)
