@@ -21,6 +21,7 @@ require (
 	github.com/golibs-starter/golib-data v1.0.0 // indirect
 	github.com/golibs-starter/golib-gin v1.0.0 // indirect
 	github.com/google/uuid v1.3.0 // indirect
+	github.com/gorilla/websocket v1.5.3 // indirect
 	github.com/hashicorp/hcl v1.0.0 // indirect
 	github.com/jackc/pgpassfile v1.0.0 // indirect
 	github.com/jackc/pgservicefile v0.0.0-20221227161230-091c0ba34f0a // indirect

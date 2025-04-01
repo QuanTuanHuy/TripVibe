@@ -5,7 +5,9 @@ import (
 	"chat_service/core/domain/constant"
 	"chat_service/core/domain/dto"
 	request2 "chat_service/core/domain/dto/request"
+	"chat_service/core/domain/ws"
 	"chat_service/core/service"
+	"chat_service/infrastructure"
 	"chat_service/kernel/apihelper"
 	"chat_service/kernel/utils"
 	"chat_service/ui/resource/request"
@@ -16,10 +18,14 @@ import (
 
 type ChatController struct {
 	chatRoomService service.IChatRoomService
+	wsManager       *infrastructure.WebSocketManager // Add this field
 }
 
-func NewChatController(chatRoomService service.IChatRoomService) *ChatController {
-	return &ChatController{chatRoomService: chatRoomService}
+func NewChatController(chatRoomService service.IChatRoomService, wsManager *infrastructure.WebSocketManager) *ChatController {
+	return &ChatController{
+		chatRoomService: chatRoomService,
+		wsManager:       wsManager,
+	}
 }
 
 func (ch *ChatController) GetChatRooms(c *gin.Context) {
@@ -202,6 +208,11 @@ func (ch *ChatController) SendMessage(c *gin.Context) {
 		apihelper.AbortErrorHandle(c, common.GeneralServiceUnavailable)
 		return
 	}
+
+	// Notify connected clients about the new message
+	ch.wsManager.BroadcastToRoom(roomID, &ws.WebSocketMessage{
+		Payload: message,
+	})
 
 	apihelper.SuccessfulHandle(c, message)
 }

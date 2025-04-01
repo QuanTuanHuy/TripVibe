@@ -9,9 +9,10 @@ import (
 
 type RegisterRoutersIn struct {
 	fx.In
-	App            *golib.App
-	Engine         *gin.Engine
-	ChatController *controller.ChatController
+	App                 *golib.App
+	Engine              *gin.Engine
+	ChatController      *controller.ChatController
+	WebSocketController *controller.WebSocketController
 }
 
 func RegisterGinRouters(p RegisterRoutersIn) {
@@ -25,5 +26,7 @@ func RegisterGinRouters(p RegisterRoutersIn) {
 		chatV1.GET("/rooms", p.ChatController.GetChatRooms)
 		chatV1.POST("/rooms/:roomId/messages/:messageId/read", p.ChatController.MarkMessageAsRead)
 		chatV1.GET("/rooms/:roomId/unread", p.ChatController.CountUnreadMessages)
+
+		chatV1.GET("/ws", p.WebSocketController.HandleConnection)
 	}
 }

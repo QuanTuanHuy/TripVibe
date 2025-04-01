@@ -1,5 +1,4 @@
-﻿using PromotionService.Core.Domain.Dto.Request;
-using PromotionService.Core.Domain.Entity;
+﻿using PromotionService.Core.Domain.Entity;
 
 namespace PromotionService.Core.Port;
 
