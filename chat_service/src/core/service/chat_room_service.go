@@ -31,7 +31,7 @@ type ChatRoomService struct {
 }
 
 func (c ChatRoomService) GetChatRoomByID(ctx context.Context, userID, chatRoomID int64) (*entity.ChatRoomEntity, error) {
-	return c.getChatRoomUseCase.GetChatRoomById(ctx, userID, chatRoomID)
+	return c.getChatRoomUseCase.GetChatRoomById(ctx, chatRoomID, userID)
 }
 
 func (c ChatRoomService) CountUnreadMessages(ctx context.Context, roomID, userID int64) (int64, error) {
