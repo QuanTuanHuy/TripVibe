@@ -29,6 +29,15 @@ namespace LocationService.Infrastructure.Repository.Adapter
             return LanguageMapper.ToEntity(model);
         }
 
+        public async Task<List<LanguageEntity>> GetLanguagesByIdsAsync(List<long> ids)
+        {
+            var models = await _dbContext.Languages
+                .AsNoTracking()
+                .Where(l => ids.Contains(l.Id))
+                .ToListAsync();
+            return models.Select(LanguageMapper.ToEntity).ToList();
+        }
+
         public async Task<LanguageEntity> GetLanguageByCodeAsync(string code)
         {
             var model = await _dbContext.Languages

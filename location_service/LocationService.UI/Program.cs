@@ -34,6 +34,10 @@ builder.Services.AddScoped<IProvincePort, ProvinceAdapter>();
 builder.Services.AddScoped<ILocationPort, LocationAdapter>();
 builder.Services.AddScoped<ICategoryPort, CategoryAdapter>();
 builder.Services.AddScoped<ILanguagePort, LanguageAdapter>();
+builder.Services.AddScoped<IAttractionPort, AttractionAdapter>();
+builder.Services.AddScoped<IAttractionSchedulePort, AttractionScheduleAdapter>();
+builder.Services.AddScoped<IImagePort, ImageAdapter>();
+builder.Services.AddScoped<IAttractionLanguagePort, AttractionLanguageAdapter>();
 
 
 // Register use cases
@@ -46,6 +50,8 @@ builder.Services.AddScoped<IGetLocationUseCase, GetLocationUseCase>();
 builder.Services.AddScoped<ICreateCategoryUseCase, CreateCategoryUseCase>();
 builder.Services.AddScoped<IGetCategoryUseCase, GetCategoryUseCase>();
 builder.Services.AddScoped<ICreateLanguageUseCase, CreateLanguageUseCase>();
+builder.Services.AddScoped<ICreateAttractionUseCase, CreateAttractionUseCase>();
+builder.Services.AddScoped<IGetLanguageUseCase, GetLanguageUseCase>();
 
 // Register services
 builder.Services.AddScoped<ICountryService, CountryService>();
@@ -53,6 +59,7 @@ builder.Services.AddScoped<IProvinceService, ProvinceService>();
 builder.Services.AddScoped<ILocationService, LocationAppService>();
 builder.Services.AddScoped<ICategoryService, CategoryService>();
 builder.Services.AddScoped<ILanguageService, LanguageService>();
+builder.Services.AddScoped<IAttractionService, AttractionService>();
 
 var app = builder.Build();
 

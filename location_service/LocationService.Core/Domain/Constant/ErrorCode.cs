@@ -16,6 +16,8 @@ namespace LocationService.Core.Domain.Constant
         CATEGORY_NOT_FOUND = 100009,
         LANGUAGE_CODE_ALREADY_EXISTS = 100010,
         LANGUAGE_NAME_ALREADY_EXISTS = 100011,
+        ATTRACTION_NAME_ALREADY_EXISTS = 100012,
+        LANGUAGE_NOT_FOUND = 100013,
     }
 
     public static class ErrorCodeExtensions
@@ -36,6 +38,8 @@ namespace LocationService.Core.Domain.Constant
                 ErrorCode.CATEGORY_NOT_FOUND => "Category not found",
                 ErrorCode.LANGUAGE_CODE_ALREADY_EXISTS => "Language code already exists",
                 ErrorCode.LANGUAGE_NAME_ALREADY_EXISTS => "Language name already exists",
+                ErrorCode.ATTRACTION_NAME_ALREADY_EXISTS => "Attraction name already exists",
+                ErrorCode.LANGUAGE_NOT_FOUND => "Language not found",
                 _ => "Unknown error"
             };
         }
@@ -55,6 +59,8 @@ namespace LocationService.Core.Domain.Constant
                 ErrorCode.CATEGORY_NOT_FOUND => HttpStatusCode.NotFound,
                 ErrorCode.LANGUAGE_CODE_ALREADY_EXISTS => HttpStatusCode.BadRequest,
                 ErrorCode.LANGUAGE_NAME_ALREADY_EXISTS => HttpStatusCode.BadRequest,
+                ErrorCode.ATTRACTION_NAME_ALREADY_EXISTS => HttpStatusCode.BadRequest,
+                ErrorCode.LANGUAGE_NOT_FOUND => HttpStatusCode.NotFound,
                 _ => HttpStatusCode.InternalServerError
             };
         }

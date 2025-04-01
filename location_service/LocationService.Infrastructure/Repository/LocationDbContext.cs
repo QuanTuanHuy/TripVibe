@@ -14,5 +14,9 @@ namespace LocationService.Infrastructure.Repository
         public DbSet<LocationModel> Locations { get; set; } = null!;
         public DbSet<CategoryModel> Categories { get; set; } = null!;
         public DbSet<LanguageModel> Languages { get; set; } = null!;
+        public DbSet<AttractionModel> Attractions { get; set; } = null!;
+        public DbSet<AttractionScheduleModel> AttractionSchedules { get; set; } = null!;
+        public DbSet<ImageModel> Images { get; set; } = null!;
+        public DbSet<AttractionLanguageModel> AttractionLanguages { get; set; } = null!;
     }
 }
