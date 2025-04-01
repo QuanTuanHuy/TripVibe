@@ -6,5 +6,6 @@ namespace LocationService.Core.Port
     {
         Task<LocationEntity> CreateLocationAsync(LocationEntity location);
         Task<LocationEntity> GetLocationByIdAsync(long id);
+        Task<List<LocationEntity>> GetLocationsByIdsAsync(List<long> ids);
     }
 }

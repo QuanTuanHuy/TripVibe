@@ -1,6 +1,7 @@
 using LocationService.Core.Domain.Entity;
 using LocationService.Core.Port;
 using LocationService.Infrastructure.Repository.Mapper;
+using Microsoft.EntityFrameworkCore;
 
 namespace LocationService.Infrastructure.Repository.Adapter
 {
@@ -25,6 +26,14 @@ namespace LocationService.Infrastructure.Repository.Adapter
         {
             var model = await _dbContext.Locations.FindAsync(id);
             return LocationMapper.ToEntity(model);
+        }
+
+        public async Task<List<LocationEntity>> GetLocationsByIdsAsync(List<long> ids)
+        {
+            var models = await _dbContext.Locations
+                .Where(l => ids.Contains(l.Id))
+                .ToListAsync();
+            return models.Select(LocationMapper.ToEntity).ToList();
         }
     }
 }

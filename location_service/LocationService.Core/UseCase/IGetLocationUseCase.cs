@@ -8,6 +8,7 @@ namespace LocationService.Core.UseCase
     public interface IGetLocationUseCase
     {
         Task<LocationEntity> GetLocationByIdAsync(long id);
+        Task<List<LocationEntity>> GetLocationsByIdsAsync(List<long> ids);
     }
 
     public class GetLocationUseCase : IGetLocationUseCase
@@ -27,6 +28,11 @@ namespace LocationService.Core.UseCase
                 throw new AppException(ErrorCode.LOCATION_NOT_FOUND);
             }
             return location;
+        }
+
+        public async Task<List<LocationEntity>> GetLocationsByIdsAsync(List<long> ids)
+        {
+            return await _locationPort.GetLocationsByIdsAsync(ids);
         }
     }
 }
