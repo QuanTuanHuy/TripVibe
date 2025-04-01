@@ -11,5 +11,6 @@ namespace LocationService.Infrastructure.Repository
 
         public DbSet<CountryModel> Countries { get; set; } = null!;
         public DbSet<ProvinceModel> Provinces { get; set; } = null!;
+        public DbSet<LocationModel> Locations { get; set; } = null!;
     }
 }

@@ -33,6 +33,14 @@ namespace LocationService.Infrastructure.Repository.Adapter
             return ProvinceMapper.ToEntity(provinceModel);
         }
 
+        public async Task<ProvinceEntity> GetByIdAsync(long id)
+        {
+            var provinceModel = await _dbContext.Provinces
+                .AsNoTracking()
+                .FirstOrDefaultAsync(p => p.Id == id);
+            return ProvinceMapper.ToEntity(provinceModel);
+        }
+
         public async Task<List<ProvinceEntity>> GetProvinces(ProvinceParams provinceParams)
         {
             var (sql, parameters) = ProvinceSpecification.ToGetProvincesSpecification(provinceParams);

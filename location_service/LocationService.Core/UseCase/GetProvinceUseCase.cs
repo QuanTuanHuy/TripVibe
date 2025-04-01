@@ -8,6 +8,7 @@ namespace LocationService.Core.UseCase
     {
         Task<List<ProvinceEntity>> GetProvinces(ProvinceParams provinceParams);
         Task<long> CountProvinces(ProvinceParams provinceParams);
+        Task<ProvinceEntity> GetProvinceByIdAsync(long id);
     }
 
     public class GetProvinceUseCase : IGetProvinceUseCase
@@ -27,6 +28,11 @@ namespace LocationService.Core.UseCase
         public async Task<long> CountProvinces(ProvinceParams provinceParams)
         {
             return await _provincePort.CountProvinces(provinceParams);
+        }
+
+        public async Task<ProvinceEntity> GetProvinceByIdAsync(long id)
+        {
+            return await _provincePort.GetByIdAsync(id);
         }
     }
 }

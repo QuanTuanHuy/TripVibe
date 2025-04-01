@@ -8,6 +8,7 @@ namespace LocationService.Core.Domain.Port
     {
         Task<ProvinceEntity> CreateAsync(ProvinceEntity province);
         Task<ProvinceEntity> GetByCodeAsync(string code);
+        Task<ProvinceEntity> GetByIdAsync(long id);
         Task<List<ProvinceEntity>> GetProvinces(ProvinceParams provinceParams);
         Task<long> CountProvinces(ProvinceParams provinceParams);
     }

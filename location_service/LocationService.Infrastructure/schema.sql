@@ -43,3 +43,25 @@ CREATE INDEX idx_provinces_country_id ON provinces(country_id);
 -- Add index for commonly queried columns
 CREATE INDEX idx_provinces_name ON provinces(name);
 CREATE INDEX idx_provinces_code ON provinces(code);
+
+-- Location table
+CREATE TABLE IF NOT EXISTS locations (
+    id BIGSERIAL PRIMARY KEY,
+    country_id BIGINT NOT NULL,
+    province_id BIGINT NOT NULL,
+    latitude DOUBLE PRECISION NOT NULL,
+    longitude DOUBLE PRECISION NOT NULL,
+    detail TEXT,
+    name TEXT NOT NULL,
+    
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    
+    -- Adding foreign key constraints (uncomment if these tables exist)
+    CONSTRAINT fk_country FOREIGN KEY (country_id) REFERENCES countries(id),
+    CONSTRAINT fk_province FOREIGN KEY (province_id) REFERENCES provinces(id)
+);
+
+-- Optional index creation for better performance on frequent queries
+CREATE INDEX idx_locations_country ON locations(country_id);
+CREATE INDEX idx_locations_province ON locations(province_id);
