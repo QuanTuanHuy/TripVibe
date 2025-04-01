@@ -32,6 +32,7 @@ builder.Services.AddScoped<ICountryPort, CountryAdapter>();
 builder.Services.AddScoped<IDbTransactionPort, DbTransactionAdapter>();
 builder.Services.AddScoped<IProvincePort, ProvinceAdapter>();
 builder.Services.AddScoped<ILocationPort, LocationAdapter>();
+builder.Services.AddScoped<ICategoryPort, CategoryAdapter>();
 
 
 // Register use cases
@@ -40,12 +41,15 @@ builder.Services.AddScoped<IGetCountryUseCase, GetCountryUseCase>();
 builder.Services.AddScoped<ICreateProvinceUseCase, CreateProvinceUseCase>();
 builder.Services.AddScoped<IGetProvinceUseCase, GetProvinceUseCase>();
 builder.Services.AddScoped<ICreateLocationUseCase, CreateLocationUseCase>();
-
+builder.Services.AddScoped<IGetLocationUseCase, GetLocationUseCase>();
+builder.Services.AddScoped<ICreateCategoryUseCase, CreateCategoryUseCase>();
+builder.Services.AddScoped<IGetCategoryUseCase, GetCategoryUseCase>();
 
 // Register services
 builder.Services.AddScoped<ICountryService, CountryService>();
 builder.Services.AddScoped<IProvinceService, ProvinceService>();
 builder.Services.AddScoped<ILocationService, LocationAppService>();
+builder.Services.AddScoped<ICategoryService, CategoryService>();
 
 var app = builder.Build();
 

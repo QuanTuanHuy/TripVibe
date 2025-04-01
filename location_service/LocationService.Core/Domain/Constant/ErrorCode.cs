@@ -12,6 +12,8 @@ namespace LocationService.Core.Domain.Constant
         PROVINCE_CODE_ALREADY_EXISTS = 100005,
         PROVINCE_NOT_FOUND = 100006,
         LOCATION_NOT_FOUND = 100007,
+        CATEGORY_ALREADY_EXISTS = 100008,
+        CATEGORY_NOT_FOUND = 100009,
     }
 
     public static class ErrorCodeExtensions
@@ -28,6 +30,8 @@ namespace LocationService.Core.Domain.Constant
                 ErrorCode.PROVINCE_CODE_ALREADY_EXISTS => "Province code already exists",
                 ErrorCode.PROVINCE_NOT_FOUND => "Province not found",
                 ErrorCode.LOCATION_NOT_FOUND => "Location not found",
+                ErrorCode.CATEGORY_ALREADY_EXISTS => "Category already exists",
+                ErrorCode.CATEGORY_NOT_FOUND => "Category not found",
                 _ => "Unknown error"
             };
         }
@@ -43,6 +47,8 @@ namespace LocationService.Core.Domain.Constant
                 ErrorCode.PROVINCE_CODE_ALREADY_EXISTS => HttpStatusCode.BadRequest,
                 ErrorCode.PROVINCE_NOT_FOUND => HttpStatusCode.NotFound,
                 ErrorCode.LOCATION_NOT_FOUND => HttpStatusCode.NotFound,
+                ErrorCode.CATEGORY_ALREADY_EXISTS => HttpStatusCode.BadRequest,
+                ErrorCode.CATEGORY_NOT_FOUND => HttpStatusCode.NotFound,
                 _ => HttpStatusCode.InternalServerError
             };
         }
