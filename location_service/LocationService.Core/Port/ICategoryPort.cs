@@ -7,5 +7,6 @@ namespace LocationService.Core.Port
         Task<CategoryEntity> CreateCategoryAsync(CategoryEntity category);
         Task<CategoryEntity> GetCategoryByNameAsync(string name);
         Task<CategoryEntity> GetCategoryByIdAsync(long id);
+        Task<List<CategoryEntity>> GetCategoriesByIdsAsync(List<long> ids);
     }
 }

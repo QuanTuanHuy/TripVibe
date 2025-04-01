@@ -33,5 +33,13 @@ namespace LocationService.Infrastructure.Repository.Adapter
             var model = await _dbContext.Categories.FindAsync(id);
             return CategoryMapper.ToEntity(model);
         }
+
+        public async Task<List<CategoryEntity>> GetCategoriesByIdsAsync(List<long> ids)
+        {
+            var models = await _dbContext.Categories
+                .Where(c => ids.Contains(c.Id))
+                .ToListAsync();
+            return models.Select(CategoryMapper.ToEntity).ToList();
+        }
     }
 }

@@ -8,6 +8,7 @@ namespace LocationService.Core.Service
     public interface IGetCategoryUseCase
     {
         Task<CategoryEntity> GetCategoryByIdAsync(long id);
+        Task<List<CategoryEntity>> GetCategoriesByIdsAsync(List<long> ids);
     }
 
     public class GetCategoryUseCase : IGetCategoryUseCase
@@ -27,6 +28,11 @@ namespace LocationService.Core.Service
                 throw new AppException(ErrorCode.CATEGORY_NOT_FOUND);
             }
             return category;
+        }
+
+        public async Task<List<CategoryEntity>> GetCategoriesByIdsAsync(List<long> ids)
+        {
+            return await _categoryPort.GetCategoriesByIdsAsync(ids);
         }
     }
 }

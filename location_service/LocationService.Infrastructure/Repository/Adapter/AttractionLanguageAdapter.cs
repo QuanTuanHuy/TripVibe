@@ -34,5 +34,14 @@ namespace LocationService.Infrastructure.Repository.Adapter
                 
             return models.Select(AttractionLanguageMapper.ToEntity).ToList();
         }
+
+        public async Task<List<AttractionLanguageEntity>> GetByAttractionIds(List<long> attractionIds)
+        {
+            var models = await _dbContext.AttractionLanguages
+                .Where(al => attractionIds.Contains(al.AttractionId))
+                .ToListAsync();
+                
+            return models.Select(AttractionLanguageMapper.ToEntity).ToList();
+        }
     }
 }

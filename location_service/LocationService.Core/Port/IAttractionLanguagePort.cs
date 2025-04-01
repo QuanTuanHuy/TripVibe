@@ -6,5 +6,6 @@ namespace LocationService.Core.Port
     {
         Task<List<AttractionLanguageEntity>> CreateAttractionLanguagesAsync(List<AttractionLanguageEntity> languages);
         Task<List<AttractionLanguageEntity>> GetByAttractionIdAsync(long attractionId);
+        Task<List<AttractionLanguageEntity>> GetByAttractionIds(List<long> attractionIds);
     }
 }
