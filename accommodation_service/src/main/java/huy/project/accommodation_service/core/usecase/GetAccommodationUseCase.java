@@ -3,8 +3,10 @@ package huy.project.accommodation_service.core.usecase;
 import huy.project.accommodation_service.core.domain.constant.CacheConstant;
 import huy.project.accommodation_service.core.domain.constant.ErrorCode;
 import huy.project.accommodation_service.core.domain.constant.TopicConstant;
+import huy.project.accommodation_service.core.domain.dto.response.AccommodationDto;
 import huy.project.accommodation_service.core.domain.entity.AccommodationEntity;
 import huy.project.accommodation_service.core.domain.kafka.CreateViewHistoryMessage;
+import huy.project.accommodation_service.core.domain.mapper.UnitMapper;
 import huy.project.accommodation_service.core.exception.AppException;
 import huy.project.accommodation_service.core.port.IAccommodationPort;
 import huy.project.accommodation_service.core.port.ICachePort;
@@ -79,5 +81,22 @@ public class GetAccommodationUseCase {
 
     public AccommodationEntity getAccommodationById(Long id) {
         return accommodationPort.getAccommodationById(id);
+    }
+
+    public AccommodationDto getAccDtoById(Long id) {
+        var accommodation = accommodationPort.getAccommodationById(id);
+        if (accommodation == null) {
+            log.error("Accommodation with id {} not found", id);
+            throw new AppException(ErrorCode.ACCOMMODATION_NOT_FOUND);
+        }
+
+        return AccommodationDto.builder()
+                .id(accommodation.getId())
+                .hostId(accommodation.getHostId())
+                .typeId(accommodation.getTypeId())
+                .name(accommodation.getName())
+                .isVerified(accommodation.getIsVerified())
+                .units(getUnitUseCase.getUnitsByAccommodationId(id).stream().map(UnitMapper.INSTANCE::toDto).toList())
+                .build();
     }
 }

@@ -1,6 +1,7 @@
 package huy.project.accommodation_service.core.usecase;
 
 import huy.project.accommodation_service.core.domain.constant.ImageEntityType;
+import huy.project.accommodation_service.core.domain.dto.response.UnitDto;
 import huy.project.accommodation_service.core.domain.entity.*;
 import huy.project.accommodation_service.core.port.IUnitPort;
 import lombok.RequiredArgsConstructor;
