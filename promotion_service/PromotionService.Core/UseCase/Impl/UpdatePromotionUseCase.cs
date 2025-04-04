@@ -95,6 +95,24 @@ namespace PromotionService.Core.UseCase.Impl
             return promotion;
         }
 
+        public async Task<bool> UpdatePromotionUsage(List<long> promotionIds)
+        {
+            var promotions = await _promotionPort.GetPromotionsByIds(promotionIds);
+            if (promotions == null || promotions.Count == 0)
+            {
+                _logger.LogError("No promotions found for IDs: {PromotionIds}", string.Join(", ", promotionIds));
+                return false;
+            }
+
+            foreach (var promotion in promotions)
+            {
+                promotion.UsageCount += 1;
+                await _promotionPort.UpdatePromotionAsync(promotion);
+            }
+
+            return true;
+        }
+
         private void ValidatePromotionStateForStop(PromotionEntity promotion, long userId)
         {
             if (promotion.IsActive == false)

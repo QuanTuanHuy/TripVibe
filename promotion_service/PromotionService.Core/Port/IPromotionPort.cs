@@ -11,4 +11,5 @@ public interface IPromotionPort
     Task UpdatePromotionAsync(PromotionEntity promotion);
     Task DeletePromotionsByTypeIdAsync(long typeId);
     Task<List<PromotionEntity>> GetPromotionsByTypeIdAsync(long typeId);
+    Task<List<PromotionEntity>> GetPromotionsByIds(List<long> ids);
 }

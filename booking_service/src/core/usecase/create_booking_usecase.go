@@ -21,6 +21,7 @@ type CreateBookingUseCase struct {
 	bookingUnitPort      port.IBookingUnitPort
 	bookingPromotionPort port.IBookingPromotionPort
 	userPort             port.IUserPort
+	promotionPort        port.IPromotionPort
 	getAccUseCase        IGetAccommodationUseCase
 	dbTransactionUseCase IDatabaseTransactionUseCase
 }
@@ -41,6 +42,27 @@ func (c CreateBookingUseCase) CreateBooking(ctx context.Context, req *request.Cr
 		if !slices.Contains(allUnitIds, unit.UnitID) {
 			log.Error(ctx, "Unit not found ", unit.UnitID)
 			return nil, errors.New(constant.ErrUnitNotFound)
+		}
+	}
+
+	// verify promotion
+	allPromotionIds := make([]int64, 0)
+	for _, promotion := range req.Promotions {
+		allPromotionIds = append(allPromotionIds, promotion.PromotionID)
+	}
+	if len(allPromotionIds) > 0 {
+		verifyPromotionReq := &request.VerifyPromotionRequest{
+			AccommodationID: accommodation.ID,
+			PromotionIDs:    allPromotionIds,
+		}
+		verifyPromotionRes, err := c.promotionPort.VerifyPromotion(ctx, verifyPromotionReq)
+		if err != nil {
+			log.Error(ctx, "VerifyPromotion error ", err)
+			return nil, err
+		}
+		if !verifyPromotionRes.IsValid {
+			log.Error(ctx, "Promotion not valid ")
+			return nil, errors.New(constant.ErrPromotionNotValid)
 		}
 	}
 
@@ -114,12 +136,25 @@ func (c CreateBookingUseCase) CreateBooking(ctx context.Context, req *request.Cr
 		return nil, errCommit
 	}
 
+	// update promotion usage
+	go func() {
+		if len(allPromotionIds) > 0 {
+			err = c.promotionPort.UpdatePromotionUsage(ctx, allPromotionIds)
+			if err != nil {
+				log.Error(ctx, "UpdatePromotionUsage error ", err)
+			}
+		}
+	}()
+
 	return booking, nil
 }
 
-func NewCreateBookingUseCase(bookingPort port.IBookingPort, bookingUnitPort port.IBookingUnitPort,
+func NewCreateBookingUseCase(
+	bookingPort port.IBookingPort,
+	bookingUnitPort port.IBookingUnitPort,
 	bookingPromotionPort port.IBookingPromotionPort,
 	userPort port.IUserPort,
+	promotionPort port.IPromotionPort,
 	getAccUseCase IGetAccommodationUseCase,
 	dbTransactionUseCase IDatabaseTransactionUseCase) ICreateBookingUseCase {
 	return &CreateBookingUseCase{
@@ -127,6 +162,7 @@ func NewCreateBookingUseCase(bookingPort port.IBookingPort, bookingUnitPort port
 		bookingUnitPort:      bookingUnitPort,
 		bookingPromotionPort: bookingPromotionPort,
 		userPort:             userPort,
+		promotionPort:        promotionPort,
 		getAccUseCase:        getAccUseCase,
 		dbTransactionUseCase: dbTransactionUseCase,
 	}

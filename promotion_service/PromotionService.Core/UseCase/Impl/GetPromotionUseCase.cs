@@ -91,4 +91,8 @@ public class GetPromotionUseCase : IGetPromotionUseCase
         return promotion;
     }
 
+    public async Task<List<PromotionEntity>> GetPromotionsByIds(List<long> ids) {
+        return await _promotionPort.GetPromotionsByIds(ids);
+    }
+
 }

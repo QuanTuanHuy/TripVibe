@@ -8,5 +8,6 @@ namespace PromotionService.Core.UseCase
     {
         Task StopPromotionAsync(long userId, long id);
         Task<PromotionEntity> UpdatePromotionAsync(long userId, long id, UpdatePromotionDto req);
+        Task<bool> UpdatePromotionUsage(List<long> promotionIds);
     }
 }

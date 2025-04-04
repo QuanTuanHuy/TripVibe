@@ -55,6 +55,7 @@ builder.Services.AddScoped<IUpdatePromotionUseCase, UpdatePromotionUseCase>();
 builder.Services.AddScoped<IDeletePromotionTypeUseCase, DeletePromotionTypeUseCase>();
 builder.Services.AddScoped<IUpdateConditionUseCase, UpdateConditionUseCase>();
 builder.Services.AddScoped<IAddConditionToPromotionTypeUseCase, AddConditionToPromotionTypeUseCase>();
+builder.Services.AddScoped<IVerifyPromotionUseCase, VerfiyPromotionUseCase>();
 
 // Register services
 builder.Services.AddScoped<IPromotionTypeService, PromotionTypeService>();

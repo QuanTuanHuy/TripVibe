@@ -59,4 +59,18 @@ public class PromotionController : ControllerBase
         await _promotionService.StopPromotionAsync(1, id);
         return Ok(Resource<bool>.Success(true));
     }
+
+    [HttpPost("verify")]
+    public async Task<IActionResult> VerifyPromotion([FromBody] VerifyPromotionRequest request)
+    {
+        var response = await _promotionService.VerifyPromotion(request);
+        return Ok(Resource<VerifyPromotionResponse>.Success(response));
+    }
+
+    [HttpPut("update_usage")]
+    public async Task<IActionResult> UpdatePromotionUsage([FromBody] UpdatePromotionUsageRequest request)
+    {
+        var result = await _promotionService.UpdatePromotionUsage(request.PromotionIds);
+        return Ok(Resource<bool>.Success(result));
+    }
 }
