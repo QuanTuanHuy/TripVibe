@@ -4,6 +4,7 @@ import (
 	"booking_service/core/service"
 	"booking_service/core/usecase"
 	"booking_service/infrastructure/cache"
+	"booking_service/infrastructure/client"
 	"booking_service/infrastructure/kafka"
 	"booking_service/infrastructure/repository/adapter"
 	"booking_service/ui/controller"
@@ -41,6 +42,7 @@ func All() fx.Option {
 		fx.Provide(adapter.NewUserAdapter),
 		fx.Provide(cache.NewRedisCacheAdapter),
 		fx.Provide(adapter.NewDatabaseTransactionAdapter),
+		fx.Provide(client.NewPromotionClientAdapter),
 
 		//Provide usecase
 		fx.Provide(usecase.NewDatabaseTransactionUseCase),

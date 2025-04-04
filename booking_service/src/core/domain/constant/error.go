@@ -11,4 +11,5 @@ const (
 	ErrCacheKeyNil               = "cache key nil"
 	ErrForbiddenApprovedBooking  = "forbidden approved booking"
 	ErrForbiddenRejectBooking    = "forbidden reject booking"
+	ErrPromotionNotValid         = "promotion not valid"
 )

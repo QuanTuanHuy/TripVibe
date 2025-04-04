@@ -135,4 +135,13 @@ public class PromotionAdapter : IPromotionPort
 
         return promotions.Select(PromotionMapper.ToEntity).ToList();
     }
+
+    public async Task<List<PromotionEntity>> GetPromotionsByIds(List<long> ids) {
+        var promotions = await _dbContext.Promotions
+            .AsNoTracking()
+            .Where(p => ids.Contains(p.Id))
+            .ToListAsync();
+
+        return promotions.Select(PromotionMapper.ToEntity).ToList();
+    }
 }
