@@ -12,4 +12,5 @@ public interface IPromotionService
     Task StopPromotionAsync(long userId, long id);
     Task<PromotionEntity> UpdatePromotionAsync(long userId, long id, UpdatePromotionDto promotion);
     Task<VerifyPromotionResponse> VerifyPromotion(VerifyPromotionRequest request);
+    Task<bool> UpdatePromotionUsage(List<long> promotionIds);
 }

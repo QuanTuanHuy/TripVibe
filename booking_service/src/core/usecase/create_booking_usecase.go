@@ -136,6 +136,16 @@ func (c CreateBookingUseCase) CreateBooking(ctx context.Context, req *request.Cr
 		return nil, errCommit
 	}
 
+	// update promotion usage
+	go func() {
+		if len(allPromotionIds) > 0 {
+			err = c.promotionPort.UpdatePromotionUsage(ctx, allPromotionIds)
+			if err != nil {
+				log.Error(ctx, "UpdatePromotionUsage error ", err)
+			}
+		}
+	}()
+
 	return booking, nil
 }
 

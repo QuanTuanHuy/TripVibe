@@ -50,4 +50,8 @@ public class PromotionService : IPromotionService
     public async Task<VerifyPromotionResponse> VerifyPromotion(VerifyPromotionRequest request) {
         return await _verifyPromotionUseCase.VerifyPromotion(request);
     }
+
+    public async Task<bool> UpdatePromotionUsage(List<long> promotionIds) {
+        return await _updatePromotionUseCase.UpdatePromotionUsage(promotionIds);
+    }
 }

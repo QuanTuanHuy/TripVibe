@@ -58,6 +58,7 @@ func WithService(name, baseURL string, timeout time.Duration) ApiClientOption {
 			RetryDelay:  500 * time.Millisecond,
 			ServiceName: name,
 		}
+		client.httpClient.Timeout = timeout
 	}
 }
 

@@ -13,6 +13,21 @@ type PromotionClientAdapter struct {
 	apiClient *ApiClient
 }
 
+func (p PromotionClientAdapter) UpdatePromotionUsage(ctx context.Context, promotionIDs []int64) error {
+	var req struct {
+		PromotionIDs []int64 `json:"promotionIds"`
+	}
+	req.PromotionIDs = promotionIDs
+
+	var result bool
+	err := p.apiClient.PutJSON(ctx, "promotion", "/api/public/v1/promotions/update_usage", req, &result)
+	if err != nil {
+		log.Error(ctx, "UpdatePromotionUsage error ", err)
+		return err
+	}
+	return nil
+}
+
 func (p PromotionClientAdapter) VerifyPromotion(ctx context.Context, req *request.VerifyPromotionRequest) (*response.VerifyPromotionResponse, error) {
 	var result response.VerifyPromotionResponse
 
