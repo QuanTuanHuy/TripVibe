@@ -2,6 +2,7 @@ package specification
 
 import (
 	"notification_service/core/domain/dto/request"
+	"notification_service/core/domain/entity"
 )
 
 func ToGetNotificationSpecification(params *request.NotificationParams) (string, []interface{}) {
@@ -9,8 +10,16 @@ func ToGetNotificationSpecification(params *request.NotificationParams) (string,
 	args := make([]interface{}, 0)
 
 	if params.UserID != nil {
-		query += " AND receiver_id = ?"
+		query += " AND user_id = ?"
 		args = append(args, *params.UserID)
+	}
+	if params.Status != nil {
+		query += " AND status = ?"
+		args = append(args, entity.NotificationStatus(*params.Status))
+	}
+	if params.Type != nil {
+		query += " AND type = ?"
+		args = append(args, entity.NotificationType(*params.Type))
 	}
 
 	if params.OrderBy != nil {
@@ -39,8 +48,16 @@ func ToCountNotificationSpecification(params *request.NotificationParams) (strin
 	args := make([]interface{}, 0)
 
 	if params.UserID != nil {
-		query += " AND receiver_id = ?"
+		query += " AND user_id = ?"
 		args = append(args, *params.UserID)
+	}
+	if params.Status != nil {
+		query += " AND status = ?"
+		args = append(args, entity.NotificationStatus(*params.Status))
+	}
+	if params.Type != nil {
+		query += " AND type = ?"
+		args = append(args, entity.NotificationType(*params.Type))
 	}
 
 	return query, args

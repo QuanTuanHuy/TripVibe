@@ -39,6 +39,14 @@ func (g GetUserUseCase) GetUserProfileByID(ctx context.Context, userID int64) (*
 		log.Error(ctx, "get user profile failed ", err)
 		return nil, err
 	}
+
+	go func() {
+		err = g.cachePort.SetToCache(ctx, key, userProfile, constant.DefaultTtl)
+		if err != nil {
+			log.Error(ctx, "set user profile to cache failed", err)
+		}
+	}()
+
 	return userProfile, nil
 }
 

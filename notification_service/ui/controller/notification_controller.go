@@ -46,6 +46,13 @@ func (n *NotificationController) GetAllNotification(c *gin.Context) {
 	notiParams.Page = &page
 	notiParams.PageSize = &pageSize
 
+	if status := c.Query("status"); status != "" {
+		notiParams.Status = &status
+	}
+	if notiType := c.Query("type"); notiType != "" {
+		notiParams.Type = &notiType
+	}
+
 	notifications, err := n.notificationService.GetAllNotification(c, userID, notiParams)
 	if err != nil {
 		log.Error(c, "Get all notification failed: ", err)
