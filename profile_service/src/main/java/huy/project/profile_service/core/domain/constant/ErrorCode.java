@@ -12,6 +12,7 @@ public enum ErrorCode {
     TOURIST_NOT_FOUND(100003, "Tourist not found", HttpStatus.NOT_FOUND),
     FRIEND_NOT_FOUND(100004, "Friend not found", HttpStatus.NOT_FOUND),
     DELETE_FRIEND_FORBIDDEN(100005, "Delete friend not allowed", HttpStatus.FORBIDDEN),
+    USER_PROFILE_NOT_FOUND(100006, "User profile not found", HttpStatus.NOT_FOUND),
     ;
 
 

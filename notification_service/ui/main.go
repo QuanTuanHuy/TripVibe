@@ -17,6 +17,6 @@ func main() {
 	if err != nil {
 		log.Fatal("Failed to connect to database", err)
 	}
-	db.AutoMigrate(&model.NotificationModel{})
+	err = db.AutoMigrate(&model.NotificationModel{})
 	fx.New(bootstrap.All()).Run()
 }
