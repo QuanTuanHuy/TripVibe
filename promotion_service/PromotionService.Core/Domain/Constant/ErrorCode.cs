@@ -15,6 +15,8 @@ namespace PromotionService.Core.Domain.Constant
         INVALID_TIME_RANGE = 100008,
         CONDITION_NOT_FOUND = 100009,
         CONDITION_NAME_EXIST = 100010,
+        ACCOMMODATION_NOT_FOUND = 100011,
+        UNIT_NOT_FOUND = 100012,
     }
 
     public static class ErrorCodeExtensions
@@ -34,6 +36,8 @@ namespace PromotionService.Core.Domain.Constant
                 ErrorCode.CONDITION_NOT_FOUND => "Condition not found",
                 ErrorCode.CONDITION_NAME_EXIST => "Condition name existed",
                 ErrorCode.GENERAL_FORBIDDEN => "forbidden",
+                ErrorCode.ACCOMMODATION_NOT_FOUND => "Accommodation not found",
+                ErrorCode.UNIT_NOT_FOUND => "Unit not found",
                 _ => "Unknown error"
             };
         }
@@ -52,6 +56,8 @@ namespace PromotionService.Core.Domain.Constant
                 ErrorCode.INVALID_TIME_RANGE => HttpStatusCode.BadRequest,
                 ErrorCode.CONDITION_NOT_FOUND => HttpStatusCode.NotFound,
                 ErrorCode.CONDITION_NAME_EXIST => HttpStatusCode.BadRequest,
+                ErrorCode.ACCOMMODATION_NOT_FOUND => HttpStatusCode.NotFound,
+                ErrorCode.UNIT_NOT_FOUND => HttpStatusCode.NotFound,
                 _ => HttpStatusCode.InternalServerError
             };
         }
