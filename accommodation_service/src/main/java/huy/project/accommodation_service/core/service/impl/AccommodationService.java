@@ -1,6 +1,7 @@
 package huy.project.accommodation_service.core.service.impl;
 
 import huy.project.accommodation_service.core.domain.dto.request.*;
+import huy.project.accommodation_service.core.domain.dto.response.AccommodationDto;
 import huy.project.accommodation_service.core.domain.entity.AccommodationEntity;
 import huy.project.accommodation_service.core.service.IAccommodationService;
 import huy.project.accommodation_service.core.usecase.*;
@@ -68,5 +69,10 @@ public class AccommodationService implements IAccommodationService {
     @Override
     public void restoreUnit(Long userId, Long accId, Long unitId) {
         restoreUnitUseCase.restoreUnit(userId, accId, unitId);
+    }
+
+    @Override
+    public AccommodationDto getAccDtoById(Long id) {
+        return getAccommodationUseCase.getAccDtoById(id);
     }
 }

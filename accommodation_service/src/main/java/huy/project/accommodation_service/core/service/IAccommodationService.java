@@ -1,6 +1,7 @@
 package huy.project.accommodation_service.core.service;
 
 import huy.project.accommodation_service.core.domain.dto.request.*;
+import huy.project.accommodation_service.core.domain.dto.response.AccommodationDto;
 import huy.project.accommodation_service.core.domain.entity.AccommodationEntity;
 
 public interface IAccommodationService {
@@ -14,4 +15,5 @@ public interface IAccommodationService {
     void updateUnitPriceCalendar(Long userId, Long accId, Long unitId, UpdateUnitPriceCalendarDto req);
     void deleteUnit(Long userId, Long accId, Long unitId);
     void restoreUnit(Long userId, Long accId, Long unitId);
+    AccommodationDto getAccDtoById(Long id);
 }

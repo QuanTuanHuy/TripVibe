@@ -6,6 +6,7 @@ using PromotionService.Core.Service;
 using PromotionService.Core.Service.Impl;
 using PromotionService.Core.UseCase;
 using PromotionService.Core.UseCase.Impl;
+using PromotionService.Infrastructure.Client.Adapter;
 using PromotionService.Infrastructure.Redis;
 using PromotionService.Infrastructure.Repository;
 using PromotionService.Infrastructure.Repository.Adapter;
@@ -18,9 +19,12 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 
+// Add HttpClient services
+// builder.Services.AddHttpClient();
+
 // Redis configuration
 builder.Services.AddSingleton<JsonUtils>();
-builder.Services.AddSingleton<IConnectionMultiplexer>(sp => 
+builder.Services.AddSingleton<IConnectionMultiplexer>(sp =>
 {
     string redisConnection = builder.Configuration.GetConnectionString("Redis") ?? "localhost:6379";
     return ConnectionMultiplexer.Connect(redisConnection);
@@ -39,7 +43,19 @@ builder.Services.AddScoped<IPromotionConditionPort, PromotionConditionAdapter>()
 builder.Services.AddScoped<IPromotionPort, PromotionAdapter>();
 builder.Services.AddScoped<IPromotionUnitPort, PromotionUnitAdapter>();
 builder.Services.AddScoped<IPromotionTypeConditionPort, PromotionTypeConditionAdapter>();
+// builder.Services.AddScoped<IAccommodationPort, AccommodationAdapter>();
 
+builder.Services.AddHttpClient<IAccommodationPort, AccommodationAdapter>(client =>
+{
+    var baseUrl = builder.Configuration["Services:Accommodation:BaseUrl"];
+    if (!string.IsNullOrEmpty(baseUrl))
+    {
+        // Set as BaseAddress for HttpClient
+        client.BaseAddress = new Uri(baseUrl);
+        client.DefaultRequestHeaders.Add("Accept", "application/json");
+        client.Timeout = TimeSpan.FromSeconds(30);
+    }
+});
 
 // Register use cases
 builder.Services.AddScoped<ICreatePromotionTypeUseCase, CreatePromotionTypeUseCase>();

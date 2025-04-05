@@ -15,6 +15,7 @@ public class CreatePromotionUseCase : ICreatePromotionUseCase
     private readonly IDbTransactionPort _dbTransactionPort;
     private readonly IPromotionUnitPort _promotionUnitPort;
     private readonly IGetPromotionTypeUseCase _getPromotionTypeUseCase;
+    private readonly IAccommodationPort _accommodationPort;
     private readonly IGetConditionUseCase _getConditionUseCase;
     private readonly ILogger<CreatePromotionUseCase> _logger;
 
@@ -23,6 +24,7 @@ public class CreatePromotionUseCase : ICreatePromotionUseCase
         IDbTransactionPort dbTransactionPort,
         IPromotionUnitPort promotionUnitPort,
         IGetPromotionTypeUseCase getPromotionTypeUseCase,
+        IAccommodationPort accommodationPort,
         IGetConditionUseCase getConditionUseCase,
         ILogger<CreatePromotionUseCase> logger
         )
@@ -31,6 +33,7 @@ public class CreatePromotionUseCase : ICreatePromotionUseCase
         _promotionConditionPort = promotionConditionPort;
         _dbTransactionPort = dbTransactionPort;
         _promotionUnitPort = promotionUnitPort;
+        _accommodationPort = accommodationPort;
         _getPromotionTypeUseCase = getPromotionTypeUseCase;
         _getConditionUseCase = getConditionUseCase;
         _logger = logger;
@@ -53,6 +56,22 @@ public class CreatePromotionUseCase : ICreatePromotionUseCase
         {
             _logger.LogError("some condition not found");
             throw new AppException(ErrorCode.PROMOTION_CONDITION_NOT_FOUND);
+        }
+
+        // validate unit of accommodation
+        var accommodation = await _accommodationPort.GetAccommodationById(req.AccommodationId);
+        if (accommodation == null)
+        {
+            _logger.LogError("Accommodation not found");
+            throw new AppException(ErrorCode.ACCOMMODATION_NOT_FOUND);
+        }
+        var requestUnitIds = req.Units.Select(u => u.UnitId).ToList();
+        var unitIds = accommodation.Units.Select(u => u.Id).ToList();
+        var invalidUnitIds = requestUnitIds.Except(unitIds).ToList();
+        if (invalidUnitIds.Count > 0)
+        {
+            _logger.LogError("Invalid unit ids: {unitIds}", string.Join(", ", invalidUnitIds));
+            throw new AppException(ErrorCode.GENERAL_FORBIDDEN);
         }
 
         // create promotion
