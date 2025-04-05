@@ -1,5 +1,8 @@
 package request
 
-type UpdateNotificationRequestDto struct {
-	Status *string
+type UpdateNotificationDto struct {
+	Status      *string
+	RetryCount  *int
+	LastRetryAt *int64
+	SentAt      *int64
 }

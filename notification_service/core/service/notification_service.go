@@ -12,7 +12,7 @@ import (
 type INotificationService interface {
 	CreateNotification(ctx context.Context, notification *entity.NotificationEntity) (*response.NotificationResponse, error)
 	GetAllNotification(ctx context.Context, userID int64, params *request.NotificationParams) (*response.GetNotificationResponse, error)
-	UpdateNotification(ctx context.Context, notiID int64, req *request.UpdateNotificationRequestDto) (*response.NotificationResponse, error)
+	UpdateNotification(ctx context.Context, notiID int64, req *request.UpdateNotificationDto) (*response.NotificationResponse, error)
 }
 
 type NotificationService struct {
@@ -21,7 +21,7 @@ type NotificationService struct {
 	updateNotificationUseCase usecase.IUpdateNotificationUseCase
 }
 
-func (n *NotificationService) UpdateNotification(ctx context.Context, notiID int64, req *request.UpdateNotificationRequestDto) (*response.NotificationResponse, error) {
+func (n *NotificationService) UpdateNotification(ctx context.Context, notiID int64, req *request.UpdateNotificationDto) (*response.NotificationResponse, error) {
 	notification, err := n.updateNotificationUseCase.UpdateNotification(ctx, notiID, req)
 	if err != nil {
 		return nil, err

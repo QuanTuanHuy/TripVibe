@@ -6,7 +6,6 @@ import (
 	"notification_service/core/domain/dto/response"
 	"notification_service/core/port"
 	"strconv"
-	"time"
 )
 
 type UserClientAdapter struct {
@@ -24,11 +23,7 @@ func (u UserClientAdapter) GetUserProfileByID(ctx context.Context, userID int64)
 	return &res, nil
 }
 
-func NewUserClientAdapter() port.IUserPort {
-	apiClient := NewApiClient(
-		WithService("profile", "http://localhost:8086/profile_service", 10*time.Second),
-		WithServiceRetry("profile", 3, 500*time.Millisecond),
-	)
+func NewUserClientAdapter(apiClient *ApiClient) port.IUserPort {
 	return &UserClientAdapter{
 		apiClient: apiClient,
 	}

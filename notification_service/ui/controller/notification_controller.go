@@ -73,7 +73,7 @@ func (n *NotificationController) UpdateNotification(c *gin.Context) {
 	}
 
 	// get request body
-	var req request.UpdateNotificationRequestDto
+	var req request.UpdateNotificationDto
 	if err := c.ShouldBindJSON(&req); err != nil {
 		log.Error(c, "Bind request failed: ", err)
 		apihelper.AbortErrorHandle(c, common.GeneralBadRequest)

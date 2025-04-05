@@ -20,6 +20,7 @@ type ServiceConfig struct {
 	RetryDelay  time.Duration
 	AuthToken   string
 	ServiceName string
+	Headers     map[string]string
 }
 
 // ApiClient được cải tiến với nhiều tính năng hơn
@@ -57,6 +58,7 @@ func WithService(name, baseURL string, timeout time.Duration) ApiClientOption {
 			MaxRetries:  3,
 			RetryDelay:  500 * time.Millisecond,
 			ServiceName: name,
+			Headers:     make(map[string]string),
 		}
 		client.httpClient.Timeout = timeout
 	}
@@ -66,6 +68,21 @@ func WithService(name, baseURL string, timeout time.Duration) ApiClientOption {
 func WithDefaultTimeout(timeout time.Duration) ApiClientOption {
 	return func(client *ApiClient) {
 		client.httpClient.Timeout = timeout
+	}
+}
+
+// WithDefaultHeaders adds default headers to all services
+func WithDefaultHeaders(headers map[string]string) ApiClientOption {
+	return func(client *ApiClient) {
+		for serviceName, service := range client.services {
+			if service.Headers == nil {
+				service.Headers = make(map[string]string)
+			}
+			for key, value := range headers {
+				service.Headers[key] = value
+			}
+			client.services[serviceName] = service
+		}
 	}
 }
 
@@ -142,6 +159,13 @@ func (c *ApiClient) doSingleRequest(ctx context.Context, service ServiceConfig, 
 		httpReq.Header.Set("Authorization", "Bearer "+service.AuthToken)
 	}
 	httpReq.Header.Set("X-Service-Name", "booking-service")
+
+	// Add custom headers
+	if service.Headers != nil {
+		for key, value := range service.Headers {
+			httpReq.Header.Set(key, value)
+		}
+	}
 
 	// Thực hiện request
 	startTime := time.Now()
@@ -289,6 +313,21 @@ func WithServiceRetry(serviceName string, maxRetries int, retryDelay time.Durati
 	}
 }
 
+// WithServiceHeaders adds headers to a specific service
+func WithServiceHeaders(serviceName string, headers map[string]string) ApiClientOption {
+	return func(client *ApiClient) {
+		if service, ok := client.services[serviceName]; ok {
+			if service.Headers == nil {
+				service.Headers = make(map[string]string)
+			}
+			for key, value := range headers {
+				service.Headers[key] = value
+			}
+			client.services[serviceName] = service
+		}
+	}
+}
+
 // AddService thêm một service mới lúc runtime
 func (c *ApiClient) AddService(name, baseURL string, timeout time.Duration) {
 	c.services[name] = ServiceConfig{
@@ -297,6 +336,7 @@ func (c *ApiClient) AddService(name, baseURL string, timeout time.Duration) {
 		MaxRetries:  3,
 		RetryDelay:  500 * time.Millisecond,
 		ServiceName: name,
+		Headers:     make(map[string]string),
 	}
 }
 

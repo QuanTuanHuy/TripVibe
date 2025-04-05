@@ -14,6 +14,7 @@ type ICreateNotificationUseCase interface {
 type CreateNotificationUseCase struct {
 	notificationPort     port.INotificationPort
 	dbTransactionUseCase IDatabaseTransactionUseCase
+	notiPublisher        port.INotificationPublisher
 }
 
 func (c CreateNotificationUseCase) CreateNotification(ctx context.Context, notification *entity.NotificationEntity) (*entity.NotificationEntity, error) {
@@ -26,6 +27,7 @@ func (c CreateNotificationUseCase) CreateNotification(ctx context.Context, notif
 		}
 	}()
 
+	notification.Status = entity.StatusPending
 	notification, err := c.notificationPort.CreateNotification(ctx, tx, notification)
 	if err != nil {
 		log.Error(ctx, "Create notification failed: ", err)
@@ -38,12 +40,24 @@ func (c CreateNotificationUseCase) CreateNotification(ctx context.Context, notif
 		return nil, errCommit
 	}
 
+	// push to kafka
+	go func() {
+		err = c.notiPublisher.SendEmailNotification(ctx, notification)
+		if err != nil {
+			log.Error(ctx, "Send email notification failed: ", err)
+		}
+	}()
+
 	return notification, nil
 }
 
-func NewCreateNotificationUseCase(notificationPort port.INotificationPort, dbTransactionUseCase IDatabaseTransactionUseCase) ICreateNotificationUseCase {
+func NewCreateNotificationUseCase(
+	notificationPort port.INotificationPort,
+	dbTransactionUseCase IDatabaseTransactionUseCase,
+	notiPublisher port.INotificationPublisher) ICreateNotificationUseCase {
 	return &CreateNotificationUseCase{
 		notificationPort:     notificationPort,
 		dbTransactionUseCase: dbTransactionUseCase,
+		notiPublisher:        notiPublisher,
 	}
 }
