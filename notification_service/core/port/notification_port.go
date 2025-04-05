@@ -2,15 +2,13 @@ package port
 
 import (
 	"context"
-	"gorm.io/gorm"
-	"notification_service/core/domain/dto/request"
 	"notification_service/core/domain/entity"
+
+	"gorm.io/gorm"
 )
 
+// INotificationPort defines the interface for notification data operations
 type INotificationPort interface {
-	CreateNotification(ctx context.Context, tx *gorm.DB, notification *entity.NotificationEntity) (*entity.NotificationEntity, error)
-	GetAllNotification(ctx context.Context, notificationParams *request.NotificationParams) ([]*entity.NotificationEntity, error)
-	CountAllNotification(ctx context.Context, notificationParams *request.NotificationParams) (int64, error)
-	GetNotificationByID(ctx context.Context, notificationID int64) (*entity.NotificationEntity, error)
-	UpdateNotification(ctx context.Context, tx *gorm.DB, notification *entity.NotificationEntity) (*entity.NotificationEntity, error)
+	GetNotificationByID(ctx context.Context, id int64) (*entity.NotificationEntity, error)
+	UpdateNotification(ctx context.Context, db *gorm.DB, notification *entity.NotificationEntity) (*entity.NotificationEntity, error)
 }

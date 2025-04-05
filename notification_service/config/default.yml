@@ -6,3 +6,18 @@ app:
     http:
       publicUrls:
       protectedUrls:
+
+kafka:
+  brokers:
+    - localhost:9092
+  consumer-group-id: notification-service
+  max-retry-count: 3
+  email-producer-enabled: true
+  email-consumer-enabled: true
+
+email:
+  smtp-host: smtp.gmail.com
+  smtp-port: 587
+  smtp-username: your-email@gmail.com
+  smtp-password: your-app-password
+  from-email: notifications@example.com
