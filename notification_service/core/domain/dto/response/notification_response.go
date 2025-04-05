@@ -3,12 +3,14 @@ package response
 import "notification_service/core/domain/entity"
 
 type NotificationResponse struct {
-	ID         int64  `json:"id"`
-	Type       string `json:"type"`
-	Content    string `json:"content"`
-	ReceiverID int64  `json:"receiverId"`
-	IsRead     bool   `json:"isRead"`
-	Status     string `json:"status"`
+	ID         int64                  `json:"id"`
+	Type       string                 `json:"type"`
+	Title      string                 `json:"title"`
+	Content    string                 `json:"content"`
+	Recipient  string                 `json:"recipient"`
+	Status     string                 `json:"status"`
+	Metadata   map[string]interface{} `json:"metadata"`
+	RetryCount int                    `json:"retryCount"`
 }
 
 type GetNotificationResponse struct {
@@ -24,11 +26,13 @@ type GetNotificationResponse struct {
 func ToNotificationResponse(notification *entity.NotificationEntity) *NotificationResponse {
 	return &NotificationResponse{
 		ID:         notification.ID,
-		Type:       notification.Type,
+		Type:       string(notification.Type),
+		Title:      notification.Title,
 		Content:    notification.Content,
-		ReceiverID: notification.ReceiverID,
-		IsRead:     notification.IsRead,
-		Status:     notification.Status,
+		Recipient:  notification.Recipient,
+		Status:     string(notification.Status),
+		Metadata:   notification.Metadata,
+		RetryCount: notification.RetryCount,
 	}
 }
 

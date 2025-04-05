@@ -9,7 +9,7 @@ import (
 )
 
 type IUpdateNotificationUseCase interface {
-	UpdateNotification(ctx context.Context, notiID int64, req *request.UpdateNotificationRequestDto) (*entity.NotificationEntity, error)
+	UpdateNotification(ctx context.Context, notiID int64, req *request.UpdateNotificationDto) (*entity.NotificationEntity, error)
 }
 
 type UpdateNotificationUseCase struct {
@@ -17,7 +17,7 @@ type UpdateNotificationUseCase struct {
 	dbTransactionUseCase IDatabaseTransactionUseCase
 }
 
-func (u UpdateNotificationUseCase) UpdateNotification(ctx context.Context, notiID int64, req *request.UpdateNotificationRequestDto) (*entity.NotificationEntity, error) {
+func (u UpdateNotificationUseCase) UpdateNotification(ctx context.Context, notiID int64, req *request.UpdateNotificationDto) (*entity.NotificationEntity, error) {
 	tx := u.dbTransactionUseCase.StartTransaction()
 	defer func() {
 		if errRollback := tx.Rollback(); errRollback != nil {
@@ -35,10 +35,16 @@ func (u UpdateNotificationUseCase) UpdateNotification(ctx context.Context, notiI
 	}
 
 	if req.Status != nil {
-		notification.Status = *req.Status
+		notification.Status = entity.NotificationStatus(*req.Status)
 	}
-	if req.IsRead != nil {
-		notification.IsRead = *req.IsRead
+	if req.RetryCount != nil {
+		notification.RetryCount = *req.RetryCount
+	}
+	if req.LastRetryAt != nil {
+		notification.LastRetryAt = req.LastRetryAt
+	}
+	if req.SentAt != nil {
+		notification.SentAt = req.SentAt
 	}
 
 	notification, err = u.notificationPort.UpdateNotification(ctx, tx, notification)

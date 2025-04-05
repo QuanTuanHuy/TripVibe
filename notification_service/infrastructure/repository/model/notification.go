@@ -1,12 +1,19 @@
 package model
 
+import "time"
+
 type NotificationModel struct {
 	BaseModel
-	Type       string `gorm:"column:type"`
-	Content    string `gorm:"column:content"`
-	ReceiverID int64  `gorm:"column:receiver_id"`
-	IsRead     bool   `gorm:"column:is_read"`
-	Status     string `gorm:"column:status"`
+	UserID      int64      `gorm:"column:user_id"`
+	Type        string     `gorm:"column:type"`
+	Title       string     `gorm:"column:title"`
+	Content     string     `gorm:"column:content"`
+	Recipient   string     `gorm:"column:recipient"`
+	Status      string     `gorm:"column:status"`
+	Metadata    string     `gorm:"column:metadata"`
+	RetryCount  int        `gorm:"column:retry_count"`
+	LastRetryAt *time.Time `gorm:"column:last_retry_at"`
+	SentAt      *time.Time `gorm:"column:sent_at"`
 }
 
 func (n *NotificationModel) TableName() string {

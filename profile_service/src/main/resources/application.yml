@@ -34,4 +34,6 @@ app:
       prefix: Bearer
     filter:
       publicUrls:
+        - first: /api/public/v1/profiles/**
+          second: GET
       protectedUrls:

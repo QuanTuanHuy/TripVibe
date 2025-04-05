@@ -46,6 +46,13 @@ func (n *NotificationController) GetAllNotification(c *gin.Context) {
 	notiParams.Page = &page
 	notiParams.PageSize = &pageSize
 
+	if status := c.Query("status"); status != "" {
+		notiParams.Status = &status
+	}
+	if notiType := c.Query("type"); notiType != "" {
+		notiParams.Type = &notiType
+	}
+
 	notifications, err := n.notificationService.GetAllNotification(c, userID, notiParams)
 	if err != nil {
 		log.Error(c, "Get all notification failed: ", err)
@@ -66,7 +73,7 @@ func (n *NotificationController) UpdateNotification(c *gin.Context) {
 	}
 
 	// get request body
-	var req request.UpdateNotificationRequestDto
+	var req request.UpdateNotificationDto
 	if err := c.ShouldBindJSON(&req); err != nil {
 		log.Error(c, "Bind request failed: ", err)
 		apihelper.AbortErrorHandle(c, common.GeneralBadRequest)
