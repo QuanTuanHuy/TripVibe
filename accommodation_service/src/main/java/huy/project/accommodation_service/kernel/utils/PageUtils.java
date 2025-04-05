@@ -9,6 +9,9 @@ import org.springframework.data.domain.Sort;
 import org.springframework.util.StringUtils;
 
 public class PageUtils {
+    public static final int DEFAULT_PAGE = 0;
+    public static final int DEFAULT_PAGE_SIZE = 10;
+
     public static <T> PageInfo getPageInfo(Page<T> result) {
         var pageInfo = new PageInfo();
         pageInfo.setTotalRecord(result.getTotalElements());
@@ -25,8 +28,8 @@ public class PageUtils {
     }
 
     public static Pageable getPageable(BaseGetParams params) {
-        int page = (params.getPage() != null && params.getPage() >= 0) ? params.getPage() : 0;
-        int pageSize = (params.getPageSize() != null && params.getPageSize() > 0) ? params.getPageSize() : 10;
+        int page = (params.getPage() != null && params.getPage() >= 0) ? params.getPage() : DEFAULT_PAGE;
+        int pageSize = (params.getPageSize() != null && params.getPageSize() > 0) ? params.getPageSize() : DEFAULT_PAGE_SIZE;
 
         // Use "id" as default sort field if not provided
         String sortBy = (!StringUtils.hasText(params.getSortBy()))

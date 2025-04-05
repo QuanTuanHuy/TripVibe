@@ -12,4 +12,5 @@ public interface IAmenityRepository extends IBaseRepository<AmenityModel> {
     List<AmenityModel> findByGroupId(Long groupId);
     List<AmenityModel> findByGroupIdIn(List<Long> groupIds);
     void deleteByGroupId(Long groupId);
+    List<AmenityModel> findByIdIn(List<Long> ids);
 }

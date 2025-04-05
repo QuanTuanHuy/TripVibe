@@ -7,6 +7,8 @@ import (
 	"go.uber.org/fx"
 	"notification_service/core/service"
 	"notification_service/core/usecase"
+	adapter2 "notification_service/infrastructure/cache/adapter"
+	"notification_service/infrastructure/client"
 	"notification_service/infrastructure/repository/adapter"
 	"notification_service/ui/controller"
 	"notification_service/ui/router"
@@ -29,12 +31,15 @@ func All() fx.Option {
 		//Provide port implementation
 		fx.Provide(adapter.NewNotificationAdapter),
 		fx.Provide(adapter.NewDatabaseTransactionAdapter),
+		fx.Provide(adapter2.NewRedisCacheAdapter),
+		fx.Provide(client.NewUserClientAdapter),
 
 		//Provide usecase
 		fx.Provide(usecase.NewCreateNotificationUseCase),
 		fx.Provide(usecase.NewDatabaseTransactionUseCase),
 		fx.Provide(usecase.NewGetNotificationUseCase),
 		fx.Provide(usecase.NewUpdateNotificationUseCase),
+		fx.Provide(usecase.NewGetUserUseCase),
 
 		//Provide services
 		fx.Provide(service.NewNotificationService),

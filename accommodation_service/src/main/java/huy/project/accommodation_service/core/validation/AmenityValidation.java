@@ -10,6 +10,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.util.Pair;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -46,5 +48,9 @@ public class AmenityValidation {
         }
 
         return Pair.of(true, ErrorCode.SUCCESS);
+    }
+
+    public boolean amenitiesExist(List<Long> ids) {
+        return amenityPort.getAmenitiesByIds(ids).size() == ids.size();
     }
 }

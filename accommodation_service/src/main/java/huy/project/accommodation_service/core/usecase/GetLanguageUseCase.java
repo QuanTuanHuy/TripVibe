@@ -18,4 +18,8 @@ public class GetLanguageUseCase {
     public Pair<PageInfo, List<LanguageEntity>> getAllLanguages(GetLanguageParams params) {
         return languagePort.getLanguages(params);
     }
+
+    public List<LanguageEntity> getLanguagesByIds(List<Long> ids) {
+        return languagePort.getLanguagesByIds(ids);
+    }
 }

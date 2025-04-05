@@ -1,0 +1,39 @@
+spring:
+  application:
+    name: profile_service
+  datasource:
+    username: user_booking
+    password: secret
+    url: jdbc:postgresql://localhost:5433/db_profile_service
+    driver-class-name: org.postgresql.Driver
+  data:
+    redis:
+      host: localhost
+      port: 6379
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+  kafka:
+    bootstrap-servers: localhost:9094
+    consumer:
+      group-id: tourist_group
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+server:
+  port: 8086
+  servlet:
+    context-path: /profile_service
+
+app:
+  security:
+    jwt:
+      secret: MnAYFOKwxBOznHpxA3Wx4cJjeC3vYNtwzI6HRYT9SD++1BM9Pk32pTGETroljFsS
+      expiration: 86400000
+      header: Authorization
+      prefix: Bearer
+    filter:
+      publicUrls:
+        - first: /api/public/v1/profiles/**
+          second: GET
+      protectedUrls:

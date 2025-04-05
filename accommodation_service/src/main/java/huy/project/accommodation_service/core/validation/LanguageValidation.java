@@ -7,6 +7,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.util.Pair;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 public class LanguageValidation {
@@ -30,5 +32,9 @@ public class LanguageValidation {
         }
 
         return Pair.of(true, ErrorCode.SUCCESS);
+    }
+
+    public boolean languagesExist(List<Long> ids) {
+        return languagePort.getLanguagesByIds(ids).size() == ids.size();
     }
 }

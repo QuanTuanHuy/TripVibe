@@ -11,10 +11,20 @@ spring:
     hibernate:
       ddl-auto: update
     show-sql: true
+    properties:
+      hibernate:
+        jdbc:
+          batch_size: 50
   data:
     redis:
       host: localhost
       port: 6379
+
+  kafka:
+    bootstrap-servers: localhost:9094
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.apache.kafka.common.serialization.StringSerializer
 
 app:
 #  service:
@@ -26,6 +36,8 @@ app:
   #        - PUT
   #        - DELETE
   #        - PATCH
+  kafka:
+    default-server: localhost:9094
   security:
     jwt:
       secret: MnAYFOKwxBOznHpxA3Wx4cJjeC3vYNtwzI6HRYT9SD++1BM9Pk32pTGETroljFsS
@@ -35,6 +47,18 @@ app:
     filter:
       publicUrls:
         - first: /api/public/v1/amenity_groups/**
+          second: GET
+        - first: /api/public/v1/languages/**
+          second: GET
+        - first: /api/public/v1/unit_names/**
+          second: GET
+        - first: /api/public/v1/bed_types/**
+          second: GET
+        - first: /api/public/v1/accommodation_types/**
+          second: GET
+        - first: /api/public/v1/price_types
+          second: GET
+        - first: /api/public/v1/accommodations/**
           second: GET
       protectedUrls:
         - urlPattern: /api/public/v1/amenity_groups
@@ -46,6 +70,20 @@ app:
         - urlPattern: /api/public/v1/languages
           roles:
             - ADMIN
+        - urlPattern: /api/public/v1/unit_names
+          roles:
+            - ADMIN
+        - urlPattern: /api/public/v1/bed_types
+          roles:
+            - ADMIN
+        - urlPattern: /api/public/v1/accommodation_types
+          roles:
+            - ADMIN
+        - urlPattern: /api/public/v1/accommodations
+          roles:
+            - ADMIN
 
 server:
   port: 8083
+  servlet:
+    context-path: /accommodation_service

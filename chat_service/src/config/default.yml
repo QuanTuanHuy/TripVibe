@@ -1,0 +1,4 @@
+app:
+  name: Chat Service
+  path: /chat_service/api
+  port: 8090

@@ -35,10 +35,7 @@ func (u UpdateNotificationUseCase) UpdateNotification(ctx context.Context, notiI
 	}
 
 	if req.Status != nil {
-		notification.Status = *req.Status
-	}
-	if req.IsRead != nil {
-		notification.IsRead = *req.IsRead
+		notification.Status = entity.NotificationStatus(*req.Status)
 	}
 
 	notification, err = u.notificationPort.UpdateNotification(ctx, tx, notification)

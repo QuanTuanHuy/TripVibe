@@ -12,4 +12,5 @@ public interface IAmenityPort {
     AmenityEntity getAmenityById(Long id);
     void deleteAmenityById(Long id);
     void deleteAmenityByGroupId(Long groupId);
+    List<AmenityEntity> getAmenitiesByIds(List<Long> ids);
 }

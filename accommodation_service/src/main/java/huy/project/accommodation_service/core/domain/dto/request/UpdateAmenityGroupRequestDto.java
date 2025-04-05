@@ -7,5 +7,6 @@ import lombok.Setter;
 @Setter
 public class UpdateAmenityGroupRequestDto {
     private String name;
+    private String type;
     private String description;
 }

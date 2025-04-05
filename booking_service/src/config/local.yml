@@ -1,0 +1,13 @@
+app:
+  datasource:
+    driver: postgres
+    host: localhost
+    port: 5433
+    database: db_booking_service
+    username: user_booking
+    password: secret
+  redis:
+    host: localhost
+    port: 6379
+  logging:
+    development: true
