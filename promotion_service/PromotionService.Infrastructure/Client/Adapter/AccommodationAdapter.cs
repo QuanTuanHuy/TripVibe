@@ -28,7 +28,7 @@ namespace PromotionService.Infrastructure.Client.Adapter
         {
             try
             {
-                var baseUrl = _httpClient.BaseAddress?.ToString() ?? _configuration["Services:Accommodation:BaseUrl"];
+                var baseUrl = _configuration["Services:Accommodation:BaseUrl"];
                 if (string.IsNullOrEmpty(baseUrl))
                 {
                     _logger.LogError("Base URL for accommodation service is not configured.");
@@ -47,16 +47,6 @@ namespace PromotionService.Infrastructure.Client.Adapter
                     _logger.LogWarning("Accommodation with id {AccId} not found or returned null data", accId);
                 }
                 return content?.Data;
-            }
-            catch (HttpRequestException ex)
-            {
-                _logger.LogError(ex, "HTTP request error while getting accommodation with id {AccId}: {Message}", accId, ex.Message);
-                return null;
-            }
-            catch (JsonException ex)
-            {
-                _logger.LogError(ex, "JSON parsing error while getting accommodation with id {AccId}: {Message}", accId, ex.Message);
-                return null;
             }
             catch (Exception ex)
             {

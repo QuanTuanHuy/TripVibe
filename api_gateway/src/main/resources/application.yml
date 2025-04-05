@@ -47,3 +47,11 @@ spring:
             uri: http://localhost:8082
             predicates:
               - Path=/notification_service${app.api-prefix}/**
+          - id: chat_service
+            uri: http://localhost:8090
+            predicates:
+              - Path=/chat_service${app.api-prefix}/**
+          - id: location_service
+            uri: http://localhost:8091
+            predicates:
+              - Path=/location_service${app.api-prefix}/**

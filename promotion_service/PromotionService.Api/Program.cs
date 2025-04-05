@@ -20,7 +20,7 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 
 // Add HttpClient services
-// builder.Services.AddHttpClient();
+builder.Services.AddHttpClient();
 
 // Redis configuration
 builder.Services.AddSingleton<JsonUtils>();
@@ -43,19 +43,7 @@ builder.Services.AddScoped<IPromotionConditionPort, PromotionConditionAdapter>()
 builder.Services.AddScoped<IPromotionPort, PromotionAdapter>();
 builder.Services.AddScoped<IPromotionUnitPort, PromotionUnitAdapter>();
 builder.Services.AddScoped<IPromotionTypeConditionPort, PromotionTypeConditionAdapter>();
-// builder.Services.AddScoped<IAccommodationPort, AccommodationAdapter>();
-
-builder.Services.AddHttpClient<IAccommodationPort, AccommodationAdapter>(client =>
-{
-    var baseUrl = builder.Configuration["Services:Accommodation:BaseUrl"];
-    if (!string.IsNullOrEmpty(baseUrl))
-    {
-        // Set as BaseAddress for HttpClient
-        client.BaseAddress = new Uri(baseUrl);
-        client.DefaultRequestHeaders.Add("Accept", "application/json");
-        client.Timeout = TimeSpan.FromSeconds(30);
-    }
-});
+builder.Services.AddScoped<IAccommodationPort, AccommodationAdapter>();
 
 // Register use cases
 builder.Services.AddScoped<ICreatePromotionTypeUseCase, CreatePromotionTypeUseCase>();

@@ -1,6 +1,7 @@
 ﻿using PromotionService.Core.Domain.Constant;
 using PromotionService.Core.Domain.Dto.Request;
 using PromotionService.Core.Domain.Entity;
+using PromotionService.Core.Exception;
 using PromotionService.Core.Port;
 using PromotionService.Kernel.Utils;
 
@@ -39,6 +40,10 @@ public class GetPromotionTypeUseCase : IGetPromotionTypeUseCase
         }
 
         var promotionType = await _promotionTypePort.GetPromotionTypeByIdAsync(id);
+        if (promotionType == null)
+        {
+            throw new AppException(ErrorCode.PROMOTION_TYPE_NOT_FOUND);
+        }
         promotionType.Conditions = await GetPromotionTypeConditionByPromotionTypeIdAsync(id);
 
         await _cachePort.SetToCacheAsync(key, promotionType, CacheConstant.DEFAULT_TTL);
