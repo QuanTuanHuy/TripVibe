@@ -15,10 +15,25 @@
         <outputRelativeToContentRoot value="true" />
         <processorPath useClasspath="false">
           <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok/1.18.36/lombok-1.18.36.jar" />
+          <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok/1.18.36/lombok-1.18.36.jar" />
         </processorPath>
         <module name="api_gateway" />
       </profile>
-      <profile name="Annotation profile for rating_service" enabled="true">
+      <profile name="Annotation profile for file_service" enabled="true">
+        <sourceOutputDir name="target/generated-sources/annotations" />
+        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
+        <outputRelativeToContentRoot value="true" />
+        <processorPath useClasspath="false">
+          <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok/1.18.36/lombok-1.18.36.jar" />
+          <entry name="$MAVEN_REPOSITORY$/org/mapstruct/mapstruct-processor/1.6.2/mapstruct-processor-1.6.2.jar" />
+          <entry name="$MAVEN_REPOSITORY$/org/mapstruct/mapstruct/1.6.2/mapstruct-1.6.2.jar" />
+          <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok/1.18.36/lombok-1.18.36.jar" />
+          <entry name="$MAVEN_REPOSITORY$/org/mapstruct/mapstruct-processor/1.6.2/mapstruct-processor-1.6.2.jar" />
+          <entry name="$MAVEN_REPOSITORY$/org/mapstruct/mapstruct/1.6.2/mapstruct-1.6.2.jar" />
+        </processorPath>
+        <module name="file_service" />
+      </profile>
+      <profile name="Annotation profile for payment_service" enabled="true">
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
@@ -30,7 +45,7 @@
         <module name="profile_service" />
         <module name="accommodation_service" />
         <module name="rating_service" />
-        <module name="file_service" />
+        <module name="payment_service" />
         <module name="search_service" />
       </profile>
     </annotationProcessing>
@@ -41,6 +56,7 @@
       <module name="api_gateway" options="-parameters" />
       <module name="authentication_service" options="-parameters" />
       <module name="file_service" options="-parameters" />
+      <module name="payment_service" options="-parameters" />
       <module name="profile_service" options="-parameters" />
       <module name="rating_service" options="-parameters" />
       <module name="search_service" options="-parameters" />

@@ -55,3 +55,7 @@ spring:
             uri: http://localhost:8091
             predicates:
               - Path=/location_service${app.api-prefix}/**
+          - id: payment_service
+            uri: http://localhost:8092
+            predicates:
+              - Path=/payment_service${app.api-prefix}/**
