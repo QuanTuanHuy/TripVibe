@@ -62,6 +62,8 @@ app:
           second: GET
         - first: /api/internal/v1/accommodations/**
           second: GET
+        - first: /api/internal/v1/units/**
+          second: GET
       protectedUrls:
         - urlPattern: /api/public/v1/amenity_groups
           roles:

@@ -36,4 +36,6 @@ app:
       publicUrls:
         - first: /api/public/v1/profiles/**
           second: GET
+        - first: /api/internal/v1/profiles/**
+          second: GET
       protectedUrls:
