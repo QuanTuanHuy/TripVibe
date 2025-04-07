@@ -102,8 +102,14 @@ public class CreateAccommodationUseCase {
         // create accommodation in search service
         var messageElastic = CreateAccElasticMessage.from(accommodation);
 
+        // create rating summary
+        var ratingSummaryMessage = CreateRatingSummaryMessage.builder()
+                .accommodationId(accId)
+                .build();
+
         kafkaPublisher.pushAsync(message.toKafkaBaseDto(), TopicConstant.BookingCommand.TOPIC, "");
         kafkaPublisher.pushAsync(messageElastic.toKafkaBaseDto(), TopicConstant.SearchCommand.TOPIC, "");
+        kafkaPublisher.pushAsync(ratingSummaryMessage.toKafkaBaseDto(), TopicConstant.RatingCommand.TOPIC, "");
     }
 
 }

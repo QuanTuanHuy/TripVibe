@@ -1,7 +1,7 @@
 package huy.project.rating_service.ui.controller;
 
 import huy.project.rating_service.core.domain.constant.ErrorCode;
-import huy.project.rating_service.core.domain.exception.exception.AppException;
+import huy.project.rating_service.core.domain.exception.AppException;
 import huy.project.rating_service.ui.resource.MetaResource;
 import huy.project.rating_service.ui.resource.Resource;
 import lombok.extern.slf4j.Slf4j;

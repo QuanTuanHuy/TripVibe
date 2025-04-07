@@ -14,6 +14,12 @@ spring:
     hibernate:
       ddl-auto: update
     show-sql: true
+  kafka:
+    bootstrap-servers: localhost:9094
+    consumer:
+      group-id: rating_group
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
 
 server:
   port: 8089
@@ -28,7 +34,6 @@ app:
       url: localhost:8086/profile_service/
     accommodation_service:
       url: localhost:8083/accommodation_service/
-    internal-token:
   security:
     jwt:
       secret: MnAYFOKwxBOznHpxA3Wx4cJjeC3vYNtwzI6HRYT9SD++1BM9Pk32pTGETroljFsS
@@ -37,4 +42,8 @@ app:
       prefix: Bearer
     filter:
       publicUrls:
+        - first: /api/public/v1/ratings/**
+          second: GET
+        - first: /api/public/v1/rating_summaries/**
+          second: GET
       protectedUrls:

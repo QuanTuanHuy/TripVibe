@@ -1,4 +1,4 @@
-package huy.project.rating_service.core.domain.exception.exception;
+package huy.project.rating_service.core.domain.exception;
 
 
 import huy.project.rating_service.core.domain.constant.ErrorCode;

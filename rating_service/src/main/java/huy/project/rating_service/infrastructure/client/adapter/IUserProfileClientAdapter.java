@@ -2,7 +2,7 @@ package huy.project.rating_service.infrastructure.client.adapter;
 
 import huy.project.rating_service.core.domain.constant.ErrorCode;
 import huy.project.rating_service.core.domain.dto.response.UserProfileDto;
-import huy.project.rating_service.core.domain.exception.exception.AppException;
+import huy.project.rating_service.core.domain.exception.AppException;
 import huy.project.rating_service.core.port.IUserProfilePort;
 import huy.project.rating_service.infrastructure.client.IUserProfileClient;
 import huy.project.rating_service.ui.resource.Resource;
