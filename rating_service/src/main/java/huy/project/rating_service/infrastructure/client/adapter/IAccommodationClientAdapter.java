@@ -2,7 +2,7 @@ package huy.project.rating_service.infrastructure.client.adapter;
 
 import huy.project.rating_service.core.domain.constant.ErrorCode;
 import huy.project.rating_service.core.domain.dto.response.UnitDto;
-import huy.project.rating_service.core.domain.exception.exception.AppException;
+import huy.project.rating_service.core.domain.exception.AppException;
 import huy.project.rating_service.core.port.IAccommodationPort;
 import huy.project.rating_service.infrastructure.client.IAccommodationClient;
 import huy.project.rating_service.ui.resource.Resource;

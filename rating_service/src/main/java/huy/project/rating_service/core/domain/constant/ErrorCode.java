@@ -12,6 +12,7 @@ public enum ErrorCode {
     INVALID_RATING_VALUE(100003, "Invalid rating value", HttpStatus.BAD_REQUEST),
     SERVICE_UNAVAILABLE(100004, "Service unavailable", HttpStatus.SERVICE_UNAVAILABLE),
     FORBIDDEN_CREATE_RATING(100005, "Forbidden to create rating", HttpStatus.FORBIDDEN),
+    ACCOMMODATION_NOT_FOUND(100006, "Accommodation not found", HttpStatus.NOT_FOUND),
     ;
 
 
