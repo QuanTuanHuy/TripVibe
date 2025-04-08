@@ -1,0 +1,56 @@
+spring:
+  application:
+    name: payment_service
+  datasource:
+    username: user_booking
+    password: secret
+    url: jdbc:postgresql://localhost:5433/db_payment_service
+    driver-class-name: org.postgresql.Driver
+  data:
+    redis:
+      host: localhost
+      port: 6379
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+#  kafka:
+#    bootstrap-servers: localhost:9094
+#    consumer:
+#      group-id: tourist_group
+#      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+#      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+server:
+  port: 8092
+  servlet:
+    context-path: /payment_service
+
+app:
+  security:
+    jwt:
+      secret: MnAYFOKwxBOznHpxA3Wx4cJjeC3vYNtwzI6HRYT9SD++1BM9Pk32pTGETroljFsS
+      expiration: 86400000
+      header: Authorization
+      prefix: Bearer
+    filter:
+      publicUrls:
+      protectedUrls:
+
+  payment:
+    default-gateway: stripe
+    gateways:
+      stripe:
+        api-key: sk_test_your_stripe_test_key
+        webhook-secret: whsec_your_stripe_webhook_secret
+        success-url: https://yourdomain.com/payment/success
+        cancel-url: https://yourdomain.com/payment/cancel
+      paypal:
+        client-id: your_paypal_client_id
+        client-secret: your_paypal_client_secret
+        success-url: https://yourdomain.com/payment/success
+        cancel-url: https://yourdomain.com/payment/cancel
+      vnpay:
+        terminal-id: your_vnpay_terminal_id
+        secret-key: your_vnpay_secret_key
+        success-url: https://yourdomain.com/payment/success
+        cancel-url: https://yourdomain.com/payment/cancel
