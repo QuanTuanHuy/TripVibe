@@ -49,7 +49,7 @@ public class PaymentModel {
     @Column(name = "currency", length = 3)
     private String currency;
 
-    @Column(name = "payment_url")
+    @Column(name = "payment_url", columnDefinition = "TEXT")
     private String paymentUrl;
 
     @Column(name = "gateway_response", columnDefinition = "TEXT")

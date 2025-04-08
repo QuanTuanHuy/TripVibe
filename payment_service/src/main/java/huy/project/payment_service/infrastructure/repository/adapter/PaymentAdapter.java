@@ -56,6 +56,11 @@ public class PaymentAdapter implements IPaymentPort {
     }
 
     @Override
+    public PaymentEntity getPaymentByTransactionId(String transactionId) {
+        return PaymentMapper.INSTANCE.toEntity(paymentRepository.findByTransactionId(transactionId).orElse(null));
+    }
+
+    @Override
     public List<PaymentEntity> getPaymentsByBookingId(Long bookingId) {
         return PaymentMapper.INSTANCE.toListEntity(paymentRepository.findByBookingId(bookingId));
     }

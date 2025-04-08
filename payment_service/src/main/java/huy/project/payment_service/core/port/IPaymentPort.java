@@ -10,5 +10,6 @@ public interface IPaymentPort {
     List<PaymentEntity> saveAll(List<PaymentEntity> payments);
     List<PaymentEntity> getPaymentsByBookingIdAndStatus(Long bookingId, PaymentStatus status);
     PaymentEntity getPaymentById(Long id);
+    PaymentEntity getPaymentByTransactionId(String transactionId);
     List<PaymentEntity> getPaymentsByBookingId(Long bookingId);
 }

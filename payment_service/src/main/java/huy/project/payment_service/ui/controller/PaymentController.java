@@ -9,10 +9,7 @@ import huy.project.payment_service.kernel.utils.AuthenUtils;
 import huy.project.payment_service.ui.resource.Resource;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/public/v1/payments")
@@ -27,5 +24,16 @@ public class PaymentController {
             throw new AppException(ErrorCode.UN_AUTHORIZED);
         }
         return ResponseEntity.ok(new Resource<>(paymentService.createPayment(userId, request)));
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<Resource<PaymentEntity>> getDetailPayment(@PathVariable("id") Long id) {
+        return ResponseEntity.ok(new Resource<>(paymentService.getPaymentById(id)));
+    }
+
+    @PostMapping("/{id}/cancel")
+    public ResponseEntity<Resource<?>> cancelPayment(@PathVariable Long id) {
+        paymentService.cancelPayment(id);
+        return ResponseEntity.ok(new Resource<>(null));
     }
 }
