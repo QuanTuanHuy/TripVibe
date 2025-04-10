@@ -19,6 +19,9 @@ namespace LocationService.Core.Domain.Constant
         ATTRACTION_NAME_ALREADY_EXISTS = 100012,
         LANGUAGE_NOT_FOUND = 100013,
         ATTRACTION_NOT_FOUND = 100014,
+        TRENDING_PLACE_ALREADY_EXISTS = 100015,
+        INVALID_PARAMETER = 100016,
+        TRENDING_PLACE_NOT_FOUND = 100017,
     }
 
     public static class ErrorCodeExtensions
@@ -42,6 +45,9 @@ namespace LocationService.Core.Domain.Constant
                 ErrorCode.ATTRACTION_NAME_ALREADY_EXISTS => "Attraction name already exists",
                 ErrorCode.LANGUAGE_NOT_FOUND => "Language not found",
                 ErrorCode.ATTRACTION_NOT_FOUND => "Attraction not found",
+                ErrorCode.TRENDING_PLACE_ALREADY_EXISTS => "Trending place already exists",
+                ErrorCode.INVALID_PARAMETER => "Invalid parameter",
+                ErrorCode.TRENDING_PLACE_NOT_FOUND => "Trending place not found",
                 _ => "Unknown error"
             };
         }
@@ -64,6 +70,9 @@ namespace LocationService.Core.Domain.Constant
                 ErrorCode.ATTRACTION_NAME_ALREADY_EXISTS => HttpStatusCode.BadRequest,
                 ErrorCode.LANGUAGE_NOT_FOUND => HttpStatusCode.NotFound,
                 ErrorCode.ATTRACTION_NOT_FOUND => HttpStatusCode.NotFound,
+                ErrorCode.TRENDING_PLACE_ALREADY_EXISTS => HttpStatusCode.BadRequest,
+                ErrorCode.INVALID_PARAMETER => HttpStatusCode.BadRequest,
+                ErrorCode.TRENDING_PLACE_NOT_FOUND => HttpStatusCode.NotFound,
                 _ => HttpStatusCode.InternalServerError
             };
         }
