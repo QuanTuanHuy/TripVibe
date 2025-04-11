@@ -50,18 +50,18 @@ public class GetUserUseCase {
         return user;
     }
 
-    public UserEntity getUserByUsername(String username) {
+    public UserEntity getUserByEmail(String email) {
         // get from cache
-        String key = CacheUtils.buildCacheKeyGetUserByUsername(username);
+        String key = CacheUtils.buildCacheKeyGetUserByEmail(email);
         UserEntity cachedUser = cachePort.getFromCache(key, UserEntity.class);
         if (cachedUser != null) {
             return cachedUser;
         }
 
         // get from db
-        UserEntity user = userPort.getUserByUsername(username);
+        UserEntity user = userPort.getUserByEmail(email);
         if (user == null) {
-            log.error("User not found");
+            log.error("user with email {} not found", email);
             throw new AppException(ErrorCode.USER_NOT_FOUND);
         }
 

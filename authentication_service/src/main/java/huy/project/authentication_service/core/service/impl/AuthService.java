@@ -14,7 +14,7 @@ public class AuthService implements IAuthService {
     private final LoginUserUseCase loginUserUseCase;
 
     @Override
-    public LoginResponse login(String username, String password) {
-        return loginUserUseCase.login(username, password);
+    public LoginResponse login(String email, String password) {
+        return loginUserUseCase.login(email, password);
     }
 }
