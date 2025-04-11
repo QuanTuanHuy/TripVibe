@@ -5,11 +5,8 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="4cff42b0-96a3-498e-bb25-0914fe5bcfb3" name="Changes" comment="success get data via http request">
-      <change beforePath="$PROJECT_DIR$/../authentication_service/src/main/java/huy/project/authentication_service/core/usecase/OtpUseCase.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../authentication_service/src/main/java/huy/project/authentication_service/core/usecase/LoginUserUseCase.java" beforeDir="false" afterPath="$PROJECT_DIR$/../authentication_service/src/main/java/huy/project/authentication_service/core/usecase/LoginUserUseCase.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/kernel/apihelper/base.go" beforeDir="false" afterPath="$PROJECT_DIR$/kernel/apihelper/base.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ui/bootstrap/all.go" beforeDir="false" afterPath="$PROJECT_DIR$/ui/bootstrap/all.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ui/eventhandler/email_consumer.go" beforeDir="false" afterPath="$PROJECT_DIR$/ui/eventhandler/email_consumer.go" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />

@@ -33,6 +33,11 @@ public class LoginUserUseCase {
             throw new AppException(ErrorCode.UNAUTHORIZED);
         }
 
+        if (!existedUser.getEnabled()) {
+            log.error("User is not activated");
+            throw new AppException(ErrorCode.UNAUTHORIZED);
+        }
+
         return new LoginResponse(jwtUtils.generateToken(existedUser));
     }
 }
