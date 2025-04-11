@@ -86,7 +86,7 @@ func All() fx.Option {
 
 func NewApiClient() *client.ApiClient {
 	emailHeaders := map[string]string{
-		"api-key": "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",
+		"api-key": "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",
 	}
 
 	// Create API client with initial configuration

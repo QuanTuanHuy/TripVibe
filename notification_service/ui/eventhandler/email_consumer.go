@@ -6,7 +6,6 @@ import (
 	"notification_service/core/domain/dto/request"
 	"notification_service/core/service"
 	kafka2 "notification_service/infrastructure/kafka"
-	"strconv"
 	"strings"
 	"time"
 
@@ -110,8 +109,8 @@ func (c *EmailConsumer) processMessage(ctx context.Context, message kafka.Messag
 
 	// Attempt to send the email
 	sender := request.EmailInfo{
-		Name:  strconv.FormatInt(event.UserID, 10),
-		Email: "hochoanap2004@gmail.com",
+		Name:  "Booking System",
+		Email: "quan.tuan.huy@gmail.com",
 	}
 	to := request.EmailInfo{
 		Name:  event.Recipient,

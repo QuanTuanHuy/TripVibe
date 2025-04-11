@@ -9,7 +9,7 @@ import org.springframework.http.HttpStatus;
 @Setter
 @Builder
 public class Resource<T> {
-    private Object meta;
+    private MetaResource meta;
     private T data;
 
     public Resource(T data) {

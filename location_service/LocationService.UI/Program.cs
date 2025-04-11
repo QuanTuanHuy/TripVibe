@@ -41,6 +41,7 @@ builder.Services.AddScoped<IAttractionPort, AttractionAdapter>();
 builder.Services.AddScoped<IAttractionSchedulePort, AttractionScheduleAdapter>();
 builder.Services.AddScoped<IImagePort, ImageAdapter>();
 builder.Services.AddScoped<IAttractionLanguagePort, AttractionLanguageAdapter>();
+builder.Services.AddScoped<ITrendingPlacePort, TrendingPlaceAdapter>();
 
 
 // Register use cases
@@ -57,6 +58,8 @@ builder.Services.AddScoped<ICreateAttractionUseCase, CreateAttractionUseCase>();
 builder.Services.AddScoped<IGetLanguageUseCase, GetLanguageUseCase>();
 builder.Services.AddScoped<IGetAttractionUseCase, GetAttractionUseCase>();
 builder.Services.AddScoped<IGetImageUseCase, GetImageUseCase>();
+builder.Services.AddScoped<ICreateTrendingPlaceUseCase, CreateTrendingPlaceUseCase>();
+builder.Services.AddScoped<IGetTrendingPlaceUseCase, GetTrendingPlaceUseCase>();
 
 // Register services
 builder.Services.AddScoped<ICountryService, CountryService>();
@@ -65,6 +68,7 @@ builder.Services.AddScoped<ILocationService, LocationAppService>();
 builder.Services.AddScoped<ICategoryService, CategoryService>();
 builder.Services.AddScoped<ILanguageService, LanguageService>();
 builder.Services.AddScoped<IAttractionService, AttractionService>();
+builder.Services.AddScoped<ITrendingPlaceService, TrendingPlaceService>();
 
 var app = builder.Build();
 

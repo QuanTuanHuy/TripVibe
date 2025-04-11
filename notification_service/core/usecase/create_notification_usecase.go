@@ -42,9 +42,11 @@ func (c CreateNotificationUseCase) CreateNotification(ctx context.Context, notif
 
 	// push to kafka
 	go func() {
-		err = c.notiPublisher.SendEmailNotification(ctx, notification)
-		if err != nil {
-			log.Error(ctx, "Send email notification failed: ", err)
+		if notification.Type == entity.EmailNotification {
+			err = c.notiPublisher.SendEmailNotification(ctx, notification)
+			if err != nil {
+				log.Error(ctx, "Send email notification failed: ", err)
+			}
 		}
 	}()
 

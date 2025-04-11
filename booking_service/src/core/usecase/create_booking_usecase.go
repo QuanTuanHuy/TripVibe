@@ -6,8 +6,10 @@ import (
 	"booking_service/core/domain/entity"
 	"booking_service/core/domain/mapper"
 	"booking_service/core/port"
+	"booking_service/kernel/utils"
 	"context"
 	"errors"
+	"fmt"
 	"github.com/golibs-starter/golib/log"
 	"slices"
 )
@@ -22,6 +24,7 @@ type CreateBookingUseCase struct {
 	bookingPromotionPort port.IBookingPromotionPort
 	userPort             port.IUserPort
 	promotionPort        port.IPromotionPort
+	inventoryPort        port.IInventoryPort
 	getAccUseCase        IGetAccommodationUseCase
 	dbTransactionUseCase IDatabaseTransactionUseCase
 }
@@ -38,12 +41,43 @@ func (c CreateBookingUseCase) CreateBooking(ctx context.Context, req *request.Cr
 		allUnitIds = append(allUnitIds, unit.ID)
 	}
 
+	// Extract requested unitIDs for inventory locking
+	requestedUnitIDs := make([]int64, 0, len(req.Units))
 	for _, unit := range req.Units {
+		requestedUnitIDs = append(requestedUnitIDs, unit.UnitID)
 		if !slices.Contains(allUnitIds, unit.UnitID) {
 			log.Error(ctx, "Unit not found ", unit.UnitID)
 			return nil, errors.New(constant.ErrUnitNotFound)
 		}
 	}
+
+	// Try to lock inventory before proceeding
+	stayFrom, stayTo := utils.EpochMilliToDay(req.StayFrom), utils.EpochMilliToDay(req.StayTo)
+	log.Info(ctx, "Locking inventory for accommodation ID: ", req.AccommodationID, " from: ", stayFrom, " to: ", stayTo)
+	lockSuccessful, err := c.inventoryPort.LockInventory(ctx, req.AccommodationID, requestedUnitIDs, stayFrom, stayTo)
+	if err != nil {
+		log.Error(ctx, "Failed to lock inventory", err)
+		return nil, errors.New(constant.ErrInventoryLockFailed)
+	}
+
+	if !lockSuccessful {
+		log.Warn(ctx, "Inventory is no longer available")
+		return nil, errors.New(constant.ErrInventoryNoLongerAvailable)
+	}
+
+	// Generate a lock ID for potential release
+	lockID := fmt.Sprintf("lock:%d:%v:%d:%d", req.AccommodationID, requestedUnitIDs, stayFrom, stayTo)
+
+	// Release lock if anything fails
+	defer func() {
+		if err != nil {
+			// Only release lock if we're not committing the transaction
+			releaseErr := c.inventoryPort.ReleaseLock(ctx, lockID)
+			if releaseErr != nil {
+				log.Error(ctx, "Failed to release inventory lock", releaseErr)
+			}
+		}
+	}()
 
 	// verify promotion
 	allPromotionIds := make([]int64, 0)
@@ -136,6 +170,13 @@ func (c CreateBookingUseCase) CreateBooking(ctx context.Context, req *request.Cr
 		return nil, errCommit
 	}
 
+	// After successful commit, confirm the booking in inventory
+	err = c.inventoryPort.ConfirmBooking(ctx, booking.ID, req.AccommodationID, requestedUnitIDs, stayFrom, stayTo)
+	if err != nil {
+		log.Error(ctx, "Failed to confirm inventory booking", err)
+		// Don't fail the booking creation at this point, but log the error
+	}
+
 	// update promotion usage
 	go func() {
 		if len(allPromotionIds) > 0 {
@@ -155,6 +196,7 @@ func NewCreateBookingUseCase(
 	bookingPromotionPort port.IBookingPromotionPort,
 	userPort port.IUserPort,
 	promotionPort port.IPromotionPort,
+	inventoryPort port.IInventoryPort,
 	getAccUseCase IGetAccommodationUseCase,
 	dbTransactionUseCase IDatabaseTransactionUseCase) ICreateBookingUseCase {
 	return &CreateBookingUseCase{
@@ -163,6 +205,7 @@ func NewCreateBookingUseCase(
 		bookingPromotionPort: bookingPromotionPort,
 		userPort:             userPort,
 		promotionPort:        promotionPort,
+		inventoryPort:        inventoryPort,
 		getAccUseCase:        getAccUseCase,
 		dbTransactionUseCase: dbTransactionUseCase,
 	}

@@ -13,20 +13,11 @@ import org.springframework.stereotype.Service;
 public class UserValidation {
     private final IUserPort userPort;
 
-    public boolean isUsernameExist(String username) {
-        return userPort.getUserByUsername(username) != null;
-    }
-
     public boolean isEmailExist(String email) {
         return userPort.getUserByEmail(email) != null;
     }
 
     public Pair<Boolean, ErrorCode> validateUpdateUserReq(UserEntity existedUser, UpdateUserRequestDto req) {
-        UserEntity usernameUser = userPort.getUserByUsername(req.getUsername());
-        if (usernameUser != null && !usernameUser.getId().equals(existedUser.getId())) {
-            return Pair.of(false, ErrorCode.USER_NAME_EXISTED);
-        }
-
         UserEntity emailUser = userPort.getUserByEmail(req.getEmail());
         if (emailUser != null && !emailUser.getId().equals(existedUser.getId())) {
             return Pair.of(false, ErrorCode.USER_EMAIL_EXISTED);

@@ -74,7 +74,7 @@ public class UpdateUserUseCase {
 
         // clear cache
         cachePort.deleteFromCache(CacheUtils.buildCacheKeyGetUserById(userId));
-        cachePort.deleteFromCache(CacheUtils.buildCacheKeyGetUserByUsername(updateUser.getUsername()));
+        cachePort.deleteFromCache(CacheUtils.buildCacheKeyGetUserByEmail(updateUser.getEmail()));
 
         return updateUser;
     }

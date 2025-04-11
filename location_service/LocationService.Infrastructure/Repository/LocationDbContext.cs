@@ -18,5 +18,6 @@ namespace LocationService.Infrastructure.Repository
         public DbSet<AttractionScheduleModel> AttractionSchedules { get; set; } = null!;
         public DbSet<ImageModel> Images { get; set; } = null!;
         public DbSet<AttractionLanguageModel> AttractionLanguages { get; set; } = null!;
+        public DbSet<TrendingPlaceModel> TrendingPlaces { get; set; } = null!;
     }
 }

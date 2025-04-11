@@ -19,10 +19,10 @@ public class LoginUserUseCase {
 
     private final PasswordEncoder passwordEncoder;
 
-    public LoginResponse login(String username, String password) {
+    public LoginResponse login(String email, String password) {
         UserEntity existedUser;
         try {
-            existedUser = getUserUseCase.getUserByUsername(username);
+            existedUser = getUserUseCase.getUserByEmail(email);
         } catch (Exception e) {
             log.error("User not found");
             throw new AppException(ErrorCode.UNAUTHORIZED);
@@ -30,6 +30,11 @@ public class LoginUserUseCase {
 
         if (!passwordEncoder.matches(password, existedUser.getPassword())) {
             log.error("Password is incorrect");
+            throw new AppException(ErrorCode.UNAUTHORIZED);
+        }
+
+        if (!existedUser.getEnabled()) {
+            log.error("User is not activated");
             throw new AppException(ErrorCode.UNAUTHORIZED);
         }
 

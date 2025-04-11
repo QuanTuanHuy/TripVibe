@@ -11,9 +11,7 @@ func ToNotificationModel(notification *entity.NotificationEntity) *model.Notific
 	metadata, _ := json.Marshal(notification.Metadata)
 	return &model.NotificationModel{
 		BaseModel: model.BaseModel{
-			ID:        notification.ID,
-			CreatedAt: time.Unix(notification.CreatedAt, 0),
-			UpdatedAt: time.Unix(notification.UpdatedAt, 0),
+			ID: notification.ID,
 		},
 		UserID:      notification.UserID,
 		Type:        string(notification.Type),

@@ -5,32 +5,8 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="4cff42b0-96a3-498e-bb25-0914fe5bcfb3" name="Changes" comment="success get data via http request">
-      <change afterPath="$PROJECT_DIR$/core/domain/dto/request/send_email.go" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/core/port/email_sender_port.go" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/core/port/notification_publisher.go" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/core/service/email_service.go" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/core/service/retry_service.go" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/core/usecase/email_notification_usecase.go" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/core/woker/failed_notification_processor.go" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/infrastructure/client/email_sender_adapter.go" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/infrastructure/kafka/configuration.go" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/infrastructure/kafka/email_producer.go" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/ui/eventhandler/email_consumer.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../authentication_service/src/main/java/huy/project/authentication_service/core/usecase/LoginUserUseCase.java" beforeDir="false" afterPath="$PROJECT_DIR$/../authentication_service/src/main/java/huy/project/authentication_service/core/usecase/LoginUserUseCase.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/domain/constant/error.go" beforeDir="false" afterPath="$PROJECT_DIR$/core/domain/constant/error.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/domain/dto/request/update_notification_request.go" beforeDir="false" afterPath="$PROJECT_DIR$/core/domain/dto/request/update_notification_request.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/port/notification_port.go" beforeDir="false" afterPath="$PROJECT_DIR$/core/port/notification_port.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/service/notification_service.go" beforeDir="false" afterPath="$PROJECT_DIR$/core/service/notification_service.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/usecase/create_notification_usecase.go" beforeDir="false" afterPath="$PROJECT_DIR$/core/usecase/create_notification_usecase.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/usecase/get_notification_usecase.go" beforeDir="false" afterPath="$PROJECT_DIR$/core/usecase/get_notification_usecase.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/usecase/update_notification_usecase.go" beforeDir="false" afterPath="$PROJECT_DIR$/core/usecase/update_notification_usecase.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/go.mod" beforeDir="false" afterPath="$PROJECT_DIR$/go.mod" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/go.sum" beforeDir="false" afterPath="$PROJECT_DIR$/go.sum" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/infrastructure/client/api_client.go" beforeDir="false" afterPath="$PROJECT_DIR$/infrastructure/client/api_client.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/infrastructure/client/user_client_adapter.go" beforeDir="false" afterPath="$PROJECT_DIR$/infrastructure/client/user_client_adapter.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/infrastructure/repository/adapter/notification_adapter.go" beforeDir="false" afterPath="$PROJECT_DIR$/infrastructure/repository/adapter/notification_adapter.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ui/bootstrap/all.go" beforeDir="false" afterPath="$PROJECT_DIR$/ui/bootstrap/all.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ui/controller/notification_controller.go" beforeDir="false" afterPath="$PROJECT_DIR$/ui/controller/notification_controller.go" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -75,29 +51,29 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;DefaultGoTemplateProperty&quot;: &quot;Go File&quot;,
-    &quot;Go Build.go build cmd.executor&quot;: &quot;Run&quot;,
-    &quot;Go Build.go build github.com/QuanTuanHuy/notification_service/ui.executor&quot;: &quot;Run&quot;,
-    &quot;Go Build.go build notification_service/cmd.executor&quot;: &quot;Run&quot;,
-    &quot;Go Build.go build notification_service/public.executor&quot;: &quot;Run&quot;,
-    &quot;Go Build.go build notification_service/ui.executor&quot;: &quot;Run&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.go.formatter.settings.were.checked&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.go.migrated.go.modules.settings&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.go.modules.go.list.on.any.changes.was.set&quot;: &quot;true&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;notification-v2&quot;,
-    &quot;go.import.settings.migrated&quot;: &quot;true&quot;,
-    &quot;go.sdk.automatically.set&quot;: &quot;true&quot;,
-    &quot;last_opened_file_path&quot;: &quot;D:/User2/project/hotel_booking/booking_service&quot;,
-    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
-    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
-    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
-    &quot;run.configurations.included.in.services&quot;: &quot;true&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "DefaultGoTemplateProperty": "Go File",
+    "Go Build.go build cmd.executor": "Run",
+    "Go Build.go build github.com/QuanTuanHuy/notification_service/ui.executor": "Run",
+    "Go Build.go build notification_service/cmd.executor": "Run",
+    "Go Build.go build notification_service/public.executor": "Run",
+    "Go Build.go build notification_service/ui.executor": "Run",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "RunOnceActivity.go.formatter.settings.were.checked": "true",
+    "RunOnceActivity.go.migrated.go.modules.settings": "true",
+    "RunOnceActivity.go.modules.go.list.on.any.changes.was.set": "true",
+    "git-widget-placeholder": "dev",
+    "go.import.settings.migrated": "true",
+    "go.sdk.automatically.set": "true",
+    "last_opened_file_path": "D:/User2/project/hotel_booking/booking_service",
+    "node.js.detected.package.eslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "run.configurations.included.in.services": "true"
   }
-}</component>
+}]]></component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
       <recent name="D:\User2\project\hotel_booking\notification_service\ui\eventhandler" />

@@ -17,6 +17,8 @@ public enum ErrorCode {
     USER_NOT_FOUND(100008, "User not found", HttpStatus.NOT_FOUND),
     GENERATE_TOKEN_FAILED(100009, "Generate token failed", HttpStatus.INTERNAL_SERVER_ERROR),
     UNAUTHORIZED(100010, "user name or password wrong", HttpStatus.UNAUTHORIZED),
+    USER_ALREADY_ENABLED(100011, "User already enabled", HttpStatus.BAD_REQUEST),
+    OTP_NOT_VALID(100012, "OTP is not valid", HttpStatus.BAD_REQUEST),
     ;
 
 

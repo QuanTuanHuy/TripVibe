@@ -10,8 +10,6 @@ import java.util.List;
 @AllArgsConstructor
 @Builder
 public class CreateUserRequestDto {
-    private String name;
-    private String username;
     private String email;
     private String password;
     private List<Long> roleIds;

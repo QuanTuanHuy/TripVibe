@@ -15,8 +15,6 @@ public abstract class UserMapper {
     public abstract UserModel toModel(UserEntity user);
 
     public UserEntity toEntity(UserEntity existedUser, UpdateUserRequestDto req) {
-        existedUser.setName(req.getName());
-        existedUser.setUsername(req.getUsername());
         existedUser.setEmail(req.getEmail());
         return existedUser;
     }
