@@ -18,11 +18,6 @@ public class UserAdapter implements IUserPort {
     }
 
     @Override
-    public UserEntity getUserByUsername(String username) {
-        return UserMapper.INSTANCE.toEntity(userRepository.findByUsername(username).orElse(null));
-    }
-
-    @Override
     public UserEntity getUserByEmail(String email) {
         return UserMapper.INSTANCE.toEntity(userRepository.findByEmail(email).orElse(null));
     }

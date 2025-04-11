@@ -41,10 +41,6 @@ public class CreateUserUseCase {
     @Transactional(rollbackFor = Exception.class)
     public UserEntity createUser(CreateUserRequestDto request) {
         // validate req
-        if (userValidation.isUsernameExist(request.getUsername())) {
-            log.error("Username is already taken");
-            throw new AppException(ErrorCode.USER_NAME_EXISTED);
-        }
         if (userValidation.isEmailExist(request.getEmail())) {
             log.error("Email is already taken");
             throw new AppException(ErrorCode.USER_EMAIL_EXISTED);

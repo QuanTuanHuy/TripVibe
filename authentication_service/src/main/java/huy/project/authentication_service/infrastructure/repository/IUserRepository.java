@@ -8,5 +8,4 @@ import java.util.Optional;
 @Repository
 public interface IUserRepository extends IBaseRepository<UserModel> {
     Optional<UserModel> findByEmail(String email);
-    Optional<UserModel> findByUsername(String username);
 }

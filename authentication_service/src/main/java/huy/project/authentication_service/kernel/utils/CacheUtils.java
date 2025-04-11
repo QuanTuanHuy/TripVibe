@@ -5,7 +5,6 @@ public class CacheUtils {
     public static final String CACHE_ALL_ROLES = "role::all";
     public static final String CACHE_PREFIX_USER = "user::%d";
     public static final String CACHE_PREFIX_USER_EMAIL = "user::email::%s";
-    public static final String CACHE_PREFIX_USER_NAME = "user::username::%s";
 
     public static String buildCacheKeyGetRoleById(Long roleId) {
         return String.format(CACHE_PREFIX_ROLE, roleId);
@@ -17,9 +16,5 @@ public class CacheUtils {
 
     public static String buildCacheKeyGetUserByEmail(String email) {
         return String.format(CACHE_PREFIX_USER_EMAIL, email);
-    }
-
-    public static String buildCacheKeyGetUserByUsername(String username) {
-        return String.format(CACHE_PREFIX_USER_NAME, username);
     }
 }
