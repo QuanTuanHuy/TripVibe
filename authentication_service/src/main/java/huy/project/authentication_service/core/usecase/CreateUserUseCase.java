@@ -1,18 +1,23 @@
 package huy.project.authentication_service.core.usecase;
 
 import huy.project.authentication_service.core.domain.constant.ErrorCode;
+import huy.project.authentication_service.core.domain.constant.OtpType;
 import huy.project.authentication_service.core.domain.dto.OtpDto;
+import huy.project.authentication_service.core.domain.dto.request.CreateNotificationDto;
 import huy.project.authentication_service.core.domain.dto.request.CreateUserRequestDto;
 import huy.project.authentication_service.core.domain.entity.RoleEntity;
 import huy.project.authentication_service.core.domain.entity.UserEntity;
 import huy.project.authentication_service.core.domain.entity.UserRoleEntity;
 import huy.project.authentication_service.core.domain.mapper.UserMapper;
 import huy.project.authentication_service.core.exception.AppException;
+import huy.project.authentication_service.core.port.ICachePort;
 import huy.project.authentication_service.core.port.INotificationPort;
 import huy.project.authentication_service.core.port.IUserPort;
 import huy.project.authentication_service.core.port.IUserRolePort;
 import huy.project.authentication_service.core.validation.RoleValidation;
 import huy.project.authentication_service.core.validation.UserValidation;
+import huy.project.authentication_service.kernel.utils.CacheUtils;
+import huy.project.authentication_service.kernel.utils.OtpUtils;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -22,6 +27,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Instant;
 import java.util.List;
 
 @Service
@@ -32,11 +38,12 @@ public class CreateUserUseCase {
     IUserPort userPort;
     IUserRolePort userRolePort;
     INotificationPort notificationPort;
+    ICachePort cachePort;
 
     RoleValidation roleValidation;
     UserValidation userValidation;
 
-    OtpUseCase otpUseCase;
+    OtpUtils otpUtils;
 
     PasswordEncoder passwordEncoder;
 
@@ -72,21 +79,31 @@ public class CreateUserUseCase {
         userRolePort.saveAll(userRoles);
 
         // send otp to user
-        OtpDto otp = otpUseCase.generateOtpForRegister(user.getEmail());
-        notificationPort.sendOtp(otp);
-
-//        handleAfterCreateUser(user);
+        OtpDto otp = createOtpForRegister();
+        cachePort.setToCache(CacheUtils.buildCacheKeyOtpRegister(user.getEmail()), otp, otp.getExpiredAt());
+        var createNotificationDto = buildCreateNotification(user, otp);
+        notificationPort.createNotification(createNotificationDto);
 
         return user;
     }
 
-//    public void handleAfterCreateUser(UserEntity user) {
-//        // send message to create tourist
-//        CreateTouristMessage message = CreateTouristMessage.builder()
-//                .userId(user.getId())
-//                .email(user.getEmail())
-//                .build();
-//        var kafkaBaseDto = message.toKafkaBaseDto();
-//        publisherPort.pushAsync(kafkaBaseDto, TopicConstant.TouristCommand.TOPIC, null);
-//    }
+    private OtpDto createOtpForRegister() {
+        String otp = otpUtils.generateRandomOtp(6);
+        return OtpDto.builder()
+                .otp(otp)
+                .type(OtpType.REGISTER)
+                .expiredAt(Instant.now().plusMillis(5).toEpochMilli())
+                .build();
+    }
+
+    private CreateNotificationDto buildCreateNotification(UserEntity user, OtpDto otpDto) {
+        return CreateNotificationDto.builder()
+                .userId(user.getId())
+                .type("EMAIL")
+                .title("OTP Registration Confirmation")
+                .content("your otp for registration of booking: " + otpDto.getOtp())
+                .recipient(user.getEmail())
+                .build();
+    }
+
 }
