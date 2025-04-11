@@ -20,6 +20,12 @@ public class UserController {
         return ResponseEntity.ok(new Resource<>(userService.createUser(request)));
     }
 
+    @PostMapping("/otp/verify")
+    public ResponseEntity<Resource<?>> verifyOtpForRegister(@RequestParam String email, @RequestParam String otp) {
+        userService.verifyOtpForRegister(email, otp);
+        return ResponseEntity.ok(new Resource<>(null));
+    }
+
     @GetMapping("/{userId}")
     public ResponseEntity<Resource<UserEntity>> getDetailUser(@PathVariable Long userId) {
         return ResponseEntity.ok(new Resource<>(userService.getDetailUser(userId)));

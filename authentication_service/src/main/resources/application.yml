@@ -36,6 +36,8 @@ app:
           second: POST
         - first: /api/public/v1/auth
           second: POST
+        - first: /api/public/v1/users/otp/verify
+          second: POST
       protectedUrls:
 #        - urlPattern: /api/public/v1/roles
 #          roles:

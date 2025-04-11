@@ -4,24 +4,30 @@ import huy.project.authentication_service.core.domain.dto.request.CreateUserRequ
 import huy.project.authentication_service.core.domain.dto.request.UpdateUserRequestDto;
 import huy.project.authentication_service.core.domain.entity.UserEntity;
 import huy.project.authentication_service.core.service.IUserService;
-import huy.project.authentication_service.core.usecase.CreateUserUseCase;
-import huy.project.authentication_service.core.usecase.DeleteUserUseCase;
-import huy.project.authentication_service.core.usecase.GetUserUseCase;
-import huy.project.authentication_service.core.usecase.UpdateUserUseCase;
+import huy.project.authentication_service.core.usecase.*;
+import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
+import lombok.experimental.FieldDefaults;
 import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class UserService implements IUserService {
-    private final CreateUserUseCase createUserUseCase;
-    private final GetUserUseCase getUserUseCase;
-    private final UpdateUserUseCase updateUserUseCase;
-    private final DeleteUserUseCase deleteUserUseCase;
+    CreateUserUseCase createUserUseCase;
+    GetUserUseCase getUserUseCase;
+    UpdateUserUseCase updateUserUseCase;
+    DeleteUserUseCase deleteUserUseCase;
+    VerifyOtpUseCase verifyOtpUseCase;
 
     @Override
     public UserEntity createUser(CreateUserRequestDto request) {
         return createUserUseCase.createUser(request);
+    }
+
+    @Override
+    public void verifyOtpForRegister(String email, String otp) {
+        verifyOtpUseCase.verifyOtpForRegister(email, otp);
     }
 
     @Override

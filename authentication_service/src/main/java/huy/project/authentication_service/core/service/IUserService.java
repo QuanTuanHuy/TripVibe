@@ -6,6 +6,7 @@ import huy.project.authentication_service.core.domain.entity.UserEntity;
 
 public interface IUserService {
     UserEntity createUser(CreateUserRequestDto request);
+    void verifyOtpForRegister(String email, String otp);
     UserEntity getDetailUser(Long id);
     UserEntity updateUser(Long userId, UpdateUserRequestDto req);
     void deleteUser(Long userId);
