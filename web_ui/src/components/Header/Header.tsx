@@ -1,8 +1,19 @@
 "use client";
 
 import { Building, Plane, Car, Hotel, MapPin, Bus } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 
 const Header: React.FC = () => {
+  const router = useRouter();
+
+  const handleLoginClick = () => {
+    router.push('/login');
+  };
+
+  const handleRegisterClick = () => {
+    router.push('/login?tab=register');
+  };
+
   return (
     <header className="bg-blue-800 text-white">
       <div className="container mx-auto px-4 py-3">
@@ -22,8 +33,18 @@ const Header: React.FC = () => {
               <span className="text-xl">?</span>
             </button>
             <div>Đăng chờ nghỉ của Quý vị</div>
-            <button className="px-4 py-2 bg-white text-blue-800 rounded-md font-medium">Đăng ký</button>
-            <button className="px-4 py-2 border border-white rounded-md font-medium">Đăng nhập</button>
+            <button 
+              className="px-4 py-2 bg-white text-blue-800 rounded-md font-medium cursor-pointer"
+              onClick={handleRegisterClick}
+            >
+              Đăng ký
+            </button>
+            <button 
+              className="px-4 py-2 border border-white rounded-md font-medium cursor-pointer"
+              onClick={handleLoginClick}
+            >
+              Đăng nhập
+            </button>
           </div>
         </div>
 
