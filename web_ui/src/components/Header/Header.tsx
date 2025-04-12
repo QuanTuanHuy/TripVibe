@@ -14,6 +14,10 @@ const Header: React.FC = () => {
     router.push('/login?tab=register');
   };
 
+  const handleAccountClick = () => {
+    router.push('/myaccount');
+  };
+
   return (
     <header className="bg-blue-800 text-white">
       <div className="container mx-auto px-4 py-3">
@@ -32,7 +36,12 @@ const Header: React.FC = () => {
               <span className="sr-only">Help</span>
               <span className="text-xl">?</span>
             </button>
-            <div>Đăng chờ nghỉ của Quý vị</div>
+            <div 
+              className="cursor-pointer hover:underline"
+              onClick={handleAccountClick}
+            >
+              Đăng chờ nghỉ của Quý vị
+            </div>
             <button 
               className="px-4 py-2 bg-white text-blue-800 rounded-md font-medium cursor-pointer"
               onClick={handleRegisterClick}
