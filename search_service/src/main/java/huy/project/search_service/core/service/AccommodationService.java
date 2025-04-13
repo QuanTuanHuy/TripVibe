@@ -4,12 +4,10 @@ import huy.project.search_service.core.domain.dto.request.AccommodationParams;
 import huy.project.search_service.core.domain.dto.response.PageInfo;
 import huy.project.search_service.core.domain.entity.AccommodationEntity;
 import huy.project.search_service.core.domain.entity.UnitEntity;
-import huy.project.search_service.core.usecase.AddUnitUseCase;
-import huy.project.search_service.core.usecase.CreateAccommodationUseCase;
-import huy.project.search_service.core.usecase.DeleteAccommodationUseCase;
-import huy.project.search_service.core.usecase.DeleteUnitUseCase;
-import huy.project.search_service.core.usecase.GetAccommodationUseCase;
+import huy.project.search_service.core.usecase.*;
+import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
+import lombok.experimental.FieldDefaults;
 import org.springframework.data.util.Pair;
 import org.springframework.stereotype.Service;
 
@@ -17,12 +15,14 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class AccommodationService implements IAccommodationService{
-    private final CreateAccommodationUseCase createAccommodationUseCase;
-    private final GetAccommodationUseCase getAccommodationUseCase;
-    private final DeleteAccommodationUseCase deleteAccommodationUseCase;
-    private final AddUnitUseCase addUnitUseCase;
-    private final DeleteUnitUseCase deleteUnitUseCase;
+    CreateAccommodationUseCase createAccommodationUseCase;
+    GetAccommodationUseCase getAccommodationUseCase;
+    DeleteAccommodationUseCase deleteAccommodationUseCase;
+    AddUnitUseCase addUnitUseCase;
+    DeleteUnitUseCase deleteUnitUseCase;
+    UpdateAccommodationUseCase updateAccommodationUseCase;
 
     @Override
     public AccommodationEntity createAccommodation(AccommodationEntity accommodation) {
@@ -52,5 +52,10 @@ public class AccommodationService implements IAccommodationService{
     @Override
     public void deleteUnit(Long accId, Long unitId) {
         deleteUnitUseCase.deleteUnit(accId, unitId);
+    }
+
+    @Override
+    public void updateAccommodation(AccommodationEntity accommodation) {
+        updateAccommodationUseCase.updateAccommodation(accommodation);
     }
 }
