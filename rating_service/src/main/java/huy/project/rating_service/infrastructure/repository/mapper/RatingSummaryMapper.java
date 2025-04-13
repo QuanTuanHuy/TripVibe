@@ -14,4 +14,5 @@ public abstract class RatingSummaryMapper {
     public abstract RatingSummaryEntity toEntity(RatingSummaryModel model);
     public abstract RatingSummaryModel toModel(RatingSummaryEntity entity);
     public abstract List<RatingSummaryEntity> toListEntity(List<RatingSummaryModel> models);
+    public abstract List<RatingSummaryModel> toListModel(List<RatingSummaryEntity> entities);
 }

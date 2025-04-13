@@ -13,6 +13,7 @@ public enum ErrorCode {
     SERVICE_UNAVAILABLE(100004, "Service unavailable", HttpStatus.SERVICE_UNAVAILABLE),
     FORBIDDEN_CREATE_RATING(100005, "Forbidden to create rating", HttpStatus.FORBIDDEN),
     ACCOMMODATION_NOT_FOUND(100006, "Accommodation not found", HttpStatus.NOT_FOUND),
+    UPDATE_RATING_SUMMARY_FAILED(100007, "Update rating summary failed", HttpStatus.INTERNAL_SERVER_ERROR),
     ;
 
 

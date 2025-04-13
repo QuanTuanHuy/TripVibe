@@ -35,6 +35,7 @@ public class CreateRatingUseCase {
         }
         ratingSummary.setNumberOfRatings(ratingSummary.getNumberOfRatings() + 1);
         ratingSummary.setTotalRating(ratingSummary.getTotalRating() + req.getValue().longValue());
+        ratingSummary.setIsSyncedWithSearchService(false);
         ratingSummaryPort.save(ratingSummary);
 
         return rating;

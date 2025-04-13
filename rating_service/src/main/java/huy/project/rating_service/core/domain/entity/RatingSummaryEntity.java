@@ -12,4 +12,5 @@ public class RatingSummaryEntity {
     private Long accommodationId;
     private Integer numberOfRatings;
     private Long totalRating;
+    private Boolean isSyncedWithSearchService;
 }

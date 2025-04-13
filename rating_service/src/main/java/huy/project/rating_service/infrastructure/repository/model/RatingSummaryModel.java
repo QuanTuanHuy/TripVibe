@@ -20,4 +20,6 @@ public class RatingSummaryModel extends AuditTable {
     private Integer numberOfRatings;
     @Column(name = "total_rating")
     private Long totalRating;
+    @Column(name = "is_synced_with_search_service")
+    private Boolean isSyncedWithSearchService;
 }
