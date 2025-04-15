@@ -1,10 +1,12 @@
 package huy.project.rating_service.ui.controller;
 
 import huy.project.rating_service.core.domain.dto.request.CreateRatingDto;
+import huy.project.rating_service.core.domain.dto.request.CreateRatingHelpfulnessDto;
 import huy.project.rating_service.core.domain.dto.request.RatingParams;
 import huy.project.rating_service.core.domain.dto.response.ListDataResponse;
 import huy.project.rating_service.core.domain.dto.response.RatingDto;
 import huy.project.rating_service.core.domain.entity.RatingEntity;
+import huy.project.rating_service.core.domain.entity.RatingHelpfulnessEntity;
 import huy.project.rating_service.core.service.IRatingService;
 import huy.project.rating_service.kernel.utils.AuthenUtils;
 import huy.project.rating_service.ui.resource.Resource;
@@ -30,6 +32,17 @@ public class RatingController {
         Long userId = AuthenUtils.getCurrentUserId();
         req.setUserId(userId);
         return ResponseEntity.ok(new Resource<>(ratingService.createRating(req)));
+    }
+
+    @PostMapping("/{id}/helpfulness")
+    public ResponseEntity<Resource<RatingHelpfulnessEntity>> createRatingHelpfulness(
+            @PathVariable Long id,
+            @RequestBody CreateRatingHelpfulnessDto req
+    ) {
+        Long userId = AuthenUtils.getCurrentUserId();
+        req.setRatingId(id);
+        var ratingHelpfulness = ratingService.createRatingHelpfulness(userId, req);
+        return ResponseEntity.ok(new Resource<>(ratingHelpfulness));
     }
 
     @GetMapping

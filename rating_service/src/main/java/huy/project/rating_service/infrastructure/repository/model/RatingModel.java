@@ -26,4 +26,8 @@ public class RatingModel extends AuditTable {
     private String comment;
     @Column(name = "language_id")
     private Long languageId;
+    @Column(name = "number_of_helpful")
+    private Integer numberOfHelpful;
+    @Column(name = "number_of_un_helpful")
+    private Integer numberOfUnHelpful;
 }

@@ -26,6 +26,8 @@ public class CreateRatingUseCase {
         validateRequest(req);
 
         var rating = RatingMapper.INSTANCE.toEntity(req);
+        rating.setNumberOfHelpful(0);
+        rating.setNumberOfUnhelpful(0);
         rating = ratingPort.save(rating);
 
         var ratingSummary = ratingSummaryPort.getRatingSummaryByAccId(req.getAccommodationId());

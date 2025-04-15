@@ -17,6 +17,7 @@ public enum ErrorCode {
     RATING_NOT_FOUND(100008, "Rating not found", HttpStatus.NOT_FOUND),
     FORBIDDEN_CREATE_RATING_RESPONSE(100009, "Forbidden to create rating response", HttpStatus.FORBIDDEN),
     SAVE_RATING_RESPONSE_FAILED(100010, "Save rating response failed", HttpStatus.INTERNAL_SERVER_ERROR),
+    SAVE_RATING_HELPFUL_FAILED(100011, "Save rating helpful failed", HttpStatus.INTERNAL_SERVER_ERROR),
     ;
 
 
