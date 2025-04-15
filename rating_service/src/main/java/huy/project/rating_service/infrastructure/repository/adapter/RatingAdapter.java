@@ -37,4 +37,9 @@ public class RatingAdapter implements IRatingPort {
         var pageInfo = PageUtils.getPageInfo(ratings);
         return Pair.of(pageInfo, RatingMapper.INSTANCE.toListEntity(ratings.getContent()));
     }
+
+    @Override
+    public RatingEntity getRatingById(Long id) {
+        return RatingMapper.INSTANCE.toEntity(ratingRepository.findById(id).orElse(null));
+    }
 }
