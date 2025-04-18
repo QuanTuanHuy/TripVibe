@@ -19,6 +19,13 @@ public class FileResourceMapper {
                 .contentType(entity.getContentType())
                 .url(entity.getUrl())
                 .createdBy(entity.getCreatedBy())
+                .category(entity.getCategory())
+                .referenceId(entity.getReferenceId())
+                .referenceType(entity.getReferenceType())
+                .tags(entity.getTags())
+                .description(entity.getDescription())
+                .isPublic(entity.getIsPublic())
+                .groupId(entity.getGroupId())
                 .build();
     }
 
@@ -37,6 +44,13 @@ public class FileResourceMapper {
                 .createdBy(model.getCreatedBy())
                 .createdAt(model.getCreatedAt() != null ?
                         model.getCreatedAt().atZone(ZoneId.systemDefault()).toInstant().toEpochMilli() : null)
+                .category(model.getCategory())
+                .referenceId(model.getReferenceId())
+                .referenceType(model.getReferenceType())
+                .tags(model.getTags())
+                .description(model.getDescription())
+                .isPublic(model.getIsPublic())
+                .groupId(model.getGroupId())
                 .build();
     }
 

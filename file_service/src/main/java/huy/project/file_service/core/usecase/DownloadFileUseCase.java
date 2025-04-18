@@ -5,6 +5,7 @@ import huy.project.file_service.core.domain.entity.FileResourceEntity;
 import huy.project.file_service.core.exception.AppException;
 import huy.project.file_service.core.port.IFileResourcePort;
 import huy.project.file_service.core.port.IFileStoragePort;
+import huy.project.file_service.kernel.utils.AuthenUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.Resource;
@@ -23,9 +24,19 @@ public class DownloadFileUseCase {
 
     public Pair<Resource, FileResourceEntity> downloadFile(Long id) {
         var fileResource = fileResourcePort.getFileResourceById(id);
+
         if (fileResource == null) {
             log.error("File resource not found, id: {}", id);
             throw new AppException(ErrorCode.FILE_NOT_FOUND);
+        }
+
+        if (!fileResource.getIsPublic()) {
+            // check if user is allowed to download
+            Long userId = AuthenUtils.getCurrentUserId();
+            if (!fileResource.getCreatedBy().equals(userId)) {
+                log.error("User {} is not allowed to download file {}", userId, id);
+                throw new AppException(ErrorCode.FORBIDDEN_DOWNLOAD_FILE);
+            }
         }
 
         var path = fileStoragePort.getFilePath(fileResource.getFileName());

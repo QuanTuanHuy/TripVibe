@@ -16,4 +16,12 @@ public class FileResourceEntity {
     private String url;
     private Long createdAt;
     private Long createdBy;
+
+    private String category;
+    private String referenceId;
+    private String referenceType;
+    private String tags;
+    private String description;
+    private Boolean isPublic;
+    private String groupId;
 }

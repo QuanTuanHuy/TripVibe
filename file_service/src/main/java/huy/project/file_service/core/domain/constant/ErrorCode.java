@@ -14,7 +14,8 @@ public enum ErrorCode {
     FILE_TYPE_NOT_SUPPORTED(100005, "File type is not supported", HttpStatus.BAD_REQUEST),
     FILE_NOT_FOUND(100006, "File not found", HttpStatus.NOT_FOUND),
     DELETE_FILE_ERROR(100007, "Could not delete file", HttpStatus.INTERNAL_SERVER_ERROR),
-    FORBIDDEN_DELETE_FILE(100008, "Forbidden to delete file", HttpStatus.FORBIDDEN)
+    FORBIDDEN_DELETE_FILE(100008, "Forbidden to delete file", HttpStatus.FORBIDDEN),
+    FORBIDDEN_DOWNLOAD_FILE(100009, "Forbidden to download file", HttpStatus.FORBIDDEN),
     ;
 
 
