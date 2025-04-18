@@ -11,4 +11,5 @@ public interface IRatingPort {
     RatingEntity save(RatingEntity rating);
     RatingEntity getRatingByUnitIdAndUserId(Long unitId, Long userId);
     Pair<PageInfo, List<RatingEntity>> getAllRatings(RatingParams params);
+    RatingEntity getRatingById(Long id);
 }

@@ -44,6 +44,9 @@ public class RatingSummaryMessageHandler {
 
         var ratingSummary = RatingSummaryEntity.builder()
                 .accommodationId(accId)
+                .isSyncedWithSearchService(false)
+                .numberOfRatings(0)
+                .totalRating(0L)
                 .build();
         ratingSummaryService.createRatingSummary(ratingSummary);
     }

@@ -16,4 +16,6 @@ public class RatingEntity {
     private String comment;
     private Long languageId;
     private Long createdAt;
+    private Integer numberOfHelpful;
+    private Integer numberOfUnhelpful;
 }

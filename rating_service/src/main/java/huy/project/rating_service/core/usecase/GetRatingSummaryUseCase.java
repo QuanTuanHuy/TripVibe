@@ -15,4 +15,8 @@ public class GetRatingSummaryUseCase {
     public List<RatingSummaryEntity> getRatingSummariesByAccIds(List<Long> accIds) {
         return ratingSummaryPort.getRatingSummariesByAccIds(accIds);
     }
+
+    public List<RatingSummaryEntity> getRatingSummariesToSync(int limit) {
+        return ratingSummaryPort.getRatingSummariesNotSynced(limit);
+    }
 }

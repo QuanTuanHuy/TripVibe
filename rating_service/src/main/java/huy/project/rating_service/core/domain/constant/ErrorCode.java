@@ -13,6 +13,13 @@ public enum ErrorCode {
     SERVICE_UNAVAILABLE(100004, "Service unavailable", HttpStatus.SERVICE_UNAVAILABLE),
     FORBIDDEN_CREATE_RATING(100005, "Forbidden to create rating", HttpStatus.FORBIDDEN),
     ACCOMMODATION_NOT_FOUND(100006, "Accommodation not found", HttpStatus.NOT_FOUND),
+    UPDATE_RATING_SUMMARY_FAILED(100007, "Update rating summary failed", HttpStatus.INTERNAL_SERVER_ERROR),
+    RATING_NOT_FOUND(100008, "Rating not found", HttpStatus.NOT_FOUND),
+    FORBIDDEN_CREATE_RATING_RESPONSE(100009, "Forbidden to create rating response", HttpStatus.FORBIDDEN),
+    SAVE_RATING_RESPONSE_FAILED(100010, "Save rating response failed", HttpStatus.INTERNAL_SERVER_ERROR),
+    SAVE_RATING_HELPFUL_FAILED(100011, "Save rating helpful failed", HttpStatus.INTERNAL_SERVER_ERROR),
+    SAVE_RATING_TREND_FAILED(100012, "Save rating trend failed", HttpStatus.INTERNAL_SERVER_ERROR),
+    SAVE_MONTHLY_RATING_FAILED(100013, "Save monthly rating failed", HttpStatus.INTERNAL_SERVER_ERROR),
     ;
 
 

@@ -9,4 +9,10 @@ public class TopicConstant {
         public static final String TOPIC = "rating_service.rating_summary";
         public static final String CREATE_RATING_SUMMARY = "create_rating_summary";
     }
+
+    @UtilityClass
+    public class SearchCommand {
+        public static final String TOPIC = "search_service.rating_summary";
+        public static final String SYNC_RATING_SUMMARY = "sync_rating_summary";
+    }
 }

@@ -12,7 +12,7 @@ import org.springframework.kafka.annotation.KafkaHandler;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Component;
 
-@KafkaListener(topics = TopicConstant.SearchCommand.TOPIC, groupId = "search_group")
+@KafkaListener(topics = TopicConstant.AccommodationCommand.TOPIC, groupId = "search_group")
 @RequiredArgsConstructor
 @Component
 @Slf4j
@@ -26,10 +26,10 @@ public class AccommodationMessageHandler {
         try {
             var kafkaBaseDto = jsonUtils.fromJson(message, KafkaBaseDto.class);
             switch (kafkaBaseDto.getCmd()) {
-                case TopicConstant.SearchCommand.CREATE_ACCOMMODATION:
+                case TopicConstant.AccommodationCommand.CREATE_ACCOMMODATION:
                     handleCreateAccommodation(kafkaBaseDto.getData());
                     break;
-                case TopicConstant.SearchCommand.ADD_UNIT_TO_ACC:
+                case TopicConstant.AccommodationCommand.ADD_UNIT_TO_ACC:
                     handleAddUnitToAccommodation(kafkaBaseDto.getData());
                     break;
                 default:

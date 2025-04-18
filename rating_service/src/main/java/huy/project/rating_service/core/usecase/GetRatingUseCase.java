@@ -1,16 +1,19 @@
 package huy.project.rating_service.core.usecase;
 
+import huy.project.rating_service.core.domain.constant.ErrorCode;
 import huy.project.rating_service.core.domain.dto.request.RatingParams;
 import huy.project.rating_service.core.domain.dto.response.PageInfo;
 import huy.project.rating_service.core.domain.dto.response.RatingDto;
 import huy.project.rating_service.core.domain.dto.response.UnitDto;
 import huy.project.rating_service.core.domain.dto.response.UserProfileDto;
 import huy.project.rating_service.core.domain.entity.RatingEntity;
+import huy.project.rating_service.core.domain.exception.AppException;
 import huy.project.rating_service.core.domain.mapper.RatingMapper;
 import huy.project.rating_service.core.port.IAccommodationPort;
 import huy.project.rating_service.core.port.IRatingPort;
 import huy.project.rating_service.core.port.IUserProfilePort;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.util.Pair;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
@@ -21,6 +24,7 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class GetRatingUseCase {
     private final IRatingPort ratingPort;
     private final IUserProfilePort userProfilePort;
@@ -55,5 +59,14 @@ public class GetRatingUseCase {
         });
 
         return Pair.of(result.getFirst(), ratingDtoList);
+    }
+
+    public RatingEntity getRatingById(Long id) {
+        var rating = ratingPort.getRatingById(id);
+        if (rating == null) {
+            log.error("Rating {} not found", id);
+            throw new AppException(ErrorCode.RATING_NOT_FOUND);
+        }
+        return rating;
     }
 }
