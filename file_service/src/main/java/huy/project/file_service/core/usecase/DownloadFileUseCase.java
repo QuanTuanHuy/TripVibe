@@ -48,4 +48,31 @@ public class DownloadFileUseCase {
             throw new AppException(ErrorCode.FILE_STORAGE_ERROR);
         }
     }
+
+    public Pair<Resource, FileResourceEntity> downloadFile(String fileName) {
+        var fileResource = fileResourcePort.getFileResourceByName(fileName);
+
+        if (fileResource == null) {
+            log.error("File resource not found, fileName: {}", fileName);
+            throw new AppException(ErrorCode.FILE_NOT_FOUND);
+        }
+
+        if (!fileResource.getIsPublic()) {
+            // check if user is allowed to download
+            Long userId = AuthenUtils.getCurrentUserId();
+            if (!fileResource.getCreatedBy().equals(userId)) {
+                log.error("User {} is not allowed to download file {}", userId, fileName);
+                throw new AppException(ErrorCode.FORBIDDEN_DOWNLOAD_FILE);
+            }
+        }
+
+        var path = fileStoragePort.getFilePath(fileName);
+        try {
+            var resource = new UrlResource(path.toUri());
+            return Pair.of(resource, fileResource);
+        } catch (MalformedURLException e) {
+            log.error("Could not load file as resource", e);
+            throw new AppException(ErrorCode.FILE_STORAGE_ERROR);
+        }
+    }
 }

@@ -11,6 +11,7 @@ import java.util.List;
 public interface IFileStorageService {
     List<FileResourceEntity> storeFiles(Long userId, MultipartFile[] files);
     Pair<Resource, FileResourceEntity> downloadFile(Long id);
+    Pair<Resource, FileResourceEntity> downloadFile(String fileName);
     void deleteFiles(Long userId, List<Long> id);
     List<FileResourceEntity> storeFilesWithClassification(
             Long userId, MultipartFile[] files, StoreFileClassificationDto storeFileClassificationDto);

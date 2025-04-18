@@ -35,6 +35,11 @@ public class FileStorageService implements IFileStorageService {
     }
 
     @Override
+    public Pair<Resource, FileResourceEntity> downloadFile(String fileName) {
+        return downloadFileUseCase.downloadFile(fileName);
+    }
+
+    @Override
     public void deleteFiles(Long userId, List<Long> ids) {
         deleteFileUseCase.deleteFiles(userId, ids);
     }

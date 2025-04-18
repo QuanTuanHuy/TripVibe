@@ -51,6 +51,20 @@ public class FileStorageController {
                 userId, files, storeFileClassification)));
     }
 
+    @GetMapping("/download/fileName/{fileName}")
+    public ResponseEntity<org.springframework.core.io.Resource> downloadFile(
+            @PathVariable String fileName)
+    {
+        var result = fileStorageService.downloadFile(fileName);
+        var resource = result.getFirst();
+        var fileResource = result.getSecond();
+
+        return ResponseEntity.ok()
+                .contentType(MediaType.parseMediaType(fileResource.getContentType()))
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + resource.getFilename() + "\"")
+                .body(resource);
+    }
+
     @GetMapping("/download/{id}")
     public ResponseEntity<org.springframework.core.io.Resource> downloadFile(
             @PathVariable Long id)
