@@ -7,7 +7,6 @@ import huy.project.file_service.core.domain.entity.FileResourceEntity;
 import huy.project.file_service.core.port.IFileResourcePort;
 import huy.project.file_service.core.port.IFileStoragePort;
 import huy.project.file_service.core.processor.ImageProcessor;
-import huy.project.file_service.kernel.utils.JsonUtils;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -21,7 +20,6 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.imageio.ImageIO;
-import java.io.IOException;
 import java.util.*;
 
 @Service
@@ -32,8 +30,6 @@ public class StoreFileUseCase {
     IFileStoragePort fileStoragePort;
     IFileResourcePort fileResourcePort;
     ImageProcessor imageProcessor;
-
-    JsonUtils jsonUtils;
 
     @NonFinal
     @Value("${app.file-storage.download-url}")
@@ -110,10 +106,11 @@ public class StoreFileUseCase {
                         // Lưu URL
                         versionUrls.put(size.name(), fileName);
 
-                        // Lưu thông tin vào file resource
-                        var fileResource = buildFileResource(f, baseFileName + "." + extension, userId, storeFileClassificationDto, versionUrls, width, height);
-                        fileResources.add(fileResource);
                     }
+                    // Lưu thông tin vào file resource
+                    var fileResource = buildFileResource(f, baseFileName + "." + extension, userId, storeFileClassificationDto, versionUrls, width, height);
+                    fileResources.add(fileResource);
+
                 } catch (Exception e) {
                     log.error("Error processing image: {}", e.getMessage());
                 }
