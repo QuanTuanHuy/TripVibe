@@ -18,11 +18,19 @@ const Header: React.FC = () => {
     router.push('/myaccount');
   };
 
+  const handleHomeClick = () => {
+    router.push('/');
+  }
+
   return (
-    <header className="bg-blue-800 text-white">
+    <header className="bg-[#003b95] text-white">
       <div className="container mx-auto px-4 py-3">
         <div className="flex flex-col md:flex-row items-center justify-between">
-          <div className="text-2xl font-bold">Booking</div>
+          <div
+            className="text-2xl font-bold cursor-pointer"
+            onClick={handleHomeClick}>
+            Booking
+          </div>
           <div className="flex items-center space-x-4 mt-2 md:mt-0 flex-wrap justify-center">
             <div className="flex items-center">
               <span>VND</span>
@@ -36,19 +44,19 @@ const Header: React.FC = () => {
               <span className="sr-only">Help</span>
               <span className="text-xl">?</span>
             </button>
-            <div 
+            <div
               className="cursor-pointer hover:underline"
               onClick={handleAccountClick}
             >
               Đăng chờ nghỉ của Quý vị
             </div>
-            <button 
+            <button
               className="px-4 py-2 bg-white text-blue-800 rounded-md font-medium cursor-pointer"
               onClick={handleRegisterClick}
             >
               Đăng ký
             </button>
-            <button 
+            <button
               className="px-4 py-2 border border-white rounded-md font-medium cursor-pointer"
               onClick={handleLoginClick}
             >
