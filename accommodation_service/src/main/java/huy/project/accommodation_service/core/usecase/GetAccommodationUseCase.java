@@ -52,7 +52,7 @@ public class GetAccommodationUseCase {
         accommodation.setUnits(getUnitUseCase.getUnitsByAccommodationId(id));
         accommodation.setAmenities(getAccAmenityUseCase.getAccAmenitiesByAccId(id));
         accommodation.setLanguages(getAccLanguageUseCase.getLanguageByAccId(id));
-        accommodation.setType(getAccTypeUseCase.getAccommodationTypeById(id));
+        accommodation.setType(getAccTypeUseCase.getAccommodationTypeById(accommodation.getTypeId()));
 
         // set to cache
         cachePort.setToCache(cacheKey, accommodation, CacheConstant.DEFAULT_TTL);

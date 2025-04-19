@@ -31,6 +31,17 @@ public class AccommodationController {
         return ResponseEntity.ok(new Resource<>(accommodationService.createAccommodation(userId, req)));
     }
 
+    @PostMapping("/v2")
+    public ResponseEntity<Resource<AccommodationEntity>> createAccommodationV2(
+            @RequestPart(value = "accommodationJson") String accommodationJson,
+            @RequestPart(value = "images", required = false) List<MultipartFile> images
+    ) {
+        Long userId = AuthenUtils.getCurrentUserId();
+        var req = jsonUtils.fromJson(accommodationJson, CreateAccommodationDtoV2.class);
+        return ResponseEntity.ok(new Resource<>(accommodationService.createAccommodationV2(userId, req, images)));
+    }
+
+
     @GetMapping("/{id}")
     public ResponseEntity<Resource<AccommodationEntity>> getDetailAccommodation(
             @PathVariable Long id
@@ -80,14 +91,14 @@ public class AccommodationController {
         return ResponseEntity.ok(new Resource<>(null));
     }
 
-    @PostMapping("/{id}/units_v2")
+    @PostMapping("/{id}/units/v2")
     public ResponseEntity<Resource<?>> addUnitToAccommodationV2(
             @PathVariable Long id,
             @RequestPart(name = "unitData") String unitDataJson,
             @RequestPart(value = "images", required = false) List<MultipartFile> images
     ) {
         Long userId = AuthenUtils.getCurrentUserId();
-        CreateUnitDto req = jsonUtils.fromJson(unitDataJson, CreateUnitDto.class);
+        var req = jsonUtils.fromJson(unitDataJson, CreateUnitDtoV2.class);
         accommodationService.addUnitToAccommodationV2(userId, id, req, images);
         return ResponseEntity.ok(new Resource<>(null));
     }

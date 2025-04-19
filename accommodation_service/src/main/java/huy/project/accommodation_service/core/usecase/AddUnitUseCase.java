@@ -3,6 +3,7 @@ package huy.project.accommodation_service.core.usecase;
 import huy.project.accommodation_service.core.domain.constant.ErrorCode;
 import huy.project.accommodation_service.core.domain.constant.TopicConstant;
 import huy.project.accommodation_service.core.domain.dto.request.CreateUnitDto;
+import huy.project.accommodation_service.core.domain.dto.request.CreateUnitDtoV2;
 import huy.project.accommodation_service.core.domain.kafka.AddUnitToAccElasticMessage;
 import huy.project.accommodation_service.core.domain.kafka.AddUnitToAccMessage;
 import huy.project.accommodation_service.core.exception.AppException;
@@ -46,7 +47,7 @@ public class AddUnitUseCase {
     }
 
     @Transactional
-    public void addUnitV2(Long userId, Long accId, CreateUnitDto req, List<MultipartFile> files) {
+    public void addUnitV2(Long userId, Long accId, CreateUnitDtoV2 req, List<MultipartFile> files) {
         if (!accValidation.accommodationExistToHost(userId, accId)) {
             log.error("Accommodation with id {} not found or not belong to user {}", accId, userId);
             throw new AppException(ErrorCode.ACCOMMODATION_NOT_FOUND);

@@ -28,6 +28,11 @@ public class AccommodationService implements IAccommodationService {
     }
 
     @Override
+    public AccommodationEntity createAccommodationV2(Long userId, CreateAccommodationDtoV2 req, List<MultipartFile> images) {
+        return createAccommodationUseCase.createAccommodationV2(userId, req, images);
+    }
+
+    @Override
     public AccommodationEntity getDetailAccommodation(Long id) {
         var accommodation = getAccommodationUseCase.getDetailAccommodation(id);
         getAccommodationUseCase.pushTouristViewHistory(id);
@@ -40,7 +45,7 @@ public class AccommodationService implements IAccommodationService {
     }
 
     @Override
-    public void addUnitToAccommodationV2(Long userId, Long accId, CreateUnitDto req, List<MultipartFile> files) {
+    public void addUnitToAccommodationV2(Long userId, Long accId, CreateUnitDtoV2 req, List<MultipartFile> files) {
         addUnitUseCase.addUnitV2(userId, accId, req, files);
     }
 

@@ -2,6 +2,7 @@ package huy.project.accommodation_service.core.usecase;
 
 import huy.project.accommodation_service.core.domain.constant.ImageEntityType;
 import huy.project.accommodation_service.core.domain.dto.request.CreateUnitDto;
+import huy.project.accommodation_service.core.domain.dto.request.CreateUnitDtoV2;
 import huy.project.accommodation_service.core.domain.dto.response.FileResourceResponse;
 import huy.project.accommodation_service.core.domain.entity.*;
 import huy.project.accommodation_service.core.domain.mapper.UnitMapper;
@@ -112,7 +113,7 @@ public class CreateUnitUseCase {
     }
 
     @Transactional(rollbackFor = Exception.class)
-    public UnitEntity createUnitV2(Long accommodationId, CreateUnitDto req, List<MultipartFile> images) {
+    public UnitEntity createUnitV2(Long accommodationId, CreateUnitDtoV2 req, List<MultipartFile> images) {
         // validate request
         var validationResult = unitValidation.validateCreateUnitDto(req);
         if (!validationResult.getFirst()) {
@@ -135,7 +136,7 @@ public class CreateUnitUseCase {
                             .needToReserve(amenity.getNeedToReserve())
                             .build())
                     .toList();
-            unitAmenityPort.saveAll(unitAmenities);
+            unit.setAmenities(unitAmenityPort.saveAll(unitAmenities));
         }
 
         // create unit price types
@@ -147,7 +148,7 @@ public class CreateUnitUseCase {
                             .percentage(priceType.getPercentage())
                             .build())
                     .toList();
-            unitPriceTypePort.saveAll(unitPriceTypes);
+            unit.setPriceTypes(unitPriceTypePort.saveAll(unitPriceTypes));
         }
 
         // create unit price groups
@@ -159,7 +160,7 @@ public class CreateUnitUseCase {
                             .percentage(priceGroup.getPercentage())
                             .build())
                     .toList();
-            unitPriceGroupPort.saveAll(unitPriceGroups);
+            unit.setPriceGroups(unitPriceGroupPort.saveAll(unitPriceGroups));
         }
 
         // create unit images
@@ -176,7 +177,7 @@ public class CreateUnitUseCase {
                             .isPrimary(false)
                             .build())
                     .toList();
-            imagePort.saveAll(unitImages);
+            unit.setImages(imagePort.saveAll(unitImages));
         }
 
         // create bedrooms

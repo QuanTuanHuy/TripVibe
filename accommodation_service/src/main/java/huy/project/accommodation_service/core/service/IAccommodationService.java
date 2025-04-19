@@ -9,9 +9,10 @@ import java.util.List;
 
 public interface IAccommodationService {
     AccommodationEntity createAccommodation(Long userId, CreateAccommodationDto req);
+    AccommodationEntity createAccommodationV2(Long userId, CreateAccommodationDtoV2 req, List<MultipartFile> images);
     AccommodationEntity getDetailAccommodation(Long id);
     void addUnitToAccommodation(Long userId, Long accId, CreateUnitDto req);
-    void addUnitToAccommodationV2(Long userId, Long accId, CreateUnitDto req, List<MultipartFile> files);
+    void addUnitToAccommodationV2(Long userId, Long accId, CreateUnitDtoV2 req, List<MultipartFile> files);
     void updateUnitImage(Long userId, Long accId, Long unitId, UpdateUnitImageDto req);
     void updateAccAmenity(Long userId, Long accId, UpdateAccAmenityDto req);
     void updateUnitAmenity(Long userId, Long accId, Long unitId, UpdateUnitAmenityDto req);
