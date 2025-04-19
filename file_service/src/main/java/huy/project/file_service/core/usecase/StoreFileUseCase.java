@@ -85,6 +85,7 @@ public class StoreFileUseCase {
                     // Tạo tên file ngẫu nhiên để tránh trùng lặp
                     String baseFileName = UUID.randomUUID().toString();
                     String extension = StringUtils.getFilenameExtension(f.getOriginalFilename());
+                    log.info("original file name: {}", f.getOriginalFilename());
 
                     // Lưu các phiên bản xuống đĩa
                     Map<String, String> versionUrls = new HashMap<>();
@@ -146,7 +147,7 @@ public class StoreFileUseCase {
                 .height(height)
                 .versions(versions)
                 // Thông tin phân loại
-                .category(FileCategory.valueOf(dto.getCategory()).getCode())
+                .category(StringUtils.hasText(dto.getCategory()) ? FileCategory.valueOf(dto.getCategory()).getCode() : null)
                 .referenceId(dto.getReferenceId())
                 .referenceType(dto.getReferenceType())
                 .tags(tagsString)
