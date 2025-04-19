@@ -3,6 +3,7 @@ package huy.project.accommodation_service.core.usecase;
 import huy.project.accommodation_service.core.domain.constant.ErrorCode;
 import huy.project.accommodation_service.core.domain.constant.TopicConstant;
 import huy.project.accommodation_service.core.domain.dto.request.CreateUnitDto;
+import huy.project.accommodation_service.core.domain.dto.request.CreateUnitDtoV2;
 import huy.project.accommodation_service.core.domain.kafka.AddUnitToAccElasticMessage;
 import huy.project.accommodation_service.core.domain.kafka.AddUnitToAccMessage;
 import huy.project.accommodation_service.core.exception.AppException;
@@ -14,6 +15,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -35,6 +39,21 @@ public class AddUnitUseCase {
         }
 
         var newUnit = createUnitUseCase.createUnit(accId, req);
+
+        pushMessageToKafka(accId, newUnit.getId());
+
+        // clear cache
+        cachePort.deleteFromCache(CacheUtils.buildCacheKeyGetAccommodationById(accId));
+    }
+
+    @Transactional
+    public void addUnitV2(Long userId, Long accId, CreateUnitDtoV2 req, List<MultipartFile> files) {
+        if (!accValidation.accommodationExistToHost(userId, accId)) {
+            log.error("Accommodation with id {} not found or not belong to user {}", accId, userId);
+            throw new AppException(ErrorCode.ACCOMMODATION_NOT_FOUND);
+        }
+
+        var newUnit = createUnitUseCase.createUnitV2(accId, req, files);
 
         pushMessageToKafka(accId, newUnit.getId());
 

@@ -17,6 +17,7 @@ public class AccommodationEntity {
     private Long currencyId;
     private String name;
     private String description;
+    private String thumbnailUrl;
     private Long checkInTimeFrom;
     private Long checkInTimeTo;
     private Long checkOutTimeFrom;

@@ -4,16 +4,24 @@ import huy.project.accommodation_service.core.domain.dto.request.*;
 import huy.project.accommodation_service.core.domain.entity.AccommodationEntity;
 import huy.project.accommodation_service.core.service.IAccommodationService;
 import huy.project.accommodation_service.kernel.utils.AuthenUtils;
+import huy.project.accommodation_service.kernel.utils.JsonUtils;
 import huy.project.accommodation_service.ui.resource.Resource;
+import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
+import lombok.experimental.FieldDefaults;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/public/v1/accommodations")
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @RequiredArgsConstructor
 public class AccommodationController {
-    private final IAccommodationService accommodationService;
+    IAccommodationService accommodationService;
+    JsonUtils jsonUtils;
 
     @PostMapping
     public ResponseEntity<Resource<AccommodationEntity>> createAccommodation(
@@ -22,6 +30,17 @@ public class AccommodationController {
         Long userId = AuthenUtils.getCurrentUserId();
         return ResponseEntity.ok(new Resource<>(accommodationService.createAccommodation(userId, req)));
     }
+
+    @PostMapping("/v2")
+    public ResponseEntity<Resource<AccommodationEntity>> createAccommodationV2(
+            @RequestPart(value = "accommodationJson") String accommodationJson,
+            @RequestPart(value = "images", required = false) List<MultipartFile> images
+    ) {
+        Long userId = AuthenUtils.getCurrentUserId();
+        var req = jsonUtils.fromJson(accommodationJson, CreateAccommodationDtoV2.class);
+        return ResponseEntity.ok(new Resource<>(accommodationService.createAccommodationV2(userId, req, images)));
+    }
+
 
     @GetMapping("/{id}")
     public ResponseEntity<Resource<AccommodationEntity>> getDetailAccommodation(
@@ -69,6 +88,18 @@ public class AccommodationController {
     ) {
         Long userId = AuthenUtils.getCurrentUserId();
         accommodationService.addUnitToAccommodation(userId, id, req);
+        return ResponseEntity.ok(new Resource<>(null));
+    }
+
+    @PostMapping("/{id}/units/v2")
+    public ResponseEntity<Resource<?>> addUnitToAccommodationV2(
+            @PathVariable Long id,
+            @RequestPart(name = "unitData") String unitDataJson,
+            @RequestPart(value = "images", required = false) List<MultipartFile> images
+    ) {
+        Long userId = AuthenUtils.getCurrentUserId();
+        var req = jsonUtils.fromJson(unitDataJson, CreateUnitDtoV2.class);
+        accommodationService.addUnitToAccommodationV2(userId, id, req, images);
         return ResponseEntity.ok(new Resource<>(null));
     }
 

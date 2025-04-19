@@ -63,6 +63,18 @@ public class FileStorageAdapter implements IFileStoragePort {
     }
 
     @Override
+    public String storeFile(String fileName, byte[] data) {
+        try {
+            Path targetLocation = getFilePath(fileName);
+            Files.write(targetLocation, data);
+            return fileName;
+        } catch (Exception e) {
+            log.error("Could not store file", e);
+            throw new AppException(ErrorCode.FILE_STORAGE_ERROR);
+        }
+    }
+
+    @Override
     public Path getFilePath(String fileName) {
         return fileStorageLocation.resolve(fileName).normalize();
     }
@@ -78,7 +90,7 @@ public class FileStorageAdapter implements IFileStoragePort {
         }
     }
 
-    private String generateFileName(MultipartFile file) {
+    public String generateFileName(MultipartFile file) {
         String originalFileName = StringUtils.cleanPath(Objects.requireNonNull(file.getOriginalFilename()));
         String extension = getFileExtension(originalFileName);
         String timestamp = String.valueOf(System.currentTimeMillis());

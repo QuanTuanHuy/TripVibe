@@ -32,6 +32,7 @@ public enum ErrorCode {
     FORBIDDEN_RESTORE_UNIT(100020, "Forbidden to restore unit", HttpStatus.FORBIDDEN),
     UNIT_ALREADY_DELETED(100020, "Unit already deleted", HttpStatus.BAD_REQUEST),
     UNIT_NOT_DELETED(100021, "Unit not deleted", HttpStatus.BAD_REQUEST),
+    SERVICE_UNAVAILABLE(100022, "Service unavailable", HttpStatus.SERVICE_UNAVAILABLE),
     ;
 
 

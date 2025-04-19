@@ -3,6 +3,8 @@ package huy.project.accommodation_service.infrastructure.repository.model;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.Map;
+
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
@@ -25,4 +27,7 @@ public class ImageModel extends AuditTable {
 
     @Column(name = "is_primary")
     private Boolean isPrimary;
+
+    @Column(name = "versions", columnDefinition = "TEXT")
+    private String versions;
 }

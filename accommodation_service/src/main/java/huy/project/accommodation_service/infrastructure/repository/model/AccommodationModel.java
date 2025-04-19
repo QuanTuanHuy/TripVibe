@@ -35,6 +35,9 @@ public class AccommodationModel extends AuditTable {
     @Column(name = "description")
     private String description;
 
+    @Column(name = "thumbnail_url")
+    private String thumbnailUrl;
+
     @Column(name = "check_in_time_from")
     private Long checkInTimeFrom;
 

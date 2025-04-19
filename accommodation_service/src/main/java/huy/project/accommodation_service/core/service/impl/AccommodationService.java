@@ -7,6 +7,9 @@ import huy.project.accommodation_service.core.service.IAccommodationService;
 import huy.project.accommodation_service.core.usecase.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -25,6 +28,11 @@ public class AccommodationService implements IAccommodationService {
     }
 
     @Override
+    public AccommodationEntity createAccommodationV2(Long userId, CreateAccommodationDtoV2 req, List<MultipartFile> images) {
+        return createAccommodationUseCase.createAccommodationV2(userId, req, images);
+    }
+
+    @Override
     public AccommodationEntity getDetailAccommodation(Long id) {
         var accommodation = getAccommodationUseCase.getDetailAccommodation(id);
         getAccommodationUseCase.pushTouristViewHistory(id);
@@ -34,6 +42,11 @@ public class AccommodationService implements IAccommodationService {
     @Override
     public void addUnitToAccommodation(Long userId, Long accId, CreateUnitDto req) {
         addUnitUseCase.addUnit(userId, accId, req);
+    }
+
+    @Override
+    public void addUnitToAccommodationV2(Long userId, Long accId, CreateUnitDtoV2 req, List<MultipartFile> files) {
+        addUnitUseCase.addUnitV2(userId, accId, req, files);
     }
 
     @Override

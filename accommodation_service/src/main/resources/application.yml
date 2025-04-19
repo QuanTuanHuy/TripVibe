@@ -36,6 +36,9 @@ app:
   #        - PUT
   #        - DELETE
   #        - PATCH
+  services:
+    file_service:
+      url: localhost:8088/file_service/
   kafka:
     default-server: localhost:9094
   security:
