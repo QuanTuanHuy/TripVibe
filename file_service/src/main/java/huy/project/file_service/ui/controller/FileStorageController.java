@@ -1,7 +1,8 @@
 package huy.project.file_service.ui.controller;
 
 import huy.project.file_service.core.domain.dto.request.StoreFileClassificationDto;
-import huy.project.file_service.core.domain.entity.FileResourceEntity;
+import huy.project.file_service.core.domain.dto.response.FileResourceResponse;
+import huy.project.file_service.core.domain.mapper.FileResourceMapper;
 import huy.project.file_service.core.service.IFileStorageService;
 import huy.project.file_service.kernel.utils.AuthenUtils;
 import huy.project.file_service.ui.resource.Resource;
@@ -21,17 +22,19 @@ public class FileStorageController {
     private final IFileStorageService fileStorageService;
 
     @PostMapping("/upload")
-    public ResponseEntity<Resource<List<FileResourceEntity>>> uploadMultipleFiles(
+    public ResponseEntity<Resource<List<FileResourceResponse>>> uploadMultipleFiles(
             @RequestParam("files") MultipartFile[] files)
     {
         Long userId = AuthenUtils.getCurrentUserId();
-        return ResponseEntity.ok(new Resource<>(fileStorageService.storeFiles(userId, files)));
+        var response = fileStorageService.storeFiles(userId, files).stream()
+                .map(FileResourceMapper::toResponse).toList();
+        return ResponseEntity.ok(new Resource<>(response));
     }
 
     @PostMapping("/upload/classified")
-    public ResponseEntity<Resource<List<FileResourceEntity>>> uploadClassifiedFiles(
+    public ResponseEntity<Resource<List<FileResourceResponse>>> uploadClassifiedFiles(
             @RequestParam("files") MultipartFile[] files,
-            @RequestParam("category") String category,
+            @RequestParam(value = "category", required = false) String category,
             @RequestParam(value = "referenceId", required = false) String referenceId,
             @RequestParam(value = "referenceType", required = false) String referenceType,
             @RequestParam(value = "tags", required = false) String[] tags,
@@ -47,8 +50,10 @@ public class FileStorageController {
                 .description(description)
                 .isPublic(isPublic)
                 .build();
-        return ResponseEntity.ok(new Resource<>(fileStorageService.storeFilesWithClassification(
-                userId, files, storeFileClassification)));
+        var response = fileStorageService.storeFilesWithClassification(
+                userId, files, storeFileClassification).stream()
+                .map(FileResourceMapper::toResponse).toList();
+        return ResponseEntity.ok(new Resource<>(response));
     }
 
     @GetMapping("/download/fileName/{fileName}")

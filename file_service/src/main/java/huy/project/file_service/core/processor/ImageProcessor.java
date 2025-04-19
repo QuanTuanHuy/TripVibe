@@ -15,6 +15,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 @Component
 @Slf4j
@@ -42,7 +43,7 @@ public class ImageProcessor {
         }
 
         // Lấy định dạng ảnh từ file gốc
-        String formatName = getFormatName(file.getOriginalFilename());
+        String formatName = getFormatName(Objects.requireNonNull(file.getOriginalFilename()));
 
         // Map lưu kết quả
         Map<ImageSize, byte[]> imageVersions = new HashMap<>();
@@ -96,21 +97,14 @@ public class ImageProcessor {
     public String getFormatName(String filename) {
         String extension = filename.substring(filename.lastIndexOf(".") + 1).toLowerCase();
 
-        switch (extension) {
-            case "jpg":
-            case "jpeg":
-                return "jpeg";
-            case "png":
-                return "png";
-            case "gif":
-                return "gif";
-            case "bmp":
-                return "bmp";
-            case "webp":
-                return "webp";
-            default:
-                return "jpeg"; // Mặc định
-        }
+        return switch (extension) {
+            case "jpg", "jpeg" -> "jpeg";
+            case "png" -> "png";
+            case "gif" -> "gif";
+            case "bmp" -> "bmp";
+            case "webp" -> "webp";
+            default -> "jpeg"; // Mặc định
+        };
     }
 
     /**
