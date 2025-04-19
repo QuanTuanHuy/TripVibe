@@ -26,4 +26,28 @@ public class FileResourceModel extends AuditTable {
     private String url;
     @Column(name = "created_by")
     private Long createdBy;
+
+    @Column(name = "is_image")
+    private Boolean isImage;
+    @Column(name = "width")
+    private Integer width;
+    @Column(name = "height")
+    private Integer height;
+    @Column(name = "versions", columnDefinition = "TEXT")
+    private String versions;
+
+    @Column(name = "category")
+    private String category;
+    @Column(name = "reference_id")
+    private String referenceId;
+    @Column(name = "reference_type")
+    private String referenceType;
+    @Column(name = "tags", columnDefinition = "TEXT")
+    private String tags;
+    @Column(name = "description")
+    private String description;
+    @Column(name = "is_public")
+    private Boolean isPublic;
+    @Column(name = "group_id")
+    private String groupId;
 }
