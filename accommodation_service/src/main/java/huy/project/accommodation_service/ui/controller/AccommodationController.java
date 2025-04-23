@@ -55,6 +55,7 @@ public class AccommodationController {
             @PathVariable Long unitId,
             @RequestBody UpdateUnitImageDto req
     ) {
+        // TODO: update multipart file instead of string
         Long userId = AuthenUtils.getCurrentUserId();
         accommodationService.updateUnitImage(userId, id, unitId, req);
         return ResponseEntity.ok(new Resource<>(null));

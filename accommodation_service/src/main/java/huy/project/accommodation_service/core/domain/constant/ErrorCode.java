@@ -33,6 +33,14 @@ public enum ErrorCode {
     UNIT_ALREADY_DELETED(100020, "Unit already deleted", HttpStatus.BAD_REQUEST),
     UNIT_NOT_DELETED(100021, "Unit not deleted", HttpStatus.BAD_REQUEST),
     SERVICE_UNAVAILABLE(100022, "Service unavailable", HttpStatus.SERVICE_UNAVAILABLE),
+    SAVE_PRICING_RULE_FAILED(100023, "Save pricing rule failed", HttpStatus.INTERNAL_SERVER_ERROR),
+    FORBIDDEN_CREATE_PRICING_RULE(100024, "Forbidden to create pricing rule", HttpStatus.FORBIDDEN),
+    INVALID_DATE(100025, "Invalid date", HttpStatus.BAD_REQUEST),
+    GENERAL_FORBIDDEN(100026, "General forbidden", HttpStatus.FORBIDDEN),
+    UNIT_NOT_BELONG_TO_HOST(100027, "Unit not belong to host", HttpStatus.FORBIDDEN),
+    FORBIDDEN_DELETE_PRICING_RULE(100028, "Forbidden to delete pricing rule", HttpStatus.FORBIDDEN),
+    PRICING_RULE_NOT_FOUND(100029, "Pricing rule not found", HttpStatus.NOT_FOUND),
+    DELETE_PRICING_RULE_FAILED(100030, "Delete pricing rule failed", HttpStatus.INTERNAL_SERVER_ERROR),
     ;
 
 

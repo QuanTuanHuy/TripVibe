@@ -5,8 +5,12 @@ import huy.project.accommodation_service.core.domain.dto.request.CreateAccommoda
 import huy.project.accommodation_service.core.domain.dto.request.CreateAccommodationDto;
 import huy.project.accommodation_service.core.domain.dto.request.CreateAccommodationDtoV2;
 import huy.project.accommodation_service.core.domain.entity.AccommodationEntity;
+import huy.project.accommodation_service.core.domain.entity.UnitEntity;
 import huy.project.accommodation_service.core.port.IAccommodationPort;
+import huy.project.accommodation_service.core.port.IUnitPort;
+import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
+import lombok.experimental.FieldDefaults;
 import org.springframework.data.util.Pair;
 import org.springframework.stereotype.Service;
 
@@ -14,11 +18,14 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class AccommodationValidation {
-    private final IAccommodationPort accommodationPort;
+    IUnitPort unitPort;
 
-    private final LanguageValidation languageValidation;
-    private final AmenityValidation amenityValidation;
+    IAccommodationPort accommodationPort;
+
+    LanguageValidation languageValidation;
+    AmenityValidation amenityValidation;
 
     public Pair<Boolean, ErrorCode> validateCreateAccommodationDto(CreateAccommodationDto req) {
         AccommodationEntity existedAcc = accommodationPort.getAccommodationByName(req.getName());
@@ -63,5 +70,21 @@ public class AccommodationValidation {
     public boolean accommodationExistToHost(Long userId, Long accId) {
         var existedAcc = accommodationPort.getAccommodationById(accId);
         return existedAcc != null && existedAcc.getHostId().equals(userId);
+    }
+
+    public Pair<Boolean, ErrorCode> isOwnerOfUnit(Long userId, Long unitId) {
+        UnitEntity unit = unitPort.getUnitById(unitId);
+        if (unit == null) {
+            return Pair.of(false, ErrorCode.UNIT_NOT_FOUND);
+        }
+        var accommodation = accommodationPort.getAccommodationById(unit.getAccommodationId());
+        if (accommodation == null) {
+            return Pair.of(false, ErrorCode.ACCOMMODATION_NOT_FOUND);
+        }
+        var isOwner = accommodation.getHostId().equals(userId);
+        if (!isOwner) {
+            return Pair.of(false, ErrorCode.UNIT_NOT_BELONG_TO_HOST);
+        }
+        return Pair.of(true, ErrorCode.SUCCESS);
     }
 }
