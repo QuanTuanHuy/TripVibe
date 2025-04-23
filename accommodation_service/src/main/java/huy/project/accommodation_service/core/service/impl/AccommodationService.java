@@ -2,10 +2,14 @@ package huy.project.accommodation_service.core.service.impl;
 
 import huy.project.accommodation_service.core.domain.dto.request.*;
 import huy.project.accommodation_service.core.domain.dto.response.AccommodationDto;
+import huy.project.accommodation_service.core.domain.dto.response.PriceCalculationResponse;
 import huy.project.accommodation_service.core.domain.entity.AccommodationEntity;
+import huy.project.accommodation_service.core.domain.entity.PricingRuleEntity;
 import huy.project.accommodation_service.core.service.IAccommodationService;
 import huy.project.accommodation_service.core.usecase.*;
+import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
+import lombok.experimental.FieldDefaults;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -13,14 +17,21 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class AccommodationService implements IAccommodationService {
-    private final CreateAccommodationUseCase createAccommodationUseCase;
-    private final GetAccommodationUseCase getAccommodationUseCase;
-    private final UpdateAccommodationUseCase updateAccommodationUseCase;
-    private final UpdateUnitUseCase updateUnitUseCase;
-    private final AddUnitUseCase addUnitUseCase;
-    private final DeleteUnitUseCase deleteUnitUseCase;
-    private final RestoreUnitUseCase restoreUnitUseCase;
+    CreateAccommodationUseCase createAccommodationUseCase;
+    GetAccommodationUseCase getAccommodationUseCase;
+    UpdateAccommodationUseCase updateAccommodationUseCase;
+
+    UpdateUnitUseCase updateUnitUseCase;
+    AddUnitUseCase addUnitUseCase;
+    DeleteUnitUseCase deleteUnitUseCase;
+    RestoreUnitUseCase restoreUnitUseCase;
+
+    CreatePricingRuleUseCase createPricingRuleUseCase;
+    DeletePricingRuleUseCase deletePricingRuleUseCase;
+    GetPricingRuleUseCase getPricingRuleUseCase;
+    CalculateDynamicPriceUseCase calculateDynamicPriceUseCase;
 
     @Override
     public AccommodationEntity createAccommodation(Long userId, CreateAccommodationDto req) {
@@ -87,5 +98,25 @@ public class AccommodationService implements IAccommodationService {
     @Override
     public AccommodationDto getAccDtoById(Long id) {
         return getAccommodationUseCase.getAccDtoById(id);
+    }
+
+    @Override
+    public PricingRuleEntity createPricingRule(Long userId, Long unitId, CreatePricingRuleDto req) {
+        return createPricingRuleUseCase.createPricingRule(userId, unitId, req);
+    }
+
+    @Override
+    public List<PricingRuleEntity> getPricingRulesByUnitId(Long unitId) {
+        return getPricingRuleUseCase.getPricingRulesByUnitId(unitId);
+    }
+
+    @Override
+    public void deletePricingRule(Long userId, Long unitId, Long pricingRuleId) {
+        deletePricingRuleUseCase.deletePricingRule(userId, unitId, pricingRuleId);
+    }
+
+    @Override
+    public PriceCalculationResponse calculatePrice(PriceCalculationRequest request) {
+        return calculateDynamicPriceUseCase.calculatePrice(request);
     }
 }

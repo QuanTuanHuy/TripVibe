@@ -13,6 +13,9 @@ import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
@@ -44,5 +47,15 @@ public class PricingRuleAdapter implements IPricingRulePort {
             log.error("Error when deleting pricing rule: {}", e.getMessage());
             throw new AppException(ErrorCode.DELETE_PRICING_RULE_FAILED);
         }
+    }
+
+    @Override
+    public List<PricingRuleEntity> getPricingRulesByUnitId(Long unitId) {
+        return PricingRuleMapper.INSTANCE.toListEntity(pricingRuleRepository.findByUnitId(unitId));
+    }
+
+    @Override
+    public List<PricingRuleEntity> getPricingRulesByUnitIdAndDateRange(Long unitId, LocalDate startDate, LocalDate endDate) {
+        return PricingRuleMapper.INSTANCE.toListEntity(pricingRuleRepository.findByUnitIdAndDateRange(unitId, startDate, endDate));
     }
 }

@@ -5,6 +5,8 @@ import huy.project.accommodation_service.infrastructure.repository.model.Pricing
 import org.mapstruct.Mapper;
 import org.mapstruct.factory.Mappers;
 
+import java.util.List;
+
 @Mapper
 public abstract class PricingRuleMapper {
     public static final PricingRuleMapper INSTANCE = Mappers.getMapper(PricingRuleMapper.class);
@@ -12,4 +14,6 @@ public abstract class PricingRuleMapper {
     public abstract PricingRuleEntity toEntity(PricingRuleModel pricingRuleModel);
 
     public abstract PricingRuleModel toModel(PricingRuleEntity pricingRuleEntity);
+
+    public abstract List<PricingRuleEntity> toListEntity(List<PricingRuleModel> models);
 }

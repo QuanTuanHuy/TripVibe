@@ -41,6 +41,7 @@ public enum ErrorCode {
     FORBIDDEN_DELETE_PRICING_RULE(100028, "Forbidden to delete pricing rule", HttpStatus.FORBIDDEN),
     PRICING_RULE_NOT_FOUND(100029, "Pricing rule not found", HttpStatus.NOT_FOUND),
     DELETE_PRICING_RULE_FAILED(100030, "Delete pricing rule failed", HttpStatus.INTERNAL_SERVER_ERROR),
+    PRICE_GROUP_NOT_FOUND(100031, "Price group not found", HttpStatus.NOT_FOUND),
     ;
 
 
