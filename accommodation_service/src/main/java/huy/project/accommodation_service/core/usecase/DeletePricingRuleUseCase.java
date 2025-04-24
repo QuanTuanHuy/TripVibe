@@ -18,6 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class DeletePricingRuleUseCase {
     IPricingRulePort pricingRulePort;
     AccommodationValidation accValidation;
+    PriceCalculationCacheUseCase priceCalculationCacheUseCase;
 
     @Transactional(rollbackFor = Exception.class)
     public void deletePricingRule(Long userId, Long unitId, Long pricingRuleId) {
@@ -39,6 +40,11 @@ public class DeletePricingRuleUseCase {
             throw new AppException(ErrorCode.PRICING_RULE_NOT_FOUND);
         }
 
-        pricingRulePort.deletePricingRule(pricingRuleId);
+        // Invalidate cache
+        var success = priceCalculationCacheUseCase.invalidatePriceCache(unitId);
+
+        if (success)
+            pricingRulePort.deletePricingRule(pricingRuleId);
+        else throw new AppException(ErrorCode.DELETE_PRICING_RULE_FAILED);
     }
 }

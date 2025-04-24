@@ -7,6 +7,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 @Service
@@ -55,6 +56,19 @@ public class RedisCacheAdapter implements ICachePort {
             redisTemplate.delete(key);
         } catch (Exception e) {
             log.error("Error when delete from cache, err: {}", e.getMessage());
+        }
+    }
+
+    @Override
+    public void deleteKeysByPattern(String pattern) {
+        try {
+            Set<String> keys = redisTemplate.keys(pattern);
+            if (keys != null && !keys.isEmpty()) {
+                redisTemplate.delete(keys);
+                log.debug("Deleted keys by pattern: {}", pattern);
+            }
+        } catch (Exception e) {
+            log.error("Error when delete keys by pattern, err: {}", e.getMessage());
         }
     }
 }

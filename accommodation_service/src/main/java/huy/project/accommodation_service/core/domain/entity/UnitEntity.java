@@ -2,6 +2,7 @@ package huy.project.accommodation_service.core.domain.entity;
 
 import lombok.*;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 @NoArgsConstructor
@@ -14,10 +15,11 @@ public class UnitEntity {
     private Long accommodationId;
     private Long unitNameId;
     private String description;
-    private Long pricePerNight;
+    private BigDecimal pricePerNight;
     private Long maxGuest;
     private Boolean useSharedBathroom;
     private Boolean isDeleted;
+    private Integer quantity;
 
     private UnitNameEntity unitName;
     private List<ImageEntity> images;

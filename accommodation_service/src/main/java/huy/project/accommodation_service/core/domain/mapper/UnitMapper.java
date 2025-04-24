@@ -30,6 +30,7 @@ public abstract class UnitMapper {
                 .pricePerNight(req.getPricePerNight())
                 .maxGuest(req.getMaxGuest())
                 .useSharedBathroom(req.getUseSharedBathroom())
+                .quantity(req.getQuantity())
                 .build();
     }
 

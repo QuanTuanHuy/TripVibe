@@ -35,4 +35,7 @@ public class UnitModel extends AuditTable {
 
     @Column(name = "is_deleted")
     private Boolean isDeleted;
+
+    @Column(name = "quantity")
+    private Integer quantity;
 }

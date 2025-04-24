@@ -5,6 +5,7 @@ import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 
 @NoArgsConstructor
@@ -20,8 +21,14 @@ public class PricingRuleModel extends AuditTable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     Long id;
 
+    @Column(name = "accommodation_id")
+    Long accommodationId;
+
     @Column(name = "unit_id")
     Long unitId;
+
+    @Column(name = "name")
+    String name;
 
     @Column(name = "rule_type")
     @Enumerated(EnumType.STRING)
@@ -33,29 +40,29 @@ public class PricingRuleModel extends AuditTable {
     @Column(name = "end_date")
     LocalDate endDate;
 
-    @Column(name = "adjustment_type")
-    String adjustmentType; // PERCENTAGE, FIXED_AMOUNT
+    @Column(name = "apply_monday")
+    Boolean applyMonday;
+    @Column(name = "apply_tuesday")
+    Boolean applyTuesday;
+    @Column(name = "apply_wednesday")
+    Boolean applyWednesday;
+    @Column(name = "apply_thursday")
+    Boolean applyThursday;
+    @Column(name = "apply_friday")
+    Boolean applyFriday;
+    @Column(name = "apply_saturday")
+    Boolean applySaturday;
+    @Column(name = "apply_sunday")
+    Boolean applySunday;
 
-    @Column(name = "adjustment_value")
-    Long adjustmentValue;
-
-    @Column(name = "min_nights")
-    Integer minNights;
-
-    @Column(name = "max_nights")
-    Integer maxNights;
-
-    @Column(name = "min_occupancy")
-    Integer minOccupancy;
-
-    @Column(name = "max_occupancy")
-    Integer maxOccupancy;
-
-    @Column(name = "promotion_code")
-    String promotionCode;
-
-    @Column(name = "promotion_description")
-    String promotionDescription;
+    @Column(name = "price_multiplier")
+    BigDecimal priceMultiplier;
+    @Column(name = "fixed_adjustment")
+    BigDecimal fixedAdjustment;
+    @Column(name = "day_threshold")
+    Integer dayThreshold; // For early bird, last minute, or LOS
+    @Column(name = "additional_params", columnDefinition = "TEXT")
+    String additionalParams; // JSON for complex rule parameters
 
     @Column(name = "is_active")
     Boolean isActive;

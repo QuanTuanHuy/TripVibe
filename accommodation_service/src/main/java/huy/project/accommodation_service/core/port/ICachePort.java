@@ -5,4 +5,5 @@ public interface ICachePort {
     String getFromCache(String key);
     <T> T getFromCache(String key, Class<T> clazz);
     void deleteFromCache(String key);
+    void deleteKeysByPattern(String pattern);
 }

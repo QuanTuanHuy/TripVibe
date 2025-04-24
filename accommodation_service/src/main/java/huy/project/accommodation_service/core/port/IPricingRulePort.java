@@ -10,5 +10,5 @@ public interface IPricingRulePort {
     PricingRuleEntity getPricingRuleById(Long id);
     void deletePricingRule(Long id);
     List<PricingRuleEntity> getPricingRulesByUnitId(Long unitId);
-    List<PricingRuleEntity> getPricingRulesByUnitIdAndDateRange(Long unitId, LocalDate startDate, LocalDate endDate);
+    List<PricingRuleEntity> getActiveRulesByUnitIdAndDateRange(Long unitId, LocalDate startDate, LocalDate endDate);
 }

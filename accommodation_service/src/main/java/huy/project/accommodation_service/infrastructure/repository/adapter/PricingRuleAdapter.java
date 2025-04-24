@@ -55,7 +55,7 @@ public class PricingRuleAdapter implements IPricingRulePort {
     }
 
     @Override
-    public List<PricingRuleEntity> getPricingRulesByUnitIdAndDateRange(Long unitId, LocalDate startDate, LocalDate endDate) {
-        return PricingRuleMapper.INSTANCE.toListEntity(pricingRuleRepository.findByUnitIdAndDateRange(unitId, startDate, endDate));
+    public List<PricingRuleEntity> getActiveRulesByUnitIdAndDateRange(Long unitId, LocalDate startDate, LocalDate endDate) {
+        return PricingRuleMapper.INSTANCE.toListEntity(pricingRuleRepository.findActiveRulesByUnitIdAndDateRange(unitId, startDate, endDate));
     }
 }
