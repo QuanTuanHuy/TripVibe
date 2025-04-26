@@ -22,6 +22,8 @@ public abstract class UnitInventoryMapper {
 
     public abstract List<UnitInventoryEntity> toListEntity(List<UnitInventoryModel> models);
 
+    public abstract List<UnitInventoryModel> toListModel(List<UnitInventoryEntity> entities);
+
     @Named("fromLongToInstant")
     public Long fromInstantToLong(Instant instant) {
         return instant.toEpochMilli();

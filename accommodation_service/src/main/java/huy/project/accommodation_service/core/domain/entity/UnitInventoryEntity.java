@@ -23,4 +23,17 @@ public class UnitInventoryEntity {
 
     String lastSyncSource;
     Long lastSyncTimestamp;
+
+    public static UnitInventoryEntity newInventory(UnitEntity unit, LocalDate date) {
+        return UnitInventoryEntity.builder()
+                .unitId(unit.getId())
+                .date(date)
+                .totalRooms(unit.getQuantity())
+                .availableRooms(unit.getQuantity())
+                .isBlocked(false)
+                .blockReason(null)
+                .lastSyncSource("MANUAL")
+                .lastSyncTimestamp(System.currentTimeMillis())
+                .build();
+    }
 }

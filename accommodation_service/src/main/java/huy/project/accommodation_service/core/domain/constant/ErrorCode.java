@@ -44,6 +44,8 @@ public enum ErrorCode {
     PRICE_GROUP_NOT_FOUND(100031, "Price group not found", HttpStatus.NOT_FOUND),
     FORBIDDEN_UPDATE_BASE_PRICE(100032, "Forbidden to update base price", HttpStatus.FORBIDDEN),
     INVALID_UNIT_OR_ACCOMMODATION_ID(100033, "Invalid unit or accommodation id", HttpStatus.BAD_REQUEST),
+    SAVE_UNIT_INVENTORY_FAILED(100034, "Save unit inventory failed", HttpStatus.INTERNAL_SERVER_ERROR),
+    FORBIDDEN_UPDATE_UNIT_INVENTORY(100035, "Forbidden to update unit inventory", HttpStatus.FORBIDDEN),
     ;
 
 
