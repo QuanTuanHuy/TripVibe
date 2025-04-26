@@ -34,9 +34,22 @@ public class UnitPriceCalendarEntity {
     BigDecimal lastMinuteDiscount;
 
     // Occupancy-based pricing
-    BigDecimal baseOccupancy; // Standard occupancy this price is for
+    Integer baseOccupancy; // Standard occupancy this price is for
     BigDecimal extraPersonFee; // Fee per additional guest
 
     Long lastUpdated;
     String updateSource; // "MANUAL", "RULE", "CHANNEL", "PMS"
+
+    public static UnitPriceCalendarEntity newPriceCalendar(UnitEntity unit, LocalDate date) {
+        return UnitPriceCalendarEntity.builder()
+                .unitId(unit.getId())
+                .date(date)
+                .basePrice(unit.getPricePerNight())
+                .weekendMultiplier(BigDecimal.ONE)
+                .holidayMultiplier(BigDecimal.ONE)
+                .seasonalMultiplier(BigDecimal.ONE)
+                .earlyBirdDiscount(BigDecimal.ZERO)
+                .lastMinuteDiscount(BigDecimal.ZERO)
+                .build();
+    }
 }

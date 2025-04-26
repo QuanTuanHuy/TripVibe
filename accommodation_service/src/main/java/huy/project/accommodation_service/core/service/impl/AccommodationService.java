@@ -2,9 +2,7 @@ package huy.project.accommodation_service.core.service.impl;
 
 import huy.project.accommodation_service.core.domain.dto.request.*;
 import huy.project.accommodation_service.core.domain.dto.response.AccommodationDto;
-import huy.project.accommodation_service.core.domain.dto.response.PriceCalculationResponse;
 import huy.project.accommodation_service.core.domain.entity.AccommodationEntity;
-import huy.project.accommodation_service.core.domain.entity.PricingRuleEntity;
 import huy.project.accommodation_service.core.service.IAccommodationService;
 import huy.project.accommodation_service.core.usecase.*;
 import lombok.AccessLevel;
@@ -27,11 +25,6 @@ public class AccommodationService implements IAccommodationService {
     AddUnitUseCase addUnitUseCase;
     DeleteUnitUseCase deleteUnitUseCase;
     RestoreUnitUseCase restoreUnitUseCase;
-
-    CreatePricingRuleUseCase createPricingRuleUseCase;
-    DeletePricingRuleUseCase deletePricingRuleUseCase;
-    GetPricingRuleUseCase getPricingRuleUseCase;
-    CalculateDynamicPriceUseCase calculateDynamicPriceUseCase;
 
     @Override
     public AccommodationEntity createAccommodation(Long userId, CreateAccommodationDto req) {
@@ -98,25 +91,5 @@ public class AccommodationService implements IAccommodationService {
     @Override
     public AccommodationDto getAccDtoById(Long id) {
         return getAccommodationUseCase.getAccDtoById(id);
-    }
-
-    @Override
-    public PricingRuleEntity createPricingRule(Long userId, Long unitId, CreatePricingRuleDto req) {
-        return createPricingRuleUseCase.createPricingRule(userId, unitId, req);
-    }
-
-    @Override
-    public List<PricingRuleEntity> getPricingRulesByUnitId(Long unitId) {
-        return getPricingRuleUseCase.getPricingRulesByUnitId(unitId);
-    }
-
-    @Override
-    public void deletePricingRule(Long userId, Long unitId, Long pricingRuleId) {
-        deletePricingRuleUseCase.deletePricingRule(userId, unitId, pricingRuleId);
-    }
-
-    @Override
-    public PriceCalculationResponse calculatePrice(PriceCalculationRequest request) {
-        return calculateDynamicPriceUseCase.calculatePrice(request);
     }
 }

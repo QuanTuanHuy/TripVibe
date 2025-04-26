@@ -1,6 +1,7 @@
 package huy.project.accommodation_service.core.usecase;
 
 import huy.project.accommodation_service.core.domain.constant.ErrorCode;
+import huy.project.accommodation_service.core.domain.entity.UnitEntity;
 import huy.project.accommodation_service.core.exception.AppException;
 import huy.project.accommodation_service.core.port.IPricingRulePort;
 import huy.project.accommodation_service.core.validation.AccommodationValidation;
@@ -11,6 +12,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -20,31 +23,49 @@ public class DeletePricingRuleUseCase {
     AccommodationValidation accValidation;
     PriceCalculationCacheUseCase priceCalculationCacheUseCase;
 
-    @Transactional(rollbackFor = Exception.class)
-    public void deletePricingRule(Long userId, Long unitId, Long pricingRuleId) {
-        // validate owner
-        var isOwnerOfUnit = accValidation.isOwnerOfUnit(userId, unitId);
-        if (!isOwnerOfUnit.getFirst()) {
-            log.error("user {} is not owner of unit {}", userId, unitId);
-            throw new AppException(ErrorCode.FORBIDDEN_DELETE_PRICING_RULE);
-        }
+    GetUnitUseCase getUnitUseCase;
 
+    @Transactional(rollbackFor = Exception.class)
+    public void deletePricingRule(Long userId, Long pricingRuleId) {
         var pricingRule = pricingRulePort.getPricingRuleById(pricingRuleId);
         if (pricingRule == null) {
             log.error("pricing rule {} not found", pricingRuleId);
             throw new AppException(ErrorCode.PRICING_RULE_NOT_FOUND);
         }
 
-        if (!pricingRule.getUnitId().equals(unitId)) {
-            log.error("pricing rule {} not belong to unit {}", pricingRuleId, unitId);
-            throw new AppException(ErrorCode.PRICING_RULE_NOT_FOUND);
+        // validate owner of pricing rule
+        if (pricingRule.getAccommodationId() != null) {
+            if (!accValidation.accommodationExistToHost(userId, pricingRule.getAccommodationId())) {
+                log.error("user {} is not owner of accommodation {}", userId, pricingRule.getAccommodationId());
+                throw new AppException(ErrorCode.FORBIDDEN_DELETE_PRICING_RULE);
+            }
+        } else if (pricingRule.getUnitId() != null) {
+            var isOwnerOfUnit = accValidation.isOwnerOfUnit(userId, pricingRule.getUnitId());
+            if (!isOwnerOfUnit.getFirst()) {
+                log.error("user {} is not owner of unit {}", userId, pricingRule.getUnitId());
+                throw new AppException(ErrorCode.FORBIDDEN_DELETE_PRICING_RULE);
+            }
         }
 
         // Invalidate cache
-        var success = priceCalculationCacheUseCase.invalidatePriceCache(unitId);
+        if (pricingRule.getUnitId() != null) {
+            var success = priceCalculationCacheUseCase.invalidatePriceCache(pricingRule.getUnitId());
 
-        if (success)
-            pricingRulePort.deletePricingRule(pricingRuleId);
-        else throw new AppException(ErrorCode.DELETE_PRICING_RULE_FAILED);
+            if (!success)
+                throw new AppException(ErrorCode.DELETE_PRICING_RULE_FAILED);
+        } else {
+            List<Long> unitIds = getUnitUseCase.getUnitsByAccommodationId(pricingRule.getAccommodationId())
+                    .stream().map(UnitEntity::getId).toList();
+
+            for (var unitId : unitIds) {
+                var success = priceCalculationCacheUseCase.invalidatePriceCache(unitId);
+                if (!success) {
+                    log.error("failed to invalidate cache for unit {}", unitId);
+                    throw new AppException(ErrorCode.DELETE_PRICING_RULE_FAILED);
+                }
+            }
+        }
+
+        pricingRulePort.deletePricingRule(pricingRuleId);
     }
 }

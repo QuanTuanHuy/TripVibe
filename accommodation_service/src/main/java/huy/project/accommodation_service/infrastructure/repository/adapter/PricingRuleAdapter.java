@@ -1,6 +1,7 @@
 package huy.project.accommodation_service.infrastructure.repository.adapter;
 
 import huy.project.accommodation_service.core.domain.constant.ErrorCode;
+import huy.project.accommodation_service.core.domain.dto.request.PricingRuleParams;
 import huy.project.accommodation_service.core.domain.entity.PricingRuleEntity;
 import huy.project.accommodation_service.core.exception.AppException;
 import huy.project.accommodation_service.core.port.IPricingRulePort;
@@ -13,7 +14,6 @@ import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDate;
 import java.util.List;
 
 @Service
@@ -50,12 +50,8 @@ public class PricingRuleAdapter implements IPricingRulePort {
     }
 
     @Override
-    public List<PricingRuleEntity> getPricingRulesByUnitId(Long unitId) {
-        return PricingRuleMapper.INSTANCE.toListEntity(pricingRuleRepository.findByUnitId(unitId));
-    }
-
-    @Override
-    public List<PricingRuleEntity> getActiveRulesByUnitIdAndDateRange(Long unitId, LocalDate startDate, LocalDate endDate) {
-        return PricingRuleMapper.INSTANCE.toListEntity(pricingRuleRepository.findActiveRulesByUnitIdAndDateRange(unitId, startDate, endDate));
+    public List<PricingRuleEntity> getPricingRules(PricingRuleParams params) {
+       return PricingRuleMapper.INSTANCE.toListEntity(
+               pricingRuleRepository.findActiveRules(params.getUnitId(), params.getAccommodationId(), params.getStartDate(), params.getEndDate()));
     }
 }

@@ -42,6 +42,8 @@ public enum ErrorCode {
     PRICING_RULE_NOT_FOUND(100029, "Pricing rule not found", HttpStatus.NOT_FOUND),
     DELETE_PRICING_RULE_FAILED(100030, "Delete pricing rule failed", HttpStatus.INTERNAL_SERVER_ERROR),
     PRICE_GROUP_NOT_FOUND(100031, "Price group not found", HttpStatus.NOT_FOUND),
+    FORBIDDEN_UPDATE_BASE_PRICE(100032, "Forbidden to update base price", HttpStatus.FORBIDDEN),
+    INVALID_UNIT_OR_ACCOMMODATION_ID(100033, "Invalid unit or accommodation id", HttpStatus.BAD_REQUEST),
     ;
 
 

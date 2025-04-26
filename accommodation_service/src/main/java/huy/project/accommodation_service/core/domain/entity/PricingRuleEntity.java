@@ -1,6 +1,5 @@
 package huy.project.accommodation_service.core.domain.entity;
 
-import huy.project.accommodation_service.core.domain.enums.PricingRuleType;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
@@ -20,7 +19,7 @@ public class PricingRuleEntity {
     Long unitId;  // Can be null if applies to all units
 
     String name;
-    PricingRuleType ruleType;
+    String ruleType;
 
     LocalDate startDate;
     LocalDate endDate;

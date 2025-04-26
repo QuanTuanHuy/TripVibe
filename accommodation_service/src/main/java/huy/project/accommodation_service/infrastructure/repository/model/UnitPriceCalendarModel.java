@@ -54,7 +54,7 @@ public class UnitPriceCalendarModel extends AuditTable {
 
     // Occupancy-based pricing
     @Column(name = "base_occupancy")
-    BigDecimal baseOccupancy; // Standard occupancy this price is for
+    Integer baseOccupancy; // Standard occupancy this price is for
     @Column(name = "extra_person_fee")
     BigDecimal extraPersonFee; // Fee per additional guest
 

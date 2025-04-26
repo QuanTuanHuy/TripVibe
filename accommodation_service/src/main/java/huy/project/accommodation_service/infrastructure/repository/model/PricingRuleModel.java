@@ -31,8 +31,7 @@ public class PricingRuleModel extends AuditTable {
     String name;
 
     @Column(name = "rule_type")
-    @Enumerated(EnumType.STRING)
-    PricingRuleType ruleType;
+    String ruleType;
 
     @Column(name = "start_date")
     LocalDate startDate;
