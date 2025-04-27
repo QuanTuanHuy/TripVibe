@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@types/react-datepicker": "^6.2.0",
+    "axios": "^1.9.0",
     "booking_ui": "file:",
     "date-fns": "^4.1.0",
     "lucide-react": "^0.487.0",

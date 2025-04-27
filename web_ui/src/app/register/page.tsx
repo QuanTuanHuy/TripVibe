@@ -3,14 +3,14 @@
 import { useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import LoginForm from '@/components/auth/LoginForm';
+import RegisterForm from '@/components/auth/RegisterForm';
 import { useAuth } from '@/context/AuthContext';
 
-export default function Login() {
+export default function Register() {
   const { user, isAuthenticated } = useAuth();
   const router = useRouter();
   
-  // Kiểm tra nếu đã đăng nhập thì chuyển hướng về trang chủ
+  // Nếu đã đăng nhập thì chuyển hướng về trang chủ
   useEffect(() => {
     if (user && isAuthenticated) {
       router.push('/');
@@ -28,11 +28,10 @@ export default function Login() {
         </div>
       </header>
       
-      {/* Login Form */}
+      {/* Register Form */}
       <main className="flex-grow flex justify-center items-start py-8">
-        <LoginForm />
+        <RegisterForm />
       </main>
-    
     </div>
   );
 }
