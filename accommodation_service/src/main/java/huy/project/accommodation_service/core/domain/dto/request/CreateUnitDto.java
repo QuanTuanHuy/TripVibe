@@ -4,6 +4,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 @NoArgsConstructor
@@ -12,7 +13,7 @@ import java.util.List;
 public class CreateUnitDto {
     private Long unitNameId;
     private String description;
-    private Long pricePerNight;
+    private BigDecimal pricePerNight;
     private Long maxGuest;
     private Boolean useSharedBathroom;
 

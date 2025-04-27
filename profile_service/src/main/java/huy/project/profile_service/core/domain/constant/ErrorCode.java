@@ -13,6 +13,12 @@ public enum ErrorCode {
     FRIEND_NOT_FOUND(100004, "Friend not found", HttpStatus.NOT_FOUND),
     DELETE_FRIEND_FORBIDDEN(100005, "Delete friend not allowed", HttpStatus.FORBIDDEN),
     USER_PROFILE_NOT_FOUND(100006, "User profile not found", HttpStatus.NOT_FOUND),
+    WISHLIST_ITEM_ALREADY_EXISTS(100007, "Wishlist item already exists", HttpStatus.BAD_REQUEST),
+    WISHLIST_NOT_FOUND(100008, "Wishlist not found", HttpStatus.NOT_FOUND),
+    FORBIDDEN_GET_WISHLIST(100009, "Forbidden to get wishlist", HttpStatus.FORBIDDEN),
+    ACCOMMODATION_NOT_FOUND(100010, "Accommodation not found", HttpStatus.NOT_FOUND),
+    SAVE_WISHLIST_ITEM_FAILED(100011, "Save wishlist item failed", HttpStatus.INTERNAL_SERVER_ERROR),
+    SAVE_WISHLIST_FAILED(100012, "Save wishlist failed", HttpStatus.INTERNAL_SERVER_ERROR),
     ;
 
 

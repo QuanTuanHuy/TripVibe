@@ -3,6 +3,7 @@ package huy.project.accommodation_service.core.usecase;
 import huy.project.accommodation_service.core.domain.constant.CacheConstant;
 import huy.project.accommodation_service.core.domain.constant.ErrorCode;
 import huy.project.accommodation_service.core.domain.constant.TopicConstant;
+import huy.project.accommodation_service.core.domain.dto.request.AccommodationParams;
 import huy.project.accommodation_service.core.domain.dto.response.AccommodationDto;
 import huy.project.accommodation_service.core.domain.entity.AccommodationEntity;
 import huy.project.accommodation_service.core.domain.kafka.CreateViewHistoryMessage;
@@ -18,6 +19,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -98,5 +100,12 @@ public class GetAccommodationUseCase {
                 .isVerified(accommodation.getIsVerified())
                 .units(getUnitUseCase.getUnitsByAccommodationId(id).stream().map(UnitMapper.INSTANCE::toDto).toList())
                 .build();
+    }
+
+    public List<AccommodationDto> getAccommodations(AccommodationParams params) {
+        var accommodations = accommodationPort.getAccommodations(params);
+        accommodations.forEach(acc -> acc.setUnits(getUnitUseCase.getUnitsByAccommodationId(acc.getId())));
+
+        return accommodations.stream().map(AccommodationDto::from).toList();
     }
 }

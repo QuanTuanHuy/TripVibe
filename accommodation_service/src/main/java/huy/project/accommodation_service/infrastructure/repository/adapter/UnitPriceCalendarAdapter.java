@@ -23,8 +23,20 @@ public class UnitPriceCalendarAdapter implements IUnitPriceCalendarPort {
     }
 
     @Override
+    public void save(UnitPriceCalendarEntity unitPriceCalendar) {
+        unitPriceCalendarRepository.save(UnitPriceCalendarMapper.INSTANCE.toModel(unitPriceCalendar));
+    }
+
+    @Override
     public void deletePriceByUnitIdAndDate(Long unitId, LocalDate start, LocalDate end) {
         unitPriceCalendarRepository.deleteByUnitIdAndDateBetween(unitId, start, end);
+    }
+
+    @Override
+    public List<UnitPriceCalendarEntity> getByUnitIdAndDate(Long unitId, LocalDate start, LocalDate end) {
+        return UnitPriceCalendarMapper.INSTANCE.toListEntity(
+                unitPriceCalendarRepository.findByUnitIdAndDateBetween(unitId, start, end)
+        );
     }
 
 }
