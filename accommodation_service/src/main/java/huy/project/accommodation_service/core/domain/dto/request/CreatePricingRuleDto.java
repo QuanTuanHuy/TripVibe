@@ -8,6 +8,7 @@ import lombok.experimental.FieldDefaults;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.Map;
 
 @Getter
 @Setter
@@ -35,7 +36,7 @@ public class CreatePricingRuleDto {
     BigDecimal priceMultiplier;
     BigDecimal fixedAdjustment;
     Integer dayThreshold; // For early bird, last minute, or LOS
-    String additionalParams; // JSON for complex rule parameters
+    Map<String, String> additionalParams; // JSON for complex rule parameters
 
     Integer priority; // Higher priority rules are applied first
 }

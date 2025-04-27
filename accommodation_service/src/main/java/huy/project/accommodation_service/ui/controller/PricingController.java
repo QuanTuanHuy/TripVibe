@@ -73,7 +73,7 @@ public class PricingController {
     public ResponseEntity<Resource<List<UnitPriceCalendarEntity>>> getPriceCalendars(
             @PathVariable Long unitId,
             @RequestParam(name = "startDate") LocalDate startDate,
-            @RequestParam(name = "startDate") LocalDate endDate
+            @RequestParam(name = "endDate") LocalDate endDate
     ) {
         return ResponseEntity.ok(new Resource<>(pricingService.getUnitPricingCalendars(unitId, startDate, endDate)));
     }

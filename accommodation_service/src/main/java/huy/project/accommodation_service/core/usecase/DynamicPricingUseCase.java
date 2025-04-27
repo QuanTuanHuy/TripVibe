@@ -166,12 +166,12 @@ public class DynamicPricingUseCase {
 
             case "EARLY_BIRD":
                 priceCalendar.setEarlyBirdDays(rule.getDayThreshold());
-                priceCalendar.setEarlyBirdDiscount(rule.getPriceMultiplier().subtract(BigDecimal.ONE));
+                priceCalendar.setEarlyBirdDiscount(BigDecimal.ONE.subtract(rule.getPriceMultiplier()));
                 break;
 
             case "LAST_MINUTE":
                 priceCalendar.setLastMinuteDays(rule.getDayThreshold());
-                priceCalendar.setLastMinuteDiscount(rule.getPriceMultiplier().subtract(BigDecimal.ONE));
+                priceCalendar.setLastMinuteDiscount(BigDecimal.ONE.subtract(rule.getPriceMultiplier()));
                 break;
 
             case "LOS":
@@ -182,6 +182,27 @@ public class DynamicPricingUseCase {
                     }
                 } catch (Exception e) {
                     log.error("Error parsing LOS rule parameters: {}", e.getMessage());
+                }
+                break;
+
+            case "OCCUPANCY":
+                if (rule.getAdditionalParams() != null) {
+                    try {
+                        Map<String, String> params = objectMapper.readValue(
+                                rule.getAdditionalParams(),
+                                objectMapper.getTypeFactory().constructMapType(
+                                        HashMap.class, String.class, Object.class)
+                        );
+
+                        Integer baseOccupancy = Integer.parseInt(params.get("baseOccupancy"));
+                        BigDecimal extraPersonFee = new BigDecimal(params.get("extraPersonFee"));
+
+                        log.info("baseOccupancy: {}, extraPersonFee: {}", baseOccupancy, extraPersonFee);
+                        priceCalendar.setBaseOccupancy(baseOccupancy);
+                        priceCalendar.setExtraPersonFee(extraPersonFee);
+                    } catch (Exception e) {
+                        log.error("Error parsing occupancy rule parameters: {}", e.getMessage());
+                    }
                 }
                 break;
         }
@@ -220,18 +241,19 @@ public class DynamicPricingUseCase {
         // Apply LOS discount
         if (priceCalendar.getLosDiscounts() != null && lengthOfStay != null) {
             try {
-                Map<String, BigDecimal> losDiscounts = objectMapper.readValue(
+                Map<String, String> losDiscounts = objectMapper.readValue(
                         priceCalendar.getLosDiscounts(),
                         objectMapper.getTypeFactory().constructMapType(
-                                HashMap.class, String.class, BigDecimal.class)
+                                HashMap.class, String.class, String.class)
                 );
 
                 // Find the highest applicable LOS discount
                 BigDecimal maxDiscount = BigDecimal.ZERO;
-                for (Map.Entry<String, BigDecimal> entry : losDiscounts.entrySet()) {
+                for (Map.Entry<String, String> entry : losDiscounts.entrySet()) {
                     int los = Integer.parseInt(entry.getKey());
-                    if (lengthOfStay >= los && entry.getValue().compareTo(maxDiscount) > 0) {
-                        maxDiscount = entry.getValue();
+                    BigDecimal discount = new BigDecimal(entry.getValue());
+                    if (lengthOfStay >= los && discount.compareTo(maxDiscount) > 0) {
+                        maxDiscount = discount;
                     }
                 }
 
@@ -275,7 +297,7 @@ public class DynamicPricingUseCase {
             throw new AppException(ErrorCode.INVALID_DATE);
         }
 
-        List<UnitPriceCalendarEntity> priceCalendars = unitPriceCalendarPort.getByUnitIdAndDate(unitId, startDate, endDate);
+        List<UnitPriceCalendarEntity> priceCalendars = getUnitPricingCalendarUseCase.getUnitPricingCalendars(unitId, startDate, endDate);
         var priceCalendarMap = priceCalendars.stream()
                 .collect(Collectors.toMap(UnitPriceCalendarEntity::getDate, priceCalendar -> priceCalendar));
 

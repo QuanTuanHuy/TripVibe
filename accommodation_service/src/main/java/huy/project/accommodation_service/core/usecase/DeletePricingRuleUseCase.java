@@ -1,7 +1,6 @@
 package huy.project.accommodation_service.core.usecase;
 
 import huy.project.accommodation_service.core.domain.constant.ErrorCode;
-import huy.project.accommodation_service.core.domain.entity.UnitEntity;
 import huy.project.accommodation_service.core.exception.AppException;
 import huy.project.accommodation_service.core.port.IPricingRulePort;
 import huy.project.accommodation_service.core.validation.AccommodationValidation;
@@ -12,8 +11,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
-
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -21,9 +18,10 @@ import java.util.List;
 public class DeletePricingRuleUseCase {
     IPricingRulePort pricingRulePort;
     AccommodationValidation accValidation;
-    PriceCalculationCacheUseCase priceCalculationCacheUseCase;
 
+    PriceCalculationCacheUseCase priceCalculationCacheUseCase;
     GetUnitUseCase getUnitUseCase;
+    DynamicPricingUseCase dynamicPricingUseCase;
 
     @Transactional(rollbackFor = Exception.class)
     public void deletePricingRule(Long userId, Long pricingRuleId) {
@@ -47,22 +45,16 @@ public class DeletePricingRuleUseCase {
             }
         }
 
-        // Invalidate cache
+        // apply rule amd invalidate cache
         if (pricingRule.getUnitId() != null) {
-            var success = priceCalculationCacheUseCase.invalidatePriceCache(pricingRule.getUnitId());
-
-            if (!success)
-                throw new AppException(ErrorCode.DELETE_PRICING_RULE_FAILED);
+            dynamicPricingUseCase.applyPricingRules(pricingRule.getUnitId(), pricingRule.getStartDate(), pricingRule.getEndDate());
         } else {
-            List<Long> unitIds = getUnitUseCase.getUnitsByAccommodationId(pricingRule.getAccommodationId())
-                    .stream().map(UnitEntity::getId).toList();
-
-            for (var unitId : unitIds) {
-                var success = priceCalculationCacheUseCase.invalidatePriceCache(unitId);
-                if (!success) {
-                    log.error("failed to invalidate cache for unit {}", unitId);
-                    throw new AppException(ErrorCode.DELETE_PRICING_RULE_FAILED);
-                }
+            var units = getUnitUseCase.getUnitsByAccommodationId(pricingRule.getAccommodationId());
+            for (var unit : units) {
+                // apply rule
+                dynamicPricingUseCase.applyPricingRules(unit.getId(), pricingRule.getStartDate(), pricingRule.getEndDate());
+                // invalidate cache
+                priceCalculationCacheUseCase.invalidatePriceCache(unit.getId());
             }
         }
 

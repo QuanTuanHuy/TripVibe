@@ -25,8 +25,8 @@ public class UnitPriceCalendarModel extends AuditTable {
     @Column(name = "date")
     private LocalDate date;
 
-    @Column(name = "price")
-    private BigDecimal price;
+    @Column(name = "base_price")
+    private BigDecimal basePrice;
 
     // Dynamic pricing factors
     @Column(name = "weekday_multiplier")

@@ -7,6 +7,7 @@ import huy.project.accommodation_service.core.domain.mapper.PricingRuleMapper;
 import huy.project.accommodation_service.core.exception.AppException;
 import huy.project.accommodation_service.core.port.IPricingRulePort;
 import huy.project.accommodation_service.core.validation.AccommodationValidation;
+import huy.project.accommodation_service.kernel.utils.JsonUtils;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -21,6 +22,12 @@ import org.springframework.transaction.annotation.Transactional;
 public class CreatePricingRuleUseCase {
     IPricingRulePort pricingRulePort;
     AccommodationValidation accValidation;
+
+    DynamicPricingUseCase dynamicPricingUseCase;
+    GetUnitUseCase getUnitUseCase;
+    PriceCalculationCacheUseCase priceCalculationCacheUseCase;
+
+    JsonUtils jsonUtils;
 
     @Transactional(rollbackFor = Exception.class)
     public PricingRuleEntity createPricingRule(Long userId, CreatePricingRuleDto req) {
@@ -51,8 +58,24 @@ public class CreatePricingRuleUseCase {
 
         // create pricing rule
         var pricingRule = PricingRuleMapper.INSTANCE.toEntity(req);
+        pricingRule.setAdditionalParams(jsonUtils.toJson(req.getAdditionalParams()));
         pricingRule.setIsActive(true);
 
-        return pricingRulePort.save(pricingRule);
+        var savedPricingRule = pricingRulePort.save(pricingRule);
+
+        // apply pricing rule and invalidate cache
+        if (req.getUnitId() != null) {
+            dynamicPricingUseCase.applyPricingRules(req.getUnitId(), req.getStartDate(), req.getEndDate());
+        } else {
+            var units = getUnitUseCase.getUnitsByAccommodationId(req.getAccommodationId());
+            for (var unit : units) {
+                // apply rule
+                dynamicPricingUseCase.applyPricingRules(unit.getId(), req.getStartDate(), req.getEndDate());
+                // invalidate cache
+                priceCalculationCacheUseCase.invalidatePriceCache(unit.getId());
+            }
+        }
+
+        return savedPricingRule;
     }
 }

@@ -14,7 +14,8 @@ public interface IPricingRuleRepository extends IBaseRepository<PricingRuleModel
             "p.isActive = true AND " +
             "((p.startDate IS NULL AND p.endDate IS NULL) OR " +
             " (p.startDate IS NULL AND p.endDate >= :startDate) OR" +
-            " (p.endDate IS NULL AND p.startDate <= :endDate))")
+            " (p.endDate IS NULL AND p.startDate <= :endDate) OR" +
+            " (p.startDate <= :endDate OR p.endDate >= :startDate))")
     List<PricingRuleModel> findActiveRules(
             @Param("unitId") Long unitId,
             @Param("accommodationId") Long accommodationId,

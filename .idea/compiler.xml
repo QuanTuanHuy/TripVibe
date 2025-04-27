@@ -19,7 +19,7 @@
         </processorPath>
         <module name="api_gateway" />
       </profile>
-      <profile name="Annotation profile for file_service" enabled="true">
+      <profile name="Annotation profile for accommodation_service" enabled="true">
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
