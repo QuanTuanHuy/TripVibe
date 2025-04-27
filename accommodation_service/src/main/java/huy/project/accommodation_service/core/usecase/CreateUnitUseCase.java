@@ -32,12 +32,8 @@ public class CreateUnitUseCase {
     IImagePort imagePort;
     IFileStoragePort fileStoragePort;
 
-
-
-
-    private final CreateBedroomUseCase createBedroomUseCase;
-
-    private final UnitValidation unitValidation;
+    CreateBedroomUseCase createBedroomUseCase;
+    UnitValidation unitValidation;
 
     @Transactional(rollbackFor = Exception.class)
     public UnitEntity createUnit(Long accommodationId, CreateUnitDto req) {

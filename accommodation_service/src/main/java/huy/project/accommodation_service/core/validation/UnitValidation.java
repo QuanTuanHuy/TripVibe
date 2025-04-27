@@ -6,7 +6,9 @@ import huy.project.accommodation_service.core.domain.dto.request.CreateUnitDto;
 import huy.project.accommodation_service.core.domain.dto.request.CreateUnitDtoV2;
 import huy.project.accommodation_service.core.domain.dto.request.CreateUnitPriceTypeDto;
 import huy.project.accommodation_service.core.exception.AppException;
+import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
+import lombok.experimental.FieldDefaults;
 import org.springframework.data.util.Pair;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
@@ -15,11 +17,11 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class UnitValidation {
-    private final AmenityValidation amenityValidation;
-
-    private final UnitNameValidation unitNameValidation;
-    private final PriceTypeValidation priceTypeValidation;
+    AmenityValidation amenityValidation;
+    UnitNameValidation unitNameValidation;
+    PriceTypeValidation priceTypeValidation;
 
     public Pair<Boolean, ErrorCode> validateCreateUnitDto(CreateUnitDto req) {
         if (!unitNameValidation.unitNameExist(req.getUnitNameId())) {

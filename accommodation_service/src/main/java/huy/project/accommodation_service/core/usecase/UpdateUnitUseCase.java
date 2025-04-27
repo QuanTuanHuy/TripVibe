@@ -155,7 +155,7 @@ public class UpdateUnitUseCase {
                 .map(date -> UnitPriceCalendarEntity.builder()
                         .unitId(unitId)
                         .date(date)
-                        .price(req.getPrice())
+                        .basePrice(req.getPrice())
                         .build())
                 .toList();
         unitPriceCalendarPort.saveAll(priceCalendars);

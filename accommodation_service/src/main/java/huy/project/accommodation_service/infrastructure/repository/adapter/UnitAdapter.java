@@ -44,4 +44,11 @@ public class UnitAdapter implements IUnitPort {
                 .map(UnitMapper.INSTANCE::toEntity)
                 .toList();
     }
+
+    @Override
+    public UnitEntity getUnitById(Long id) {
+        return unitRepository.findById(id)
+                .map(UnitMapper.INSTANCE::toEntity)
+                .orElse(null);
+    }
 }

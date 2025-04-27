@@ -1,8 +1,9 @@
 package huy.project.accommodation_service.core.usecase;
 
+import huy.project.accommodation_service.core.domain.constant.ErrorCode;
 import huy.project.accommodation_service.core.domain.constant.ImageEntityType;
-import huy.project.accommodation_service.core.domain.dto.response.UnitDto;
 import huy.project.accommodation_service.core.domain.entity.*;
+import huy.project.accommodation_service.core.exception.AppException;
 import huy.project.accommodation_service.core.port.IUnitPort;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -86,5 +87,13 @@ public class GetUnitUseCase {
         return units.stream().peek(unit ->
                 unit.setUnitName(unitNamesMap.get(unit.getUnitNameId())))
                 .toList();
+    }
+
+    public UnitEntity getUnitById(Long id) {
+        var unit = unitPort.getUnitById(id);
+        if (unit == null) {
+            throw new AppException(ErrorCode.UNIT_NOT_FOUND);
+        }
+        return unit;
     }
 }

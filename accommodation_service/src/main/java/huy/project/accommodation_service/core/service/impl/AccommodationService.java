@@ -5,7 +5,9 @@ import huy.project.accommodation_service.core.domain.dto.response.AccommodationD
 import huy.project.accommodation_service.core.domain.entity.AccommodationEntity;
 import huy.project.accommodation_service.core.service.IAccommodationService;
 import huy.project.accommodation_service.core.usecase.*;
+import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
+import lombok.experimental.FieldDefaults;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -13,14 +15,16 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class AccommodationService implements IAccommodationService {
-    private final CreateAccommodationUseCase createAccommodationUseCase;
-    private final GetAccommodationUseCase getAccommodationUseCase;
-    private final UpdateAccommodationUseCase updateAccommodationUseCase;
-    private final UpdateUnitUseCase updateUnitUseCase;
-    private final AddUnitUseCase addUnitUseCase;
-    private final DeleteUnitUseCase deleteUnitUseCase;
-    private final RestoreUnitUseCase restoreUnitUseCase;
+    CreateAccommodationUseCase createAccommodationUseCase;
+    GetAccommodationUseCase getAccommodationUseCase;
+    UpdateAccommodationUseCase updateAccommodationUseCase;
+
+    UpdateUnitUseCase updateUnitUseCase;
+    AddUnitUseCase addUnitUseCase;
+    DeleteUnitUseCase deleteUnitUseCase;
+    RestoreUnitUseCase restoreUnitUseCase;
 
     @Override
     public AccommodationEntity createAccommodation(Long userId, CreateAccommodationDto req) {
