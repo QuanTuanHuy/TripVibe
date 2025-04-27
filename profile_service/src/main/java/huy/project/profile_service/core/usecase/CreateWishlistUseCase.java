@@ -3,11 +3,13 @@ package huy.project.profile_service.core.usecase;
 import huy.project.profile_service.core.domain.constant.ErrorCode;
 import huy.project.profile_service.core.domain.dto.request.CreateWishlistDto;
 import huy.project.profile_service.core.domain.dto.request.CreateWishlistItemDto;
+import huy.project.profile_service.core.domain.dto.response.AccommodationDto;
 import huy.project.profile_service.core.domain.entity.WishlistEntity;
 import huy.project.profile_service.core.domain.entity.WishlistItemEntity;
 import huy.project.profile_service.core.domain.exception.AppException;
 import huy.project.profile_service.core.port.IWishlistItemPort;
 import huy.project.profile_service.core.port.IWishlistPort;
+import huy.project.profile_service.core.port.client.IAccommodationPort;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -17,6 +19,9 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
 import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -25,6 +30,7 @@ import java.util.List;
 public class CreateWishlistUseCase {
     IWishlistPort wishlistPort;
     IWishlistItemPort wishlistItemPort;
+    IAccommodationPort accommodationPort;
 
     GetTouristUseCase getTouristUseCase;
 
@@ -33,8 +39,19 @@ public class CreateWishlistUseCase {
         // validate tourist is existed
         getTouristUseCase.getTouristById(touristId);
 
-        // TODO: check accommodation exist
-        // then get accommodation name and thumbnail
+        //check accommodation exist
+        List<Long> accIds = req.getItems().stream()
+                .map(CreateWishlistItemDto::getAccommodationId).distinct().toList();
+        Map<Long, AccommodationDto> accommodationMap;
+        if (!CollectionUtils.isEmpty(accIds)) {
+            List<AccommodationDto> accommodations = accommodationPort.getAccommodations(accIds);
+            accIds = accommodations.stream()
+                    .map(AccommodationDto::getId).distinct().toList();
+            accommodationMap = accommodations.stream()
+                    .collect(Collectors.toMap(AccommodationDto::getId, Function.identity()));
+        } else {
+            accommodationMap = null;
+        }
 
         WishlistEntity wishlist = WishlistEntity.builder()
                 .touristId(touristId)
@@ -42,10 +59,6 @@ public class CreateWishlistUseCase {
                 .build();
         wishlist = wishlistPort.save(wishlist);
         final Long wishlistId = wishlist.getId();
-
-        List<Long> accIds = req.getItems().stream()
-                .map(CreateWishlistItemDto::getAccommodationId)
-                .distinct().toList();
 
         if (accIds.isEmpty()) {
             return wishlist;
@@ -61,8 +74,8 @@ public class CreateWishlistUseCase {
                 .map(accId -> WishlistItemEntity.builder()
                         .wishlistId(wishlistId)
                         .accommodationId(accId)
-                        .accommodationName(null)
-                        .accommodationImageUrl(null)
+                        .accommodationName(accommodationMap.get(accId).getName())
+                        .accommodationImageUrl(accommodationMap.get(accId).getThumbnailUrl())
                         .build()).toList();
         wishlist.setItems(wishlistItemPort.saveAll(newItems));
 

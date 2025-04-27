@@ -88,4 +88,9 @@ public class AccommodationService implements IAccommodationService {
     public AccommodationDto getAccDtoById(Long id) {
         return getAccommodationUseCase.getAccDtoById(id);
     }
+
+    @Override
+    public List<AccommodationDto> getAccommodations(AccommodationParams params) {
+        return getAccommodationUseCase.getAccommodations(params);
+    }
 }

@@ -26,6 +26,9 @@ server:
     context-path: /profile_service
 
 app:
+  services:
+    accommodation_service:
+      url: localhost:8083/accommodation_service/
   security:
     jwt:
       secret: MnAYFOKwxBOznHpxA3Wx4cJjeC3vYNtwzI6HRYT9SD++1BM9Pk32pTGETroljFsS

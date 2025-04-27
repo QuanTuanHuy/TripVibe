@@ -6,13 +6,16 @@ import huy.project.profile_service.core.domain.entity.WishlistEntity;
 import huy.project.profile_service.core.domain.entity.WishlistItemEntity;
 import huy.project.profile_service.core.domain.exception.AppException;
 import huy.project.profile_service.core.port.IWishlistItemPort;
+import huy.project.profile_service.core.port.client.IAccommodationPort;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -21,6 +24,7 @@ import java.util.Optional;
 @Slf4j
 public class UpdateWishlistUseCase {
     IWishlistItemPort wishlistItemPort;
+    IAccommodationPort accommodationPort;
 
     GetWishlistUseCase getWishlistUseCase;
 
@@ -37,8 +41,16 @@ public class UpdateWishlistUseCase {
             throw new AppException(ErrorCode.WISHLIST_ITEM_ALREADY_EXISTS);
         }
 
+        var accommodation = accommodationPort.getAccommodations(List.of(req.getAccommodationId()));
+        if (CollectionUtils.isEmpty(accommodation)) {
+            log.error("Accommodation with id {} not found", req.getAccommodationId());
+            throw new AppException(ErrorCode.ACCOMMODATION_NOT_FOUND);
+        }
+
         wishlistItemPort.save(WishlistItemEntity.builder()
                         .wishlistId(wishlistId)
+                        .accommodationName(accommodation.get(0).getName())
+                        .accommodationImageUrl(accommodation.get(0).getThumbnailUrl())
                         .accommodationId(req.getAccommodationId())
                     .build());
     }
