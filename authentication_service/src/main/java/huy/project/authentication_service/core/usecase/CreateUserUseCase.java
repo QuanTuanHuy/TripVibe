@@ -89,6 +89,7 @@ public class CreateUserUseCase {
 
     private OtpDto createOtpForRegister() {
         String otp = otpUtils.generateRandomOtp(6);
+        log.info("OTP for register: {}", otp);
         return OtpDto.builder()
                 .otp(otp)
                 .type(OtpType.REGISTER)

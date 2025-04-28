@@ -4,6 +4,7 @@ import huy.project.authentication_service.core.domain.dto.request.CreateUserRequ
 import huy.project.authentication_service.core.domain.dto.request.UpdateUserRequestDto;
 import huy.project.authentication_service.core.domain.entity.UserEntity;
 import huy.project.authentication_service.core.service.IUserService;
+import huy.project.authentication_service.kernel.utils.AuthenUtils;
 import huy.project.authentication_service.ui.resource.Resource;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -29,6 +30,12 @@ public class UserController {
     @GetMapping("/{userId}")
     public ResponseEntity<Resource<UserEntity>> getDetailUser(@PathVariable Long userId) {
         return ResponseEntity.ok(new Resource<>(userService.getDetailUser(userId)));
+    }
+
+    @GetMapping("/me")
+    public ResponseEntity<Resource<UserEntity>> getMe() {
+        Long currentUserId = AuthenUtils.getCurrentUserId();
+        return ResponseEntity.ok(new Resource<>(userService.getDetailUser(currentUserId)));
     }
 
     @PutMapping("/{userId}")
