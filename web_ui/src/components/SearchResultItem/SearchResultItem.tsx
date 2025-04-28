@@ -85,20 +85,18 @@ const SearchResultItem: React.FC<SearchResultItemProps> = ({
       bgColor = 'bg-[#00800a]';
       ratingText = 'Rất tốt';
     } else if (rating >= 9) {
-      bgColor = 'bg-[#005f73]';
-      ratingText = 'Tuyệt vời';
+      bgColor = 'bg-[#005f00]';
+      ratingText = 'Tuyệt hảo';
     }
-    
+
     return (
       <div className="flex items-center gap-2">
-        <div className={`${bgColor} ${textColor} font-bold py-1 px-2 rounded text-base`}>
-          {rating}
+        <div className={`${bgColor} ${textColor} py-1 px-2 rounded font-medium`}>
+          {rating.toFixed(1)}
         </div>
+        <span className="font-medium">{ratingText}</span>
         {reviewCount && (
-          <div className="text-sm">
-            <span className="font-semibold">{ratingText}</span>
-            <span className="text-gray-600"> · {reviewCount} đánh giá</span>
-          </div>
+          <span className="text-gray-500">({reviewCount} đánh giá)</span>
         )}
       </div>
     );
