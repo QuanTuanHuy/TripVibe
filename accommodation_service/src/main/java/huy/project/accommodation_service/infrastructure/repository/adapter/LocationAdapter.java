@@ -8,6 +8,8 @@ import huy.project.accommodation_service.infrastructure.repository.model.Locatio
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 public class LocationAdapter implements ILocationPort {
@@ -27,5 +29,10 @@ public class LocationAdapter implements ILocationPort {
     @Override
     public void deleteLocationById(Long id) {
 
+    }
+
+    @Override
+    public List<LocationEntity> getLocationsByIds(List<Long> ids) {
+        return LocationMapper.INSTANCE.toListEntity(locationRepository.findByIdIn(ids));
     }
 }

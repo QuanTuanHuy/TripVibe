@@ -8,6 +8,7 @@ import huy.project.accommodation_service.core.domain.entity.*;
 import huy.project.accommodation_service.core.domain.mapper.UnitMapper;
 import huy.project.accommodation_service.core.exception.AppException;
 import huy.project.accommodation_service.core.port.*;
+import huy.project.accommodation_service.core.port.client.IFileStoragePort;
 import huy.project.accommodation_service.core.validation.UnitValidation;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;

@@ -51,4 +51,9 @@ public class UnitAdapter implements IUnitPort {
                 .map(UnitMapper.INSTANCE::toEntity)
                 .orElse(null);
     }
+
+    @Override
+    public List<UnitEntity> getUnitsByAccIds(List<Long> accIds) {
+        return UnitMapper.INSTANCE.toListEntity(unitRepository.findByAccommodationIdIn(accIds));
+    }
 }

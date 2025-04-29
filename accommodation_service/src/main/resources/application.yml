@@ -39,6 +39,8 @@ app:
   services:
     file_service:
       url: localhost:8088/file_service/
+    rating_service:
+      url: localhost:8089/rating_service
   kafka:
     default-server: localhost:9094
   security:

@@ -1,4 +1,4 @@
-package huy.project.accommodation_service.core.port;
+package huy.project.accommodation_service.core.port.client;
 
 import huy.project.accommodation_service.core.domain.dto.response.FileResourceResponse;
 import org.springframework.web.multipart.MultipartFile;

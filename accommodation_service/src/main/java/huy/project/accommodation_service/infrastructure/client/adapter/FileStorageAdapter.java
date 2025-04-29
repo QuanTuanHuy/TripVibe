@@ -3,7 +3,7 @@ package huy.project.accommodation_service.infrastructure.client.adapter;
 import huy.project.accommodation_service.core.domain.constant.ErrorCode;
 import huy.project.accommodation_service.core.domain.dto.response.FileResourceResponse;
 import huy.project.accommodation_service.core.exception.AppException;
-import huy.project.accommodation_service.core.port.IFileStoragePort;
+import huy.project.accommodation_service.core.port.client.IFileStoragePort;
 import huy.project.accommodation_service.infrastructure.client.IFileStorageClient;
 import huy.project.accommodation_service.kernel.utils.JsonUtils;
 import huy.project.accommodation_service.ui.resource.Resource;

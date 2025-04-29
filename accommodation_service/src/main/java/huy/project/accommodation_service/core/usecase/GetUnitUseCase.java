@@ -96,4 +96,19 @@ public class GetUnitUseCase {
         }
         return unit;
     }
+
+    public List<UnitEntity> getUnitsByAccIds(List<Long> accIds) {
+        var units = unitPort.getUnitsByAccIds(accIds);
+
+        List<Long> unitNameIds = units.stream().map(UnitEntity::getUnitNameId).distinct().toList();
+        var unitNameMap = getUnitNameUseCase.getUnitNamesByIds(unitNameIds).stream()
+                .collect(Collectors.toMap(UnitNameEntity::getId, Function.identity()));
+
+        return units.stream().peek(unit -> {
+            var unitName = unitNameMap.get(unit.getUnitNameId());
+            if (unitName != null) {
+                unit.setUnitName(unitName);
+            }
+        }).toList();
+    }
 }

@@ -12,4 +12,6 @@ public interface IUnitRepository extends IBaseRepository<UnitModel> {
     Optional<UnitModel> findByAccommodationIdAndId(Long accommodationId, Long id);
     void deleteByAccommodationId(Long accId);
     List<UnitModel> findByIdIn(List<Long> ids);
+
+    List<UnitModel> findByAccommodationIdIn(List<Long> ids);
 }

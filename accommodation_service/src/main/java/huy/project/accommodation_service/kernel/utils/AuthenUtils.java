@@ -12,7 +12,7 @@ public class AuthenUtils {
             return Long.parseLong(jwt.getSubject());
         } catch (Exception e) {
             log.warn("Cannot get user id from token", e);
-            return null;
+            return 0L;
         }
     }
 }

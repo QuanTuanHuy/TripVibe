@@ -11,4 +11,6 @@ public interface IUnitPort {
     void deleteUnitsByAccId(Long accId);
     List<UnitEntity> getUnitsByIds(List<Long> ids);
     UnitEntity getUnitById(Long id);
+
+    List<UnitEntity> getUnitsByAccIds(List<Long> accIds);
 }
