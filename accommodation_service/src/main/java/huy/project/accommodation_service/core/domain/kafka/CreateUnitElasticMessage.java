@@ -26,8 +26,8 @@ public class CreateUnitElasticMessage {
         List<Long> amenityIds = unit.getAmenities().stream().map(UnitAmenityEntity::getAmenityId).toList();
         return CreateUnitElasticMessage.builder()
                 .id(unit.getId())
-                .maxAdults(unit.getMaxGuest().intValue())
-                .maxChildren(0)
+                .maxAdults(unit.getMaxAdults())
+                .maxChildren(unit.getMaxChildren())
                 .pricePerNight(unit.getPricePerNight())
                 .quantity(unit.getQuantity())
                 .amenityIds(amenityIds)

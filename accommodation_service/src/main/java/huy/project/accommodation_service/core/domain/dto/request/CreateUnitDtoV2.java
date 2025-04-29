@@ -14,7 +14,8 @@ public class CreateUnitDtoV2 {
     private Long unitNameId;
     private String description;
     private BigDecimal pricePerNight;
-    private Long maxGuest;
+    private Integer maxAdults;
+    private Integer maxChildren;
     private Boolean useSharedBathroom;
     private Integer quantity;
 
