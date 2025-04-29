@@ -1,9 +1,11 @@
 namespace LocationService.Infrastructure.Repository.Adapter
 {
     using System.Threading.Tasks;
+    using LocationService.Core.Domain.Dto.Request;
     using LocationService.Core.Domain.Entity;
     using LocationService.Core.Port;
     using LocationService.Infrastructure.Repository.Mapper;
+    using LocationService.Infrastructure.Repository.Specification;
     using Microsoft.EntityFrameworkCore;
 
     public class CountryAdapter : ICountryPort
@@ -44,6 +46,29 @@ namespace LocationService.Infrastructure.Repository.Adapter
                 .AsNoTracking()
                 .FirstOrDefaultAsync(c => c.Id == id);
             return CountryMapper.ToEntity(countryModel);
+        }
+
+        public async Task<List<CountryEntity>> GetCountries(CountryParams countryParams)
+        {
+            var (sql, parameters) = CountrySpecification.ToGetCountrySpecification(countryParams);
+
+            var countryModels = await _dbContext.Countries
+                .FromSqlRaw(sql.ToString(), parameters.ToArray())
+                .AsNoTracking()
+                .ToListAsync();
+
+            return countryModels.Select(CountryMapper.ToEntity).ToList();
+        }
+
+        public async Task<long> CountCountries(CountryParams countryParams)
+        {
+            var (sql, parameters) = CountrySpecification.ToCountCountrySpecification(countryParams);
+
+            var result = await _dbContext.Database
+                .SqlQueryRaw<long>(sql, parameters.ToArray())
+                .ToListAsync();
+
+            return result.FirstOrDefault();
         }
     }
 }

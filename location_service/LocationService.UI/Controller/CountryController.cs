@@ -12,6 +12,9 @@ namespace LocationService.UI.Controller
     {
         private readonly ICountryService countryService;
 
+        public static int DEFAULT_PAGE = 0;
+        public static int DEFAULT_PAGE_SIZE = 10;
+
         public CountryController(ICountryService countryService)
         {
             this.countryService = countryService;
@@ -22,6 +25,27 @@ namespace LocationService.UI.Controller
         {
             var createdCountry = await countryService.CreateCountryAsync(countryDto);
             return Ok(Resource<CountryEntity>.Success(createdCountry));
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetCountries([FromQuery] CountryParams countryParams)
+        {
+            if (countryParams.Page <= 0)
+            {
+                countryParams.Page = DEFAULT_PAGE;
+            }
+            if (countryParams.PageSize <= 0)
+            {
+                countryParams.PageSize = DEFAULT_PAGE_SIZE;
+            }
+
+            var (countries, count) = await countryService.GetCountries(countryParams);
+            var response = new PagedResponse<CountryEntity>
+            {
+                Data = countries,
+                PageInfo = PageInfo.ToPageInfo(countryParams.Page, countryParams.PageSize, (int)count),
+            };
+            return Ok(Resource<object>.Success(response));
         }
 
     }

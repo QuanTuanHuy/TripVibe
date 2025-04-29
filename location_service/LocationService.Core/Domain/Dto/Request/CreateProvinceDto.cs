@@ -7,6 +7,7 @@ namespace LocationService.Core.Domain.Dto.Request
         public string Name { get; set; }
         public string Code { get; set; }
         public int CountryId { get; set; }
+        public string ThumbnailUrl { get; set; }
 
         public ProvinceEntity ToEntity()
         {
@@ -14,7 +15,8 @@ namespace LocationService.Core.Domain.Dto.Request
             {
                 Name = Name,
                 Code = Code,
-                CountryId = CountryId
+                CountryId = CountryId,
+                ThumbnailUrl = ThumbnailUrl
             };
         }
     }

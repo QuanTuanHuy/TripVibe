@@ -169,3 +169,7 @@ CREATE TABLE IF NOT EXISTS attraction_languages (
 -- Create indexes
 CREATE INDEX idx_attraction_language_attraction ON attraction_languages(attraction_id);
 CREATE INDEX idx_attraction_language_language ON attraction_languages(language_id);
+
+ALTER TABLE provinces ADD COLUMN IF NOT EXISTS thumbnail_url TEXT;
+
+ALTER TABLE countries ADD COLUMN IF NOT EXISTS thumbnail_url TEXT;

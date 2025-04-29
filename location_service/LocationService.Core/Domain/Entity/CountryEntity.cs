@@ -11,5 +11,6 @@ namespace LocationService.Core.Domain.Entity
         public string Region { get; set; }
         public string SubRegion { get; set; }
         public string FlagUrl { get; set; }
+        public string? ThumbnailUrl { get; set; }
     }
 }

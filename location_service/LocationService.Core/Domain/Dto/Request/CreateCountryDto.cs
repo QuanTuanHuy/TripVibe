@@ -12,6 +12,7 @@ namespace LocationService.Core.Domain.Dto.Request
         public string Region { get; set; }
         public string SubRegion { get; set; }
         public string FlagUrl { get; set; }
+        public string? ThumbnailUrl { get; set; }
 
         public CountryEntity toEntity()
         {
@@ -24,7 +25,8 @@ namespace LocationService.Core.Domain.Dto.Request
                 Language = Language,
                 Region = Region,
                 SubRegion = SubRegion,
-                FlagUrl = FlagUrl
+                FlagUrl = FlagUrl,
+                ThumbnailUrl = ThumbnailUrl
             };
         }
     }
