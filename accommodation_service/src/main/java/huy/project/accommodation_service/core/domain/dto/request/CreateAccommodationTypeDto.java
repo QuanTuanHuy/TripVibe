@@ -10,4 +10,5 @@ public class CreateAccommodationTypeDto {
     private String description;
     private String imageUrl;
     private String iconUrl;
+    private Boolean isHighlighted;
 }
