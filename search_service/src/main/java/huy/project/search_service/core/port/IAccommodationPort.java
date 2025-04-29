@@ -10,7 +10,7 @@ import java.util.List;
 
 public interface IAccommodationPort {
     Pair<PageInfo, List<AccommodationEntity>> getAccommodations(AccommodationParams params);
-    void updateAvailability(Long accommodationId, Long unitId, Date startDate, Date endDate);
+    void updateAvailability(Long accommodationId, Long unitId, Date startDate, Date endDate, Integer delta);
     AccommodationEntity save(AccommodationEntity accommodation);
     AccommodationEntity getAccById(Long accId);
     void deleteAccById(Long accId);
