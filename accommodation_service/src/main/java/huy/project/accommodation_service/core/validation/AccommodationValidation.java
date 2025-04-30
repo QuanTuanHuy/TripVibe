@@ -8,6 +8,7 @@ import huy.project.accommodation_service.core.domain.entity.AccommodationEntity;
 import huy.project.accommodation_service.core.domain.entity.UnitEntity;
 import huy.project.accommodation_service.core.port.IAccommodationPort;
 import huy.project.accommodation_service.core.port.IUnitPort;
+import huy.project.accommodation_service.core.usecase.GetCurrencyUseCase;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -27,6 +28,8 @@ public class AccommodationValidation {
     LanguageValidation languageValidation;
     AmenityValidation amenityValidation;
 
+    GetCurrencyUseCase getCurrencyUseCase;
+
     public Pair<Boolean, ErrorCode> validateCreateAccommodationDto(CreateAccommodationDto req) {
         AccommodationEntity existedAcc = accommodationPort.getAccommodationByName(req.getName());
         if (existedAcc != null) {
@@ -35,6 +38,10 @@ public class AccommodationValidation {
 
         if (!languageValidation.languagesExist(req.getLanguageIds())) {
             return Pair.of(false, ErrorCode.LANGUAGE_NOT_FOUND);
+        }
+
+        if (getCurrencyUseCase.getCurrencyById(req.getCurrencyId()) == null) {
+            return Pair.of(false, ErrorCode.CURRENCY_NOT_FOUND);
         }
 
         List<Long> amenityIds = req.getAmenities().stream()

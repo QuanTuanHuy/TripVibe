@@ -47,6 +47,9 @@ public enum ErrorCode {
     SAVE_UNIT_INVENTORY_FAILED(100034, "Save unit inventory failed", HttpStatus.INTERNAL_SERVER_ERROR),
     FORBIDDEN_UPDATE_UNIT_INVENTORY(100035, "Forbidden to update unit inventory", HttpStatus.FORBIDDEN),
     GET_RATING_FAILED(100036, "Get rating failed", HttpStatus.INTERNAL_SERVER_ERROR),
+    SAVE_CURRENCY_FAILED(100037, "Save currency failed", HttpStatus.INTERNAL_SERVER_ERROR),
+    CURRENCY_ALREADY_EXISTED(100038, "Currency already existed", HttpStatus.BAD_REQUEST),
+    CURRENCY_NOT_FOUND(100039, "Currency not found", HttpStatus.NOT_FOUND),
     ;
 
 
