@@ -12,7 +12,10 @@ import java.util.List;
 public class AmenityGroupEntity {
     private Long id;
     private String name;
-    private String type;
+    private String type; // PROPERTY, ACCOMMODATION, UNIT, BATHROOM, etc.
     private String description;
+    private String icon;
+    private Integer displayOrder;
+    private Boolean isPopular;
     private List<AmenityEntity> amenities;
 }

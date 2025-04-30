@@ -33,7 +33,7 @@ public class DeleteAmenityGroupUseCase {
         amenityGroupPort.deleteAmenityGroupById(id);
 
         // clear cache
-        cachePort.deleteFromCache(CacheUtils.CACHE_AMENITY_GROUP_LIST);
+//        cachePort.deleteFromCache(CacheUtils.CACHE_AMENITY_GROUP_LIST);
         cachePort.deleteFromCache(CacheUtils.buildCacheKeyGetAmenityGroupById(id));
     }
 }

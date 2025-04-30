@@ -43,7 +43,7 @@ public class UpdateAmenityGroupUseCase {
         newAmenityGroup = amenityGroupPort.save(newAmenityGroup);
 
         // clear cache
-        cachePort.deleteFromCache(CacheUtils.CACHE_AMENITY_GROUP_LIST);
+//        cachePort.deleteFromCache(CacheUtils.CACHE_AMENITY_GROUP_LIST);
         cachePort.deleteFromCache(CacheUtils.buildCacheKeyGetAmenityGroupById(id));
 
         return newAmenityGroup;

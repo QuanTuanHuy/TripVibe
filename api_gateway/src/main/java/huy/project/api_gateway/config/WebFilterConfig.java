@@ -16,13 +16,11 @@ public class WebFilterConfig {
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         CorsConfiguration config = new CorsConfiguration();
         
-        // Cho phép tất cả các header
         config.addAllowedHeader("*");
         
-        // Cho phép các origin cụ thể
         config.addAllowedOrigin("http://localhost:3000");
+        config.addAllowedOrigin("http://localhost:3001");
         
-        // Cho phép tất cả các phương thức
         config.addAllowedMethod("*");
         
         // Cho phép gửi credentials (cookies, authorization headers, etc.)

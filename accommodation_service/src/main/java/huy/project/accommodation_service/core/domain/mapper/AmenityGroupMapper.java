@@ -19,6 +19,15 @@ public abstract class AmenityGroupMapper {
         existedAmenityGroup.setName(req.getName());
         existedAmenityGroup.setType(AmenityGroupType.of(req.getType()));
         existedAmenityGroup.setDescription(req.getDescription());
+        existedAmenityGroup.setIcon(req.getIcon());
+
+        if (req.getDisplayOrder() != null) {
+            existedAmenityGroup.setDisplayOrder(req.getDisplayOrder());
+        }
+        if (req.getIsPopular() != null) {
+            existedAmenityGroup.setIsPopular(req.getIsPopular());
+        }
+
         return existedAmenityGroup;
     }
 }

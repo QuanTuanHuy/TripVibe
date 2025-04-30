@@ -38,7 +38,7 @@ public class CreateAmenityGroupUseCase {
         amenityGroup = amenityGroupPort.save(amenityGroup);
 
         // clear cache
-        cachePort.deleteFromCache(CacheUtils.CACHE_AMENITY_GROUP_LIST);
+//        cachePort.deleteFromCache(CacheUtils.CACHE_AMENITY_GROUP_LIST);
 
         return amenityGroup;
     }

@@ -8,4 +8,5 @@ import lombok.Setter;
 public class CreateLanguageRequestDto {
     private String name;
     private String code;
+    private String nativeName;
 }

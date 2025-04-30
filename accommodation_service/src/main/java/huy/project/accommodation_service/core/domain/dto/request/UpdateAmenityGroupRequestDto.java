@@ -9,4 +9,7 @@ public class UpdateAmenityGroupRequestDto {
     private String name;
     private String type;
     private String description;
+    private String icon;
+    private Integer displayOrder;
+    private Boolean isPopular;
 }
