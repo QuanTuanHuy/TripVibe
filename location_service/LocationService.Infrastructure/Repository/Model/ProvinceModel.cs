@@ -15,5 +15,7 @@ namespace LocationService.Infrastructure.Repository.Model
         public string Code { get; set; } = null!;
         [Column("country_id")]
         public long CountryId { get; set; }
+        [Column("thumbnail_url")]
+        public string? ThumbnailUrl { get; set; } = null!;
     }
 }

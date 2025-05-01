@@ -20,4 +20,7 @@ public class LanguageModel extends AuditTable {
 
     @Column(name = "code")
     private String code;
+
+    @Column(name = "native_name")
+    private String nativeName;
 }

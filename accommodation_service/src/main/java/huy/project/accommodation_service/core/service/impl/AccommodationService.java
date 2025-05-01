@@ -2,6 +2,7 @@ package huy.project.accommodation_service.core.service.impl;
 
 import huy.project.accommodation_service.core.domain.dto.request.*;
 import huy.project.accommodation_service.core.domain.dto.response.AccommodationDto;
+import huy.project.accommodation_service.core.domain.dto.response.AccommodationThumbnail;
 import huy.project.accommodation_service.core.domain.entity.AccommodationEntity;
 import huy.project.accommodation_service.core.service.IAccommodationService;
 import huy.project.accommodation_service.core.usecase.*;
@@ -96,5 +97,10 @@ public class AccommodationService implements IAccommodationService {
     @Override
     public List<AccommodationDto> getAccommodations(AccommodationParams params) {
         return getAccommodationUseCase.getAccommodations(params);
+    }
+
+    @Override
+    public List<AccommodationThumbnail> getAccommodationThumbnails(AccommodationThumbnailParams params) {
+        return getAccommodationUseCase.getAccommodationThumbnails(params);
     }
 }

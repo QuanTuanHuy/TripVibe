@@ -8,4 +8,7 @@ import lombok.Setter;
 public class CreateAccommodationTypeDto {
     private String name;
     private String description;
+    private String imageUrl;
+    private String iconUrl;
+    private Boolean isHighlighted;
 }

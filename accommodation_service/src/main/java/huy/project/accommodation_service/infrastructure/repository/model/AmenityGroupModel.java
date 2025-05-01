@@ -24,4 +24,13 @@ public class AmenityGroupModel extends AuditTable {
 
     @Column(name = "description")
     private String description;
+
+    @Column(name = "icon")
+    private String icon;
+
+    @Column(name = "display_order")
+    private Integer displayOrder;
+
+    @Column(name = "is_popular")
+    private Boolean isPopular;
 }

@@ -32,4 +32,6 @@ public class AccommodationParams extends BaseParams {
     private Double longitude;
     private Double latitude;
     private Double radius;
+
+    private String sortBy;
 }

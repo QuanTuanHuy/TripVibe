@@ -2,6 +2,7 @@ package huy.project.search_service.core.domain.entity;
 
 import lombok.*;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 @Getter
@@ -13,7 +14,8 @@ public class UnitEntity {
     private Long id;
     private Integer maxAdults;
     private Integer maxChildren;
-    private Long pricePerNight;
+    private BigDecimal pricePerNight;
+    private Integer quantity;
 
     private List<Long> amenityIds;
     private List<BedroomEntity> bedrooms;

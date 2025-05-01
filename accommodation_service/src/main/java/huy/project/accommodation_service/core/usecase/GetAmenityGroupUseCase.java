@@ -1,7 +1,10 @@
 package huy.project.accommodation_service.core.usecase;
 
+import com.nimbusds.jose.util.Pair;
 import huy.project.accommodation_service.core.domain.constant.CacheConstant;
 import huy.project.accommodation_service.core.domain.constant.ErrorCode;
+import huy.project.accommodation_service.core.domain.dto.request.AmenityGroupParams;
+import huy.project.accommodation_service.core.domain.dto.response.PageInfo;
 import huy.project.accommodation_service.core.domain.entity.AmenityEntity;
 import huy.project.accommodation_service.core.domain.entity.AmenityGroupEntity;
 import huy.project.accommodation_service.core.exception.AppException;
@@ -12,6 +15,7 @@ import huy.project.accommodation_service.kernel.utils.JsonUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -50,15 +54,20 @@ public class GetAmenityGroupUseCase {
         return amenityGroup;
     }
 
-    public List<AmenityGroupEntity> getAllAmenityGroups() {
+    public Pair<PageInfo, List<AmenityGroupEntity>> getAllAmenityGroups(AmenityGroupParams params) {
         // get from cache
-        String cachedAmenityGroups = cachePort.getFromCache(CacheUtils.CACHE_AMENITY_GROUP_LIST);
-        if (cachedAmenityGroups != null) {
-            return jsonUtils.fromJsonList(cachedAmenityGroups, AmenityGroupEntity.class);
-        }
+//        String cachedAmenityGroups = cachePort.getFromCache(CacheUtils.CACHE_AMENITY_GROUP_LIST);
+//        if (cachedAmenityGroups != null) {
+//            return jsonUtils.fromJsonList(cachedAmenityGroups, AmenityGroupEntity.class);
+//        }
 
         // get from db
-        List<AmenityGroupEntity> amenityGroups = amenityGroupPort.getAllAmenityGroups();
+        Pair<PageInfo, List<AmenityGroupEntity>> amenityGroupPage = amenityGroupPort.getAllAmenityGroups(params);
+        if (CollectionUtils.isEmpty(amenityGroupPage.getRight())) {
+            return amenityGroupPage;
+        }
+
+        var amenityGroups = amenityGroupPage.getRight();
 
         List<Long> amenityGroupIds = amenityGroups.stream().map(AmenityGroupEntity::getId).toList();
         List<AmenityEntity> amenities = getAmenityUseCase.getAmenitiesByGroupIds(amenityGroupIds);
@@ -66,9 +75,23 @@ public class GetAmenityGroupUseCase {
 
         amenityGroups.forEach(group -> group.setAmenities(amenityGroupBy.get(group.getId())));
 
-        // set to cache
-        cachePort.setToCache(CacheUtils.CACHE_AMENITY_GROUP_LIST, amenityGroups, CacheConstant.DEFAULT_TTL);
+        // sort amenity groups by display order
+        amenityGroups.sort((o1, o2) -> {
+            if (o1.getDisplayOrder() == null && o2.getDisplayOrder() == null) {
+                return 0;
+            }
+            if (o1.getDisplayOrder() == null) {
+                return 1;
+            }
+            if (o2.getDisplayOrder() == null) {
+                return -1;
+            }
+            return o1.getDisplayOrder().compareTo(o2.getDisplayOrder());
+        });
 
-        return amenityGroups;
+        // set to cache
+//        cachePort.setToCache(CacheUtils.CACHE_AMENITY_GROUP_LIST, amenityGroups, CacheConstant.DEFAULT_TTL);
+
+        return Pair.of(amenityGroupPage.getLeft(), amenityGroups);
     }
 }

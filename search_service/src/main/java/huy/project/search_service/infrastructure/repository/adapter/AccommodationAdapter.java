@@ -15,6 +15,7 @@ import huy.project.search_service.infrastructure.repository.document.UnitDocumen
 import huy.project.search_service.infrastructure.repository.mapper.AccommodationMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.elasticsearch.client.elc.NativeQuery;
 import org.springframework.data.elasticsearch.client.elc.NativeQueryBuilder;
 import org.springframework.data.elasticsearch.core.ElasticsearchOperations;
@@ -22,6 +23,7 @@ import org.springframework.data.elasticsearch.core.SearchHit;
 import org.springframework.data.elasticsearch.core.SearchHits;
 import org.springframework.data.util.Pair;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -60,6 +62,9 @@ public class AccommodationAdapter implements IAccommodationPort {
 
         // Set the query
         queryBuilder.withQuery(q -> q.bool(boolQueryBuilder.build()));
+
+        // Apply sorting
+        applySorting(queryBuilder, params);
 
         // Add pagination
         int page = params.getPage() != null ? params.getPage() : 0;
@@ -235,8 +240,28 @@ public class AccommodationAdapter implements IAccommodationPort {
         }
     }
 
+    private void applySorting(NativeQueryBuilder queryBuilder, AccommodationParams params) {
+        String sortField = "ratingStar";
+        String sortOrder = "desc";
+
+        if (StringUtils.hasText(params.getSortBy())) {
+            switch (params.getSortBy()) {
+                case "priceAsc" -> {
+                    sortField = "units.pricePerNight";
+                    sortOrder = "asc";
+                }
+                case "priceDesc" -> {
+                    sortField = "units.pricePerNight";
+                    sortOrder = "desc";
+                }
+            }
+        }
+
+        queryBuilder.withSort(Sort.by(sortOrder.equals("asc") ? Sort.Direction.ASC : Sort.Direction.DESC, sortField));
+    }
+
     @Override
-    public void updateAvailability(Long accommodationId, Long unitId, Date startDate, Date endDate) {
+    public void updateAvailability(Long accommodationId, Long unitId, Date startDate, Date endDate, Integer delta) {
         if (accommodationId == null || unitId == null || startDate == null || endDate == null) {
             throw new IllegalArgumentException("Required parameters cannot be null");
         }
@@ -267,13 +292,13 @@ public class AccommodationAdapter implements IAccommodationPort {
                     .findFirst()
                     .orElseGet(() -> {
                         // Create new availability entry if none exists
-                        UnitAvailabilityDocument newAvailability = new UnitAvailabilityDocument(currentDate, 1);
+                        UnitAvailabilityDocument newAvailability = new UnitAvailabilityDocument(currentDate, unitToUpdate.getQuantity());
                         unitToUpdate.getAvailability().add(newAvailability);
                         return newAvailability;
                     });
 
-            // Decrement the available count
-            dateAvailability.setAvailableCount(dateAvailability.getAvailableCount() - 1);
+            // update the available count
+            dateAvailability.setAvailableCount(dateAvailability.getAvailableCount() + delta);
 
             calendar.add(Calendar.DATE, 1);
         }

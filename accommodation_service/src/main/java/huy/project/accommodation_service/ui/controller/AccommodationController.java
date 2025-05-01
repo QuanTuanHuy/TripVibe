@@ -1,6 +1,7 @@
 package huy.project.accommodation_service.ui.controller;
 
 import huy.project.accommodation_service.core.domain.dto.request.*;
+import huy.project.accommodation_service.core.domain.dto.response.AccommodationThumbnail;
 import huy.project.accommodation_service.core.domain.entity.AccommodationEntity;
 import huy.project.accommodation_service.core.service.IAccommodationService;
 import huy.project.accommodation_service.kernel.utils.AuthenUtils;
@@ -13,6 +14,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @RestController
@@ -39,6 +41,22 @@ public class AccommodationController {
         Long userId = AuthenUtils.getCurrentUserId();
         var req = jsonUtils.fromJson(accommodationJson, CreateAccommodationDtoV2.class);
         return ResponseEntity.ok(new Resource<>(accommodationService.createAccommodationV2(userId, req, images)));
+    }
+
+    @GetMapping("/thumbnails")
+    public ResponseEntity<Resource<List<AccommodationThumbnail>>> getAccThumbnails(
+            @RequestParam(name = "ids") List<Long> ids,
+            @RequestParam(name = "startDate") LocalDate startDate,
+            @RequestParam(name = "endDate") LocalDate endDate,
+            @RequestParam(name = "guestCount") Integer guestCount
+    ) {
+        var params = AccommodationThumbnailParams.builder()
+                .ids(ids)
+                .startDate(startDate)
+                .endDate(endDate)
+                .guestCount(guestCount)
+                .build();
+        return ResponseEntity.ok(new Resource<>(accommodationService.getAccommodationThumbnails(params)));
     }
 
 

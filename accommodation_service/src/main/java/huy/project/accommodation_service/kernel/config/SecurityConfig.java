@@ -42,6 +42,7 @@ public class SecurityConfig {
         ));
 
         httpSecurity.csrf(AbstractHttpConfigurer::disable);
+//        httpSecurity.cors(cors -> cors.configurationSource(corsConfigurationSource()));
 
         return httpSecurity.build();
     }
@@ -50,6 +51,22 @@ public class SecurityConfig {
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
+
+//    @Bean
+//    public CorsConfigurationSource corsConfigurationSource() {
+//        CorsConfiguration corsConfiguration = new CorsConfiguration();
+//
+//        corsConfiguration.setAllowedOrigins(List.of("http://localhost:3000", "http://localhost:3001"));
+//        corsConfiguration.setAllowedHeaders(List.of("*"));
+//        corsConfiguration.setAllowedMethods(List.of("*"));
+//
+//        corsConfiguration.setAllowCredentials(true);
+//
+//        UrlBasedCorsConfigurationSource urlBasedCorsConfigurationSource = new UrlBasedCorsConfigurationSource();
+//        urlBasedCorsConfigurationSource.registerCorsConfiguration("/**", corsConfiguration);
+//
+//        return urlBasedCorsConfigurationSource;
+//    }
 
     @Bean
     public JwtAuthenticationConverter jwtAuthenticationConverter() {

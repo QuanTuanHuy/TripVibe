@@ -17,7 +17,8 @@ public abstract class UnitMapper {
                 .unitNameId(req.getUnitNameId())
                 .description(req.getDescription())
                 .pricePerNight(req.getPricePerNight())
-                .maxGuest(req.getMaxGuest())
+                .maxAdults(req.getMaxAdults())
+                .maxChildren(req.getMaxChildren())
                 .useSharedBathroom(req.getUseSharedBathroom())
                 .build();
     }
@@ -28,7 +29,8 @@ public abstract class UnitMapper {
                 .unitNameId(req.getUnitNameId())
                 .description(req.getDescription())
                 .pricePerNight(req.getPricePerNight())
-                .maxGuest(req.getMaxGuest())
+                .maxAdults(req.getMaxAdults())
+                .maxChildren(req.getMaxChildren())
                 .useSharedBathroom(req.getUseSharedBathroom())
                 .quantity(req.getQuantity())
                 .build();

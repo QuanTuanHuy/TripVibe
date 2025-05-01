@@ -14,7 +14,8 @@ public class CreateUnitDto {
     private Long unitNameId;
     private String description;
     private BigDecimal pricePerNight;
-    private Long maxGuest;
+    private Integer maxAdults;
+    private Integer maxChildren;
     private Boolean useSharedBathroom;
 
     private List<CreateUnitPriceTypeDto> priceTypes;

@@ -8,20 +8,28 @@ namespace LocationService.Core.Service
     public interface ICountryService
     {
         Task<CountryEntity> CreateCountryAsync(CreateCountryDto countryDto);
+        Task<(List<CountryEntity>, long)> GetCountries(CountryParams countryParams);
     }
 
     public class CountryService : ICountryService
     {
         private readonly ICreateCountryUseCase _createCountryUseCase;
+        private readonly IGetCountryUseCase _getCountryUseCase;
 
-        public CountryService(ICreateCountryUseCase createCountryUseCase)
+        public CountryService(ICreateCountryUseCase createCountryUseCase, IGetCountryUseCase getCountryUseCase)
         {
             _createCountryUseCase = createCountryUseCase;
+            _getCountryUseCase = getCountryUseCase;
         }
 
         public async Task<CountryEntity> CreateCountryAsync(CreateCountryDto countryDto)
         {
             return await _createCountryUseCase.CreateCountryAsync(countryDto);
+        }
+
+        public async Task<(List<CountryEntity>, long)> GetCountries(CountryParams countryParams)
+        {
+            return await _getCountryUseCase.GetCountries(countryParams);
         }
     }
 }

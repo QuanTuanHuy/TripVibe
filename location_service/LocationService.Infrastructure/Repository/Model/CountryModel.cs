@@ -33,5 +33,8 @@ namespace LocationService.Infrastructure.Repository.Model
 
         [Column("flag_url")]
         public string FlagUrl { get; set; }
+        
+        [Column("thumbnail_url")]
+        public string? ThumbnailUrl { get; set; } = null!;
     }
 }

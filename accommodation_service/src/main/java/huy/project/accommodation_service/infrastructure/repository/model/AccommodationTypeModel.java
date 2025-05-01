@@ -20,4 +20,13 @@ public class AccommodationTypeModel extends AuditTable {
 
     @Column(name = "description")
     private String description;
+
+    @Column(name = "image_url")
+    private String imageUrl;
+
+    @Column(name = "icon_url")
+    private String iconUrl;
+
+    @Column(name = "is_highlighted")
+    private Boolean isHighlighted;
 }

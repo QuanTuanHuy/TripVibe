@@ -1,10 +1,15 @@
 package huy.project.accommodation_service.infrastructure.repository.adapter;
 
+import com.nimbusds.jose.util.Pair;
+import huy.project.accommodation_service.core.domain.dto.request.AmenityGroupParams;
+import huy.project.accommodation_service.core.domain.dto.response.PageInfo;
 import huy.project.accommodation_service.core.domain.entity.AmenityGroupEntity;
 import huy.project.accommodation_service.core.port.IAmenityGroupPort;
 import huy.project.accommodation_service.infrastructure.repository.IAmenityGroupRepository;
 import huy.project.accommodation_service.infrastructure.repository.mapper.AmenityGroupMapper;
 import huy.project.accommodation_service.infrastructure.repository.model.AmenityGroupModel;
+import huy.project.accommodation_service.infrastructure.repository.specification.AmenityGroupSpecification;
+import huy.project.accommodation_service.kernel.utils.PageUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -34,8 +39,14 @@ public class AmenityGroupAdapter implements IAmenityGroupPort {
     }
 
     @Override
-    public List<AmenityGroupEntity> getAllAmenityGroups() {
-        return AmenityGroupMapper.INSTANCE.toListAmenityGroup(amenityGroupRepository.findAll());
+    public Pair<PageInfo, List<AmenityGroupEntity>> getAllAmenityGroups(AmenityGroupParams params) {
+        var pageable = PageUtils.getPageable(params);
+
+        var result = amenityGroupRepository.findAll(AmenityGroupSpecification.getAmenityGroups(params), pageable);
+
+        var pageInfo = PageUtils.getPageInfo(result);
+
+        return Pair.of(pageInfo, AmenityGroupMapper.INSTANCE.toListAmenityGroup(result.getContent()));
     }
 
     @Override

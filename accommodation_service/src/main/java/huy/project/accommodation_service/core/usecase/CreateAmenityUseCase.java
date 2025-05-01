@@ -33,11 +33,21 @@ public class CreateAmenityUseCase {
         }
 
         AmenityEntity amenity = AmenityMapper.INSTANCE.toEntity(req);
+        if (req.getIsPaid() == null) {
+            amenity.setIsPaid(false);
+        }
+        if (req.getIsHighlighted() == null) {
+            amenity.setIsHighlighted(false);
+        }
+        if (req.getIsFilterable() == null) {
+            amenity.setIsFilterable(false);
+        }
+
         amenity = amenityPort.save(amenity);
 
         // clear cache
         cachePort.deleteFromCache(CacheUtils.buildCacheKeyGetAmenityGroupById(amenity.getGroupId()));
-        cachePort.deleteFromCache(CacheUtils.CACHE_AMENITY_GROUP_LIST);
+//        cachePort.deleteFromCache(CacheUtils.CACHE_AMENITY_GROUP_LIST);
 
         return amenity;
     }

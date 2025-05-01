@@ -1,7 +1,10 @@
 package huy.project.accommodation_service.core.service.impl;
 
+import com.nimbusds.jose.util.Pair;
+import huy.project.accommodation_service.core.domain.dto.request.AmenityGroupParams;
 import huy.project.accommodation_service.core.domain.dto.request.CreateAmenityGroupRequestDto;
 import huy.project.accommodation_service.core.domain.dto.request.UpdateAmenityGroupRequestDto;
+import huy.project.accommodation_service.core.domain.dto.response.PageInfo;
 import huy.project.accommodation_service.core.domain.entity.AmenityGroupEntity;
 import huy.project.accommodation_service.core.service.IAmenityGroupService;
 import huy.project.accommodation_service.core.usecase.CreateAmenityGroupUseCase;
@@ -32,8 +35,8 @@ public class AmenityGroupService implements IAmenityGroupService {
     }
 
     @Override
-    public List<AmenityGroupEntity> getAllAmenityGroups() {
-        return getAmenityGroupUseCase.getAllAmenityGroups();
+    public Pair<PageInfo, List<AmenityGroupEntity>> getAllAmenityGroups(AmenityGroupParams params) {
+        return getAmenityGroupUseCase.getAllAmenityGroups(params);
     }
 
     @Override

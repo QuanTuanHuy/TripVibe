@@ -11,4 +11,6 @@ public interface IAccommodationPort {
     AccommodationEntity getAccommodationById(Long id);
     List<AccommodationEntity> getAccommodations(AccommodationParams params);
     void deleteAccommodationById(Long id);
+
+    List<AccommodationEntity> getAccommodationsByIds(List<Long> ids);
 }

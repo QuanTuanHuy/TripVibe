@@ -1,6 +1,6 @@
 package huy.project.rating_service.ui.controller;
 
-import huy.project.rating_service.core.domain.entity.RatingSummaryEntity;
+import huy.project.rating_service.core.domain.dto.response.RatingSummaryDto;
 import huy.project.rating_service.core.service.IRatingSummaryService;
 import huy.project.rating_service.ui.resource.Resource;
 import lombok.RequiredArgsConstructor;
@@ -20,9 +20,16 @@ public class RatingSummaryController {
     private final IRatingSummaryService ratingSummaryService;
 
     @GetMapping
-    public Resource<List<RatingSummaryEntity>> getSummariesByAccIds(
+    public Resource<List<RatingSummaryDto>> getSummariesByAccIds(
             @RequestParam(name = "accommodationIds") List<Long> accIds
     ) {
-        return new Resource<>(ratingSummaryService.getRatingSummariesByAccIds(accIds));
+        var response = ratingSummaryService.getRatingSummariesByAccIds(accIds).stream()
+                .map(rs -> RatingSummaryDto.builder()
+                        .accommodationId(rs.getId())
+                        .numberOfRatings(rs.getNumberOfRatings())
+                        .totalRating(rs.getTotalRating())
+                        .build())
+                .toList();
+        return new Resource<>(response);
     }
 }

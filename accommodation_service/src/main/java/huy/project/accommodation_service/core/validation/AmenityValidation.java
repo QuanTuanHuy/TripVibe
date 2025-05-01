@@ -29,7 +29,7 @@ public class AmenityValidation {
             return Pair.of(false, ErrorCode.AMENITY_NAME_EXISTED);
         }
 
-        if (!amenityGroupValidation.isAmenityGroupExisted(req.getGroupId())) {
+        if (req.getGroupId() == null || !amenityGroupValidation.isAmenityGroupExisted(req.getGroupId())) {
             return Pair.of(false, ErrorCode.AMENITY_GROUP_NOT_FOUND);
         }
 

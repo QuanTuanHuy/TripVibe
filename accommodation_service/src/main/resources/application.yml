@@ -39,6 +39,8 @@ app:
   services:
     file_service:
       url: localhost:8088/file_service/
+    rating_service:
+      url: localhost:8089/rating_service
   kafka:
     default-server: localhost:9094
   security:
@@ -67,6 +69,8 @@ app:
           second: GET
         - first: /api/internal/v1/units/**
           second: GET
+        - first: /api/public/v1/currencies/**
+          second: GET
       protectedUrls:
         - urlPattern: /api/public/v1/amenity_groups
           roles:
@@ -87,6 +91,9 @@ app:
           roles:
             - ADMIN
         - urlPattern: /api/public/v1/accommodations
+          roles:
+            - ADMIN
+        - urlPattern: /api/public/v1/currencies
           roles:
             - ADMIN
 

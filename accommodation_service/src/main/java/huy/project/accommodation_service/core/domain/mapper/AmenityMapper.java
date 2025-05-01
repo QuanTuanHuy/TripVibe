@@ -15,7 +15,20 @@ public abstract class AmenityMapper {
     public AmenityEntity toEntity(AmenityEntity existedAmenity, UpdateAmenityRequestDto req) {
         existedAmenity.setName(req.getName());
         existedAmenity.setDescription(req.getDescription());
+        existedAmenity.setIcon(req.getIcon());
         existedAmenity.setGroupId(req.getGroupId());
+        existedAmenity.setAvailableTime(req.getAvailableTime());
+
+        if (req.getIsPaid() != null) {
+            existedAmenity.setIsPaid(req.getIsPaid());
+        }
+        if (req.getIsHighlighted() != null) {
+            existedAmenity.setIsHighlighted(req.getIsHighlighted());
+        }
+        if (req.getIsFilterable() != null) {
+            existedAmenity.setIsFilterable(req.getIsFilterable());
+        }
+
         return existedAmenity;
     }
 }

@@ -5,7 +5,19 @@ import lombok.Getter;
 @Getter
 public enum AmenityGroupType {
     ACCOMMODATION("Accommodation"),
-    UNIT("Unit");
+    UNIT("Unit"),
+    Bathroom("Bathroom"),
+    PROPERTY("Property"),
+    SERVICE("Service"),
+    FACILITY("Facility"),
+    COMMON("Common"),
+    OTHER("Other"),
+    PARKING("Parking"),
+    POOL("Pool"),
+    GYM("Gym"),
+    KITCHEN("Kitchen"),
+    LIVING_ROOM("Living Room"),
+    ;
 
     private final String type;
 

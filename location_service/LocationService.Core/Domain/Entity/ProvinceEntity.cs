@@ -6,5 +6,6 @@ namespace LocationService.Core.Domain.Entity
         public string Name { get; set; }
         public string Code { get; set; }
         public long CountryId { get; set; }
+        public string? ThumbnailUrl { get; set; }
     }
 }

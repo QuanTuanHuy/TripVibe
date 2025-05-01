@@ -2,6 +2,7 @@ package huy.project.accommodation_service.core.service;
 
 import huy.project.accommodation_service.core.domain.dto.request.*;
 import huy.project.accommodation_service.core.domain.dto.response.AccommodationDto;
+import huy.project.accommodation_service.core.domain.dto.response.AccommodationThumbnail;
 import huy.project.accommodation_service.core.domain.entity.AccommodationEntity;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -22,4 +23,6 @@ public interface IAccommodationService {
     void restoreUnit(Long userId, Long accId, Long unitId);
     AccommodationDto getAccDtoById(Long id);
     List<AccommodationDto> getAccommodations(AccommodationParams params);
+
+    List<AccommodationThumbnail> getAccommodationThumbnails(AccommodationThumbnailParams params);
 }

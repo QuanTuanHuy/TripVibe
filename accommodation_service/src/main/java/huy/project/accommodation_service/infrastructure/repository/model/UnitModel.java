@@ -27,8 +27,11 @@ public class UnitModel extends AuditTable {
     @Column(name = "price_per_night")
     private Long pricePerNight;
 
-    @Column(name = "max_guest")
-    private Long maxGuest;
+    @Column(name = "max_adults")
+    private Integer maxAdults;
+
+    @Column(name = "max_children")
+    private Integer maxChildren;
 
     @Column(name = "use_shared_bathroom")
     private Boolean useSharedBathroom;
