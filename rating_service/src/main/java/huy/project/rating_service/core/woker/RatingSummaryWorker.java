@@ -16,6 +16,8 @@ public class RatingSummaryWorker {
     private final IRatingSummaryService ratingSummaryService;
     private final IKafkaPublisher kafkaPublisher;
 
+    private static final double DEFAULT_RATING = 10.0;
+
     // every 5 minutes
     @Scheduled(fixedRate = 300000)
     public void syncRatingWithSearch() {
@@ -29,7 +31,7 @@ public class RatingSummaryWorker {
         var syncRatingMessages = ratingSummaries.stream()
                 .map(rm -> SyncRatingMessage.builder()
                         .accommodationId(rm.getAccommodationId())
-                        .rating(rm.getNumberOfRatings() == 0 ? 0 : (double) rm.getTotalRating() / rm.getNumberOfRatings())
+                        .rating(rm.getNumberOfRatings() == 0 ? DEFAULT_RATING : (double) rm.getTotalRating() / rm.getNumberOfRatings())
                         .build())
                 .toList();
 

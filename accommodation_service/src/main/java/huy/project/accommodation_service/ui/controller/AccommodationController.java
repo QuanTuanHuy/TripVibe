@@ -46,9 +46,9 @@ public class AccommodationController {
     @GetMapping("/thumbnails")
     public ResponseEntity<Resource<List<AccommodationThumbnail>>> getAccThumbnails(
             @RequestParam(name = "ids") List<Long> ids,
-            @RequestParam(name = "startDate") LocalDate startDate,
-            @RequestParam(name = "endDate") LocalDate endDate,
-            @RequestParam(name = "guestCount") Integer guestCount
+            @RequestParam(name = "startDate", required = false) LocalDate startDate,
+            @RequestParam(name = "endDate", required = false) LocalDate endDate,
+            @RequestParam(name = "guestCount", required = false) Integer guestCount
     ) {
         var params = AccommodationThumbnailParams.builder()
                 .ids(ids)

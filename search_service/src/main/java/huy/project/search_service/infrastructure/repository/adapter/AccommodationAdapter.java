@@ -93,6 +93,13 @@ public class AccommodationAdapter implements IAccommodationPort {
     }
 
     private void applyBasicFilters(BoolQuery.Builder boolQueryBuilder, AccommodationParams params) {
+        if (StringUtils.hasText(params.getName())) {
+            boolQueryBuilder.must(MatchQuery.of(m -> m
+                    .field("name")
+                    .fuzziness("AUTO")
+                    .query(params.getName()))._toQuery());
+        }
+
         if (params.getProvinceId() != null) {
             boolQueryBuilder.must(TermQuery.of(t -> t
                     .field("location.provinceId")

@@ -1,4 +1,4 @@
-package huy.project.accommodation_service.core.domain.dto.response;
+package huy.project.search_service.core.domain.dto.response;
 
 import lombok.*;
 import lombok.experimental.FieldDefaults;

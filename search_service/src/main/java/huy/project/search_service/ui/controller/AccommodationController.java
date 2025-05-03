@@ -30,6 +30,13 @@ public class AccommodationController {
         return ResponseEntity.ok(new Resource<>(accommodationService.getAccommodations(params)));
     }
 
+    @PostMapping("/search/thumbnail")
+    public ResponseEntity<Resource<?>> getAccommodationThumbnail(
+            @RequestBody AccommodationParams params
+    ) {
+        return ResponseEntity.ok(new Resource<>(accommodationService.getAccommodationsThumbnail(params)));
+    }
+
     @GetMapping("/{id}")
     public ResponseEntity<Resource<AccommodationEntity>> getAccById(
             @PathVariable(name = "id") Long id
