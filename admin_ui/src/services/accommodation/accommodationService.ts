@@ -9,7 +9,8 @@ import {
   Currency,
   AmenityGroup,
   Language,
-  AmenityGroupParams
+  AmenityGroupParams,
+  AccommodationParams
 } from '@/types/accommodation';
 
 // Path đến accommodation service thông qua API Gateway
@@ -76,6 +77,19 @@ const accommodationService = {
   // Lấy thông tin chi tiết chỗ nghỉ
   getAccommodationById: async (id: number): Promise<Accommodation> => {
     return apiClient.get<Accommodation>(`${ACCOMMODATION_PATH}/accommodations/${id}`);
+  },
+
+  // Lấy danh sách chỗ nghỉ
+  getAccommodations: async (params: AccommodationParams): Promise<Accommodation[]> => {
+    const queryParams = new URLSearchParams();
+
+    if (params.hostId) queryParams.append('hostId', params.hostId.toString());
+    if (params.ids && params.ids.length) {
+      queryParams.append('ids', params.ids.join(','));
+    }
+
+    const queryString = queryParams.toString() ? `?${queryParams.toString()}` : '';
+    return apiClient.get<Accommodation[]>(`${ACCOMMODATION_PATH}/accommodations${queryString}`);
   },
 
   // Cập nhật chỗ nghỉ

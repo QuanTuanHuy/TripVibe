@@ -42,3 +42,12 @@ export interface Province {
   countryId: number;
   thumbnailUrl?: string;
 }
+
+export interface Location {
+  id: number;
+  countryId: number;
+  provinceId: number;
+  detailAddress: string;
+  latitude: number;
+  longitude: number;
+}

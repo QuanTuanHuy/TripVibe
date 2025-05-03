@@ -1,5 +1,7 @@
+import { Image } from "@/types/common";
 import { Bedroom, CreateBedroomDto } from "../bed";
 import { CreatePriceGroupDto, CreatePriceTypeDto, PriceType, UnitPriceGroup, UnitPriceType } from "../price";
+import { Location } from "@/types/location";
 
 export interface AccommodationType {
     id: number;
@@ -33,6 +35,15 @@ export interface Amenity {
     isHighlighted?: boolean;
     isFilterable?: boolean;
     needToReserve?: boolean;
+}
+
+export interface AccommodationAmenity {
+    id: number;
+    accommodationId: number;
+    amenityId: number;
+    fee?: number;
+    needToReserve?: boolean;
+    amenity?: Amenity;
 }
 
 export interface AmenityGroup {
@@ -70,8 +81,11 @@ export interface CreateLocationDto {
 }
 
 export interface UnitAmenity {
-    id?: number;
+    id: number;
+    unitId: number;
     amenityId: number;
+    fee?: number;
+    needToReserve?: boolean;
     amenity?: Amenity;
 }
 
@@ -89,7 +103,7 @@ export interface Unit {
     quantity: number;
 
     unitName?: UnitName;
-    images?: string[];
+    images?: Image[];
     bedrooms?: Bedroom[];
     amenities?: UnitAmenity[];
     priceTypes?: UnitPriceType[];
@@ -127,22 +141,26 @@ export interface CreateAccommodationDto {
 
 export interface Accommodation {
     id: number;
+    hostId: number;
+    locationId: number;
     typeId: number;
-    typeName?: string;
+    currencyId: number;
     name: string;
     description: string;
-    ownerId: number;
-    ownerName?: string;
-    checkInTimeFrom: number;
+    thumbnailUrl?: string;
+    checkInTimeFrom: number; // Thời gian dưới dạng hours (0-23)
     checkInTimeTo: number;
     checkOutTimeFrom: number;
     checkOutTimeTo: number;
-    rating?: number;
-    reviewCount?: number;
+    isVerified?: boolean;
     location?: Location;
+    languages?: Language[];
     units?: Unit[];
-    amenities?: Amenity[];
-    images?: string[];
-    createdAt?: number;
-    updatedAt?: number;
+    type?: AccommodationType;
+    amenities?: AccommodationAmenity[];
+}
+
+export interface AccommodationParams {
+    hostId?: number;
+    ids?: number[];
 }
