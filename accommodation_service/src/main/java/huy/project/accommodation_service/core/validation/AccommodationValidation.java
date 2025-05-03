@@ -26,29 +26,6 @@ public class AccommodationValidation {
 
     GetCurrencyUseCase getCurrencyUseCase;
 
-//    public Pair<Boolean, ErrorCode> validateCreateAccommodationDto(CreateAccommodationDto req) {
-//        AccommodationEntity existedAcc = accommodationPort.getAccommodationByName(req.getName());
-//        if (existedAcc != null) {
-//            return Pair.of(false, ErrorCode.ACCOMMODATION_NAME_EXISTED);
-//        }
-//
-//        if (!languageValidation.languagesExist(req.getLanguageIds())) {
-//            return Pair.of(false, ErrorCode.LANGUAGE_NOT_FOUND);
-//        }
-//
-//        if (getCurrencyUseCase.getCurrencyById(req.getCurrencyId()) == null) {
-//            return Pair.of(false, ErrorCode.CURRENCY_NOT_FOUND);
-//        }
-//
-//        List<Long> amenityIds = req.getAmenities().stream()
-//                .map(CreateAccommodationAmenityDto::getAmenityId)
-//                .toList();
-//        if (!amenityValidation.amenitiesExist(amenityIds)) {
-//            return Pair.of(false, ErrorCode.AMENITY_NOT_FOUND);
-//        }
-//
-//        return Pair.of(true, ErrorCode.SUCCESS);
-//    }
 
     public Pair<Boolean, ErrorCode> validateCreateAccommodationDto(CreateAccommodationDtoV2 req) {
         AccommodationEntity existedAcc = accommodationPort.getAccommodationByName(req.getName());
@@ -58,6 +35,13 @@ public class AccommodationValidation {
 
         if (!languageValidation.languagesExist(req.getLanguageIds())) {
             return Pair.of(false, ErrorCode.LANGUAGE_NOT_FOUND);
+        }
+
+        if (req.getCurrencyId() != null) {
+            var currency = getCurrencyUseCase.getCurrencyById(req.getCurrencyId());
+            if (currency == null) {
+                return Pair.of(false, ErrorCode.CURRENCY_NOT_FOUND);
+            }
         }
 
         if (!amenityValidation.amenitiesExist(req.getAmenityIds())) {

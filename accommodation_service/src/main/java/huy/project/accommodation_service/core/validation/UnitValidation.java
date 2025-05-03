@@ -21,32 +21,6 @@ public class UnitValidation {
     UnitNameValidation unitNameValidation;
     PriceTypeValidation priceTypeValidation;
 
-//    public Pair<Boolean, ErrorCode> validateCreateUnitDto(CreateUnitDto req) {
-//        if (!unitNameValidation.unitNameExist(req.getUnitNameId())) {
-//            return Pair.of(false, ErrorCode.UNIT_NAME_NOT_FOUND);
-//        }
-//
-//        if (!CollectionUtils.isEmpty(req.getAmenities())) {
-//            List<Long> amenityIds = req.getAmenities().stream()
-//                    .map(CreateUnitAmenityDto::getAmenityId)
-//                    .toList();
-//            if (!amenityValidation.amenitiesExist(amenityIds)) {
-//                return Pair.of(false, ErrorCode.AMENITY_NOT_FOUND);
-//            }
-//        }
-//
-//        if (!CollectionUtils.isEmpty(req.getPriceTypes())) {
-//            List<Long> priceTypeIds = req.getPriceTypes().stream()
-//                    .map(CreateUnitPriceTypeDto::getPriceTypeId)
-//                    .toList();
-//            if (!priceTypeValidation.priceTypesExist(priceTypeIds)) {
-//                throw new AppException(ErrorCode.PRICE_TYPE_NOT_FOUND);
-//            }
-//        }
-//
-//        return Pair.of(true, ErrorCode.SUCCESS);
-//    }
-
     public Pair<Boolean, ErrorCode> validateCreateUnitDto(CreateUnitDtoV2 req) {
         if (!unitNameValidation.unitNameExist(req.getUnitNameId())) {
             return Pair.of(false, ErrorCode.UNIT_NAME_NOT_FOUND);
