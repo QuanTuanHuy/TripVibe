@@ -20,7 +20,7 @@ public class CreateAccommodationDtoV2 {
     private Long checkOutTimeTo;
 
     private CreateUnitDtoV2 unit;
-    private List<CreateAccommodationAmenityDto> amenities;
+    private List<Long> amenityIds;
     private List<Long> languageIds;
     private CreateLocationDto location;
 }

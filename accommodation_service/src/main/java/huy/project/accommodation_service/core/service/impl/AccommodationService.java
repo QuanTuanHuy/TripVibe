@@ -27,10 +27,10 @@ public class AccommodationService implements IAccommodationService {
     DeleteUnitUseCase deleteUnitUseCase;
     RestoreUnitUseCase restoreUnitUseCase;
 
-    @Override
-    public AccommodationEntity createAccommodation(Long userId, CreateAccommodationDto req) {
-        return createAccommodationUseCase.createAccommodation(userId, req);
-    }
+//    @Override
+//    public AccommodationEntity createAccommodation(Long userId, CreateAccommodationDto req) {
+//        return createAccommodationUseCase.createAccommodation(userId, req);
+//    }
 
     @Override
     public AccommodationEntity createAccommodationV2(Long userId, CreateAccommodationDtoV2 req, List<MultipartFile> images) {
@@ -44,10 +44,10 @@ public class AccommodationService implements IAccommodationService {
         return accommodation;
     }
 
-    @Override
-    public void addUnitToAccommodation(Long userId, Long accId, CreateUnitDto req) {
-        addUnitUseCase.addUnit(userId, accId, req);
-    }
+//    @Override
+//    public void addUnitToAccommodation(Long userId, Long accId, CreateUnitDto req) {
+//        addUnitUseCase.addUnit(userId, accId, req);
+//    }
 
     @Override
     public void addUnitToAccommodationV2(Long userId, Long accId, CreateUnitDtoV2 req, List<MultipartFile> files) {

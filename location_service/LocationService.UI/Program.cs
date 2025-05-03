@@ -82,7 +82,9 @@ if (app.Environment.IsDevelopment())
     app.MapOpenApi();
 }
 
-app.UseHttpsRedirection();
+// Remove the HTTPS redirection middleware
+// app.UseHttpsRedirection();
+
 app.MapControllers();
 
 app.Run();

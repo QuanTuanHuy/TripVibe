@@ -1,13 +1,12 @@
 package huy.project.accommodation_service.ui.controller;
 
+import huy.project.accommodation_service.core.domain.dto.request.CreatePriceTypeDto;
 import huy.project.accommodation_service.core.domain.entity.PriceTypeEntity;
 import huy.project.accommodation_service.core.service.IPriceTypeService;
 import huy.project.accommodation_service.ui.resource.Resource;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -20,5 +19,12 @@ public class PriceTypeController {
     @GetMapping
     public ResponseEntity<Resource<List<PriceTypeEntity>>> getAllPriceTypes() {
         return ResponseEntity.ok(new Resource<>(priceTypeService.getALlPriceTypes()));
+    }
+
+    @PostMapping
+    public ResponseEntity<Resource<PriceTypeEntity>> createPriceType(
+            @RequestBody CreatePriceTypeDto req
+    ) {
+        return ResponseEntity.ok(new Resource<>(priceTypeService.createPriceType(req)));
     }
 }

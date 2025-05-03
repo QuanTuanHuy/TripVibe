@@ -25,15 +25,15 @@ public class AccommodationController {
     IAccommodationService accommodationService;
     JsonUtils jsonUtils;
 
-    @PostMapping
-    public ResponseEntity<Resource<AccommodationEntity>> createAccommodation(
-            @RequestBody CreateAccommodationDto req
-    ) {
-        Long userId = AuthenUtils.getCurrentUserId();
-        return ResponseEntity.ok(new Resource<>(accommodationService.createAccommodation(userId, req)));
-    }
+//    @PostMapping
+//    public ResponseEntity<Resource<AccommodationEntity>> createAccommodation(
+//            @RequestBody CreateAccommodationDto req
+//    ) {
+//        Long userId = AuthenUtils.getCurrentUserId();
+//        return ResponseEntity.ok(new Resource<>(accommodationService.createAccommodation(userId, req)));
+//    }
 
-    @PostMapping("/v2")
+    @PostMapping("")
     public ResponseEntity<Resource<AccommodationEntity>> createAccommodationV2(
             @RequestPart(value = "accommodationJson") String accommodationJson,
             @RequestPart(value = "images", required = false) List<MultipartFile> images
@@ -100,15 +100,15 @@ public class AccommodationController {
         return ResponseEntity.ok(new Resource<>(null));
     }
 
-    @PostMapping("/{id}/units")
-    public ResponseEntity<Resource<?>> addUnitToAccommodation(
-            @PathVariable Long id,
-            @RequestBody CreateUnitDto req
-    ) {
-        Long userId = AuthenUtils.getCurrentUserId();
-        accommodationService.addUnitToAccommodation(userId, id, req);
-        return ResponseEntity.ok(new Resource<>(null));
-    }
+//    @PostMapping("/{id}/units")
+//    public ResponseEntity<Resource<?>> addUnitToAccommodation(
+//            @PathVariable Long id,
+//            @RequestBody CreateUnitDto req
+//    ) {
+//        Long userId = AuthenUtils.getCurrentUserId();
+//        accommodationService.addUnitToAccommodation(userId, id, req);
+//        return ResponseEntity.ok(new Resource<>(null));
+//    }
 
     @PostMapping("/{id}/units/v2")
     public ResponseEntity<Resource<?>> addUnitToAccommodationV2(

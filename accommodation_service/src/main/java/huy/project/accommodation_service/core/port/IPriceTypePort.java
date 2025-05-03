@@ -8,4 +8,5 @@ public interface IPriceTypePort {
     PriceTypeEntity getPriceTypeByName(String name);
     PriceTypeEntity getPriceTypeById(Long id);
     List<PriceTypeEntity> getAllPriceTypes();
+    PriceTypeEntity save(PriceTypeEntity priceType);
 }

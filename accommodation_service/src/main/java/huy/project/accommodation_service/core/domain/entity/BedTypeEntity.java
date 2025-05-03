@@ -10,5 +10,5 @@ import lombok.*;
 public class BedTypeEntity {
     private Long id;
     private String name;
-    private String size;
+    private Integer size;
 }

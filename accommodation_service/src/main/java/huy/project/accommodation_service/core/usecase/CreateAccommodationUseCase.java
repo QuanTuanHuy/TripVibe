@@ -1,8 +1,6 @@
 package huy.project.accommodation_service.core.usecase;
 
-import huy.project.accommodation_service.core.domain.constant.ImageEntityType;
 import huy.project.accommodation_service.core.domain.constant.TopicConstant;
-import huy.project.accommodation_service.core.domain.dto.request.CreateAccommodationDto;
 import huy.project.accommodation_service.core.domain.dto.request.CreateAccommodationDtoV2;
 import huy.project.accommodation_service.core.domain.entity.*;
 import huy.project.accommodation_service.core.domain.kafka.*;
@@ -38,62 +36,62 @@ public class CreateAccommodationUseCase {
 
     private final AccommodationValidation accValidation;
 
-    @Transactional(rollbackFor = Exception.class)
-    public AccommodationEntity createAccommodation(Long userId, CreateAccommodationDto req) {
-        // validate req
-        var validationResult = accValidation.validateCreateAccommodationDto(req);
-        if (!validationResult.getFirst()) {
-            log.error("create accommodation failed: {}", validationResult.getSecond());
-            throw new AppException(validationResult.getSecond());
-        }
-
-        // create location
-        LocationEntity location = createLocationUseCase.createLocation(req.getLocation());
-
-        // create main accommodation
-        AccommodationEntity accommodation = AccommodationMapper.INSTANCE.toEntity(userId, location.getId(), req);
-        accommodation = accommodationPort.save(accommodation);
-        final Long accommodationId = accommodation.getId();
-
-        // create accommodation amenities
-        List<AccommodationAmenityEntity> accAmenities = req.getAmenities().stream()
-                .map(amenity -> AccommodationAmenityEntity.builder()
-                        .accommodationId(accommodationId)
-                        .amenityId(amenity.getAmenityId())
-                        .fee(amenity.getFee())
-                        .needToReserve(amenity.getNeedToReserve())
-                        .build())
-                .toList();
-        accommodationAmenityPort.saveAll(accAmenities);
-
-        // create accommodation languages
-        List<AccommodationLanguageEntity> accLanguages = req.getLanguageIds().stream()
-                .map(languageId -> AccommodationLanguageEntity.builder()
-                        .accommodationId(accommodationId)
-                        .languageId(languageId)
-                        .build())
-                .toList();
-        accLanguagePort.saveAll(accLanguages);
-
-        // create accommodation images
-        List<ImageEntity> accImages = req.getImages().stream()
-                .map(image -> ImageEntity.builder()
-                        .id(image.getId())
-                        .entityType(ImageEntityType.ACCOMMODATION.getType())
-                        .entityId(accommodationId)
-                        .url(image.getUrl())
-                        .isPrimary(image.getIsPrimary())
-                        .build())
-                .toList();
-        createImageUseCase.createImages(accImages);
-
-        // create accommodation units
-        req.getUnits().forEach(unit -> createUnitUseCase.createUnit(accommodationId, unit));
-
-        handleAfterCreateAccommodation(accommodationId);
-
-        return accommodation;
-    }
+//    @Transactional(rollbackFor = Exception.class)
+//    public AccommodationEntity createAccommodation(Long userId, CreateAccommodationDto req) {
+//        // validate req
+//        var validationResult = accValidation.validateCreateAccommodationDto(req);
+//        if (!validationResult.getFirst()) {
+//            log.error("create accommodation failed: {}", validationResult.getSecond());
+//            throw new AppException(validationResult.getSecond());
+//        }
+//
+//        // create location
+//        LocationEntity location = createLocationUseCase.createLocation(req.getLocation());
+//
+//        // create main accommodation
+//        AccommodationEntity accommodation = AccommodationMapper.INSTANCE.toEntity(userId, location.getId(), req);
+//        accommodation = accommodationPort.save(accommodation);
+//        final Long accommodationId = accommodation.getId();
+//
+//        // create accommodation amenities
+//        List<AccommodationAmenityEntity> accAmenities = req.getAmenities().stream()
+//                .map(amenity -> AccommodationAmenityEntity.builder()
+//                        .accommodationId(accommodationId)
+//                        .amenityId(amenity.getAmenityId())
+//                        .fee(amenity.getFee())
+//                        .needToReserve(amenity.getNeedToReserve())
+//                        .build())
+//                .toList();
+//        accommodationAmenityPort.saveAll(accAmenities);
+//
+//        // create accommodation languages
+//        List<AccommodationLanguageEntity> accLanguages = req.getLanguageIds().stream()
+//                .map(languageId -> AccommodationLanguageEntity.builder()
+//                        .accommodationId(accommodationId)
+//                        .languageId(languageId)
+//                        .build())
+//                .toList();
+//        accLanguagePort.saveAll(accLanguages);
+//
+//        // create accommodation images
+//        List<ImageEntity> accImages = req.getImages().stream()
+//                .map(image -> ImageEntity.builder()
+//                        .id(image.getId())
+//                        .entityType(ImageEntityType.ACCOMMODATION.getType())
+//                        .entityId(accommodationId)
+//                        .url(image.getUrl())
+//                        .isPrimary(image.getIsPrimary())
+//                        .build())
+//                .toList();
+//        createImageUseCase.createImages(accImages);
+//
+//        // create accommodation units
+//        req.getUnits().forEach(unit -> createUnitUseCase.createUnit(accommodationId, unit));
+//
+//        handleAfterCreateAccommodation(accommodationId);
+//
+//        return accommodation;
+//    }
 
     @Transactional(rollbackFor = Exception.class)
     public AccommodationEntity createAccommodationV2(Long userId, CreateAccommodationDtoV2 req, List<MultipartFile> images) {
@@ -113,12 +111,10 @@ public class CreateAccommodationUseCase {
         final Long accommodationId = accommodation.getId();
 
         // create accommodation amenities
-        List<AccommodationAmenityEntity> accAmenities = req.getAmenities().stream()
-                .map(amenity -> AccommodationAmenityEntity.builder()
+        List<AccommodationAmenityEntity> accAmenities = req.getAmenityIds().stream()
+                .map(amenityId -> AccommodationAmenityEntity.builder()
                         .accommodationId(accommodationId)
-                        .amenityId(amenity.getAmenityId())
-                        .fee(amenity.getFee())
-                        .needToReserve(amenity.getNeedToReserve())
+                        .amenityId(amenityId)
                         .build())
                 .toList();
         accommodationAmenityPort.saveAll(accAmenities);

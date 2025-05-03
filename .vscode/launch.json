@@ -2,6 +2,20 @@
   "version": "0.2.0",
   "configurations": [
     {
+      "type": "java",
+      "name": "AccommodationServiceApplication",
+      "request": "launch",
+      "mainClass": "huy.project.accommodation_service.AccommodationServiceApplication",
+      "projectName": "accommodation_service"
+    },
+    {
+      "type": "java",
+      "name": "ApiGatewayApplication",
+      "request": "launch",
+      "mainClass": "huy.project.api_gateway.ApiGatewayApplication",
+      "projectName": "api_gateway"
+    },
+    {
       "name": "C/C++ Runner: Debug Session",
       "type": "cppdbg",
       "request": "launch",
