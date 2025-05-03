@@ -52,6 +52,17 @@ public class AccommodationController {
         return ResponseEntity.ok(new Resource<>(accommodationService.getAccommodationThumbnails(params)));
     }
 
+    @GetMapping()
+    public ResponseEntity<Resource<List<AccommodationEntity>>> getAccommodations(
+            @RequestParam(name = "ids", required = false) List<Long> ids,
+            @RequestParam(name = "hostId", required = false) Long hostId
+    ) {
+        var params = AccommodationParams.builder()
+                .ids(ids)
+                .hostId(hostId)
+                .build();
+        return ResponseEntity.ok(new Resource<>(accommodationService.getAccommodations(params)));
+    }
 
     @GetMapping("/{id}")
     public ResponseEntity<Resource<AccommodationEntity>> getDetailAccommodation(

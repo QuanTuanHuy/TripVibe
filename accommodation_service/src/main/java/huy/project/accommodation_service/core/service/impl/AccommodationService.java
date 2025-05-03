@@ -86,7 +86,7 @@ public class AccommodationService implements IAccommodationService {
     }
 
     @Override
-    public List<AccommodationDto> getAccommodations(AccommodationParams params) {
+    public List<AccommodationEntity> getAccommodations(AccommodationParams params) {
         return getAccommodationUseCase.getAccommodations(params);
     }
 

@@ -1,16 +1,15 @@
 package huy.project.accommodation_service.core.usecase;
 
 import huy.project.accommodation_service.core.domain.constant.TopicConstant;
+import huy.project.accommodation_service.core.domain.dto.request.AccommodationParams;
 import huy.project.accommodation_service.core.domain.dto.request.CreateAccommodationDtoV2;
 import huy.project.accommodation_service.core.domain.entity.*;
 import huy.project.accommodation_service.core.domain.kafka.*;
 import huy.project.accommodation_service.core.domain.mapper.AccommodationMapper;
 import huy.project.accommodation_service.core.exception.AppException;
-import huy.project.accommodation_service.core.port.IAccommodationAmenityPort;
-import huy.project.accommodation_service.core.port.IAccommodationLanguagePort;
-import huy.project.accommodation_service.core.port.IAccommodationPort;
-import huy.project.accommodation_service.core.port.IKafkaPublisher;
+import huy.project.accommodation_service.core.port.*;
 import huy.project.accommodation_service.core.validation.AccommodationValidation;
+import huy.project.accommodation_service.kernel.utils.CacheUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -26,6 +25,7 @@ public class CreateAccommodationUseCase {
     private final IAccommodationPort accommodationPort;
     private final IAccommodationAmenityPort accommodationAmenityPort;
     private final IAccommodationLanguagePort accLanguagePort;
+    private final ICachePort cachePort;
 
     private final CreateLocationUseCase createLocationUseCase;
     private final CreateUnitUseCase createUnitUseCase;
@@ -78,6 +78,11 @@ public class CreateAccommodationUseCase {
         accommodation.setThumbnailUrl(firstImage);
 
         handleAfterCreateAccommodation(accommodationId);
+
+        // clear cache
+        cachePort.deleteFromCache(CacheUtils.buildCacheKeyGetAccommodations(AccommodationParams.builder()
+                        .hostId(userId)
+                .build()));
 
         return accommodationPort.save(accommodation);
     }

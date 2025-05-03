@@ -20,7 +20,7 @@ public interface IAccommodationService {
     void deleteUnit(Long userId, Long accId, Long unitId);
     void restoreUnit(Long userId, Long accId, Long unitId);
     AccommodationDto getAccDtoById(Long id);
-    List<AccommodationDto> getAccommodations(AccommodationParams params);
+    List<AccommodationEntity> getAccommodations(AccommodationParams params);
 
     List<AccommodationThumbnail> getAccommodationThumbnails(AccommodationThumbnailParams params);
 }
