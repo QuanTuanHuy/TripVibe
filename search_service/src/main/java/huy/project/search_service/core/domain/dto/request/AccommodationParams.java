@@ -17,6 +17,7 @@ import java.util.List;
 public class AccommodationParams extends BaseParams {
     private Integer page;
     private Integer pageSize;
+    private String name;
     private Long provinceId;
     private Date startDate;
     private Date endDate;

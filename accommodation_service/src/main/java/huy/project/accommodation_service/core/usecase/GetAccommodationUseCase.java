@@ -23,10 +23,12 @@ import huy.project.accommodation_service.core.port.ILocationPort;
 import huy.project.accommodation_service.core.port.client.IRatingPort;
 import huy.project.accommodation_service.kernel.utils.AuthenUtils;
 import huy.project.accommodation_service.kernel.utils.CacheUtils;
+import huy.project.accommodation_service.kernel.utils.JsonUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
 
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -49,8 +51,9 @@ public class GetAccommodationUseCase {
     private final GetAccommodationAmenityUseCase getAccAmenityUseCase;
     private final GetAccommodationLanguageUseCase getAccLanguageUseCase;
     private final GetAccommodationTypeUseCase getAccTypeUseCase;
-
     private final DynamicPricingUseCase dynamicPricingUseCase;
+
+    private final JsonUtils jsonUtils;
 
     private final IKafkaPublisher kafkaPublisher;
 
@@ -120,11 +123,31 @@ public class GetAccommodationUseCase {
                 .build();
     }
 
-    public List<AccommodationDto> getAccommodations(AccommodationParams params) {
-        var accommodations = accommodationPort.getAccommodations(params);
-        accommodations.forEach(acc -> acc.setUnits(getUnitUseCase.getUnitsByAccommodationId(acc.getId())));
+    public List<AccommodationEntity> getAccommodations(AccommodationParams params) {
+        // get from cache
+        String cacheKey = CacheUtils.buildCacheKeyGetAccommodations(params);
+        String cachedAccommodations = cachePort.getFromCache(cacheKey);
+        if (StringUtils.hasText(cachedAccommodations)) {
+            return jsonUtils.fromJsonList(cachedAccommodations, AccommodationEntity.class);
+        }
 
-        return accommodations.stream().map(AccommodationDto::from).toList();
+        var accommodations = accommodationPort.getAccommodations(params);
+        if (CollectionUtils.isEmpty(accommodations)) {
+            return List.of();
+        }
+
+        accommodations.forEach(a -> {
+            a.setLocation(locationPort.getLocationById(a.getLocationId()));
+            a.setUnits(getUnitUseCase.getUnitsByAccommodationId(a.getId()));
+            a.setAmenities(getAccAmenityUseCase.getAccAmenitiesByAccId(a.getId()));
+            a.setLanguages(getAccLanguageUseCase.getLanguageByAccId(a.getId()));
+            a.setType(getAccTypeUseCase.getAccommodationTypeById(a.getTypeId()));
+        });
+
+        // set to cache
+        cachePort.setToCache(cacheKey, accommodations, CacheConstant.DEFAULT_TTL);
+
+        return accommodations;
     }
 
     public List<AccommodationThumbnail> getAccommodationThumbnails(AccommodationThumbnailParams params) {

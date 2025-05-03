@@ -31,12 +31,19 @@ public class CreateAccommodationUseCase {
         Date today = new Date();
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(today);
+        calendar.set(Calendar.HOUR_OF_DAY, 7);
+        calendar.set(Calendar.MINUTE, 0);
+        calendar.set(Calendar.SECOND, 0);
+        calendar.set(Calendar.MILLISECOND, 0);
+
+        Date startDate = calendar.getTime();
+
         calendar.add(Calendar.YEAR, 1);
         Date nextYear = calendar.getTime();
 
         for (UnitEntity unit : accommodation.getUnits()) {
             unit.setAvailability(new ArrayList<>());
-            preGenerateAvailability(unit, today, nextYear);
+            preGenerateAvailability(unit, startDate, nextYear);
         }
 
         return accommodationPort.save(accommodation);

@@ -45,7 +45,9 @@ public class InternalAccommodationController {
                 .ids(ids)
                 .hostId(hostId)
                 .build();
-        List<AccommodationDto> accommodations = accommodationService.getAccommodations(params);
+        List<AccommodationDto> accommodations = accommodationService.getAccommodations(params).stream()
+                .map(AccommodationDto::from)
+                .toList();
         return ResponseEntity.ok(new Resource<>(accommodations));
     }
 }

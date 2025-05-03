@@ -13,4 +13,6 @@ public abstract class PriceTypeMapper {
 
     public abstract PriceTypeEntity toEntity(PriceTypeModel model);
     public abstract List<PriceTypeEntity> toListEntity(List<PriceTypeModel> models);
+
+    public abstract PriceTypeModel toModel(PriceTypeEntity entity);
 }

@@ -19,5 +19,5 @@ public class BedTypeModel extends AuditTable {
     private String name;
 
     @Column(name = "size")
-    private String size;
+    private Integer size;
 }

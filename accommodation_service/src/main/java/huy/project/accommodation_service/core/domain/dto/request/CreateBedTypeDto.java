@@ -7,5 +7,5 @@ import lombok.Setter;
 @Setter
 public class CreateBedTypeDto {
     private String name;
-    private String size;
+    private Integer size;
 }

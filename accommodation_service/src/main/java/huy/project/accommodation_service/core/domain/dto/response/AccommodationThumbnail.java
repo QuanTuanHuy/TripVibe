@@ -24,6 +24,7 @@ public class AccommodationThumbnail {
 
     @NoArgsConstructor
     @AllArgsConstructor
+    @Data
     @Builder
     public static class Location {
         String address;
@@ -43,6 +44,7 @@ public class AccommodationThumbnail {
 
     @NoArgsConstructor
     @AllArgsConstructor
+    @Data
     @Builder
     public static class RatingSummary {
         Double rating;
@@ -51,6 +53,7 @@ public class AccommodationThumbnail {
 
     @NoArgsConstructor
     @AllArgsConstructor
+    @Data
     @Builder
     public static class PriceInfo {
         Integer lengthOfStay;

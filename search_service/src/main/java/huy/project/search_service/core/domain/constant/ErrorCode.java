@@ -11,6 +11,8 @@ public enum ErrorCode {
     ACCOMMODATION_NOT_FOUND(100002, "Accommodation not found", HttpStatus.NOT_FOUND),
     ACCOMMODATION_ALREADY_EXISTS(100003, "Accommodation already exists", HttpStatus.BAD_REQUEST),
     UNIT_NOT_FOUND(100003, "Unit not found", HttpStatus.NOT_FOUND),
+    SERVICE_UNAVAILABLE(100004, "Service not available", HttpStatus.SERVICE_UNAVAILABLE),
+    GET_ACCOMMODATION_FAILED(100005, "Get accommodation failed", HttpStatus.INTERNAL_SERVER_ERROR),
     ;
 
 

@@ -22,6 +22,9 @@ server:
     context-path: /search_service
 
 app:
+  services:
+    accommodation_service:
+      url: localhost:8083/accommodation_service
   elasticsearch:
     url: localhost:9200
     password: GdL=WfNXaAui4QTJaoIN

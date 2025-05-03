@@ -21,6 +21,6 @@ public class CreateUnitDtoV2 {
 
     private List<CreateUnitPriceTypeDto> priceTypes;
     private List<CreateUnitPriceGroup> priceGroups;
-    private List<CreateUnitAmenityDto> amenities;
+    private List<Long> amenityIds;
     private List<CreateBedroomDto> bedrooms;
 }

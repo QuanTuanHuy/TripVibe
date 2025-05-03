@@ -4,19 +4,21 @@ import huy.project.accommodation_service.core.domain.constant.ErrorCode;
 import huy.project.accommodation_service.core.domain.constant.ImageEntityType;
 import huy.project.accommodation_service.core.domain.constant.TopicConstant;
 import huy.project.accommodation_service.core.domain.dto.request.*;
-import huy.project.accommodation_service.core.domain.entity.ImageEntity;
-import huy.project.accommodation_service.core.domain.entity.UnitAmenityEntity;
-import huy.project.accommodation_service.core.domain.entity.UnitPriceCalendarEntity;
-import huy.project.accommodation_service.core.domain.entity.UnitPriceGroupEntity;
+import huy.project.accommodation_service.core.domain.dto.response.FileResourceResponse;
+import huy.project.accommodation_service.core.domain.entity.*;
 import huy.project.accommodation_service.core.domain.kafka.DeleteFileMessage;
 import huy.project.accommodation_service.core.exception.AppException;
 import huy.project.accommodation_service.core.port.*;
+import huy.project.accommodation_service.core.port.client.IFileStoragePort;
 import huy.project.accommodation_service.core.validation.AccommodationValidation;
+import huy.project.accommodation_service.kernel.utils.CacheUtils;
 import huy.project.accommodation_service.kernel.utils.DateTimeUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -35,38 +37,51 @@ public class UpdateUnitUseCase {
     private final IUnitAmenityPort unitAmenityPort;
     private final IUnitPriceGroupPort unitPriceGroupPort;
     private final IUnitPriceCalendarPort unitPriceCalendarPort;
+    private final IFileStoragePort fileStoragePort;
+    private final ICachePort cachePort;
 
     private final IKafkaPublisher kafkaPublisher;
 
     private final AccommodationValidation accValidation;
 
     @Transactional(rollbackFor = Exception.class)
-    public void updateUnitImage(Long userId, Long accId, Long unitId, UpdateUnitImageDto req) {
+    public void updateUnitImage(Long userId, Long accId, Long unitId, DeleteImageDto deleteImageDto, List<MultipartFile> newImages) {
         validateUpdateUnit(userId, accId, unitId);
 
         // delete images
-        List<ImageEntity> existedImages = imagePort.getImagesByEntityIdAndType(unitId, ImageEntityType.UNIT.getType());
-        var existedImageIds = existedImages.stream().map(ImageEntity::getId).collect(Collectors.toSet());
-        if (!existedImageIds.containsAll(req.getDeleteImageIds())) {
-            log.error("Some image ids not found in unit {}", unitId);
-            throw new AppException(ErrorCode.UNIT_IMAGE_NOT_FOUND);
+
+        if (deleteImageDto != null && !CollectionUtils.isEmpty(deleteImageDto.getImageIds())) {
+            List<Long> deleteImageIds = deleteImageDto.getImageIds();
+            List<ImageEntity> existedImages = imagePort.getImagesByEntityIdAndType(unitId, ImageEntityType.UNIT.getType());
+            var existedImageIds = existedImages.stream().map(ImageEntity::getId).collect(Collectors.toSet());
+            if (!existedImageIds.containsAll(deleteImageIds)) {
+                log.error("Some image ids not found in unit {}", unitId);
+                throw new AppException(ErrorCode.UNIT_IMAGE_NOT_FOUND);
+            }
+
+            imagePort.deleteImagesByIds(deleteImageIds);
+
+            pushToKafka(userId, deleteImageIds);
         }
 
-        imagePort.deleteImagesByIds(req.getDeleteImageIds());
-
         // save new images
-        var newImages = req.getNewImages().stream()
-                .map(image -> ImageEntity.builder()
-                        .id(image.getId())
-                        .entityId(unitId)
-                        .entityType(ImageEntityType.UNIT.getType())
-                        .url(image.getUrl())
-                        .isPrimary(image.getIsPrimary())
-                        .build())
-                .toList();
-        imagePort.saveAll(newImages);
+        if (!CollectionUtils.isEmpty(newImages)) {
+            List<FileResourceResponse> uploadedFiles = fileStoragePort
+                    .uploadFiles(newImages, unitId.toString(), UnitEntity.class.toString());
+            List<ImageEntity> newImageEntities = uploadedFiles.stream()
+                    .map(file -> ImageEntity.builder()
+                            .id(file.getId())
+                            .entityId(unitId)
+                            .entityType(ImageEntityType.UNIT.getType())
+                            .url(file.getUrl())
+                            .versions(file.getVersions())
+                            .isPrimary(false)
+                            .build())
+                    .toList();
+            imagePort.saveAll(newImageEntities);
+        }
 
-        pushToKafka(userId, req.getDeleteImageIds());
+        cachePort.deleteFromCache(CacheUtils.buildCacheKeyGetAccommodationById(accId));
     }
 
     private void pushToKafka(Long userId, List<Long> imageIds) {

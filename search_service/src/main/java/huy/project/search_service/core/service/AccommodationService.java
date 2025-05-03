@@ -1,6 +1,7 @@
 package huy.project.search_service.core.service;
 
 import huy.project.search_service.core.domain.dto.request.AccommodationParams;
+import huy.project.search_service.core.domain.dto.response.AccommodationThumbnail;
 import huy.project.search_service.core.domain.dto.response.PageInfo;
 import huy.project.search_service.core.domain.entity.AccommodationEntity;
 import huy.project.search_service.core.domain.entity.UnitEntity;
@@ -47,6 +48,11 @@ public class AccommodationService implements IAccommodationService{
     @Override
     public Pair<PageInfo, List<AccommodationEntity>> getAccommodations(AccommodationParams params) {
         return getAccommodationUseCase.getAccommodations(params);
+    }
+
+    @Override
+    public Pair<PageInfo, List<AccommodationThumbnail>> getAccommodationsThumbnail(AccommodationParams params) {
+        return getAccommodationUseCase.getAccommodationsThumbnail(params);
     }
 
     @Override
