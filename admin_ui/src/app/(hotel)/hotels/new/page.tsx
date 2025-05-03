@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -19,7 +19,7 @@ import ReviewForm from '@/components/properties/create/ReviewForm';
 import { CreateAccommodationDto } from '@/types/accommodation';
 import { accommodationService } from '@/services';
 import { toast } from "sonner"
-import { useAuth } from '@/context/AuthContext';
+// import { useAuth } from '@/context/AuthContext';
 
 const steps = [
     { id: 0, name: 'Thông tin cơ bản' },
@@ -36,7 +36,7 @@ const steps = [
 ];
 
 export default function NewHotelPage() {
-    const { user, isAuthenticated } = useAuth();
+    // const { isAuthenticated } = useAuth();
     const [currentStep, setCurrentStep] = useState(0);
     const [formData, setFormData] = useState<CreateAccommodationDto>({
         typeId: 0,
@@ -55,19 +55,17 @@ export default function NewHotelPage() {
             maxChildren: 0,
             useSharedBathroom: false,
             quantity: 1,
-            amenities: [],
+            amenityIds: [],
             priceTypes: [],
             priceGroups: [],
             bedrooms: []
         },
-        amenities: [],
+        amenityIds: [],
         languageIds: [],
         location: {
             countryId: 0,
             provinceId: 0,
-            districtId: 0,
             detailAddress: '',
-            postalCode: '',
             latitude: 0,
             longitude: 0
         }
@@ -77,11 +75,11 @@ export default function NewHotelPage() {
 
     const router = useRouter();
 
-    useEffect(() => {
-        if (!user || !isAuthenticated) {
-            router.push('/login');
-        }
-    }, [user, isAuthenticated, router]);
+    // useEffect(() => {
+    //     if (!isAuthenticated) {
+    //         router.push('/login');
+    //     }
+    // }, [isAuthenticated, router]);
 
     const updateFormData = (data: Partial<CreateAccommodationDto>) => {
         setFormData(prev => ({ ...prev, ...data }));

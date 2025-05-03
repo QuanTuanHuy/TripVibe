@@ -1,0 +1,113 @@
+import { ListDataResponse } from '@/types/common';
+import apiClient from '../apiClient';
+import {
+  CreateAccommodationDto,
+  Accommodation,
+  AccommodationType,
+  Amenity,
+  UnitName,
+  Currency,
+  AmenityGroup,
+  Language,
+  AmenityGroupParams
+} from '@/types/accommodation';
+
+// Path đến accommodation service thông qua API Gateway
+const ACCOMMODATION_PATH = '/accommodation_service/api/public/v1';
+
+const accommodationService = {
+  // Lấy danh sách các loại chỗ nghỉ
+  getAccommodationTypes: async (): Promise<AccommodationType[]> => {
+    return apiClient.get<AccommodationType[]>(`${ACCOMMODATION_PATH}/accommodation_types`);
+  },
+
+  // Lấy danh sách nhóm tiện nghi chỗ nghỉ
+  getAmenityGroups: async (params?: AmenityGroupParams): Promise<ListDataResponse<AmenityGroup>> => {
+    const queryParams = new URLSearchParams();
+
+    if (params?.page) queryParams.append('page', params.page.toString());
+    if (params?.pageSize) queryParams.append('pageSize', params.pageSize.toString());
+    if (params?.sortBy) queryParams.append('sortBy', params.sortBy);
+    if (params?.sortType) queryParams.append('sortType', params.sortType);
+    if (params?.type) queryParams.append('type', params.type);
+    if (params?.isPopular) queryParams.append('isPopular', params.isPopular.toString());
+
+    const queryString = queryParams.toString() ? `?${queryParams.toString()}` : '';
+    return apiClient.get<ListDataResponse<AmenityGroup>>(`${ACCOMMODATION_PATH}/amenity_groups${queryString}`);
+  },
+
+  // Lấy danh sách tên đơn vị/phòng
+  getUnitNames: async (): Promise<ListDataResponse<UnitName>> => {
+    return apiClient.get<ListDataResponse<UnitName>>(`${ACCOMMODATION_PATH}/unit_names`);
+  },
+
+  // Lấy danh sách các đơn vị tiền tệ
+  getCurrencies: async (): Promise<Currency[]> => {
+    return apiClient.get<Currency[]>(`${ACCOMMODATION_PATH}/currencies`);
+  },
+
+  getLanguages: async (): Promise<ListDataResponse<Language>> => {
+    return apiClient.get<ListDataResponse<Language>>(`${ACCOMMODATION_PATH}/languages`);
+  },
+
+  // Tạo chỗ nghỉ mới
+  createAccommodation: async (accommodationData: CreateAccommodationDto, images: File[]): Promise<Accommodation> => {
+    const formData = new FormData();
+    formData.append('accommodationJson', JSON.stringify(accommodationData));
+
+    if (images && images.length) {
+      for (const image of images) {
+        formData.append('images', image);
+      }
+    }
+
+    // Sử dụng một config đặc biệt với content-type multipart/form-data
+    return apiClient.post<Accommodation>(
+      `${ACCOMMODATION_PATH}/accommodations`,
+      formData,
+      {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      }
+    );
+  },
+
+  // Lấy thông tin chi tiết chỗ nghỉ
+  getAccommodationById: async (id: number): Promise<Accommodation> => {
+    return apiClient.get<Accommodation>(`${ACCOMMODATION_PATH}/accommodations/${id}`);
+  },
+
+  // Cập nhật chỗ nghỉ
+  updateAccommodation: async (id: number, accommodationData: Partial<CreateAccommodationDto>): Promise<Accommodation> => {
+    return apiClient.put<Accommodation>(`${ACCOMMODATION_PATH}/accommodations/${id}`, accommodationData);
+  },
+
+  // Xóa chỗ nghỉ
+  deleteAccommodation: async (id: number): Promise<void> => {
+    return apiClient.delete<void>(`${ACCOMMODATION_PATH}/accommodations/${id}`);
+  },
+
+  // Tải lên hình ảnh cho chỗ nghỉ
+  uploadImages: async (accommodationId: number, images: File[]): Promise<string[]> => {
+    const formData = new FormData();
+
+    if (images && images.length) {
+      for (const image of images) {
+        formData.append('images', image);
+      }
+    }
+
+    return apiClient.post<string[]>(
+      `${ACCOMMODATION_PATH}/accommodations/${accommodationId}/images`,
+      formData,
+      {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      }
+    );
+  }
+};
+
+export default accommodationService;
