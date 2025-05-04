@@ -1,0 +1,12 @@
+type AccommodationType {
+    id: ID!
+    name: String!
+    description: String
+    imageUrl: String
+    iconUrl: String
+    isHighlighted: Boolean
+}
+
+type Query {
+    accommodationTypes: [AccommodationType!]!
+}
