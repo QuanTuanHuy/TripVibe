@@ -2,10 +2,6 @@ package bootstrap
 
 import (
 	"context"
-	"github.com/golibs-starter/golib"
-	golibdata "github.com/golibs-starter/golib-data"
-	golibgin "github.com/golibs-starter/golib-gin"
-	"go.uber.org/fx"
 	"notification_service/core/port"
 	"notification_service/core/service"
 	"notification_service/core/usecase"
@@ -14,10 +10,16 @@ import (
 	"notification_service/infrastructure/client"
 	"notification_service/infrastructure/kafka"
 	"notification_service/infrastructure/repository/adapter"
+	"notification_service/kernel/utils"
 	"notification_service/ui/controller"
 	"notification_service/ui/eventhandler"
 	"notification_service/ui/router"
 	"time"
+
+	"github.com/golibs-starter/golib"
+	golibdata "github.com/golibs-starter/golib-data"
+	golibgin "github.com/golibs-starter/golib-gin"
+	"go.uber.org/fx"
 )
 
 func All() fx.Option {
@@ -85,14 +87,17 @@ func All() fx.Option {
 }
 
 func NewApiClient() *client.ApiClient {
+	emailSenderApiKey := utils.GetEnv("EMAIL_SENDER_API_KEY", "")
+	emailSenderUrl := utils.GetEnv("EMAIL_SENDER_URL", "https://api.brevo.com")
+
 	emailHeaders := map[string]string{
-		"api-key": "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",
+		"api-key": emailSenderApiKey,
 	}
 
 	// Create API client with initial configuration
 	apiClient := client.NewApiClient(
 		client.WithService("profile", "http://localhost:8086/profile_service", 10*time.Second),
-		client.WithService("email_sender", "https://api.brevo.com", 10*time.Second),
+		client.WithService("email_sender", emailSenderUrl, 10*time.Second),
 
 		// Set default headers for all services
 		client.WithDefaultHeaders(map[string]string{
