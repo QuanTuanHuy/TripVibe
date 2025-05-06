@@ -46,6 +46,7 @@ func All() fx.Option {
 		fx.Provide(client.NewPromotionClientAdapter),
 		fx.Provide(service2.NewInventoryAdapter),
 		fx.Provide(client.NewNotificationClientAdapter),
+		fx.Provide(adapter.NewQuickBookingAdapter),
 
 		//Provide usecase
 		fx.Provide(usecase.NewDatabaseTransactionUseCase),
@@ -60,15 +61,21 @@ func All() fx.Option {
 		fx.Provide(usecase.NewGetBookingUnitUseCase),
 		fx.Provide(usecase.NewUpdateBookingUseCase),
 		fx.Provide(usecase.NewDeleteUnitUseCase),
+		fx.Provide(usecase.NewCreateQuickBookingUseCase),
+		fx.Provide(usecase.NewUpdateQuickBookingUseCase),
+		fx.Provide(usecase.NewDeleteQuickBookingUseCase),
+		fx.Provide(usecase.NewGetQuickBookingUseCase),
 
 		//Provide services
 		fx.Provide(service.NewAccommodationService),
 		fx.Provide(service.NewBookingService),
+		fx.Provide(service.NewQuickBookingService),
 
 		//Provide controller
 		fx.Provide(controller.NewAccommodationController),
 		fx.Provide(controller.NewBookingController),
 		fx.Provide(controller.NewInternalBookingController),
+		fx.Provide(controller.NewQuickBookingController),
 
 		//Provide jwt
 		fx.Provide(middleware.NewJWTConfig),

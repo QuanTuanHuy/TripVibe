@@ -1,6 +1,9 @@
 package specification
 
-import "booking_service/core/domain/dto/request"
+import (
+	"booking_service/core/domain/dto/request"
+	"time"
+)
 
 func ToGetBookingSpecification(params *request.BookingParams) (string, []any) {
 	query := "SELECT * FROM bookings b"
@@ -27,6 +30,17 @@ func ToGetBookingSpecification(params *request.BookingParams) (string, []any) {
 	if params.AccommodationID != nil {
 		query += " AND accommodation_id = ?"
 		args = append(args, *params.AccommodationID)
+	}
+	if params.StartTime != nil && params.EndTime != nil && params.DateType != nil {
+		switch *params.DateType {
+		case "stay_to":
+			query += " AND stay_to BETWEEN ? AND ?"
+		case "created_at":
+			query += " AND created_at BETWEEN ? AND ?"
+		default:
+			query += " AND stay_from BETWEEN ? AND ?"
+		}
+		args = append(args, time.Unix(*params.StartTime, 0), time.Unix(*params.EndTime, 0))
 	}
 
 	if params.OrderBy != nil {

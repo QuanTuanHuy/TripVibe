@@ -8,9 +8,10 @@ import (
 	"booking_service/core/service"
 	"booking_service/kernel/apihelper"
 	"booking_service/kernel/utils"
+	"strconv"
+
 	"github.com/gin-gonic/gin"
 	"github.com/golibs-starter/golib/log"
-	"strconv"
 )
 
 type BookingController struct {
@@ -23,38 +24,49 @@ func (b *BookingController) GetAllBookings(c *gin.Context) {
 	params.Page = &page
 	params.PageSize = &pageSize
 
-	if userIDStr := c.Query("userId"); userIDStr != "" {
-		userID, err := strconv.ParseInt(userIDStr, 10, 64)
-		if err != nil {
-			log.Error(c, "error parsing userId", err)
-			apihelper.AbortErrorHandle(c, common.GeneralBadRequest)
-			return
-		}
-		params.UserID = &userID
+	userID, err := utils.ParseIntParam(c, "userId", 64)
+	if err != nil {
+		apihelper.AbortErrorHandle(c, common.GeneralBadRequest)
+		return
 	}
+	params.UserID = userID
 
-	if accommodationIDStr := c.Query("accommodationId"); accommodationIDStr != "" {
-		accommodationID, err := strconv.ParseInt(accommodationIDStr, 10, 64)
-		if err != nil {
-			log.Error(c, "error parsing accommodationId", err)
-			apihelper.AbortErrorHandle(c, common.GeneralBadRequest)
-			return
-		}
-		params.AccommodationID = &accommodationID
+	accommodationID, err := utils.ParseIntParam(c, "accommodationId", 64)
+	if err != nil {
+		apihelper.AbortErrorHandle(c, common.GeneralBadRequest)
+		return
 	}
+	params.AccommodationID = accommodationID
 
-	if unitIDStr := c.Query("unitId"); unitIDStr != "" {
-		unitID, err := strconv.ParseInt(unitIDStr, 10, 64)
-		if err != nil {
-			log.Error(c, "error parsing unitId", err)
-			apihelper.AbortErrorHandle(c, common.GeneralBadRequest)
-			return
-		}
-		params.UnitID = &unitID
+	unitID, err := utils.ParseIntParam(c, "unitId", 64)
+	if err != nil {
+		apihelper.AbortErrorHandle(c, common.GeneralBadRequest)
+		return
 	}
+	params.UnitID = unitID
 
+	startTime, err := utils.ParseIntParam(c, "startTime", 64)
+	if err != nil {
+		apihelper.AbortErrorHandle(c, common.GeneralBadRequest)
+		return
+	}
+	params.StartTime = startTime
+
+	endTime, err := utils.ParseIntParam(c, "endTime", 64)
+	if err != nil {
+		apihelper.AbortErrorHandle(c, common.GeneralBadRequest)
+		return
+	}
+	params.EndTime = endTime
 	if status := c.Query("status"); status != "" {
 		params.Status = &status
+	}
+
+	if dateType := c.Query("dateType"); dateType != "" {
+		params.DateType = &dateType
+	} else {
+		dateType := "stay_from"
+		params.DateType = &dateType
 	}
 
 	getBookingResponse, err := b.bookingService.GetAllBookings(c, &params)
@@ -64,7 +76,6 @@ func (b *BookingController) GetAllBookings(c *gin.Context) {
 		return
 	}
 	apihelper.SuccessfulHandle(c, getBookingResponse)
-
 }
 
 func (b *BookingController) GetDetailBooking(c *gin.Context) {
