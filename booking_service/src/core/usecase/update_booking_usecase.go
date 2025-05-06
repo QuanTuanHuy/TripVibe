@@ -2,6 +2,8 @@ package usecase
 
 import (
 	"booking_service/core/domain/constant"
+	"booking_service/core/domain/dto/request"
+	"booking_service/core/domain/entity"
 	"booking_service/core/port"
 	"booking_service/kernel/utils"
 	"context"
@@ -17,6 +19,8 @@ type IUpdateBookingUseCase interface {
 type UpdateBookingUseCase struct {
 	bookingPort          port.IBookingPort
 	accommodationPort    port.IAccommodationPort
+	userPort             port.IUserPort
+	notificationPort     port.INotificationPort
 	cachePort            port.ICachePort
 	dbTransactionUseCase IDatabaseTransactionUseCase
 }
@@ -69,12 +73,41 @@ func (u UpdateBookingUseCase) updateBookingStatusByAccOwner(ctx context.Context,
 	}
 
 	go func() {
+		err := u.sendNotificationToTourist(ctx, booking)
+		if err != nil {
+			log.Error("ctx", "SendNotificationToTourist error", err)
+		}
+
 		err = u.cachePort.DeleteFromCache(ctx, utils.BuildCacheKeyGetBooking(bookingID))
 		if err != nil {
 			log.Error(ctx, "DeleteFromCache error", err)
 		}
 	}()
 
+	return nil
+}
+
+// send notification to tourist
+func (u UpdateBookingUseCase) sendNotificationToTourist(ctx context.Context, booking *entity.BookingEntity) error {
+	tourist, err := u.userPort.GetUserByID(ctx, booking.TouristID)
+	if err != nil || tourist == nil {
+		log.Error(ctx, "GetUserByID error", err)
+		return err
+	}
+
+	notification := &request.CreateNotificationDto{
+		UserID:    tourist.ID,
+		Type:      "EMAIL",
+		Title:     "Your booking has been " + booking.Status,
+		Content:   "Your booking has been " + booking.Status + " by accommodation owner",
+		Recipient: tourist.Email,
+	}
+
+	err = u.notificationPort.SendNotification(ctx, notification)
+	if err != nil {
+		log.Error(ctx, "SendNotification error", err)
+		return err
+	}
 	return nil
 }
 
@@ -89,12 +122,18 @@ func (u UpdateBookingUseCase) RejectBooking(ctx context.Context, userID, booking
 	// need to remove data in search service
 }
 
-func NewUpdateBookingUseCase(bookingPort port.IBookingPort, dbTransactionUseCase IDatabaseTransactionUseCase,
-	cachePort port.ICachePort, accommodationPort port.IAccommodationPort) IUpdateBookingUseCase {
+func NewUpdateBookingUseCase(bookingPort port.IBookingPort,
+	dbTransactionUseCase IDatabaseTransactionUseCase,
+	userPort port.IUserPort,
+	cachePort port.ICachePort,
+	accommodationPort port.IAccommodationPort,
+	notificationPort port.INotificationPort) IUpdateBookingUseCase {
 	return &UpdateBookingUseCase{
 		bookingPort:          bookingPort,
 		cachePort:            cachePort,
+		notificationPort:     notificationPort,
 		accommodationPort:    accommodationPort,
+		userPort:             userPort,
 		dbTransactionUseCase: dbTransactionUseCase,
 	}
 }

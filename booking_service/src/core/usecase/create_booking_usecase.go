@@ -152,17 +152,19 @@ func (c CreateBookingUseCase) CreateBooking(ctx context.Context, req *request.Cr
 	booking.Units = bookingUnits
 
 	// create booking promotion
-	bookingPromotions := make([]*entity.BookingPromotionEntity, 0)
-	for _, promotion := range req.Promotions {
-		bookingPromotion := mapper.ToBookingPromotion(promotion, booking.ID)
-		bookingPromotions = append(bookingPromotions, bookingPromotion)
+	if len(allPromotionIds) > 0 {
+		bookingPromotions := make([]*entity.BookingPromotionEntity, 0)
+		for _, promotion := range req.Promotions {
+			bookingPromotion := mapper.ToBookingPromotion(promotion, booking.ID)
+			bookingPromotions = append(bookingPromotions, bookingPromotion)
+		}
+		bookingPromotions, err = c.bookingPromotionPort.CreateBookingPromotions(ctx, tx, bookingPromotions)
+		if err != nil {
+			log.Error(ctx, "CreateBookingPromotions error ", err)
+			return nil, err
+		}
+		booking.Promotions = bookingPromotions
 	}
-	bookingPromotions, err = c.bookingPromotionPort.CreateBookingPromotions(ctx, tx, bookingPromotions)
-	if err != nil {
-		log.Error(ctx, "CreateBookingPromotions error ", err)
-		return nil, err
-	}
-	booking.Promotions = bookingPromotions
 
 	errCommit := c.dbTransactionUseCase.Commit(tx)
 	if errCommit != nil {
