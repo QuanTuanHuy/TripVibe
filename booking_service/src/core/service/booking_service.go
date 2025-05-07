@@ -17,21 +17,28 @@ type IBookingService interface {
 	GetAllBookings(ctx context.Context, params *request.BookingParams) (*response.GetBookingResponse, error)
 	ApproveBooking(ctx context.Context, userID int64, bookingID int64) error
 	RejectBooking(ctx context.Context, userID int64, bookingID int64) error
+	CancelBooking(ctx context.Context, userID int64, bookingID int64) error
 	GetCompletedBookingByUserIdAndUnitId(ctx context.Context, userId int64, unitId int64) (*entity.BookingEntity, error)
 }
 
 type BookingService struct {
-	createBookingUseCase usecase.ICreateBookingUseCase
-	getBookingUseCase    usecase.IGetBookingUseCase
-	updateBookingUseCase usecase.IUpdateBookingUseCase
+	createBookingUseCase  usecase.ICreateBookingUseCase
+	getBookingUseCase     usecase.IGetBookingUseCase
+	rejectBookingUseCase  usecase.IRejectBookingUseCase
+	approveBookingUseCase usecase.IApproveBookingUseCase
+	cancelBookingUseCase  usecase.ICancelBookingUseCase
+}
+
+func (b BookingService) CancelBooking(ctx context.Context, userID int64, bookingID int64) error {
+	return b.cancelBookingUseCase.CancelBooking(ctx, userID, bookingID)
 }
 
 func (b BookingService) ApproveBooking(ctx context.Context, userID int64, bookingID int64) error {
-	return b.updateBookingUseCase.ApproveBooking(ctx, userID, bookingID)
+	return b.approveBookingUseCase.ApproveBooking(ctx, userID, bookingID)
 }
 
 func (b BookingService) RejectBooking(ctx context.Context, userID int64, bookingID int64) error {
-	return b.updateBookingUseCase.RejectBooking(ctx, userID, bookingID)
+	return b.rejectBookingUseCase.RejectBooking(ctx, userID, bookingID)
 }
 
 func (b BookingService) GetAllBookings(ctx context.Context, params *request.BookingParams) (*response.GetBookingResponse, error) {
@@ -65,12 +72,17 @@ func (b BookingService) GetCompletedBookingByUserIdAndUnitId(ctx context.Context
 	return b.getBookingUseCase.GetCompletedBookingByUserIdAndUnitId(ctx, userId, unitId)
 }
 
-func NewBookingService(createBookingUseCase usecase.ICreateBookingUseCase,
+func NewBookingService(
+	createBookingUseCase usecase.ICreateBookingUseCase,
 	getBookingUseCase usecase.IGetBookingUseCase,
-	updateBookingUseCase usecase.IUpdateBookingUseCase) IBookingService {
+	rejectBookingUseCase usecase.IRejectBookingUseCase,
+	approveBookingUseCase usecase.IApproveBookingUseCase,
+	cancelBookingUseCase usecase.ICancelBookingUseCase) IBookingService {
 	return &BookingService{
-		createBookingUseCase: createBookingUseCase,
-		getBookingUseCase:    getBookingUseCase,
-		updateBookingUseCase: updateBookingUseCase,
+		createBookingUseCase:  createBookingUseCase,
+		getBookingUseCase:     getBookingUseCase,
+		rejectBookingUseCase:  rejectBookingUseCase,
+		approveBookingUseCase: approveBookingUseCase,
+		cancelBookingUseCase:  cancelBookingUseCase,
 	}
 }

@@ -9,9 +9,8 @@ import (
 	"booking_service/kernel/utils"
 	"context"
 	"errors"
-	"fmt"
+
 	"github.com/golibs-starter/golib/log"
-	"slices"
 )
 
 type ICreateBookingUseCase interface {
@@ -30,56 +29,83 @@ type CreateBookingUseCase struct {
 }
 
 func (c CreateBookingUseCase) CreateBooking(ctx context.Context, req *request.CreateBookingDto) (*entity.BookingEntity, error) {
-	// verify accommodation with units valid
+	// Xác minh accommodation và units có hợp lệ không
 	accommodation, err := c.getAccUseCase.GetAccommodationByID(ctx, req.AccommodationID)
 	if err != nil {
 		log.Error(ctx, "GetAccommodationByID error ", err)
 		return nil, err
 	}
+
 	allUnitIds := make([]int64, 0)
 	for _, unit := range accommodation.Units {
 		allUnitIds = append(allUnitIds, unit.ID)
 	}
 
-	// Extract requested unitIDs for inventory locking
-	requestedUnitIDs := make([]int64, 0, len(req.Units))
+	// Extract requested unitIDs và quantities cho inventory locking
+	unitQuantities := make(map[int64]int)
 	for _, unit := range req.Units {
-		requestedUnitIDs = append(requestedUnitIDs, unit.UnitID)
-		if !slices.Contains(allUnitIds, unit.UnitID) {
+		unitQuantities[unit.UnitID] = unit.Quantity
+
+		// Validate that unit exists and has enough quantity
+		found := false
+		for _, accUnit := range accommodation.Units {
+			if accUnit.ID == unit.UnitID {
+				found = true
+				if accUnit.Quantity < unit.Quantity {
+					log.Error(ctx, "Not enough units available", map[string]interface{}{
+						"unitID":            unit.UnitID,
+						"requestedQuantity": unit.Quantity,
+						"availableQuantity": accUnit.Quantity,
+					})
+					return nil, errors.New(constant.ErrNotEnoughUnitsAvailable)
+				}
+				break
+			}
+		}
+
+		if !found {
 			log.Error(ctx, "Unit not found ", unit.UnitID)
 			return nil, errors.New(constant.ErrUnitNotFound)
 		}
 	}
 
-	// Try to lock inventory before proceeding
 	stayFrom, stayTo := utils.EpochMilliToDay(req.StayFrom), utils.EpochMilliToDay(req.StayTo)
-	log.Info(ctx, "Locking inventory for accommodation ID: ", req.AccommodationID, " from: ", stayFrom, " to: ", stayTo)
-	lockSuccessful, err := c.inventoryPort.LockInventory(ctx, req.AccommodationID, requestedUnitIDs, stayFrom, stayTo)
+
+	// Kiểm tra tình trạng phòng - trả về số lượng khả dụng cho mỗi unit
+	availableQuantities, err := c.inventoryPort.CheckAvailability(ctx, accommodation.ID, unitQuantities, stayFrom, stayTo)
+	if err != nil {
+		log.Error(ctx, "CheckAvailability error ", err)
+		return nil, err
+	}
+
+	// Kiểm tra xem có đủ số lượng cho mỗi loại unit không
+	for unitID, requestedQuantity := range unitQuantities {
+		availableQty := availableQuantities[unitID]
+		if availableQty < requestedQuantity {
+			log.Error(ctx, "Not enough availability", map[string]interface{}{
+				"unitID":    unitID,
+				"requested": requestedQuantity,
+				"available": availableQty,
+			})
+			return nil, errors.New(constant.ErrInventoryNoLongerAvailable)
+		}
+	}
+
+	// Lock tạm thời trong redis
+	_, err = c.inventoryPort.LockInventory(ctx, unitQuantities, stayFrom, stayTo)
 	if err != nil {
 		log.Error(ctx, "Failed to lock inventory", err)
-		return nil, errors.New(constant.ErrInventoryLockFailed)
+		return nil, err
 	}
 
-	if !lockSuccessful {
-		log.Warn(ctx, "Inventory is no longer available")
-		return nil, errors.New(constant.ErrInventoryNoLongerAvailable)
-	}
-
-	// Generate a lock ID for potential release
-	lockID := fmt.Sprintf("lock:%d:%v:%d:%d", req.AccommodationID, requestedUnitIDs, stayFrom, stayTo)
-
-	// Release lock if anything fails
+	// Tạo một function để đảm bảo giải phóng lock khi có lỗi
 	defer func() {
 		if err != nil {
-			// Only release lock if we're not committing the transaction
-			releaseErr := c.inventoryPort.ReleaseLock(ctx, lockID)
-			if releaseErr != nil {
-				log.Error(ctx, "Failed to release inventory lock", releaseErr)
-			}
+			c.inventoryPort.ReleaseLock(ctx, unitQuantities, stayFrom, stayTo)
 		}
 	}()
 
-	// verify promotion
+	// Verify promotion
 	allPromotionIds := make([]int64, 0)
 	for _, promotion := range req.Promotions {
 		allPromotionIds = append(allPromotionIds, promotion.PromotionID)
@@ -109,7 +135,7 @@ func (c CreateBookingUseCase) CreateBooking(ctx context.Context, req *request.Cr
 		}
 	}()
 
-	// create tourist info
+	// Create tourist info
 	existedUser, err := c.userPort.GetUserByID(ctx, req.Tourist.TouristID)
 	if err != nil && err.Error() != constant.ErrUserNotFound {
 		log.Error(ctx, "GetUserByID error ", err)
@@ -129,7 +155,7 @@ func (c CreateBookingUseCase) CreateBooking(ctx context.Context, req *request.Cr
 		newUser, err = c.userPort.CreateUser(ctx, tx, newUser)
 	}
 
-	// create booking
+	// Create booking
 	booking := mapper.ToBookingEntity(req)
 	booking.Status = constant.PENDING
 	booking, err = c.bookingPort.CreateBooking(ctx, tx, booking)
@@ -138,7 +164,7 @@ func (c CreateBookingUseCase) CreateBooking(ctx context.Context, req *request.Cr
 		return nil, err
 	}
 
-	// create booking unit
+	// Create booking unit
 	bookingUnits := make([]*entity.BookingUnitEntity, 0)
 	for _, unit := range req.Units {
 		bookingUnit := mapper.ToBookingUnitEntity(unit, booking.ID)
@@ -151,7 +177,7 @@ func (c CreateBookingUseCase) CreateBooking(ctx context.Context, req *request.Cr
 	}
 	booking.Units = bookingUnits
 
-	// create booking promotion
+	// Create booking promotion
 	if len(allPromotionIds) > 0 {
 		bookingPromotions := make([]*entity.BookingPromotionEntity, 0)
 		for _, promotion := range req.Promotions {
@@ -166,20 +192,20 @@ func (c CreateBookingUseCase) CreateBooking(ctx context.Context, req *request.Cr
 		booking.Promotions = bookingPromotions
 	}
 
+	// Xác nhận đặt phòng và cập nhật inventory
+	err = c.inventoryPort.ConfirmBooking(ctx, tx, booking.ID, accommodation.ID, unitQuantities, stayFrom, stayTo)
+	if err != nil {
+		log.Error(ctx, "Failed to confirm booking in inventory ", err)
+		return nil, err
+	}
+
 	errCommit := c.dbTransactionUseCase.Commit(tx)
 	if errCommit != nil {
 		log.Error(ctx, "Commit create booking failed, : ", errCommit)
 		return nil, errCommit
 	}
 
-	// After successful commit, confirm the booking in inventory
-	err = c.inventoryPort.ConfirmBooking(ctx, booking.ID, req.AccommodationID, requestedUnitIDs, stayFrom, stayTo)
-	if err != nil {
-		log.Error(ctx, "Failed to confirm inventory booking", err)
-		// Don't fail the booking creation at this point, but log the error
-	}
-
-	// update promotion usage
+	// Update promotion usage
 	go func() {
 		if len(allPromotionIds) > 0 {
 			err = c.promotionPort.UpdatePromotionUsage(ctx, allPromotionIds)

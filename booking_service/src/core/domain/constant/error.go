@@ -13,6 +13,7 @@ const (
 	ErrForbiddenRejectBooking       = "forbidden reject booking"
 	ErrPromotionNotValid            = "promotion not valid"
 	ErrInventoryLockFailed          = "inventory lock failed"
+	ErrNotEnoughUnitsAvailable      = "not enough units available"
 	ErrInventoryNoLongerAvailable   = "inventory no longer available"
 	ErrQuickBookingNotFound         = "quick booking not found"
 	ErrUnitNotBelongToAccommodation = "unit not belong to accommodation"
