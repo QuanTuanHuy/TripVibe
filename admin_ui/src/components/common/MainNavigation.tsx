@@ -64,7 +64,7 @@ const navigationItems = [
             },
             {
                 name: "Thêm chỗ nghỉ mới",
-                href: "/hotels/manage/new",
+                href: "/hotels/new",
                 icon: <PlusCircle className="h-4 w-4" />
             }
         ]
