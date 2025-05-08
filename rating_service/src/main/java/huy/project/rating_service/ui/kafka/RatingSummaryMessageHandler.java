@@ -12,6 +12,8 @@ import org.springframework.kafka.annotation.KafkaHandler;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Component;
 
+import java.util.HashMap;
+
 @KafkaListener(topics = TopicConstant.RatingCommand.TOPIC)
 @RequiredArgsConstructor
 @Component
@@ -42,11 +44,25 @@ public class RatingSummaryMessageHandler {
         var accId = jsonUtils.fromJson(jsonData, CreateRatingSummaryMessage.class).getAccommodationId();
         log.info("Received CreateRatingSummaryMessage for accommodationId: {}", accId);
 
+        var distribution = new HashMap<Integer, Integer>() {{
+            put(1, 0);
+            put(2, 0);
+            put(3, 0);
+            put(4, 0);
+            put(5, 0);
+            put(6, 0);
+            put(7, 0);
+            put(8, 0);
+            put(9, 0);
+            put(10, 0);
+        }};
+
         var ratingSummary = RatingSummaryEntity.builder()
                 .accommodationId(accId)
                 .isSyncedWithSearchService(false)
                 .numberOfRatings(0)
                 .totalRating(0L)
+                .distribution(distribution)
                 .build();
         ratingSummaryService.createRatingSummary(ratingSummary);
     }
