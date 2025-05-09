@@ -55,6 +55,6 @@ app:
 #            - ADMIN
 #            - OWNER
 server:
-  port: 8071
+  port: 8081
   servlet:
     context-path: /authentication_service

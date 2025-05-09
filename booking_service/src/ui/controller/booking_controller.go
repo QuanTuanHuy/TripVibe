@@ -127,33 +127,33 @@ func (b *BookingController) CreateBooking(c *gin.Context) {
 	apihelper.SuccessfulHandle(c, response.ToBookingResponse(booking))
 }
 
-func (b *BookingController) ApproveBooking(c *gin.Context) {
-	userID, ok := c.Get("userID")
-	if !ok {
-		log.Error(c, "error getting user id from context")
-		return
-	}
-
-	bookingID, err := strconv.ParseInt(c.Param("id"), 10, 64)
-	if err != nil {
-		log.Error(c, "error parsing bookingId ", err)
-		apihelper.AbortErrorHandle(c, common.GeneralBadRequest)
-		return
-	}
-
-	err = b.bookingService.ApproveBooking(c, userID.(int64), bookingID)
-	if err != nil {
-		log.Error(c, "error approving booking ", err)
-		if err.Error() == constant.ErrForbiddenApprovedBooking {
-			apihelper.AbortErrorHandle(c, common.GeneralForbidden)
-			return
-		}
-		apihelper.AbortErrorHandle(c, common.GeneralServiceUnavailable)
-		return
-	}
-
-	apihelper.SuccessfulHandle(c, true)
-}
+//func (b *BookingController) ApproveBooking(c *gin.Context) {
+//	userID, ok := c.Get("userID")
+//	if !ok {
+//		log.Error(c, "error getting user id from context")
+//		return
+//	}
+//
+//	bookingID, err := strconv.ParseInt(c.Param("id"), 10, 64)
+//	if err != nil {
+//		log.Error(c, "error parsing bookingId ", err)
+//		apihelper.AbortErrorHandle(c, common.GeneralBadRequest)
+//		return
+//	}
+//
+//	err = b.bookingService.ApproveBooking(c, userID.(int64), bookingID)
+//	if err != nil {
+//		log.Error(c, "error approving booking ", err)
+//		if err.Error() == constant.ErrForbiddenApprovedBooking {
+//			apihelper.AbortErrorHandle(c, common.GeneralForbidden)
+//			return
+//		}
+//		apihelper.AbortErrorHandle(c, common.GeneralServiceUnavailable)
+//		return
+//	}
+//
+//	apihelper.SuccessfulHandle(c, true)
+//}
 
 func (b *BookingController) RejectBooking(c *gin.Context) {
 	userID, ok := c.Get("userID")

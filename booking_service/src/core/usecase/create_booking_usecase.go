@@ -69,7 +69,7 @@ func (c CreateBookingUseCase) CreateBooking(ctx context.Context, req *request.Cr
 		}
 	}
 
-	stayFrom, stayTo := utils.EpochMilliToDay(req.StayFrom), utils.EpochMilliToDay(req.StayTo)
+	stayFrom, stayTo := utils.EpochSecondToDay(req.StayFrom), utils.EpochSecondToDay(req.StayTo)
 
 	// Kiểm tra tình trạng phòng - trả về số lượng khả dụng cho mỗi unit
 	availableQuantities, err := c.inventoryPort.CheckAvailability(ctx, accommodation.ID, unitQuantities, stayFrom, stayTo)

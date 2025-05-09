@@ -43,7 +43,7 @@ func RegisterGinRouters(p RegisterRoutersIn) {
 	}
 	bookingV1.Use(middleware.RoleAuthorization(constant.ROLE_OWNER, constant.ROLE_ADMIN))
 	{
-		bookingV1.PUT("/:id/approve", p.BookingController.ApproveBooking)
+		//bookingV1.PUT("/:id/approve", p.BookingController.ApproveBooking)
 		bookingV1.PUT("/:id/reject", p.BookingController.RejectBooking)
 	}
 

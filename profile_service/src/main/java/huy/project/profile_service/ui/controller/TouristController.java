@@ -44,7 +44,7 @@ public class TouristController {
 
     @PostMapping("/me/avatar")
     public ResponseEntity<Resource<?>> updateAvatar(
-            @RequestParam(name = "file")MultipartFile file
+            @RequestPart(value = "file") MultipartFile file
     ) {
         Long touristId = AuthenUtils.getCurrentUserId();
         touristService.updateAvatar(touristId, file);
