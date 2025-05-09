@@ -6,4 +6,7 @@ type BookingParams struct {
 	Status          *string
 	UnitID          *int64
 	AccommodationID *int64
+	StartTime       *int64
+	EndTime         *int64
+	DateType        *string
 }

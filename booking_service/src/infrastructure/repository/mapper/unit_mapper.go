@@ -12,6 +12,7 @@ func ToUnitModel(unit *entity.UnitEntity) *model.UnitModel {
 		},
 		Name:            unit.Name,
 		AccommodationID: unit.AccommodationID,
+		Quantity:        unit.Quantity,
 	}
 }
 
@@ -24,6 +25,7 @@ func ToUnitEntity(unit *model.UnitModel) *entity.UnitEntity {
 		},
 		Name:            unit.Name,
 		AccommodationID: unit.AccommodationID,
+		Quantity:        unit.Quantity,
 	}
 }
 

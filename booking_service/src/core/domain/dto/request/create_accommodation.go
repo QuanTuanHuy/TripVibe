@@ -10,8 +10,9 @@ type CreateAccommodationDto struct {
 }
 
 type CreateUnitDto struct {
-	ID   int64  `json:"id"`
-	Name string `json:"name"`
+	ID       int64  `json:"id"`
+	Name     string `json:"name"`
+	Quantity int    `json:"quantity"`
 }
 
 func ToAccommodationEntity(dto *CreateAccommodationDto) *entity.AccommodationEntity {
@@ -30,6 +31,7 @@ func ToAccommodationEntity(dto *CreateAccommodationDto) *entity.AccommodationEnt
 			},
 			Name:            unitDto.Name,
 			AccommodationID: accommodation.ID,
+			Quantity:        unitDto.Quantity,
 		}
 		accommodation.Units = append(accommodation.Units, unit)
 	}

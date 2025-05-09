@@ -24,6 +24,7 @@ type Tourist struct {
 
 type BookingUnit struct {
 	UnitID   int64  `json:"unitId"`
+	Quantity int    `json:"quantity"`
 	FullName string `json:"fullName"`
 	Email    string `json:"email"`
 	Amount   int64  `json:"amount"`

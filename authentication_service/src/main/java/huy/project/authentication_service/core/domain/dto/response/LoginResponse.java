@@ -1,14 +1,17 @@
 package huy.project.authentication_service.core.domain.dto.response;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
+import lombok.experimental.FieldDefaults;
 
-@NoArgsConstructor
-@AllArgsConstructor
 @Getter
 @Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+@FieldDefaults(level = AccessLevel.PRIVATE)
 public class LoginResponse {
-    private String token;
+    String accessToken;
+    String refreshToken;
+    Long expiresIn;
+    String tokenType = "Bearer";
 }

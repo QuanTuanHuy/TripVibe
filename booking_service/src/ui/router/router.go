@@ -18,6 +18,7 @@ type RegisterRoutersIn struct {
 	AccommodationController   *controller.AccommodationController
 	BookingController         *controller.BookingController
 	InternalBookingController *controller.InternalBookingController
+	QuickBookingController    *controller.QuickBookingController
 }
 
 func RegisterGinRouters(p RegisterRoutersIn) {
@@ -42,7 +43,7 @@ func RegisterGinRouters(p RegisterRoutersIn) {
 	}
 	bookingV1.Use(middleware.RoleAuthorization(constant.ROLE_OWNER, constant.ROLE_ADMIN))
 	{
-		bookingV1.PUT("/:id/approve", p.BookingController.ApproveBooking)
+		//bookingV1.PUT("/:id/approve", p.BookingController.ApproveBooking)
 		bookingV1.PUT("/:id/reject", p.BookingController.RejectBooking)
 	}
 
@@ -53,5 +54,14 @@ func RegisterGinRouters(p RegisterRoutersIn) {
 		{
 			internalBookings.GET("/find", p.InternalBookingController.GetCompletedBookingByUserIdAndUnitId)
 		}
+	}
+
+	quickBookingV1 := router.Group("/public/v1/quick_bookings", middleware.JWTAuthMiddleware(p.JWTConfig))
+	{
+		quickBookingV1.GET("", p.QuickBookingController.GetQuickBookings)
+		quickBookingV1.GET("/:id", p.QuickBookingController.GetQuickBooking)
+		quickBookingV1.POST("", p.QuickBookingController.CreateQuickBooking)
+		quickBookingV1.PUT("/:id", p.QuickBookingController.UpdateQuickBooking)
+		quickBookingV1.DELETE("/:id", p.QuickBookingController.DeleteQuickBooking)
 	}
 }

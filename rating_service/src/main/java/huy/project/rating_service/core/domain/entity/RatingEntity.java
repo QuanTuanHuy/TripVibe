@@ -2,6 +2,8 @@ package huy.project.rating_service.core.domain.entity;
 
 import lombok.*;
 
+import java.util.List;
+
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
@@ -10,6 +12,7 @@ import lombok.*;
 public class RatingEntity {
     private Long id;
     private Long userId;
+    private Long bookingId;
     private Long accommodationId;
     private Long unitId;
     private Double value;
@@ -18,4 +21,7 @@ public class RatingEntity {
     private Long createdAt;
     private Integer numberOfHelpful;
     private Integer numberOfUnhelpful;
+
+    private RatingResponseEntity ratingResponse;
+    private List<RatingDetailEntity> ratingDetails;
 }

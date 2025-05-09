@@ -17,8 +17,14 @@ public enum ErrorCode {
     USER_NOT_FOUND(100008, "User not found", HttpStatus.NOT_FOUND),
     GENERATE_TOKEN_FAILED(100009, "Generate token failed", HttpStatus.INTERNAL_SERVER_ERROR),
     UNAUTHORIZED(100010, "user name or password wrong", HttpStatus.UNAUTHORIZED),
+    USER_NOT_LOGGED_IN(100011, "User not logged in", HttpStatus.UNAUTHORIZED),
     USER_ALREADY_ENABLED(100011, "User already enabled", HttpStatus.BAD_REQUEST),
     OTP_NOT_VALID(100012, "OTP is not valid", HttpStatus.BAD_REQUEST),
+    SUSPICIOUS_TOKEN_USAGE(100013, "Suspicious token usage detected", HttpStatus.UNAUTHORIZED),
+    ACCOUNT_TEMPORARILY_BLOCKED(100014, "Account temporarily blocked due to suspicious activity", HttpStatus.FORBIDDEN),
+    TOKEN_EXPIRED(100015, "Token has expired", HttpStatus.UNAUTHORIZED),
+    INVALID_REFRESH_TOKEN(100016, "Invalid refresh token", HttpStatus.BAD_REQUEST),
+    SAVE_REFRESH_TOKEN_FAILED(100017, "Save refresh token failed", HttpStatus.INTERNAL_SERVER_ERROR),
     ;
 
 

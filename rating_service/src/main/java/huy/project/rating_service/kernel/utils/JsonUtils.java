@@ -29,6 +29,14 @@ public class JsonUtils {
         }
     }
 
+    public <T> T fromJson(String json, Class<T> clazz, Class<?>... parameterClasses) {
+        try {
+            return objectMapper.readValue(json, objectMapper.getTypeFactory().constructParametricType(clazz, parameterClasses));
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to convert JSON to Object", e);
+        }
+    }
+
     public <T> List<T> fromJsonList(String json, Class<T> clazz) {
         try {
             return objectMapper.readValue(
