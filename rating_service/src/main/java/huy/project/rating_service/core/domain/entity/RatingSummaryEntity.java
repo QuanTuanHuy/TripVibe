@@ -2,6 +2,8 @@ package huy.project.rating_service.core.domain.entity;
 
 import lombok.*;
 
+import java.util.Map;
+
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
@@ -13,4 +15,6 @@ public class RatingSummaryEntity {
     private Integer numberOfRatings;
     private Long totalRating;
     private Boolean isSyncedWithSearchService;
+
+    private Map<Integer, Integer> distribution;
 }

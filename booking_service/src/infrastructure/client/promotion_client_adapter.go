@@ -1,6 +1,7 @@
 package client
 
 import (
+	"booking_service/core/domain/constant"
 	"booking_service/core/domain/dto/request"
 	"booking_service/core/domain/dto/response"
 	"booking_service/core/port"
@@ -31,7 +32,7 @@ func (p PromotionClientAdapter) UpdatePromotionUsage(ctx context.Context, promot
 func (p PromotionClientAdapter) VerifyPromotion(ctx context.Context, req *request.VerifyPromotionRequest) (*response.VerifyPromotionResponse, error) {
 	var result response.VerifyPromotionResponse
 
-	err := p.apiClient.PostJSON(ctx, "promotion", "/api/public/v1/promotions/verify", req, &result)
+	err := p.apiClient.PostJSON(ctx, constant.PROMOTION_SERVICE, constant.VERIFY_PROMOTION_ENPOINT, req, &result)
 	if err != nil {
 		log.Error(ctx, "VerifyPromotion error ", err)
 		return nil, err
@@ -41,8 +42,8 @@ func (p PromotionClientAdapter) VerifyPromotion(ctx context.Context, req *reques
 
 func NewPromotionClientAdapter() port.IPromotionPort {
 	apiClient := NewApiClient(
-		WithService("promotion", "http://localhost:8087/promotion_service", 10*time.Second),
-		WithServiceRetry("promotion", 3, 500*time.Millisecond),
+		WithService(constant.PROMOTION_SERVICE, constant.PROMOTION_SERVICE_URL, 10*time.Second),
+		WithServiceRetry(constant.PROMOTION_SERVICE, 3, 500*time.Millisecond),
 	)
 	return &PromotionClientAdapter{
 		apiClient: apiClient,

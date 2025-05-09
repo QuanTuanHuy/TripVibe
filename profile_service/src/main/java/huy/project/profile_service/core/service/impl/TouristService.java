@@ -10,6 +10,7 @@ import huy.project.profile_service.core.usecase.GetTouristUseCase;
 import huy.project.profile_service.core.usecase.UpdateTouristUseCase;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -43,5 +44,10 @@ public class TouristService implements ITouristService {
     @Override
     public List<TouristEntity> getTouristsByIds(List<Long> touristIds) {
         return getTouristUseCase.getTouristsByIds(touristIds);
+    }
+
+    @Override
+    public void updateAvatar(Long touristId, MultipartFile file) {
+        updateTouristUseCase.updateAvatar(touristId, file);
     }
 }

@@ -24,6 +24,7 @@ func ToBookingUnitEntity(req *request.BookingUnit, bookingID int64) *entity.Book
 	return &entity.BookingUnitEntity{
 		BookingID: bookingID,
 		UnitID:    req.UnitID,
+		Quantity:  req.Quantity,
 		FullName:  req.FullName,
 		Email:     req.Email,
 		Amount:    req.Amount,

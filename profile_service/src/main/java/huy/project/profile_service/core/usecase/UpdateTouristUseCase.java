@@ -7,11 +7,16 @@ import huy.project.profile_service.core.domain.entity.*;
 import huy.project.profile_service.core.domain.exception.AppException;
 import huy.project.profile_service.core.domain.mapper.*;
 import huy.project.profile_service.core.port.*;
+import huy.project.profile_service.core.port.client.IFileStoragePort;
 import huy.project.profile_service.kernel.utils.CacheUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -25,6 +30,7 @@ public class UpdateTouristUseCase {
     private final GetTouristUseCase getTouristUseCase;
 
     private final ICachePort cachePort;
+    private final IFileStoragePort fileStoragePort;
 
     @Transactional(rollbackFor = Exception.class)
     public TouristEntity updateTourist(Long id, UpdateTouristDto req) {
@@ -85,5 +91,26 @@ public class UpdateTouristUseCase {
         cachePort.deleteFromCache(CacheUtils.buildCacheKeyGetTouristById(tourist.getId()));
 
         return creditCard;
+    }
+
+    @Transactional(rollbackFor = Exception.class)
+    public void updateAvatar(Long touristId, MultipartFile file) {
+        TouristEntity tourist = getTouristUseCase.getTouristById(touristId);
+        if (tourist == null) {
+            log.error("Tourist not found with id: {}", touristId);
+            throw new AppException(ErrorCode.TOURIST_NOT_FOUND);
+        }
+
+        var uploadResponse = fileStoragePort.uploadFiles(List.of(file));
+        if (CollectionUtils.isEmpty(uploadResponse)) {
+            throw new AppException(ErrorCode.UPLOAD_FILE_FAILED);
+        }
+
+        tourist.setAvatarUrl(uploadResponse.get(0).getUrl());
+
+        touristPort.save(tourist);
+
+        // clear cache
+        cachePort.deleteFromCache(CacheUtils.buildCacheKeyGetTouristById(tourist.getId()));
     }
 }
