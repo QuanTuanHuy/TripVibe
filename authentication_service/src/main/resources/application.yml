@@ -5,7 +5,6 @@ spring:
   datasource:
     username: root
     password: root
-#    url: jdbc:mysql://localhost:3309/authentication_service?useSSL=false&serverTimezone=UTC&createDatabaseIfNotExist=true
     url: jdbc:mysql://localhost:3309/authentication_service
     driver-class-name: com.mysql.cj.jdbc.Driver
   jpa:
