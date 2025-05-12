@@ -68,9 +68,9 @@ export function Header() {
                             {/* Logo */}
                             <Link href="/dashboard" className="flex items-center">
                                 <div className="relative h-10 w-10 mr-2 rounded-lg overflow-hidden bg-gradient-to-br from-blue-500 to-blue-700 flex items-center justify-center shadow-sm">
-                                    <span className="text-white font-bold text-xl">B</span>
+                                    <span className="text-white font-bold text-xl">T</span>
                                 </div>
-                                <span className="hidden md:inline-block font-semibold text-lg text-gray-800 dark:text-gray-100">BookingManager</span>
+                                <span className="hidden md:inline-block font-semibold text-lg text-gray-800 dark:text-gray-100">TripVibe Manager</span>
                             </Link>
                         </div>
 
