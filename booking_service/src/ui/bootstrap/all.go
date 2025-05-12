@@ -67,7 +67,7 @@ func All() fx.Option {
 		fx.Provide(usecase.NewGetQuickBookingUseCase),
 		fx.Provide(usecase.NewCancelBookingUseCase),
 		fx.Provide(usecase.NewRejectBookingUseCase),
-		//fx.Populate(usecase.NewApproveBookingUseCase),
+		fx.Provide(usecase.NewApproveBookingUseCase),
 		fx.Provide(usecase.NewSendEmailUseCase),
 
 		//Provide services

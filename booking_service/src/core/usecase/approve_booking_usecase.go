@@ -22,7 +22,7 @@ type ApproveBookingUseCase struct {
 	dbTransactionUseCase IDatabaseTransactionUseCase
 }
 
-func (a *ApproveBookingUseCase) ApproveBooking(ctx context.Context, bookingID int64, userID int64) error {
+func (a ApproveBookingUseCase) ApproveBooking(ctx context.Context, bookingID int64, userID int64) error {
 	booking, err := a.bookingPort.GetBookingByID(ctx, bookingID)
 	if err != nil {
 		log.Error(ctx, "GetBookingByID error", err)
