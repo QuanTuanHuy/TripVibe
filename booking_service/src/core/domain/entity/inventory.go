@@ -6,6 +6,7 @@ type InventoryEntity struct {
 	AccommodationID int64
 	Date            int
 	Status          string // AVAILABLE, BOOKED, BLOCKED
-	BookingID       *int64
+	AvailableCount  int
+	TotalCount      int
 	Note            string
 }

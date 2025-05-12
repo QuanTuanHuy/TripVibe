@@ -11,7 +11,7 @@ import (
 )
 
 type IApproveBookingUseCase interface {
-	ApproveBooking(ctx context.Context, bookingID int64, userID int64) error
+	ApproveBooking(ctx context.Context, userID, bookingID int64) error
 }
 
 type ApproveBookingUseCase struct {
@@ -22,7 +22,7 @@ type ApproveBookingUseCase struct {
 	dbTransactionUseCase IDatabaseTransactionUseCase
 }
 
-func (a ApproveBookingUseCase) ApproveBooking(ctx context.Context, bookingID int64, userID int64) error {
+func (a ApproveBookingUseCase) ApproveBooking(ctx context.Context, userID, bookingID int64) error {
 	booking, err := a.bookingPort.GetBookingByID(ctx, bookingID)
 	if err != nil {
 		log.Error(ctx, "GetBookingByID error", err)

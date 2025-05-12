@@ -9,7 +9,6 @@ import (
 	"booking_service/kernel/utils"
 	"context"
 	"errors"
-
 	"github.com/golibs-starter/golib/log"
 )
 
@@ -29,102 +28,68 @@ type CreateBookingUseCase struct {
 }
 
 func (c CreateBookingUseCase) CreateBooking(ctx context.Context, req *request.CreateBookingDto) (*entity.BookingEntity, error) {
-	// Xác minh accommodation và units có hợp lệ không
+	// validate accommodation and units
 	accommodation, err := c.getAccUseCase.GetAccommodationByID(ctx, req.AccommodationID)
 	if err != nil {
 		log.Error(ctx, "GetAccommodationByID error ", err)
 		return nil, err
 	}
-
-	allUnitIds := make([]int64, 0)
+	unitMap := make(map[int64]*entity.UnitEntity)
 	for _, unit := range accommodation.Units {
-		allUnitIds = append(allUnitIds, unit.ID)
+		unitMap[unit.ID] = unit
 	}
 
-	// Extract requested unitIDs và quantities cho inventory locking
-	unitQuantities := make(map[int64]int)
+	bookingUnitIDs := make([]int64, 0)
+	bookingQuantityMap := make(map[int64]int)
 	for _, unit := range req.Units {
-		unitQuantities[unit.UnitID] = unit.Quantity
-
-		// Validate that unit exists and has enough quantity
-		found := false
-		for _, accUnit := range accommodation.Units {
-			if accUnit.ID == unit.UnitID {
-				found = true
-				if accUnit.Quantity < unit.Quantity {
-					log.Error(ctx, "Not enough units available", map[string]interface{}{
-						"unitID":            unit.UnitID,
-						"requestedQuantity": unit.Quantity,
-						"availableQuantity": accUnit.Quantity,
-					})
-					return nil, errors.New(constant.ErrNotEnoughUnitsAvailable)
-				}
-				break
-			}
-		}
-
-		if !found {
-			log.Error(ctx, "Unit not found ", unit.UnitID)
+		if _, ok := unitMap[unit.UnitID]; !ok {
+			log.Error(ctx, "Unit not found in accommodation ", unit.UnitID)
 			return nil, errors.New(constant.ErrUnitNotFound)
 		}
+		if unit.Quantity > unitMap[unit.UnitID].Quantity {
+			log.Error(ctx, "Unit quantity exceeds available quantity ", unit.UnitID)
+			return nil, errors.New(constant.ErrUnitQuantityExceedsAvailable)
+		}
+		bookingUnitIDs = append(bookingUnitIDs, unit.UnitID)
+		bookingQuantityMap[unit.UnitID] = unit.Quantity
 	}
 
 	stayFrom, stayTo := utils.EpochSecondToDay(req.StayFrom), utils.EpochSecondToDay(req.StayTo)
 
-	// Kiểm tra tình trạng phòng - trả về số lượng khả dụng cho mỗi unit
-	availableQuantities, err := c.inventoryPort.CheckAvailability(ctx, accommodation.ID, unitQuantities, stayFrom, stayTo)
+	// check inventory
+	inventories, err := c.inventoryPort.GetInventories(ctx, accommodation, bookingUnitIDs, stayFrom, stayTo)
 	if err != nil {
-		log.Error(ctx, "CheckAvailability error ", err)
+		log.Error(ctx, "GetInventories error ", err)
 		return nil, err
 	}
 
-	// Kiểm tra xem có đủ số lượng cho mỗi loại unit không
-	for unitID, requestedQuantity := range unitQuantities {
-		availableQty := availableQuantities[unitID]
-		if availableQty < requestedQuantity {
-			log.Error(ctx, "Not enough availability", map[string]interface{}{
-				"unitID":    unitID,
-				"requested": requestedQuantity,
-				"available": availableQty,
-			})
-			return nil, errors.New(constant.ErrInventoryNoLongerAvailable)
+	for _, inventory := range inventories {
+		if inventory.AvailableCount < bookingQuantityMap[inventory.UnitID] {
+			log.Error(ctx, "Inventory not enough ", inventory.UnitID)
+			return nil, errors.New(constant.ErrUnitQuantityExceedsAvailable)
 		}
 	}
-
-	// Lock tạm thời trong redis
-	_, err = c.inventoryPort.LockInventory(ctx, unitQuantities, stayFrom, stayTo)
-	if err != nil {
-		log.Error(ctx, "Failed to lock inventory", err)
-		return nil, err
-	}
-
-	// Tạo một function để đảm bảo giải phóng lock khi có lỗi
-	defer func() {
-		if err != nil {
-			c.inventoryPort.ReleaseLock(ctx, unitQuantities, stayFrom, stayTo)
-		}
-	}()
 
 	// Verify promotion
 	allPromotionIds := make([]int64, 0)
 	for _, promotion := range req.Promotions {
 		allPromotionIds = append(allPromotionIds, promotion.PromotionID)
 	}
-	if len(allPromotionIds) > 0 {
-		verifyPromotionReq := &request.VerifyPromotionRequest{
-			AccommodationID: accommodation.ID,
-			PromotionIDs:    allPromotionIds,
-		}
-		verifyPromotionRes, err := c.promotionPort.VerifyPromotion(ctx, verifyPromotionReq)
-		if err != nil {
-			log.Error(ctx, "VerifyPromotion error ", err)
-			return nil, err
-		}
-		if !verifyPromotionRes.IsValid {
-			log.Error(ctx, "Promotion not valid ")
-			return nil, errors.New(constant.ErrPromotionNotValid)
-		}
-	}
+	//if len(allPromotionIds) > 0 {
+	//	verifyPromotionReq := &request.VerifyPromotionRequest{
+	//		AccommodationID: accommodation.ID,
+	//		PromotionIDs:    allPromotionIds,
+	//	}
+	//	verifyPromotionRes, err := c.promotionPort.VerifyPromotion(ctx, verifyPromotionReq)
+	//	if err != nil {
+	//		log.Error(ctx, "VerifyPromotion error ", err)
+	//		return nil, err
+	//	}
+	//	if !verifyPromotionRes.IsValid {
+	//		log.Error(ctx, "Promotion not valid ")
+	//		return nil, errors.New(constant.ErrPromotionNotValid)
+	//	}
+	//}
 
 	tx := c.dbTransactionUseCase.StartTransaction()
 	defer func() {
@@ -192,10 +157,18 @@ func (c CreateBookingUseCase) CreateBooking(ctx context.Context, req *request.Cr
 		booking.Promotions = bookingPromotions
 	}
 
-	// Xác nhận đặt phòng và cập nhật inventory
-	err = c.inventoryPort.ConfirmBooking(ctx, tx, booking.ID, accommodation.ID, unitQuantities, stayFrom, stayTo)
+	// Update inventory
+	for _, inventory := range inventories {
+		inventory.AvailableCount -= bookingQuantityMap[inventory.UnitID]
+		if inventory.AvailableCount > 0 {
+			inventory.Status = constant.PARTIALLY_BOOKED
+		} else {
+			inventory.Status = constant.FULLY_BOOKED
+		}
+	}
+	err = c.inventoryPort.SaveAll(ctx, tx, inventories)
 	if err != nil {
-		log.Error(ctx, "Failed to confirm booking in inventory ", err)
+		log.Error(ctx, "SaveAll inventory error ", err)
 		return nil, err
 	}
 

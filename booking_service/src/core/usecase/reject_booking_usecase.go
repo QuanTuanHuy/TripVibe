@@ -15,18 +15,22 @@ type IRejectBookingUseCase interface {
 }
 
 type RejectBookingUseCase struct {
-	bookingPort          port.IBookingPort
-	inventoryPort        port.IInventoryPort
-	accommodationPort    port.IAccommodationPort
-	cachePort            port.ICachePort
-	dbTransactionUseCase IDatabaseTransactionUseCase
-	sendEmailUseCase     ISendEmailUseCase
+	bookingPort             port.IBookingPort
+	bookingUnitPort         port.IBookingUnitPort
+	inventoryPort           port.IInventoryPort
+	cachePort               port.ICachePort
+	dbTransactionUseCase    IDatabaseTransactionUseCase
+	getAccommodationUseCase IGetAccommodationUseCase
+	sendEmailUseCase        ISendEmailUseCase
 }
 
 func (r RejectBookingUseCase) RejectBooking(ctx context.Context, userID, bookingID int64) error {
 	booking, err := r.bookingPort.GetBookingByID(ctx, bookingID)
 	if err != nil {
-		log.Error(ctx, "GetBookingByID error", err)
+		return err
+	}
+	bookingUnits, err := r.bookingUnitPort.GetBookingUnitsByBookingID(ctx, bookingID)
+	if err != nil {
 		return err
 	}
 
@@ -35,16 +39,29 @@ func (r RejectBookingUseCase) RejectBooking(ctx context.Context, userID, booking
 		return errors.New(constant.ErrForbiddenRejectBooking)
 	}
 
-	accommodation, err := r.accommodationPort.GetAccommodationByID(ctx, booking.AccommodationID)
+	accommodation, err := r.getAccommodationUseCase.GetAccommodationByID(ctx, booking.AccommodationID)
 	if err != nil {
-		log.Error(ctx, "GetAccommodationByID error", err)
 		return err
 	}
-
 	if userID != accommodation.OwnerID {
 		log.Error(ctx, "user doesn't have permission to reject booking ", userID)
 		return errors.New(constant.ErrForbiddenRejectBooking)
 	}
+
+	// get inventories
+	stayFrom, stayTo := utils.EpochSecondToDay(booking.StayFrom), utils.EpochSecondToDay(booking.StayTo)
+	log.Info(ctx, "stayFrom: ", stayFrom, " stayTo: ", stayTo)
+	bookingUnitIDs := make([]int64, 0)
+	bookingQuantityMap := make(map[int64]int)
+	for _, unit := range bookingUnits {
+		bookingUnitIDs = append(bookingUnitIDs, unit.UnitID)
+		bookingQuantityMap[unit.UnitID] = unit.Quantity
+	}
+	inventories, err := r.inventoryPort.GetInventories(ctx, accommodation, bookingUnitIDs, stayFrom, stayTo)
+	if err != nil {
+		return err
+	}
+	log.Info(ctx, "len(inventories): ", len(inventories))
 
 	tx := r.dbTransactionUseCase.StartTransaction()
 	defer func() {
@@ -55,7 +72,6 @@ func (r RejectBookingUseCase) RejectBooking(ctx context.Context, userID, booking
 		}
 	}()
 
-	// Cập nhật trạng thái booking
 	booking.Status = constant.REJECTED
 	_, err = r.bookingPort.UpdateBooking(ctx, tx, booking)
 	if err != nil {
@@ -63,10 +79,18 @@ func (r RejectBookingUseCase) RejectBooking(ctx context.Context, userID, booking
 		return err
 	}
 
-	// Giải phóng inventory - hàm ReleaseBooking đã được cập nhật để xử lý quantity
-	err = r.inventoryPort.ReleaseBooking(ctx, tx, bookingID)
+	// update inventory
+	for _, inventory := range inventories {
+		inventory.AvailableCount += bookingQuantityMap[inventory.UnitID]
+		if inventory.AvailableCount == inventory.TotalCount {
+			inventory.Status = constant.AVAILABLE
+		} else {
+			inventory.Status = constant.PARTIALLY_BOOKED
+		}
+	}
+	err = r.inventoryPort.SaveAll(ctx, tx, inventories)
 	if err != nil {
-		log.Error(ctx, "ReleaseBooking error", err)
+		log.Error(ctx, "SaveAll inventory error", err)
 		return err
 	}
 
@@ -94,18 +118,20 @@ func (r RejectBookingUseCase) RejectBooking(ctx context.Context, userID, booking
 
 func NewRejectBookingUseCase(
 	bookingPort port.IBookingPort,
+	bookingUnitPort port.IBookingUnitPort,
 	inventoryPort port.IInventoryPort,
-	accommodationPort port.IAccommodationPort,
+	getAccommodationUseCase IGetAccommodationUseCase,
 	cachePort port.ICachePort,
 	dbTransactionUseCase IDatabaseTransactionUseCase,
 	sendEmailUseCase ISendEmailUseCase,
 ) IRejectBookingUseCase {
 	return &RejectBookingUseCase{
-		bookingPort:          bookingPort,
-		inventoryPort:        inventoryPort,
-		accommodationPort:    accommodationPort,
-		cachePort:            cachePort,
-		dbTransactionUseCase: dbTransactionUseCase,
-		sendEmailUseCase:     sendEmailUseCase,
+		bookingPort:             bookingPort,
+		bookingUnitPort:         bookingUnitPort,
+		inventoryPort:           inventoryPort,
+		getAccommodationUseCase: getAccommodationUseCase,
+		cachePort:               cachePort,
+		dbTransactionUseCase:    dbTransactionUseCase,
+		sendEmailUseCase:        sendEmailUseCase,
 	}
 }

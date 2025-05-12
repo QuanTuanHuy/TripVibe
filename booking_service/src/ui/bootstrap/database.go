@@ -20,7 +20,6 @@ func RunDatabase() {
 		&model.BookingModel{},
 		&model.BookingUnitModel{},
 		&model.InventoryModel{},
-		&model.BookingInventoryModel{},
 		&model.BookingPromotionModel{}, &model.UserModel{},
 		&model.QuickBookingModel{})
 	if err != nil {
