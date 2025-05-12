@@ -7,7 +7,6 @@ import (
 	"booking_service/infrastructure/client"
 	"booking_service/infrastructure/kafka"
 	"booking_service/infrastructure/repository/adapter"
-	service2 "booking_service/infrastructure/service"
 	"booking_service/ui/controller"
 	consumer "booking_service/ui/kafka"
 	"booking_service/ui/middleware"
@@ -44,7 +43,9 @@ func All() fx.Option {
 		fx.Provide(cache.NewRedisCacheAdapter),
 		fx.Provide(adapter.NewDatabaseTransactionAdapter),
 		fx.Provide(client.NewPromotionClientAdapter),
-		fx.Provide(service2.NewInventoryAdapter),
+		fx.Provide(adapter.NewInventoryAdapter),
+		fx.Provide(client.NewNotificationClientAdapter),
+		fx.Provide(adapter.NewQuickBookingAdapter),
 
 		//Provide usecase
 		fx.Provide(usecase.NewDatabaseTransactionUseCase),
@@ -59,15 +60,26 @@ func All() fx.Option {
 		fx.Provide(usecase.NewGetBookingUnitUseCase),
 		fx.Provide(usecase.NewUpdateBookingUseCase),
 		fx.Provide(usecase.NewDeleteUnitUseCase),
+		fx.Provide(usecase.NewCreateQuickBookingUseCase),
+		fx.Provide(usecase.NewUpdateQuickBookingUseCase),
+		fx.Provide(usecase.NewDeleteQuickBookingUseCase),
+		fx.Provide(usecase.NewGetQuickBookingUseCase),
+		fx.Provide(usecase.NewCancelBookingUseCase),
+		fx.Provide(usecase.NewRejectBookingUseCase),
+		fx.Provide(usecase.NewApproveBookingUseCase),
+		fx.Provide(usecase.NewSendEmailUseCase),
+		fx.Provide(usecase.NewGetInventoryUseCase),
 
 		//Provide services
 		fx.Provide(service.NewAccommodationService),
 		fx.Provide(service.NewBookingService),
+		fx.Provide(service.NewQuickBookingService),
 
 		//Provide controller
 		fx.Provide(controller.NewAccommodationController),
 		fx.Provide(controller.NewBookingController),
 		fx.Provide(controller.NewInternalBookingController),
+		fx.Provide(controller.NewQuickBookingController),
 
 		//Provide jwt
 		fx.Provide(middleware.NewJWTConfig),

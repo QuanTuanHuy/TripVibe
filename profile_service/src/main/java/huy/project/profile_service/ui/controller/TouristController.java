@@ -11,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequestMapping("/api/public/v1/tourists")
@@ -39,5 +40,14 @@ public class TouristController {
     ) {
         Long touristId = AuthenUtils.getCurrentUserId();
         return ResponseEntity.ok(new Resource<>(touristService.addCreditCardToTourist(touristId, req)));
+    }
+
+    @PostMapping("/me/avatar")
+    public ResponseEntity<Resource<?>> updateAvatar(
+            @RequestPart(value = "file") MultipartFile file
+    ) {
+        Long touristId = AuthenUtils.getCurrentUserId();
+        touristService.updateAvatar(touristId, file);
+        return ResponseEntity.ok(new Resource<>(null));
     }
 }

@@ -15,33 +15,35 @@ import java.util.List;
 @RequiredArgsConstructor
 public class RatingSummaryAdapter implements IRatingSummaryPort {
     private final IRatingSummaryRepository ratingSummaryRepository;
+    private final RatingSummaryMapper ratingSummaryMapper;
 
     @Override
     public void save(RatingSummaryEntity ratingSummary) {
-        var model = RatingSummaryMapper.INSTANCE.toModel(ratingSummary);
+        var model = ratingSummaryMapper.toModel(ratingSummary);
         ratingSummaryRepository.save(model);
     }
 
     @Override
     public void saveAll(List<RatingSummaryEntity> ratingSummaries) {
-        var models = RatingSummaryMapper.INSTANCE.toListModel(ratingSummaries);
+        var models = ratingSummaries.stream().map(ratingSummaryMapper::toModel).toList();
         ratingSummaryRepository.saveAll(models);
     }
 
     @Override
     public RatingSummaryEntity getRatingSummaryByAccId(Long accId) {
-        return RatingSummaryMapper.INSTANCE.toEntity(ratingSummaryRepository.findByAccommodationId(accId).orElse(null));
+        return ratingSummaryMapper.toEntity(ratingSummaryRepository.findByAccommodationId(accId).orElse(null));
     }
 
     @Override
     public List<RatingSummaryEntity> getRatingSummariesByAccIds(List<Long> accIds) {
-        return RatingSummaryMapper.INSTANCE.toListEntity(ratingSummaryRepository.findByAccommodationIdIn(accIds));
+        return ratingSummaryRepository.findByAccommodationIdIn(accIds).stream()
+                .map(ratingSummaryMapper::toEntity).toList();
     }
 
     @Override
     public List<RatingSummaryEntity> getRatingSummariesNotSynced(int limit) {
         Pageable pageable = PageRequest.of(0, limit);
-        return RatingSummaryMapper.INSTANCE.toListEntity(
-                ratingSummaryRepository.findByIsSyncedWithSearchService(false, pageable));
+        return ratingSummaryRepository.findByIsSyncedWithSearchService(false, pageable).stream()
+                .map(ratingSummaryMapper::toEntity).toList();
     }
 }

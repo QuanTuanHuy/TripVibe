@@ -19,6 +19,8 @@ public enum ErrorCode {
     ACCOMMODATION_NOT_FOUND(100010, "Accommodation not found", HttpStatus.NOT_FOUND),
     SAVE_WISHLIST_ITEM_FAILED(100011, "Save wishlist item failed", HttpStatus.INTERNAL_SERVER_ERROR),
     SAVE_WISHLIST_FAILED(100012, "Save wishlist failed", HttpStatus.INTERNAL_SERVER_ERROR),
+    UPLOAD_FILE_FAILED(100013, "Upload file failed", HttpStatus.INTERNAL_SERVER_ERROR),
+    SERVICE_UNAVAILABLE(100014, "Service unavailable", HttpStatus.SERVICE_UNAVAILABLE),
     ;
 
 

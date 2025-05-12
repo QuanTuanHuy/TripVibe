@@ -105,7 +105,7 @@ export default function NewHotelPage() {
 
             toast("Chỗ nghỉ đã được tạo thành công");
 
-            router.push(`/hotels/${result.id}/success`);
+            router.push(`/hotels/manage/${result.id}`);
         } catch (error) {
             console.error('Error creating accommodation:', error);
             toast("Đã có lỗi xảy ra khi tạo chỗ nghỉ. Vui lòng thử lại.");

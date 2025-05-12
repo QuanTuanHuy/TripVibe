@@ -3,6 +3,7 @@ package huy.project.rating_service.core.usecase;
 import huy.project.rating_service.core.domain.constant.ErrorCode;
 import huy.project.rating_service.core.domain.dto.request.CreateRatingDto;
 import huy.project.rating_service.core.domain.entity.MonthlyRatingEntity;
+import huy.project.rating_service.core.domain.entity.RatingDetailEntity;
 import huy.project.rating_service.core.domain.entity.RatingEntity;
 import huy.project.rating_service.core.domain.exception.AppException;
 import huy.project.rating_service.core.domain.mapper.RatingMapper;
@@ -15,64 +16,106 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.util.List;
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @Slf4j
 public class CreateRatingUseCase {
+    private static final DateTimeFormatter YEAR_MONTH_FORMATTER = DateTimeFormatter.ofPattern("yyyy-M");
+
     IRatingPort ratingPort;
+    IRatingDetailPort ratingDetailPort;
     IBookingPort bookingPort;
     IRatingSummaryPort ratingSummaryPort;
     IRatingTrendPort ratingTrendPort;
     IMonthlyRatingPort monthlyRatingPort;
 
-
     @Transactional(rollbackFor = Exception.class)
     public RatingEntity createRating(CreateRatingDto req) {
         validateRequest(req);
 
+        RatingEntity rating = createRatingEntity(req);
+
+        saveRatingDetails(rating, req);
+
+        updateRatingSummary(req);
+
+        updateRatingTrend(req);
+
+        return rating;
+    }
+
+    private RatingEntity createRatingEntity(CreateRatingDto req) {
         var rating = RatingMapper.INSTANCE.toEntity(req);
         rating.setNumberOfHelpful(0);
         rating.setNumberOfUnhelpful(0);
-        rating = ratingPort.save(rating);
+        return ratingPort.save(rating);
+    }
 
-        // update rating summary
+    private void saveRatingDetails(RatingEntity rating, CreateRatingDto req) {
+        List<RatingDetailEntity> details = req.getRatingDetails().entrySet().stream()
+                .map(entry -> RatingDetailEntity.builder()
+                        .ratingId(rating.getId())
+                        .value(entry.getValue())
+                        .criteriaType(entry.getKey())
+                        .build())
+                .toList();
+
+        rating.setRatingDetails(ratingDetailPort.saveAll(details));
+    }
+
+    private void updateRatingSummary(CreateRatingDto req) {
         var ratingSummary = ratingSummaryPort.getRatingSummaryByAccId(req.getAccommodationId());
         if (ratingSummary == null) {
             log.error("Accommodation {} not found", req.getAccommodationId());
             throw new AppException(ErrorCode.ACCOMMODATION_NOT_FOUND);
         }
-        ratingSummary.setNumberOfRatings(ratingSummary.getNumberOfRatings() + 1);
-        ratingSummary.setTotalRating(ratingSummary.getTotalRating() + req.getValue().longValue());
-        ratingSummary.setIsSyncedWithSearchService(false);
-        ratingSummaryPort.save(ratingSummary);
 
-        // update rating trend
+        ratingSummary.setNumberOfRatings(ratingSummary.getNumberOfRatings() + 1);
+        Long ratingValue = req.getValue().longValue();
+        ratingSummary.setTotalRating(ratingSummary.getTotalRating() + ratingValue);
+        ratingSummary.setIsSyncedWithSearchService(false);
+
+        Map<Integer, Integer> distribution = ratingSummary.getDistribution();
+        int ratingValueInt = req.getValue().intValue();
+        distribution.put(ratingValueInt, distribution.getOrDefault(ratingValueInt, 0) + 1);
+
+        ratingSummaryPort.save(ratingSummary);
+    }
+
+    private void updateRatingTrend(CreateRatingDto req) {
         var ratingTrend = ratingTrendPort.getRatingTrendByAccId(req.getAccommodationId());
         if (ratingTrend == null) {
-            log.error("rating trend not created for accommodation {}, check why?", req.getAccommodationId());
-        } else {
-            LocalDate now = LocalDate.now();
-            String yearMonth = now.getYear() + "-" + now.getMonthValue();
-            log.info("yearMonth: {}", yearMonth);
-
-            var monthlyRating = monthlyRatingPort.getByRatingTrendIdAndMonth(ratingTrend.getId(), yearMonth);
-            if (monthlyRating == null) {
-                monthlyRating = MonthlyRatingEntity.builder()
-                        .ratingTrendId(ratingTrend.getId())
-                        .ratingCount(0)
-                        .totalRating(0L)
-                        .yearMonth(yearMonth)
-                        .build();
-            }
-            monthlyRating.setRatingCount(monthlyRating.getRatingCount() + 1);
-            monthlyRating.setTotalRating(monthlyRating.getTotalRating() + req.getValue().longValue());
-
-            monthlyRatingPort.save(monthlyRating);
+            log.error("Rating trend not created for accommodation {}, check why?", req.getAccommodationId());
+            return;
         }
 
-        return rating;
+        LocalDate now = LocalDate.now();
+        String yearMonth = now.format(YEAR_MONTH_FORMATTER);
+
+        updateOrCreateMonthlyRating(ratingTrend.getId(), yearMonth, req.getValue());
+    }
+
+    private void updateOrCreateMonthlyRating(Long ratingTrendId, String yearMonth, Double ratingValue) {
+        var monthlyRating = monthlyRatingPort.getByRatingTrendIdAndMonth(ratingTrendId, yearMonth);
+
+        if (monthlyRating == null) {
+            monthlyRating = MonthlyRatingEntity.builder()
+                    .ratingTrendId(ratingTrendId)
+                    .ratingCount(1)
+                    .totalRating(ratingValue.longValue())
+                    .yearMonth(yearMonth)
+                    .build();
+        } else {
+            monthlyRating.setRatingCount(monthlyRating.getRatingCount() + 1);
+            monthlyRating.setTotalRating(monthlyRating.getTotalRating() + ratingValue.longValue());
+        }
+
+        monthlyRatingPort.save(monthlyRating);
     }
 
     private void validateRequest(CreateRatingDto req) {
@@ -87,7 +130,7 @@ public class CreateRatingUseCase {
 
         var bookingDto = bookingPort.getCompletedBookingByUserIdAndUnitId(req.getUserId(), req.getUnitId());
         if (bookingDto == null) {
-            log.error("user {} does not have booking with unit {}", req.getUserId(), req.getUnitId());
+            log.error("User {} does not have booking with unit {}", req.getUserId(), req.getUnitId());
             throw new AppException(ErrorCode.FORBIDDEN_CREATE_RATING);
         }
     }

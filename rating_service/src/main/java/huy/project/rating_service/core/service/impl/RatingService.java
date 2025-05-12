@@ -5,11 +5,13 @@ import huy.project.rating_service.core.domain.dto.request.CreateRatingHelpfulnes
 import huy.project.rating_service.core.domain.dto.request.RatingParams;
 import huy.project.rating_service.core.domain.dto.response.PageInfo;
 import huy.project.rating_service.core.domain.dto.response.RatingDto;
+import huy.project.rating_service.core.domain.dto.response.RatingStatisticDto;
 import huy.project.rating_service.core.domain.entity.RatingEntity;
 import huy.project.rating_service.core.domain.entity.RatingHelpfulnessEntity;
 import huy.project.rating_service.core.service.IRatingService;
 import huy.project.rating_service.core.usecase.CreateRatingHelpfulnessUseCase;
 import huy.project.rating_service.core.usecase.CreateRatingUseCase;
+import huy.project.rating_service.core.usecase.GetRatingStatisticUseCase;
 import huy.project.rating_service.core.usecase.GetRatingUseCase;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -26,6 +28,7 @@ public class RatingService implements IRatingService {
     CreateRatingUseCase createRatingUseCase;
     GetRatingUseCase getRatingUseCase;
     CreateRatingHelpfulnessUseCase createRatingHelpfulnessUseCase;
+    GetRatingStatisticUseCase getRatingStatisticUseCase;
 
     @Override
     public RatingEntity createRating(CreateRatingDto req) {
@@ -40,5 +43,10 @@ public class RatingService implements IRatingService {
     @Override
     public RatingHelpfulnessEntity createRatingHelpfulness(Long userId, CreateRatingHelpfulnessDto req) {
         return createRatingHelpfulnessUseCase.createRatingHelpfulness(userId, req);
+    }
+
+    @Override
+    public RatingStatisticDto getStatisticByAccId(Long accommodationId) {
+        return getRatingStatisticUseCase.getStatisticByAccId(accommodationId);
     }
 }

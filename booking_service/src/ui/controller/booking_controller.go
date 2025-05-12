@@ -7,10 +7,10 @@ import (
 	"booking_service/core/domain/dto/response"
 	"booking_service/core/service"
 	"booking_service/kernel/apihelper"
-	"booking_service/kernel/utils"
+	"strconv"
+
 	"github.com/gin-gonic/gin"
 	"github.com/golibs-starter/golib/log"
-	"strconv"
 )
 
 type BookingController struct {
@@ -19,42 +19,20 @@ type BookingController struct {
 
 func (b *BookingController) GetAllBookings(c *gin.Context) {
 	var params request.BookingParams
-	pageSize, page := utils.GetPagingParams(c)
-	params.Page = &page
-	params.PageSize = &pageSize
 
-	if userIDStr := c.Query("userId"); userIDStr != "" {
-		userID, err := strconv.ParseInt(userIDStr, 10, 64)
-		if err != nil {
-			log.Error(c, "error parsing userId", err)
-			apihelper.AbortErrorHandle(c, common.GeneralBadRequest)
-			return
-		}
-		params.UserID = &userID
+	if err := c.ShouldBindQuery(&params); err != nil {
+		log.Error(c, "error binding request ", err)
+		apihelper.AbortErrorHandle(c, common.GeneralBadRequest)
+		return
 	}
 
-	if accommodationIDStr := c.Query("accommodationId"); accommodationIDStr != "" {
-		accommodationID, err := strconv.ParseInt(accommodationIDStr, 10, 64)
-		if err != nil {
-			log.Error(c, "error parsing accommodationId", err)
-			apihelper.AbortErrorHandle(c, common.GeneralBadRequest)
-			return
-		}
-		params.AccommodationID = &accommodationID
+	if params.Page == nil {
+		defaultPage := constant.DefaultOffset
+		params.Page = &defaultPage
 	}
-
-	if unitIDStr := c.Query("unitId"); unitIDStr != "" {
-		unitID, err := strconv.ParseInt(unitIDStr, 10, 64)
-		if err != nil {
-			log.Error(c, "error parsing unitId", err)
-			apihelper.AbortErrorHandle(c, common.GeneralBadRequest)
-			return
-		}
-		params.UnitID = &unitID
-	}
-
-	if status := c.Query("status"); status != "" {
-		params.Status = &status
+	if params.PageSize == nil {
+		defaultPageSize := constant.DefaultPageSize
+		params.PageSize = &defaultPageSize
 	}
 
 	getBookingResponse, err := b.bookingService.GetAllBookings(c, &params)
@@ -64,7 +42,6 @@ func (b *BookingController) GetAllBookings(c *gin.Context) {
 		return
 	}
 	apihelper.SuccessfulHandle(c, getBookingResponse)
-
 }
 
 func (b *BookingController) GetDetailBooking(c *gin.Context) {
@@ -165,6 +142,30 @@ func (b *BookingController) RejectBooking(c *gin.Context) {
 			apihelper.AbortErrorHandle(c, common.GeneralForbidden)
 			return
 		}
+		apihelper.AbortErrorHandle(c, common.GeneralServiceUnavailable)
+		return
+	}
+
+	apihelper.SuccessfulHandle(c, true)
+}
+
+func (b *BookingController) CancelBooking(c *gin.Context) {
+	userID, ok := c.Get("userID")
+	if !ok {
+		log.Error(c, "error getting user id from context")
+		return
+	}
+
+	bookingID, err := strconv.ParseInt(c.Param("id"), 10, 64)
+	if err != nil {
+		log.Error(c, "error parsing bookingId ", err)
+		apihelper.AbortErrorHandle(c, common.GeneralBadRequest)
+		return
+	}
+
+	err = b.bookingService.CancelBooking(c, userID.(int64), bookingID)
+	if err != nil {
+		log.Error(c, "error cancelling booking ", err)
 		apihelper.AbortErrorHandle(c, common.GeneralServiceUnavailable)
 		return
 	}

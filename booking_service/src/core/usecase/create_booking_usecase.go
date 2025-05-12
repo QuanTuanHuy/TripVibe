@@ -9,9 +9,7 @@ import (
 	"booking_service/kernel/utils"
 	"context"
 	"errors"
-	"fmt"
 	"github.com/golibs-starter/golib/log"
-	"slices"
 )
 
 type ICreateBookingUseCase interface {
@@ -30,75 +28,68 @@ type CreateBookingUseCase struct {
 }
 
 func (c CreateBookingUseCase) CreateBooking(ctx context.Context, req *request.CreateBookingDto) (*entity.BookingEntity, error) {
-	// verify accommodation with units valid
+	// validate accommodation and units
 	accommodation, err := c.getAccUseCase.GetAccommodationByID(ctx, req.AccommodationID)
 	if err != nil {
 		log.Error(ctx, "GetAccommodationByID error ", err)
 		return nil, err
 	}
-	allUnitIds := make([]int64, 0)
+	unitMap := make(map[int64]*entity.UnitEntity)
 	for _, unit := range accommodation.Units {
-		allUnitIds = append(allUnitIds, unit.ID)
+		unitMap[unit.ID] = unit
 	}
 
-	// Extract requested unitIDs for inventory locking
-	requestedUnitIDs := make([]int64, 0, len(req.Units))
+	bookingUnitIDs := make([]int64, 0)
+	bookingQuantityMap := make(map[int64]int)
 	for _, unit := range req.Units {
-		requestedUnitIDs = append(requestedUnitIDs, unit.UnitID)
-		if !slices.Contains(allUnitIds, unit.UnitID) {
-			log.Error(ctx, "Unit not found ", unit.UnitID)
+		if _, ok := unitMap[unit.UnitID]; !ok {
+			log.Error(ctx, "Unit not found in accommodation ", unit.UnitID)
 			return nil, errors.New(constant.ErrUnitNotFound)
 		}
-	}
-
-	// Try to lock inventory before proceeding
-	stayFrom, stayTo := utils.EpochMilliToDay(req.StayFrom), utils.EpochMilliToDay(req.StayTo)
-	log.Info(ctx, "Locking inventory for accommodation ID: ", req.AccommodationID, " from: ", stayFrom, " to: ", stayTo)
-	lockSuccessful, err := c.inventoryPort.LockInventory(ctx, req.AccommodationID, requestedUnitIDs, stayFrom, stayTo)
-	if err != nil {
-		log.Error(ctx, "Failed to lock inventory", err)
-		return nil, errors.New(constant.ErrInventoryLockFailed)
-	}
-
-	if !lockSuccessful {
-		log.Warn(ctx, "Inventory is no longer available")
-		return nil, errors.New(constant.ErrInventoryNoLongerAvailable)
-	}
-
-	// Generate a lock ID for potential release
-	lockID := fmt.Sprintf("lock:%d:%v:%d:%d", req.AccommodationID, requestedUnitIDs, stayFrom, stayTo)
-
-	// Release lock if anything fails
-	defer func() {
-		if err != nil {
-			// Only release lock if we're not committing the transaction
-			releaseErr := c.inventoryPort.ReleaseLock(ctx, lockID)
-			if releaseErr != nil {
-				log.Error(ctx, "Failed to release inventory lock", releaseErr)
-			}
+		if unit.Quantity > unitMap[unit.UnitID].Quantity {
+			log.Error(ctx, "Unit quantity exceeds available quantity ", unit.UnitID)
+			return nil, errors.New(constant.ErrUnitQuantityExceedsAvailable)
 		}
-	}()
+		bookingUnitIDs = append(bookingUnitIDs, unit.UnitID)
+		bookingQuantityMap[unit.UnitID] = unit.Quantity
+	}
 
-	// verify promotion
+	stayFrom, stayTo := utils.EpochSecondToDay(req.StayFrom), utils.EpochSecondToDay(req.StayTo)
+
+	// check inventory
+	inventories, err := c.inventoryPort.GetInventories(ctx, accommodation, bookingUnitIDs, stayFrom, stayTo)
+	if err != nil {
+		log.Error(ctx, "GetInventories error ", err)
+		return nil, err
+	}
+
+	for _, inventory := range inventories {
+		if inventory.AvailableCount < bookingQuantityMap[inventory.UnitID] {
+			log.Error(ctx, "Inventory not enough ", inventory.UnitID)
+			return nil, errors.New(constant.ErrUnitQuantityExceedsAvailable)
+		}
+	}
+
+	// Verify promotion
 	allPromotionIds := make([]int64, 0)
 	for _, promotion := range req.Promotions {
 		allPromotionIds = append(allPromotionIds, promotion.PromotionID)
 	}
-	if len(allPromotionIds) > 0 {
-		verifyPromotionReq := &request.VerifyPromotionRequest{
-			AccommodationID: accommodation.ID,
-			PromotionIDs:    allPromotionIds,
-		}
-		verifyPromotionRes, err := c.promotionPort.VerifyPromotion(ctx, verifyPromotionReq)
-		if err != nil {
-			log.Error(ctx, "VerifyPromotion error ", err)
-			return nil, err
-		}
-		if !verifyPromotionRes.IsValid {
-			log.Error(ctx, "Promotion not valid ")
-			return nil, errors.New(constant.ErrPromotionNotValid)
-		}
-	}
+	//if len(allPromotionIds) > 0 {
+	//	verifyPromotionReq := &request.VerifyPromotionRequest{
+	//		AccommodationID: accommodation.ID,
+	//		PromotionIDs:    allPromotionIds,
+	//	}
+	//	verifyPromotionRes, err := c.promotionPort.VerifyPromotion(ctx, verifyPromotionReq)
+	//	if err != nil {
+	//		log.Error(ctx, "VerifyPromotion error ", err)
+	//		return nil, err
+	//	}
+	//	if !verifyPromotionRes.IsValid {
+	//		log.Error(ctx, "Promotion not valid ")
+	//		return nil, errors.New(constant.ErrPromotionNotValid)
+	//	}
+	//}
 
 	tx := c.dbTransactionUseCase.StartTransaction()
 	defer func() {
@@ -109,7 +100,7 @@ func (c CreateBookingUseCase) CreateBooking(ctx context.Context, req *request.Cr
 		}
 	}()
 
-	// create tourist info
+	// Create tourist info
 	existedUser, err := c.userPort.GetUserByID(ctx, req.Tourist.TouristID)
 	if err != nil && err.Error() != constant.ErrUserNotFound {
 		log.Error(ctx, "GetUserByID error ", err)
@@ -129,7 +120,7 @@ func (c CreateBookingUseCase) CreateBooking(ctx context.Context, req *request.Cr
 		newUser, err = c.userPort.CreateUser(ctx, tx, newUser)
 	}
 
-	// create booking
+	// Create booking
 	booking := mapper.ToBookingEntity(req)
 	booking.Status = constant.PENDING
 	booking, err = c.bookingPort.CreateBooking(ctx, tx, booking)
@@ -138,7 +129,7 @@ func (c CreateBookingUseCase) CreateBooking(ctx context.Context, req *request.Cr
 		return nil, err
 	}
 
-	// create booking unit
+	// Create booking unit
 	bookingUnits := make([]*entity.BookingUnitEntity, 0)
 	for _, unit := range req.Units {
 		bookingUnit := mapper.ToBookingUnitEntity(unit, booking.ID)
@@ -151,18 +142,35 @@ func (c CreateBookingUseCase) CreateBooking(ctx context.Context, req *request.Cr
 	}
 	booking.Units = bookingUnits
 
-	// create booking promotion
-	bookingPromotions := make([]*entity.BookingPromotionEntity, 0)
-	for _, promotion := range req.Promotions {
-		bookingPromotion := mapper.ToBookingPromotion(promotion, booking.ID)
-		bookingPromotions = append(bookingPromotions, bookingPromotion)
+	// Create booking promotion
+	if len(allPromotionIds) > 0 {
+		bookingPromotions := make([]*entity.BookingPromotionEntity, 0)
+		for _, promotion := range req.Promotions {
+			bookingPromotion := mapper.ToBookingPromotion(promotion, booking.ID)
+			bookingPromotions = append(bookingPromotions, bookingPromotion)
+		}
+		bookingPromotions, err = c.bookingPromotionPort.CreateBookingPromotions(ctx, tx, bookingPromotions)
+		if err != nil {
+			log.Error(ctx, "CreateBookingPromotions error ", err)
+			return nil, err
+		}
+		booking.Promotions = bookingPromotions
 	}
-	bookingPromotions, err = c.bookingPromotionPort.CreateBookingPromotions(ctx, tx, bookingPromotions)
+
+	// Update inventory
+	for _, inventory := range inventories {
+		inventory.AvailableCount -= bookingQuantityMap[inventory.UnitID]
+		if inventory.AvailableCount > 0 {
+			inventory.Status = constant.PARTIALLY_BOOKED
+		} else {
+			inventory.Status = constant.FULLY_BOOKED
+		}
+	}
+	err = c.inventoryPort.SaveAll(ctx, tx, inventories)
 	if err != nil {
-		log.Error(ctx, "CreateBookingPromotions error ", err)
+		log.Error(ctx, "SaveAll inventory error ", err)
 		return nil, err
 	}
-	booking.Promotions = bookingPromotions
 
 	errCommit := c.dbTransactionUseCase.Commit(tx)
 	if errCommit != nil {
@@ -170,14 +178,7 @@ func (c CreateBookingUseCase) CreateBooking(ctx context.Context, req *request.Cr
 		return nil, errCommit
 	}
 
-	// After successful commit, confirm the booking in inventory
-	err = c.inventoryPort.ConfirmBooking(ctx, booking.ID, req.AccommodationID, requestedUnitIDs, stayFrom, stayTo)
-	if err != nil {
-		log.Error(ctx, "Failed to confirm inventory booking", err)
-		// Don't fail the booking creation at this point, but log the error
-	}
-
-	// update promotion usage
+	// Update promotion usage
 	go func() {
 		if len(allPromotionIds) > 0 {
 			err = c.promotionPort.UpdatePromotionUsage(ctx, allPromotionIds)

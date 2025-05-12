@@ -21,7 +21,7 @@ func ToBookingEntity(booking *model.BookingModel) *entity.BookingEntity {
 		CurrencyID:      booking.CurrencyID,
 		Status:          booking.Status,
 		Note:            booking.Note,
-		StayFrom:        booking.StayTo.Unix(),
+		StayFrom:        booking.StayFrom.Unix(),
 		StayTo:          booking.StayTo.Unix(),
 		InvoiceAmount:   booking.InvoiceAmount,
 		FinalAmount:     booking.FinalAmount,

@@ -6,9 +6,10 @@ import (
 	"booking_service/core/domain/dto/request"
 	"booking_service/core/service"
 	"booking_service/kernel/apihelper"
+	"strconv"
+
 	"github.com/gin-gonic/gin"
 	"github.com/golibs-starter/golib/log"
-	"strconv"
 )
 
 type AccommodationController struct {
@@ -16,6 +17,13 @@ type AccommodationController struct {
 }
 
 func (a AccommodationController) CreateAccommodation(c *gin.Context) {
+	userID, ok := c.Get("userID")
+	if !ok {
+		log.Error(c, "error getting user id from context")
+		apihelper.AbortErrorHandle(c, common.GeneralBadRequest)
+		return
+	}
+
 	req := &request.CreateAccommodationDto{}
 	if err := c.ShouldBindJSON(req); err != nil {
 		log.Error(c, "error binding request", err)
@@ -24,6 +32,7 @@ func (a AccommodationController) CreateAccommodation(c *gin.Context) {
 	}
 
 	accEntity := request.ToAccommodationEntity(req)
+	accEntity.OwnerID = userID.(int64)
 	acc, err := a.accommodationService.CreateAccommodation(c, accEntity)
 	if err != nil {
 		log.Error(c, "error creating accommodation", err)

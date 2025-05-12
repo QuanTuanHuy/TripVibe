@@ -2,17 +2,45 @@ package huy.project.rating_service.infrastructure.repository.mapper;
 
 import huy.project.rating_service.core.domain.entity.RatingSummaryEntity;
 import huy.project.rating_service.infrastructure.repository.model.RatingSummaryModel;
-import org.mapstruct.Mapper;
-import org.mapstruct.factory.Mappers;
+import huy.project.rating_service.kernel.utils.JsonUtils;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Component;
 
-import java.util.List;
+import java.util.HashMap;
 
-@Mapper
-public abstract class RatingSummaryMapper {
-    public static final RatingSummaryMapper INSTANCE = Mappers.getMapper(RatingSummaryMapper.class);
+@Component
+@RequiredArgsConstructor
+@Slf4j
+public class RatingSummaryMapper {
+    private final JsonUtils jsonUtils;
 
-    public abstract RatingSummaryEntity toEntity(RatingSummaryModel model);
-    public abstract RatingSummaryModel toModel(RatingSummaryEntity entity);
-    public abstract List<RatingSummaryEntity> toListEntity(List<RatingSummaryModel> models);
-    public abstract List<RatingSummaryModel> toListModel(List<RatingSummaryEntity> entities);
+    public RatingSummaryModel toModel(RatingSummaryEntity entity) {
+        if (entity == null) {
+            return null;
+        }
+
+        return RatingSummaryModel.builder()
+                .id(entity.getId())
+                .accommodationId(entity.getAccommodationId())
+                .numberOfRatings(entity.getNumberOfRatings())
+                .totalRating(entity.getTotalRating())
+                .isSyncedWithSearchService(entity.getIsSyncedWithSearchService())
+                .distribution(jsonUtils.toJson(entity.getDistribution()))
+                .build();
+    }
+
+    public RatingSummaryEntity toEntity(RatingSummaryModel model) {
+        if (model == null) {
+            return null;
+        }
+        return RatingSummaryEntity.builder()
+                .id(model.getId())
+                .accommodationId(model.getAccommodationId())
+                .numberOfRatings(model.getNumberOfRatings())
+                .totalRating(model.getTotalRating())
+                .isSyncedWithSearchService(model.getIsSyncedWithSearchService())
+                .distribution(jsonUtils.fromJson(model.getDistribution(), HashMap.class, Integer.class, Integer.class))
+                .build();
+    }
 }

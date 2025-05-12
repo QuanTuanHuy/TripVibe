@@ -1,19 +1,21 @@
 module booking_service
 
-go 1.23
+go 1.24
 
 require (
+	github.com/IBM/sarama v1.45.1
 	github.com/gin-gonic/gin v1.9.1
+	github.com/golang-jwt/jwt/v5 v5.2.1
 	github.com/golibs-starter/golib v1.0.1
 	github.com/golibs-starter/golib-data v1.0.0
 	github.com/golibs-starter/golib-gin v1.0.0
+	github.com/redis/go-redis/v9 v9.0.4
 	go.uber.org/fx v1.20.0
 	gorm.io/driver/postgres v1.5.0
 	gorm.io/gorm v1.25.0
 )
 
 require (
-	github.com/IBM/sarama v1.45.1 // indirect
 	github.com/bytedance/sonic v1.9.1 // indirect
 	github.com/cespare/xxhash/v2 v2.2.0 // indirect
 	github.com/chenzhuoyu/base64x v0.0.0-20221115062448-fe3a3abad311 // indirect
@@ -31,7 +33,6 @@ require (
 	github.com/go-playground/validator/v10 v10.14.1 // indirect
 	github.com/go-sql-driver/mysql v1.7.0 // indirect
 	github.com/goccy/go-json v0.10.2 // indirect
-	github.com/golang-jwt/jwt/v5 v5.2.1 // indirect
 	github.com/golang/snappy v0.0.4 // indirect
 	github.com/google/uuid v1.3.0 // indirect
 	github.com/hashicorp/errwrap v1.0.0 // indirect
@@ -62,7 +63,6 @@ require (
 	github.com/pierrec/lz4/v4 v4.1.22 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/rcrowley/go-metrics v0.0.0-20201227073835-cf1acfcdf475 // indirect
-	github.com/redis/go-redis/v9 v9.0.4 // indirect
 	github.com/spf13/afero v1.9.5 // indirect
 	github.com/spf13/cast v1.5.1 // indirect
 	github.com/spf13/jwalterweatherman v1.1.0 // indirect

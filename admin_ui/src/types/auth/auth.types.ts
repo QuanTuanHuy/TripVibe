@@ -3,9 +3,7 @@ export interface User {
     email: string;
     name?: string;
     avatarUrl?: string;
-    roleIds: number[];
-    createdAt?: string;
-    updatedAt?: string;
+    roles: string[];
 }
 
 export interface Role {
@@ -30,4 +28,15 @@ export interface AuthResponse {
     user: User;
     token: string;
     expiresAt?: string;
+}
+
+export interface DecodedToken {
+    sub: string;
+    scope: string;
+    iss: string;
+    exp: number;
+    type: string;
+    iat: number;
+    jti: string;
+    email: string;
 }

@@ -20,6 +20,7 @@ public enum ErrorCode {
     SAVE_RATING_HELPFUL_FAILED(100011, "Save rating helpful failed", HttpStatus.INTERNAL_SERVER_ERROR),
     SAVE_RATING_TREND_FAILED(100012, "Save rating trend failed", HttpStatus.INTERNAL_SERVER_ERROR),
     SAVE_MONTHLY_RATING_FAILED(100013, "Save monthly rating failed", HttpStatus.INTERNAL_SERVER_ERROR),
+    SAVE_RATING_DETAIL_FAILED(100014, "Save rating detail failed", HttpStatus.INTERNAL_SERVER_ERROR),
     ;
 
 

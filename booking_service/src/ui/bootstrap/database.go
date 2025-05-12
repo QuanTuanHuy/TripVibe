@@ -14,8 +14,14 @@ func RunDatabase() {
 	if err != nil {
 		log.Fatal("Failed to connect to database", err)
 	}
-	err = db.AutoMigrate(&model.AccommodationModel{}, &model.UnitModel{}, &model.BookingModel{},
-		&model.BookingUnitModel{}, &model.BookingPromotionModel{}, &model.UserModel{})
+	err = db.AutoMigrate(
+		&model.AccommodationModel{},
+		&model.UnitModel{},
+		&model.BookingModel{},
+		&model.BookingUnitModel{},
+		&model.InventoryModel{},
+		&model.BookingPromotionModel{}, &model.UserModel{},
+		&model.QuickBookingModel{})
 	if err != nil {
 		log.Fatal("Failed to migrate database", err)
 	}

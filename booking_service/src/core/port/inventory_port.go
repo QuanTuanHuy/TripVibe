@@ -1,9 +1,18 @@
 package port
 
-import "context"
+import (
+	"booking_service/core/domain/entity"
+	"context"
+	"gorm.io/gorm"
+)
 
 type IInventoryPort interface {
-	LockInventory(ctx context.Context, accID int64, unitIDs []int64, startDate, endDate int) (bool, error)
-	ReleaseLock(ctx context.Context, lockID string) error
-	ConfirmBooking(ctx context.Context, bookingID int64, accommodationID int64, unitIDs []int64, startDate, endDate int) error
+	GetInventories(
+		ctx context.Context,
+		accommodation *entity.AccommodationEntity,
+		unitIDs []int64,
+		startDate,
+		endDate int) ([]*entity.InventoryEntity, error)
+
+	SaveAll(ctx context.Context, tx *gorm.DB, inventories []*entity.InventoryEntity) error
 }

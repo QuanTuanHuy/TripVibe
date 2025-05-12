@@ -1,12 +1,13 @@
 module notification_service
 
-go 1.23
+go 1.24
 
 require (
 	github.com/gin-gonic/gin v1.9.1
 	github.com/golibs-starter/golib v1.0.1
 	github.com/golibs-starter/golib-data v1.0.0
 	github.com/golibs-starter/golib-gin v1.0.0
+	github.com/joho/godotenv v1.5.1
 	github.com/redis/go-redis/v9 v9.0.4
 	github.com/segmentio/kafka-go v0.4.47
 	go.uber.org/fx v1.20.0

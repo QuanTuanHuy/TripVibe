@@ -1,5 +1,5 @@
+import { User } from '@/types';
 import apiClient from './apiClient';
-import { User } from '../types/entities';
 
 // Path đến authentication service thông qua API Gateway
 const AUTH_PATH = '/authentication_service/api/public/v1';

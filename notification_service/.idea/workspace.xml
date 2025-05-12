@@ -5,20 +5,15 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="4cff42b0-96a3-498e-bb25-0914fe5bcfb3" name="Changes" comment="success get data via http request">
-      <change afterPath="$PROJECT_DIR$/../authentication_service/src/main/java/huy/project/authentication_service/kernel/utils/AuthenUtils.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../.vscode/settings.json" beforeDir="false" afterPath="$PROJECT_DIR$/../.vscode/settings.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../accommodation_service/src/main/java/huy/project/accommodation_service/kernel/config/SecurityConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/../accommodation_service/src/main/java/huy/project/accommodation_service/kernel/config/SecurityConfig.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../api_gateway/src/main/resources/application.yml" beforeDir="false" afterPath="$PROJECT_DIR$/../api_gateway/src/main/resources/application.yml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../authentication_service/src/main/java/huy/project/authentication_service/ui/controller/UserController.java" beforeDir="false" afterPath="$PROJECT_DIR$/../authentication_service/src/main/java/huy/project/authentication_service/ui/controller/UserController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.idea/compiler.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../.idea/compiler.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ui/bootstrap/all.go" beforeDir="false" afterPath="$PROJECT_DIR$/ui/bootstrap/all.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../web_ui/eslint.config.mjs" beforeDir="false" afterPath="$PROJECT_DIR$/../web_ui/eslint.config.mjs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../web_ui/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/../web_ui/package-lock.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../web_ui/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/../web_ui/package.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../web_ui/src/app/layout.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/../web_ui/src/app/layout.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../web_ui/src/app/login/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/../web_ui/src/app/login/page.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../web_ui/src/app/verify-otp/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/../web_ui/src/app/verify-otp/page.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../web_ui/src/components/Header/Header.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/../web_ui/src/components/Header/Header.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../web_ui/public/file.svg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../web_ui/public/globe.svg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../web_ui/public/next.svg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../web_ui/public/vercel.svg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../web_ui/public/window.svg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../web_ui/src/types/entities.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../web_ui/src/types/index.ts" beforeDir="false" afterPath="$PROJECT_DIR$/../web_ui/src/types/index.ts" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -63,29 +58,32 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;DefaultGoTemplateProperty&quot;: &quot;Go File&quot;,
-    &quot;Go Build.go build cmd.executor&quot;: &quot;Run&quot;,
-    &quot;Go Build.go build github.com/QuanTuanHuy/notification_service/ui.executor&quot;: &quot;Run&quot;,
-    &quot;Go Build.go build notification_service/cmd.executor&quot;: &quot;Run&quot;,
-    &quot;Go Build.go build notification_service/public.executor&quot;: &quot;Run&quot;,
-    &quot;Go Build.go build notification_service/ui.executor&quot;: &quot;Run&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.go.formatter.settings.were.checked&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.go.migrated.go.modules.settings&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.go.modules.go.list.on.any.changes.was.set&quot;: &quot;true&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;dynamic__pricing&quot;,
-    &quot;go.import.settings.migrated&quot;: &quot;true&quot;,
-    &quot;go.sdk.automatically.set&quot;: &quot;true&quot;,
-    &quot;last_opened_file_path&quot;: &quot;D:/User2/project/hotel_booking/booking_service&quot;,
-    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
-    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
-    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
-    &quot;run.configurations.included.in.services&quot;: &quot;true&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "DefaultGoTemplateProperty": "Go File",
+    "Go Build.go build cmd.executor": "Run",
+    "Go Build.go build github.com/QuanTuanHuy/notification_service/ui.executor": "Run",
+    "Go Build.go build notification_service/cmd.executor": "Run",
+    "Go Build.go build notification_service/public.executor": "Run",
+    "Go Build.go build notification_service/ui.executor": "Run",
+    "RunOnceActivity.GoLinterPluginOnboarding": "true",
+    "RunOnceActivity.GoLinterPluginStorageMigration": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "RunOnceActivity.go.formatter.settings.were.checked": "true",
+    "RunOnceActivity.go.migrated.go.modules.settings": "true",
+    "RunOnceActivity.go.modules.go.list.on.any.changes.was.set": "true",
+    "git-widget-placeholder": "dev",
+    "go.import.settings.migrated": "true",
+    "go.sdk.automatically.set": "true",
+    "junie.onboarding.icon.badge.shown": "true",
+    "last_opened_file_path": "D:/User2/project/hotel_booking/booking_service",
+    "node.js.detected.package.eslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "run.configurations.included.in.services": "true"
   }
-}</component>
+}]]></component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
       <recent name="D:\User2\project\hotel_booking\notification_service\ui\eventhandler" />
@@ -161,12 +159,22 @@
   <component name="SharedIndexes">
     <attachedChunks>
       <set>
-        <option value="bundled-gosdk-d297c17c1fbd-57c114c3cede-org.jetbrains.plugins.go.sharedIndexes.bundled-GO-243.26053.20" />
-        <option value="bundled-js-predefined-d6986cc7102b-1632447f56bf-JavaScript-GO-243.26053.20" />
+        <option value="bundled-gosdk-3b128438d3f6-34ac7aa8f6ab-org.jetbrains.plugins.go.sharedIndexes.bundled-GO-251.23774.430" />
+        <option value="bundled-js-predefined-d6986cc7102b-f27c65a3e318-JavaScript-GO-251.23774.430" />
       </set>
     </attachedChunks>
   </component>
   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="4cff42b0-96a3-498e-bb25-0914fe5bcfb3" name="Changes" comment="success get data via http request" />
+      <created>1746459691453</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1746459691453</updated>
+    </task>
+    <servers />
+  </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="3" />
   </component>
