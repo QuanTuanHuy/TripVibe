@@ -19,9 +19,9 @@ public class LocationModel extends AuditTable {
     @Column(name = "province_id")
     private Long provinceId;
     @Column(name = "longitude")
-    private Long longitude;
+    private Double longitude;
     @Column(name = "latitude")
-    private Long latitude;
+    private Double latitude;
     @Column(name = "address")
     private String address;
 }

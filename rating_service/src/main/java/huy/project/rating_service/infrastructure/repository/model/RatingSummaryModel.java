@@ -29,4 +29,7 @@ public class RatingSummaryModel extends AuditTable {
 
     @Column(name = "distribution", columnDefinition = "TEXT")
     private String distribution;
+
+    @Column(name = "criteria_averages", columnDefinition = "TEXT")
+    private String criteriaAverages;
 }

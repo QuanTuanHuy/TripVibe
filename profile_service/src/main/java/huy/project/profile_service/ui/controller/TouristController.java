@@ -7,6 +7,7 @@ import huy.project.profile_service.core.domain.entity.TouristEntity;
 import huy.project.profile_service.core.service.ITouristService;
 import huy.project.profile_service.kernel.utils.AuthenUtils;
 import huy.project.profile_service.ui.resource.Resource;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -28,7 +29,7 @@ public class TouristController {
 
     @PutMapping("/me")
     public ResponseEntity<Resource<TouristEntity>> updateTourist(
-            @RequestBody UpdateTouristDto req
+            @Valid @RequestBody UpdateTouristDto req
     ) {
         Long touristId = AuthenUtils.getCurrentUserId();
         return ResponseEntity.ok(new Resource<>(touristService.updateTourist(touristId, req)));

@@ -43,6 +43,7 @@ public class RatingSummaryController {
                 .numberOfRatings(0)
                 .totalRating(0L)
                 .distribution(distribution)
+                .criteriaAverages(new HashMap<>())
                 .build();
         ratingSummaryService.createRatingSummary(ratingSummary);
         return ResponseEntity.ok(new Resource<>(null));
