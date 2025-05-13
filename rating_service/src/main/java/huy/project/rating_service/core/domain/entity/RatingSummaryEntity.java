@@ -1,5 +1,6 @@
 package huy.project.rating_service.core.domain.entity;
 
+import huy.project.rating_service.core.domain.constant.RatingCriteriaType;
 import lombok.*;
 
 import java.util.Map;
@@ -17,4 +18,5 @@ public class RatingSummaryEntity {
     private Boolean isSyncedWithSearchService;
 
     private Map<Integer, Integer> distribution;
+    private Map<RatingCriteriaType, Double> criteriaAverages;
 }

@@ -9,9 +9,7 @@ import huy.project.rating_service.core.domain.dto.response.UserProfileDto;
 import huy.project.rating_service.core.domain.entity.RatingEntity;
 import huy.project.rating_service.core.domain.exception.AppException;
 import huy.project.rating_service.core.domain.mapper.RatingMapper;
-import huy.project.rating_service.core.port.IAccommodationPort;
 import huy.project.rating_service.core.port.IRatingPort;
-import huy.project.rating_service.core.port.IUserProfilePort;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.util.Pair;
@@ -27,8 +25,8 @@ import java.util.stream.Collectors;
 @Slf4j
 public class GetRatingUseCase {
     private final IRatingPort ratingPort;
-    private final IUserProfilePort userProfilePort;
-    private final IAccommodationPort accommodationPort;
+    private final GetAccommodationUseCase getAccommodationUseCase;
+    private final GetUserProfileUseCase getUserProfileUseCase;
 
     public Pair<PageInfo, List<RatingDto>> getAllRatings(RatingParams params) {
         var result = ratingPort.getAllRatings(params);
@@ -39,12 +37,12 @@ public class GetRatingUseCase {
 
         var ratingDtoList = ratingEntities.stream().map(RatingMapper.INSTANCE::toDto).toList();
 
-        List<Long> userIds = ratingEntities.stream().map(RatingEntity::getUserId).toList();
-        var userProfileMap = userProfilePort.getUserProfilesByIds(userIds).stream()
+        List<Long> userIds = ratingEntities.stream().map(RatingEntity::getUserId).distinct().toList();
+        var userProfileMap = getUserProfileUseCase.getUserProfilesByIds(userIds).stream()
                 .collect(Collectors.toMap(UserProfileDto::getUserId, Function.identity()));
 
-        List<Long> unitIds = ratingEntities.stream().map(RatingEntity::getUnitId).toList();
-        var unitMap = accommodationPort.getUnitsByIds(unitIds).stream()
+        List<Long> unitIds = ratingEntities.stream().map(RatingEntity::getUnitId).distinct().toList();
+        var unitMap = getAccommodationUseCase.getUnitsByIds(unitIds).stream()
                 .collect(Collectors.toMap(UnitDto::getId, Function.identity()));
 
         var ratingEntityMap = ratingEntities.stream()

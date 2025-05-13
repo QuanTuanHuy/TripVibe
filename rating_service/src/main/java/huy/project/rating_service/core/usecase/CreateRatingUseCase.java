@@ -1,6 +1,7 @@
 package huy.project.rating_service.core.usecase;
 
 import huy.project.rating_service.core.domain.constant.ErrorCode;
+import huy.project.rating_service.core.domain.constant.RatingCriteriaType;
 import huy.project.rating_service.core.domain.dto.request.CreateRatingDto;
 import huy.project.rating_service.core.domain.entity.MonthlyRatingEntity;
 import huy.project.rating_service.core.domain.entity.RatingDetailEntity;
@@ -17,6 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -75,14 +77,33 @@ public class CreateRatingUseCase {
             throw new AppException(ErrorCode.ACCOMMODATION_NOT_FOUND);
         }
 
+        // Increment rating count and update total
         ratingSummary.setNumberOfRatings(ratingSummary.getNumberOfRatings() + 1);
-        Long ratingValue = req.getValue().longValue();
-        ratingSummary.setTotalRating(ratingSummary.getTotalRating() + ratingValue);
+        ratingSummary.setTotalRating(
+                ratingSummary.getTotalRating() + req.getValue().longValue());
         ratingSummary.setIsSyncedWithSearchService(false);
 
+        // Update distribution
         Map<Integer, Integer> distribution = ratingSummary.getDistribution();
         int ratingValueInt = req.getValue().intValue();
         distribution.put(ratingValueInt, distribution.getOrDefault(ratingValueInt, 0) + 1);
+
+        // Update criteria averages
+        Map<RatingCriteriaType, Double> criteriaAverages = ratingSummary.getCriteriaAverages();
+        if (criteriaAverages == null) {
+            criteriaAverages = new HashMap<>();
+            ratingSummary.setCriteriaAverages(criteriaAverages);
+        }
+
+        // Calculate averages for each criteria
+        int newNumberOfRatings = ratingSummary.getNumberOfRatings();
+        for (Map.Entry<RatingCriteriaType, Double> entry : req.getRatingDetails().entrySet()) {
+            RatingCriteriaType criteriaType = entry.getKey();
+            double ratingDetailValue = entry.getValue();
+            double previousTotal = criteriaAverages.getOrDefault(criteriaType, 0.0) * (newNumberOfRatings - 1);
+            double newAverage = (previousTotal + ratingDetailValue) / newNumberOfRatings;
+            criteriaAverages.put(criteriaType, newAverage);
+        }
 
         ratingSummaryPort.save(ratingSummary);
     }
@@ -128,10 +149,10 @@ public class CreateRatingUseCase {
             throw new AppException(ErrorCode.INVALID_RATING_VALUE);
         }
 
-        var bookingDto = bookingPort.getCompletedBookingByUserIdAndUnitId(req.getUserId(), req.getUnitId());
-        if (bookingDto == null) {
-            log.error("User {} does not have booking with unit {}", req.getUserId(), req.getUnitId());
-            throw new AppException(ErrorCode.FORBIDDEN_CREATE_RATING);
-        }
+//        var bookingDto = bookingPort.getCompletedBookingByUserIdAndUnitId(req.getUserId(), req.getUnitId());
+//        if (bookingDto == null) {
+//            log.error("User {} does not have booking with unit {}", req.getUserId(), req.getUnitId());
+//            throw new AppException(ErrorCode.FORBIDDEN_CREATE_RATING);
+//        }
     }
 }
