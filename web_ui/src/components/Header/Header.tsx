@@ -65,7 +65,7 @@ const Header: React.FC = () => {
           <div
             className="text-2xl font-bold cursor-pointer"
             onClick={handleHomeClick}>
-            Booking System
+            TripVibe
           </div>
           <div className="flex items-center space-x-6 mt-2 md:mt-0 flex-wrap justify-center">
             <div className="flex items-center">

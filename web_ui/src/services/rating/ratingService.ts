@@ -1,4 +1,4 @@
-import apiClient from '../apiClient';
+import apiClient from '../api.client';
 import { CreateRatingDto, CreateRatingHelpfulnessDto, CreateRatingResponseDto, Rating, RatingHelpfulness, RatingParams, RatingResponse, RatingSummary } from '../../types/rating/rating.types';
 import { ListDataResponse } from '@/types/common';
 

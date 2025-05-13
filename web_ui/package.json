@@ -13,6 +13,7 @@
     "axios": "^1.9.0",
     "booking_ui": "file:",
     "date-fns": "^4.1.0",
+    "jwt-decode": "^4.0.0",
     "lucide-react": "^0.487.0",
     "next": "15.2.4",
     "react": "^19.0.0",
