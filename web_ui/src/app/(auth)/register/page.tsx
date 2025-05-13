@@ -3,10 +3,10 @@
 import { useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import OtpVerificationForm from '@/components/auth/OtpVerificationForm';
+import RegisterForm from '@/components/auth/RegisterForm';
 import { useAuth } from '@/context/AuthContext';
 
-export default function VerifyOtp() {
+export default function Register() {
   const { user, isAuthenticated } = useAuth();
   const router = useRouter();
   
@@ -23,20 +23,15 @@ export default function VerifyOtp() {
       <header className="bg-blue-800 p-4">
         <div className="container mx-auto">
           <Link href="/" className="text-white text-2xl font-bold">
-            Booking System
+            TripVibe
           </Link>
         </div>
       </header>
       
-      {/* OTP Verification Form */}
+      {/* Register Form */}
       <main className="flex-grow flex justify-center items-start py-8">
-        <OtpVerificationForm />
+        <RegisterForm />
       </main>
-      
-      {/* Footer */}
-      <footer className="bg-gray-100 p-4 text-center text-sm text-gray-500">
-        <p>Bản quyền (2006 - 2025) - Booking.com™</p>
-      </footer>
     </div>
   );
 }

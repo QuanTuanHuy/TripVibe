@@ -5,7 +5,6 @@ import huy.project.rating_service.core.domain.dto.request.CreateRatingResponseDt
 import huy.project.rating_service.core.domain.entity.RatingResponseEntity;
 import huy.project.rating_service.core.domain.exception.AppException;
 import huy.project.rating_service.core.domain.mapper.RatingMapper;
-import huy.project.rating_service.core.port.IAccommodationPort;
 import huy.project.rating_service.core.port.IRatingResponsePort;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -21,7 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class CreateRatingResponseUseCase {
     IRatingResponsePort ratingResponsePort;
     GetRatingUseCase getRatingUseCase;
-    IAccommodationPort accommodationPort;
+    GetAccommodationUseCase getAccommodationUseCase;
 
     @Transactional(rollbackFor = Exception.class)
     public RatingResponseEntity createRatingResponse(Long userId, CreateRatingResponseDto req) {
@@ -29,7 +28,7 @@ public class CreateRatingResponseUseCase {
         var rating = getRatingUseCase.getRatingById(req.getRatingId());
 
         // check if user is the owner of accommodation
-        var accommodation = accommodationPort.getAccById(rating.getAccommodationId());
+        var accommodation = getAccommodationUseCase.getAccById(rating.getAccommodationId());
         if (accommodation == null) {
             log.error("Accommodation {} not found, check why?", rating.getAccommodationId());
             throw new AppException(ErrorCode.ACCOMMODATION_NOT_FOUND);

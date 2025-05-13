@@ -34,7 +34,7 @@ public abstract class TouristMapper {
                 .userId(tourist.getId())
                 .name(tourist.getName())
                 .email(tourist.getEmail())
-                .countryId(tourist.getLocation().getCountryId())
+                .countryId(tourist.getLocation() != null ? tourist.getLocation().getCountryId() : null)
                 .build();
     }
 }

@@ -3,14 +3,14 @@
 import { useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import LoginForm from '@/components/auth/LoginForm';
+import OtpVerificationForm from '@/components/auth/OtpVerificationForm';
 import { useAuth } from '@/context/AuthContext';
 
-export default function Login() {
+export default function VerifyOtp() {
   const { user, isAuthenticated } = useAuth();
   const router = useRouter();
   
-  // Kiểm tra nếu đã đăng nhập thì chuyển hướng về trang chủ
+  // Nếu đã đăng nhập thì chuyển hướng về trang chủ
   useEffect(() => {
     if (user && isAuthenticated) {
       router.push('/');
@@ -23,14 +23,14 @@ export default function Login() {
       <header className="bg-blue-800 p-4">
         <div className="container mx-auto">
           <Link href="/" className="text-white text-2xl font-bold">
-            Booking System
+            TripVibe
           </Link>
         </div>
       </header>
       
-      {/* Login Form */}
+      {/* OTP Verification Form */}
       <main className="flex-grow flex justify-center items-start py-8">
-        <LoginForm />
+        <OtpVerificationForm />
       </main>
     
     </div>

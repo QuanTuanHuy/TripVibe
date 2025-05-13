@@ -5,7 +5,7 @@ import "./globals.css";
 const inter = Inter({ subsets: ["latin", "vietnamese"] });
 
 export const metadata: Metadata = {
-  title: "BookingManager Admin - Quản lý khách sạn và chỗ nghỉ",
+  title: "TripVibe Manager - Quản lý khách sạn và chỗ nghỉ",
   description: "Hệ thống quản lý dành cho chủ khách sạn và chỗ nghỉ",
 };
 

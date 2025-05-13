@@ -63,6 +63,7 @@ public class RatingSummaryMessageHandler {
                 .numberOfRatings(0)
                 .totalRating(0L)
                 .distribution(distribution)
+                .criteriaAverages(new HashMap<>())
                 .build();
         ratingSummaryService.createRatingSummary(ratingSummary);
     }

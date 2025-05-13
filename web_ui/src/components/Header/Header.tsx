@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from 'react';
 import { Building, Plane, Car, Hotel, MapPin, Bus } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
+import { ThemeSwitcher } from '@/components/ThemeSwitcher';
 
 const Header: React.FC = () => {
   const router = useRouter();
@@ -57,18 +58,16 @@ const Header: React.FC = () => {
     logout();
     setShowDropdown(false);
   };
-
   return (
-    <header className="bg-[#003b95] text-white">
+    <header className="bg-[#003b95] dark:bg-[#001f4d] text-white">
       <div className="container mx-auto px-4 py-3">
         <div className="flex flex-col md:flex-row items-center justify-between">
           <div
             className="text-2xl font-bold cursor-pointer"
             onClick={handleHomeClick}>
-            Booking System
+            TripVibe
           </div>
-          <div className="flex items-center space-x-6 mt-2 md:mt-0 flex-wrap justify-center">
-            <div className="flex items-center">
+          <div className="flex items-center space-x-6 mt-2 md:mt-0 flex-wrap justify-center">            <div className="flex items-center">
               <span>VND</span>
               <div className="mx-2 h-6 w-6 rounded-full overflow-hidden">
                 <div className="bg-red-500 h-full relative">
@@ -76,6 +75,11 @@ const Header: React.FC = () => {
                 </div>
               </div>
             </div>
+            
+            <div className="hidden md:block">
+              <ThemeSwitcher />
+            </div>
+            
             <button className="p-2 rounded-full bg-blue-700 cursor-pointer hover:bg-blue-600 transition duration-200">
               <span className="sr-only">Help</span>
               <span className="text-xl">?</span>
@@ -163,10 +167,16 @@ const Header: React.FC = () => {
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
                           </svg>
                           Đã lưu
-                        </button>
+                        </button>                        <div className="px-4 py-2 border-t border-gray-200 mt-1">
+                          <p className="text-sm text-gray-600 mb-2">Chế độ hiển thị</p>
+                          <div className="md:hidden">
+                            <ThemeSwitcher />
+                          </div>
+                        </div>
+                        
                         <button
                           onClick={handleLogout}
-                          className="w-full text-left px-4 py-2 hover:bg-gray-100 flex items-center"
+                          className="w-full text-left px-4 py-2 hover:bg-gray-100 flex items-center mt-2"
                         >
                           <svg className="w-5 h-5 mr-3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />

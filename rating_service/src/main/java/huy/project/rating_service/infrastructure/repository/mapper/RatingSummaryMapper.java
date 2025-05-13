@@ -1,5 +1,6 @@
 package huy.project.rating_service.infrastructure.repository.mapper;
 
+import huy.project.rating_service.core.domain.constant.RatingCriteriaType;
 import huy.project.rating_service.core.domain.entity.RatingSummaryEntity;
 import huy.project.rating_service.infrastructure.repository.model.RatingSummaryModel;
 import huy.project.rating_service.kernel.utils.JsonUtils;
@@ -27,6 +28,7 @@ public class RatingSummaryMapper {
                 .totalRating(entity.getTotalRating())
                 .isSyncedWithSearchService(entity.getIsSyncedWithSearchService())
                 .distribution(jsonUtils.toJson(entity.getDistribution()))
+                .criteriaAverages(jsonUtils.toJson(entity.getCriteriaAverages()))
                 .build();
     }
 
@@ -41,6 +43,7 @@ public class RatingSummaryMapper {
                 .totalRating(model.getTotalRating())
                 .isSyncedWithSearchService(model.getIsSyncedWithSearchService())
                 .distribution(jsonUtils.fromJson(model.getDistribution(), HashMap.class, Integer.class, Integer.class))
+                .criteriaAverages(jsonUtils.fromJson(model.getCriteriaAverages(), HashMap.class, RatingCriteriaType.class, Double.class))
                 .build();
     }
 }

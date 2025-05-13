@@ -21,6 +21,7 @@ public enum ErrorCode {
     SAVE_WISHLIST_FAILED(100012, "Save wishlist failed", HttpStatus.INTERNAL_SERVER_ERROR),
     UPLOAD_FILE_FAILED(100013, "Upload file failed", HttpStatus.INTERNAL_SERVER_ERROR),
     SERVICE_UNAVAILABLE(100014, "Service unavailable", HttpStatus.SERVICE_UNAVAILABLE),
+    VALIDATION_ERROR(100015, "Input validation failed", HttpStatus.BAD_REQUEST),
     ;
 
 
