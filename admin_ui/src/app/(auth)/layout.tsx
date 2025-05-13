@@ -9,7 +9,7 @@ import { Footer } from "@/components/common/Footer";
 const inter = Inter({ subsets: ["latin", "vietnamese"] });
 
 export const metadata: Metadata = {
-    title: "Đăng nhập - BookingManager Admin",
+    title: "Đăng nhập - TripVibe Manager",
     description: "Đăng nhập vào hệ thống quản lý khách sạn và chỗ nghỉ",
 };
 
