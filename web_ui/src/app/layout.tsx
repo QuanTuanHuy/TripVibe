@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import "./theme-provider-fix.css";
 import Footer from "@/components/Footer";
 import { AuthProvider } from "@/context/AuthContext";
 import { ThemeProvider } from "@/components/ThemeProvider";
@@ -25,7 +24,8 @@ export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
-}>) {  return (
+}>) {
+  return (
     <html lang="en" className="light" suppressHydrationWarning>
       <head />
       <body
