@@ -10,6 +10,7 @@ import huy.project.rating_service.core.domain.entity.RatingHelpfulnessEntity;
 import huy.project.rating_service.core.service.IRatingService;
 import huy.project.rating_service.kernel.utils.AuthenUtils;
 import huy.project.rating_service.ui.resource.Resource;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -27,7 +28,7 @@ public class RatingController {
 
     @PostMapping
     public ResponseEntity<Resource<RatingEntity>> createRating(
-            @RequestBody CreateRatingDto req
+            @Valid @RequestBody CreateRatingDto req
     ) {
         Long userId = AuthenUtils.getCurrentUserId();
         req.setUserId(userId);
@@ -37,7 +38,7 @@ public class RatingController {
     @PostMapping("/{id}/helpfulness")
     public ResponseEntity<Resource<RatingHelpfulnessEntity>> createRatingHelpfulness(
             @PathVariable Long id,
-            @RequestBody CreateRatingHelpfulnessDto req
+            @Valid @RequestBody CreateRatingHelpfulnessDto req
     ) {
         Long userId = AuthenUtils.getCurrentUserId();
         req.setRatingId(id);
