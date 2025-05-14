@@ -1,16 +1,51 @@
 services:
   authentication_service:
+    image: auth_service
     build:
       context: ./authentication_service
+      dockerfile: Dockerfile
     container_name: authentication_service
     ports:
-      - "8001:8080"
+      - "8081:8081"
     depends_on:
       - mysql
       - redis
-      - broker
+      - kafka
+    environment:
+      - DB_HOST=mysql
+      - DB_PORT=3306
+      - DB_USER=root
+      - DB_PASSWORD=root
+      - DB_NAME=authentication_service
+      - KAFKA_HOST=kafka
+      - KAFKA_PORT=9092
+      - REDIS_HOST=redis
     networks:
       - booking_network
+  
+  # rating_service:
+  #   image: rating_service
+  #   build:
+  #     context: ./rating_service
+  #     dockerfile: Dockerfile
+  #   container_name: rating_service
+  #   ports:
+  #     - "8089:8089"
+  #   depends_on:
+  #     - postgres
+  #     - redis
+  #     - kafka
+  #   environment:
+  #     - DB_HOST=postgres
+  #     - DB_PORT=5432
+  #     - DB_USER=user_booking
+  #     - DB_PASSWORD=secret
+  #     - DB_NAME=db_rating_service
+  #     - KAFKA_HOST=kafka
+  #     - KAFKA_PORT=9092
+  #     - REDIS_HOST=redis
+  #   networks:
+  #     - booking_network
       
   mysql:
     image: mysql:8.0.38
@@ -34,7 +69,7 @@ services:
     networks:
       - booking_network
 
-  booking_postgre_db:
+  postgres:
     image: postgres:latest
     container_name: booking_postgre_db
     environment:
@@ -47,7 +82,7 @@ services:
     networks:
       - booking_network
 
-  broker:
+  kafka:
     image: 'bitnami/kafka:3.7.0'
     container_name: booking_kafka
     hostname: kafka
@@ -61,6 +96,8 @@ services:
       - KAFKA_CFG_ADVERTISED_LISTENERS=PLAINTEXT://kafka:9092,EXTERNAL://localhost:9094
       - KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP=CONTROLLER:PLAINTEXT,EXTERNAL:PLAINTEXT,PLAINTEXT:PLAINTEXT
       - KAFKA_CFG_CONTROLLER_LISTENER_NAMES=CONTROLLER
+    networks:
+      - booking_network
 
   elastic:
     image: elasticsearch:8.16.1
@@ -74,12 +111,16 @@ services:
       - es-data:/usr/share/elasticsearch/data
     networks:
       - booking_network
+      
 volumes:
   db:
     driver: local
   postgres:
+    driver: local
+    name: postgres_data
   es-data:
     driver: local
+    name: elasticsearch_data
 
 networks:
   booking_network:
