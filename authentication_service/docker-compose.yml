@@ -1,0 +1,25 @@
+version: '3.8'
+
+services:
+  auth_service:
+    image: auth_service
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8081:8081"
+    environment:
+      - DB_HOST=host.docker.internal
+      - DB_PORT=3309
+      - DB_USER=root
+      - DB_PASSWORD=root
+      - DB_NAME=authentication_service
+      - KAFKA_PORT=9094
+    extra_hosts:
+      - "host.docker.internal:host-gateway"  
+    networks:
+      - booking_booking_network
+
+networks:
+  booking_booking_network:
+    external: true
