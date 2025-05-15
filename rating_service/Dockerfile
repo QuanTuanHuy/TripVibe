@@ -26,7 +26,7 @@ WORKDIR /backend/rating_service/
 # Copy the built JAR from the build stage
 COPY --from=build /backend/rating_service/target/*.jar rating_service.jar
 
-COPY src/main/resources/application-docker.yml application.yml
+COPY ../promotion_service/application-docker.yml application.yml
 
 EXPOSE 8080
 
