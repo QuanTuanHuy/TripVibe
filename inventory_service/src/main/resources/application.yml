@@ -8,7 +8,7 @@ spring:
     driver-class-name: org.postgresql.Driver
   data:
     redis:
-      host: localhost
+      host: 127.0.0.1
       port: 6379
   jpa:
     hibernate:
@@ -42,3 +42,8 @@ app:
         - first: /api/public/v1/inventories/**
           second: GET
       protectedUrls:
+
+  redis:
+    lock:
+      expiration: 30000
+      namespace: inventory_service
