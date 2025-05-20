@@ -63,7 +63,7 @@ class RedisLockIntegrationTest {
 
         // Assert
         String key = redisLockProperty.getNamespace() + "." + TEST_LOCK_ID;
-        assertTrue(Boolean.TRUE.equals(redisTemplate.hasKey(key)));
+        assertTrue(redisTemplate.hasKey(key));
     }
     
     @Test
@@ -76,7 +76,7 @@ class RedisLockIntegrationTest {
         
         // Assert
         String key = redisLockProperty.getNamespace() + "." + TEST_LOCK_ID;
-        assertFalse(Boolean.TRUE.equals(redisTemplate.hasKey(key)));
+        assertNotEquals(Boolean.TRUE, redisTemplate.hasKey(key));
     }
     
     @Test
@@ -87,7 +87,7 @@ class RedisLockIntegrationTest {
         // Assert
         assertTrue(acquired);
         String key = redisLockProperty.getNamespace() + "." + TEST_LOCK_ID;
-        assertTrue(Boolean.TRUE.equals(redisTemplate.hasKey(key)));
+        assertTrue(redisTemplate.hasKey(key));
     }
     
     @Test
@@ -101,13 +101,13 @@ class RedisLockIntegrationTest {
         // Assert initial state
         assertTrue(acquired);
         String key = redisLockProperty.getNamespace() + "." + TEST_LOCK_ID;
-        assertTrue(Boolean.TRUE.equals(redisTemplate.hasKey(key)));
+        assertTrue(redisTemplate.hasKey(key));
         
         // Wait for the lease time to expire
         Thread.sleep(leaseTimeMs * 2);
         
         // The lock should be automatically released after lease time
-        assertFalse(Boolean.TRUE.equals(redisTemplate.hasKey(key)));
+        assertFalse(redisTemplate.hasKey(key));
     }
 
     @Test
@@ -214,6 +214,6 @@ class RedisLockIntegrationTest {
         
         // Assert
         String key = redisLockProperty.getNamespace() + "." + TEST_LOCK_ID;
-        assertFalse(Boolean.TRUE.equals(redisTemplate.hasKey(key)));
+        assertFalse(redisTemplate.hasKey(key));
     }
 }

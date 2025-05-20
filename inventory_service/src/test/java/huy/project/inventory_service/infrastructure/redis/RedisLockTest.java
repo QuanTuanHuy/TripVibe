@@ -8,10 +8,8 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
-import org.springframework.data.redis.core.script.DefaultRedisScript;
 
 import java.time.Duration;
-import java.util.Collections;
 import java.util.concurrent.TimeUnit;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -19,6 +17,7 @@ import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
+@SuppressWarnings("deprecation")
 class RedisLockTest {
 
     @Mock(lenient = true)
@@ -28,7 +27,6 @@ class RedisLockTest {
     private ValueOperations<String, String> valueOperations;
 
     private RedisLock redisLock;
-    private RedisLockProperty redisLockProperty;
 
     private static final String LOCK_NAMESPACE = "test-lock";
     private static final long DEFAULT_LEASE_TIME = 30000;
@@ -36,7 +34,7 @@ class RedisLockTest {
 
     @BeforeEach
     void setUp() {
-        redisLockProperty = new RedisLockProperty();
+        RedisLockProperty redisLockProperty = new RedisLockProperty();
         redisLockProperty.setNamespace(LOCK_NAMESPACE);
         redisLockProperty.setExpiration(DEFAULT_LEASE_TIME);
 
@@ -138,60 +136,28 @@ class RedisLockTest {
     }
 
     @Test
-    void releaseLock_shouldCallUnlockScript() {
+    void releaseLock_shouldCallRedisDelete() {
         // Arrange
         String lockId = TEST_LOCK_ID;
-        when(valueOperations.setIfAbsent(
-                anyString(), anyString(), any(Duration.class)
-        )).thenReturn(true);
-        when(redisTemplate.execute(
-                any(DefaultRedisScript.class),
-                anyList(),
-                anyString()
-        )).thenReturn(1L);
-
-        // First acquire the lock
-        redisLock.acquireLock(lockId);
 
         // Act
         redisLock.releaseLock(lockId);
 
         // Assert
-        verify(redisTemplate).execute(
-                any(DefaultRedisScript.class),
-                eq(Collections.singletonList(LOCK_NAMESPACE + "." + lockId)),
-                anyString()
-        );
+        verify(redisTemplate).delete(LOCK_NAMESPACE + "." + lockId);
     }
 
     @Test
-    void releaseLock_shouldRemoveThreadLocalValue() {
+    void releaseLock_shouldHandleException() {
         // Arrange
         String lockId = TEST_LOCK_ID;
-        when(valueOperations.setIfAbsent(
-                anyString(), anyString(), any(Duration.class)
-        )).thenReturn(true);
-        when(redisTemplate.execute(
-                any(DefaultRedisScript.class),
-                anyList(),
-                anyString()
-        )).thenReturn(1L);
+        doThrow(new RuntimeException("Test exception")).when(redisTemplate).delete(anyString());
 
-        // First acquire the lock
-        redisLock.acquireLock(lockId);
+        // Act & Assert - should not throw exception
+        assertDoesNotThrow(() -> redisLock.releaseLock(lockId));
 
-        // Act
-        redisLock.releaseLock(lockId);
-        
-        // Try to release again - should not call execute as the thread local is removed
-        redisLock.releaseLock(lockId);
-
-        // Assert
-        verify(redisTemplate, times(1)).execute(
-                any(DefaultRedisScript.class),
-                anyList(),
-                anyString()
-        );
+        // Verify
+        verify(redisTemplate).delete(LOCK_NAMESPACE + "." + lockId);
     }
 
     @Test

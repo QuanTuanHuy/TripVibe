@@ -42,8 +42,6 @@ public class RoomAvailability {
     // For occupancy tracking
     private Integer guestCount;
 
-    private Integer version;
-
     public boolean isAvailable() {
         return status == RoomStatus.AVAILABLE;
     }

@@ -5,36 +5,24 @@ import huy.project.inventory_service.kernel.property.RedisLockProperty;
 import io.micrometer.common.util.StringUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.data.redis.core.script.DefaultRedisScript;
 import org.springframework.stereotype.Component;
 
 import java.time.Duration;
-import java.util.Collections;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 @Component
 @Slf4j
 public class RedisLock implements ILockPort {
-    private static final String UNLOCK_SCRIPT =
-            "if redis.call('get', KEYS[1]) == ARGV[1] then " +
-                    "   return redis.call('del', KEYS[1]) " +
-                    "else " +
-                    "   return 0 " +
-                    "end";
 
     private final RedisTemplate<String, String> redisTemplate;
     private static String LOCK_NAMESPACE;
-    private final ThreadLocal<String> lockValueThreadLocal;
-    private final DefaultRedisScript<Long> unlockScript;
     private static long DEFAULT_LEASE_TIME;
 
     public RedisLock(RedisTemplate<String, String> redisTemplate, RedisLockProperty redisLockProperty) {
         LOCK_NAMESPACE = redisLockProperty.getNamespace();
         DEFAULT_LEASE_TIME = redisLockProperty.getExpiration();
-        this.lockValueThreadLocal = new ThreadLocal<>();
         this.redisTemplate = redisTemplate;
-        this.unlockScript = new DefaultRedisScript<>(UNLOCK_SCRIPT, Long.class);
     }
 
     @Override
@@ -54,8 +42,6 @@ public class RedisLock implements ILockPort {
                 }
             }
         }
-
-        lockValueThreadLocal.set(value);
     }
 
     @Override
@@ -70,7 +56,6 @@ public class RedisLock implements ILockPort {
 
             while (System.currentTimeMillis() - startTime < timeoutMillis) {
                 if (doLock(key, value, DEFAULT_LEASE_TIME, TimeUnit.MILLISECONDS)) {
-                    lockValueThreadLocal.set(value);
                     return true;
                 }
 
@@ -100,7 +85,6 @@ public class RedisLock implements ILockPort {
 
             while (System.currentTimeMillis() - startTime < timeoutMillis) {
                 if (doLock(key, value, leaseTime, unit)) {
-                    lockValueThreadLocal.set(value);
                     return true;
                 }
 
@@ -121,23 +105,10 @@ public class RedisLock implements ILockPort {
     @Override
     public void releaseLock(String lockId) {
         String key = parseLockId(lockId);
-        String value = lockValueThreadLocal.get();
-
-        if (value != null) {
-            try {
-                Long result = redisTemplate.execute(
-                        unlockScript,
-                        Collections.singletonList(key),
-                        value
-                );
-                if (result == 0) {
-                    log.warn("Failed to release lock for id: {}, it might be expiry", lockId);
-                }
-            } catch (Exception e) {
-                log.warn("Failed to release lock for id: {}", lockId, e);
-            } finally {
-                lockValueThreadLocal.remove();
-            }
+        try {
+            redisTemplate.delete(key);
+        } catch (Exception e) {
+            log.warn("Failed to release lock for id: {}", lockId, e);
         }
     }
 
