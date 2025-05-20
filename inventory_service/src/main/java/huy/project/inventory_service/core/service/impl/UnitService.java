@@ -1,7 +1,8 @@
-package huy.project.inventory_service.core.service;
+package huy.project.inventory_service.core.service.impl;
 
 import huy.project.inventory_service.core.domain.dto.request.SyncUnitDto;
 import huy.project.inventory_service.core.domain.entity.Unit;
+import huy.project.inventory_service.core.service.IUnitService;
 import huy.project.inventory_service.core.usecase.CreateUnitUseCase;
 import huy.project.inventory_service.core.usecase.GetAccommodationUseCase;
 import huy.project.inventory_service.core.usecase.GetUnitUseCase;
@@ -9,6 +10,7 @@ import huy.project.inventory_service.core.usecase.UpdateUnitUseCase;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -20,6 +22,7 @@ public class UnitService implements IUnitService {
     private final GetAccommodationUseCase getAccommodationUseCase;
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public Unit syncUnit(SyncUnitDto request) {
         log.info("Synchronizing unit inventory: accommodationId={}, unitId={}, name={}, quantity={}",
                 request.getAccommodationId(), request.getUnitId(), request.getUnitName(), request.getQuantity());

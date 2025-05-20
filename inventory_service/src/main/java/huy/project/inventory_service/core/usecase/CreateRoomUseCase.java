@@ -26,6 +26,9 @@ public class CreateRoomUseCase {
         if (unit.getId() == null) {
             throw new IllegalArgumentException("Unit ID cannot be null");
         }
+        if (quantity <= 0) {
+            throw new IllegalArgumentException("Quantity must be greater than zero");
+        }
 
         List<Room> existingRooms = getRoomUseCase.getRoomsByUnitId(unit.getId());
         int startNumber = existingRooms.size() + 1;
@@ -51,7 +54,7 @@ public class CreateRoomUseCase {
         savedRooms.stream()
                 .parallel()
                 .forEach(room ->
-                        createRoomAvailabilityUseCase.createRoomAvailability(room.getId(), now, endDate));
+                        createRoomAvailabilityUseCase.createRoomAvailability(room, now, endDate));
     }
 
     private String generateRoomNumber(Unit unit, int number) {

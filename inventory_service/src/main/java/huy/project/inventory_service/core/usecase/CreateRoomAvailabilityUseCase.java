@@ -21,14 +21,12 @@ import java.util.stream.Collectors;
 @Slf4j
 public class CreateRoomAvailabilityUseCase {
     private final IRoomAvailabilityPort roomAvailabilityPort;
-    private final GetRoomUseCase getRoomUseCase;
 
     @Transactional(rollbackFor = Exception.class)
-    public void createRoomAvailability(Long roomId, LocalDate startDate, LocalDate endDate) {
-        Room room = getRoomUseCase.getRoomById(roomId);
+    public void createRoomAvailability(Room room, LocalDate startDate, LocalDate endDate) {
 
         List<RoomAvailability> existingAvailabilities = roomAvailabilityPort
-                .getAvailabilitiesByRoomIdAndDateRange(roomId, startDate, endDate);
+                .getAvailabilitiesByRoomIdAndDateRange(room.getId(), startDate, endDate);
         Set<LocalDate> existingDates = existingAvailabilities.stream()
                 .map(RoomAvailability::getDate)
                 .collect(Collectors.toSet());
@@ -40,7 +38,7 @@ public class CreateRoomAvailabilityUseCase {
 
         List<RoomAvailability> roomAvailabilities = datesToCreate.stream()
                 .map(date -> RoomAvailability.builder()
-                        .roomId(roomId)
+                        .roomId(room.getId())
                         .date(date)
                         .status(RoomStatus.AVAILABLE)
                         .basePrice(room.getBasePrice())
@@ -50,10 +48,10 @@ public class CreateRoomAvailabilityUseCase {
         if (!CollectionUtils.isEmpty(roomAvailabilities)) {
             roomAvailabilityPort.saveAll(roomAvailabilities);
             log.info("Created {} room availabilities for room ID {} from {} to {}",
-                     roomAvailabilities.size(), roomId, startDate, endDate);
+                    roomAvailabilities.size(), room.getId(), startDate, endDate);
         } else {
             log.info("No new room availabilities to create for room ID {} from {} to {}",
-                     roomId, startDate, endDate);
+                    room.getId(), startDate, endDate);
         }
     }
 }
