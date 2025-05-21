@@ -34,4 +34,18 @@ public class RedisConfig {
 
         return template;
     }
+    
+    /**
+     * Generic RedisTemplate for different object types
+     */
+    @Bean
+    public RedisTemplate<Object, Object> genericRedisTemplate() {
+        RedisTemplate<Object, Object> template = new RedisTemplate<>();
+        template.setConnectionFactory(redisConnectionFactory());
+        
+        // Using default serializers for flexible object support
+        template.afterPropertiesSet();
+        
+        return template;
+    }
 }

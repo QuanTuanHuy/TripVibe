@@ -8,8 +8,11 @@ import huy.project.inventory_service.core.domain.exception.InvalidRequestExcepti
 import huy.project.inventory_service.core.domain.exception.NotFoundException;
 import huy.project.inventory_service.core.port.ILockPort;
 import huy.project.inventory_service.core.port.IRoomAvailabilityPort;
+import huy.project.inventory_service.infrastructure.cache.RequestCache;
+import huy.project.inventory_service.kernel.config.CacheConfig;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
@@ -23,12 +26,32 @@ import java.util.List;
 public class ConfirmBookingUseCase {
     private final ILockPort lockPort;
     private final IRoomAvailabilityPort roomAvailabilityPort;
-
-    @Transactional
+    private final RequestCache requestCache;
+    
+    // Cache key pattern for idempotent operations
+    private static final String REQUEST_CACHE_KEY_PATTERN = "confirm-booking-request:%s:%s";    @Transactional
+    @CacheEvict(value = {
+            CacheConfig.CacheNames.ROOM_AVAILABILITY_BY_BOOKING,
+            CacheConfig.CacheNames.ROOM_AVAILABILITY_BY_DATE_RANGE
+    }, allEntries = true)
     public ConfirmBookingResponse confirmBooking(ConfirmBookingRequest request) {
         Long bookingId = request.getBookingId();
         String lockId = request.getLockId();
-
+        
+        // Generate idempotency key using booking ID and lock ID
+        String requestCacheKey = String.format(REQUEST_CACHE_KEY_PATTERN, bookingId, lockId);
+        
+        // Execute with idempotency support
+        return requestCache.executeIdempotent(requestCacheKey, () -> processConfirmBooking(request));
+    }
+    
+    /**
+     * Process the confirmation request - extracted for idempotency support
+     */
+    private ConfirmBookingResponse processConfirmBooking(ConfirmBookingRequest request) {
+        Long bookingId = request.getBookingId();
+        String lockId = request.getLockId();
+        
         try {
             validateConfirmationRequest(request);
 
