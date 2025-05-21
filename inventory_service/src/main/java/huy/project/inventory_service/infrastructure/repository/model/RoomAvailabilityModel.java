@@ -45,6 +45,9 @@ public class RoomAvailabilityModel extends AuditTable {
     
     @Column(name = "booking_id")
     private Long bookingId;
+
+    @Column(name = "guest_id")
+    private Long guestId;
     
     @Column(name = "lock_id")
     private String lockId;

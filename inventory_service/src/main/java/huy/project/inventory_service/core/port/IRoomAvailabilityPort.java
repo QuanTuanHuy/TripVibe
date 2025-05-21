@@ -29,6 +29,8 @@ public interface IRoomAvailabilityPort {
      * @return list of room availabilities with the specified lock ID
      */
     List<RoomAvailability> findByLockId(String lockId);
+
+    List<RoomAvailability> getRoomsByBookingId(Long bookingId);
     
     /**
      * Updates the status of room availabilities with the specified lock ID.

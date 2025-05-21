@@ -8,4 +8,6 @@ import java.util.List;
 @Repository
 public interface IRoomRepository extends IBaseRepository<RoomModel> {
     List<RoomModel> findByUnitId(Long unitId);
+
+    List<RoomModel> findByUnitIdIn(List<Long> unitIds);
 }

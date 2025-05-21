@@ -27,6 +27,8 @@ public class RoomAvailability {
 
     private Long bookingId;
 
+    private Long guestId;
+
     private String lockId;
 
     private LocalDateTime lockExpirationTime;
@@ -61,6 +63,14 @@ public class RoomAvailability {
         this.lastModified = LocalDateTime.now();
     }
 
+    public void cancelBooking() {
+        this.status = RoomStatus.AVAILABLE;
+        this.bookingId = null;
+        this.lockId = null;
+        this.lockExpirationTime = null;
+        this.lastModified = LocalDateTime.now();
+    }
+
     public void releaseLock() {
         if (this.status == RoomStatus.TEMPORARILY_LOCKED) {
             this.status = RoomStatus.AVAILABLE;
@@ -71,13 +81,13 @@ public class RoomAvailability {
     }
 
     public void checkIn() {
-        this.status = RoomStatus.OCCUPIED;
+        this.status = RoomStatus.CHECKED_IN;
         this.needsCleaning = false;
         this.lastModified = LocalDateTime.now();
     }
 
     public void checkOut() {
-        this.status = RoomStatus.CLEANING;
+        this.status = RoomStatus.CHECKED_OUT;
         this.needsCleaning = true;
         this.lastModified = LocalDateTime.now();
     }

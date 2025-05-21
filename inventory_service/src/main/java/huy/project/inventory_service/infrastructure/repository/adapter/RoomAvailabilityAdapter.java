@@ -52,6 +52,13 @@ public class RoomAvailabilityAdapter implements IRoomAvailabilityPort {
     }
 
     @Override
+    public List<RoomAvailability> getRoomsByBookingId(Long bookingId) {
+        return RoomAvailabilityMapper.INSTANCE.toEntityList(
+                roomAvailabilityRepository.findByBookingId(bookingId)
+        );
+    }
+
+    @Override
     public int updateStatusByLockId(String lockId, RoomStatus status) {
         return roomAvailabilityRepository.updateStatusByLockId(lockId, status);
     }

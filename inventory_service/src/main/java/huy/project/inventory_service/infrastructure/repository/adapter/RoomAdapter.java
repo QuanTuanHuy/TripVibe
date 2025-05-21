@@ -32,6 +32,11 @@ public class RoomAdapter implements IRoomPort {
     }
 
     @Override
+    public List<Room> getRoomsByUnitIds(List<Long> unitIds) {
+        return RoomMapper.INSTANCE.toEntityList(roomRepository.findByUnitIdIn(unitIds));
+    }
+
+    @Override
     public Room save(Room room) {
         RoomModel model = RoomMapper.INSTANCE.toModel(room);
         RoomModel savedModel = roomRepository.save(model);

@@ -2,8 +2,8 @@ package huy.project.inventory_service.core.usecase;
 
 import huy.project.inventory_service.core.domain.constant.RoomStatus;
 import huy.project.inventory_service.core.domain.dto.request.AccommodationLockRequest;
-import huy.project.inventory_service.core.domain.dto.response.AccommodationLockResponse;
 import huy.project.inventory_service.core.domain.dto.request.UnitLockRequest;
+import huy.project.inventory_service.core.domain.dto.response.AccommodationLockResponse;
 import huy.project.inventory_service.core.domain.entity.Room;
 import huy.project.inventory_service.core.domain.entity.RoomAvailability;
 import huy.project.inventory_service.core.domain.entity.Unit;
@@ -17,6 +17,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
@@ -198,16 +199,12 @@ public class LockRoomsUseCase {
                     availability = RoomAvailability.builder()
                             .roomId(room.getId())
                             .date(currentDate)
-                            .status(RoomStatus.TEMPORARILY_LOCKED)
-                            .lockId(lockId)
                             .price(room.getBasePrice())
                             .basePrice(room.getBasePrice())
                             .build();
-                } else {
-                    // Cập nhật nếu đã có
-                    availability.setStatus(RoomStatus.TEMPORARILY_LOCKED);
-                    availability.setLockId(lockId);
                 }
+
+                availability.lockForBooking(lockId, LocalDateTime.now().plusSeconds(DEFAULT_LOCK_TIME_SECONDS));
 
                 updatedAvailabilities.add(availability);
                 currentDate = currentDate.plusDays(1);
@@ -243,7 +240,7 @@ public class LockRoomsUseCase {
             RoomAvailability availability = availabilityByDate.get(currentDate);
 
             // Nếu ngày không có bản ghi availability hoặc trạng thái là AVAILABLE, phòng được coi là available
-            if (availability != null && availability.getStatus() != RoomStatus.AVAILABLE) {
+            if (availability != null && !availability.isAvailable()) {
                 return false;
             }
 
@@ -254,7 +251,6 @@ public class LockRoomsUseCase {
     }
 
     private void releaseLockForRooms(String lockId) {
-        // Sử dụng phương thức mới trong IRoomAvailabilityPort
         int updatedCount = roomAvailabilityPort.updateStatusByLockId(lockId, RoomStatus.AVAILABLE);
         log.info("Released locks for lockId: {}. Updated {} records.", lockId, updatedCount);
     }

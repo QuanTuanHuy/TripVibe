@@ -1,10 +1,12 @@
 package huy.project.inventory_service.ui.controller;
 
 import huy.project.inventory_service.core.domain.dto.request.AccommodationLockRequest;
+import huy.project.inventory_service.core.domain.dto.request.CancelBookingRequest;
+import huy.project.inventory_service.core.domain.dto.request.ConfirmBookingRequest;
 import huy.project.inventory_service.core.domain.dto.response.AccommodationLockResponse;
+import huy.project.inventory_service.core.domain.dto.response.CancelBookingResponse;
 import huy.project.inventory_service.core.service.IInventoryService;
 import huy.project.inventory_service.ui.resource.Resource;
-import huy.project.inventory_service.ui.resource.request.ConfirmBookingRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -38,6 +40,13 @@ public class InventoryController {
         log.info("Received request to confirm booking: {}, with lock: {}",
                 request.getBookingId(), request.getLockId());
         return ResponseEntity.ok(new Resource<>(
-                inventoryService.confirmBooking(request.getLockId(), request.getBookingId())));
+                inventoryService.confirmBooking(request)));
+    }
+
+    @PutMapping("/cancel_booking")
+    public ResponseEntity<Resource<CancelBookingResponse>> cancelBooking(@RequestBody CancelBookingRequest request) {
+        log.info("Received request to cancel booking: {}", request.getBookingId());
+        return ResponseEntity.ok(new Resource<>(
+                inventoryService.cancelBooking(request)));
     }
 }

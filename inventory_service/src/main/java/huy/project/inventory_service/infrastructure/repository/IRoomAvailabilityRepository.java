@@ -20,16 +20,18 @@ public interface IRoomAvailabilityRepository extends IBaseRepository<RoomAvailab
 
     List<RoomAvailabilityModel> findByLockId(String lockId);
 
+    List<RoomAvailabilityModel> findByBookingId(Long bookingId);
+
     @Modifying
     @Query("UPDATE RoomAvailabilityModel ra SET ra.status = :status, ra.lockId = NULL WHERE ra.lockId = :lockId")
     int updateStatusByLockId(@Param("lockId") String lockId, @Param("status") RoomStatus status);
 
     @Modifying
-    @Query("UPDATE RoomAvailabilityModel ra SET ra.status = 'AVAILABLE', ra.lockId = NULL WHERE ra.lockId = :lockId")
+    @Query("UPDATE RoomAvailabilityModel ra SET ra.status = 'AVAILABLE', ra.lockId = NULL, ra.lockExpirationTime = NULL WHERE ra.lockId = :lockId")
     int releaseLocksById(@Param("lockId") String lockId);
 
     @Modifying
-    @Query("UPDATE RoomAvailabilityModel ra SET ra.status = 'AVAILABLE', ra.lockId = NULL " +
+    @Query("UPDATE RoomAvailabilityModel ra SET ra.status = 'AVAILABLE', ra.lockId = NULL, ra.lockExpirationTime = NULL " +
             "WHERE ra.lockExpirationTime < :now AND ra.status = 'TEMPORARILY_LOCKED'")
     int releaseExpiredLocks(@Param("now") LocalDateTime now);
 }

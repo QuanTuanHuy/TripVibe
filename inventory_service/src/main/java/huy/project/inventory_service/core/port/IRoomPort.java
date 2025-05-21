@@ -9,6 +9,8 @@ public interface IRoomPort {
 
     List<Room> getRoomsByUnitId(Long unitId);
 
+    List<Room> getRoomsByUnitIds(List<Long> unitIds);
+
     Room getRoomById(Long id);
     
     Room save(Room room);
