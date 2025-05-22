@@ -1,4 +1,28 @@
 services:
+  api_gateway:
+    build:
+      context: ./api_gateway
+    container_name: api_gateway
+    ports:
+      - "8080:8080"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - EUREKA_CLIENT_SERVICE-URL_DEFAULTZONE=http://service_registry:8761/eureka/
+      - SPRING_ZIPKIN_BASE-URL=http://zipkin:9411
+    depends_on:
+      - service_registry
+      - authentication_service
+    networks:
+      - booking_network
+
+  service_registry:
+    image: springcloud/eureka
+    container_name: service_registry
+    ports:
+      - "8761:8761"
+    networks:
+      - booking_network
+
   authentication_service:
     build:
       context: ./authentication_service
@@ -9,6 +33,10 @@ services:
       - mysql
       - redis
       - broker
+      - service_registry
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - EUREKA_CLIENT_SERVICE-URL_DEFAULTZONE=http://service_registry:8761/eureka/
     networks:
       - booking_network
       
@@ -74,11 +102,57 @@ services:
       - es-data:/usr/share/elasticsearch/data
     networks:
       - booking_network
+  prometheus:
+    image: prom/prometheus:v2.48.0
+    container_name: prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./monitoring/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus_data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/etc/prometheus/console_libraries'
+      - '--web.console.templates=/etc/prometheus/consoles'
+      - '--web.enable-lifecycle'
+    networks:
+      - booking_network
+
+  grafana:
+    image: grafana/grafana:10.2.2
+    container_name: grafana
+    ports:
+      - "3000:3000"
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./monitoring/grafana/provisioning:/etc/grafana/provisioning
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+      - GF_USERS_ALLOW_SIGN_UP=false
+    depends_on:
+      - prometheus
+    networks:
+      - booking_network
+
+  zipkin:
+    image: openzipkin/zipkin:2.23
+    container_name: zipkin
+    ports:
+      - "9411:9411"
+    networks:
+      - booking_network
+
 volumes:
   db:
     driver: local
   postgres:
   es-data:
+    driver: local
+  prometheus_data:
+    driver: local
+  grafana_data:
     driver: local
 
 networks:

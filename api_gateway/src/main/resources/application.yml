@@ -1,82 +1,293 @@
 server:
   port: 8080
+  tomcat:
+    max-threads: 200
+    max-connections: 10000
+    connection-timeout: 2s
 
 app:
   api-prefix: api/public/v1
+  service-version: v1
 
 spring:
   application:
-    name: api_gateway
+    name: api-gateway
+  
+  main:
+    # Prevent WebSecurityConfigurerAdapter deprecation issues
+    allow-bean-definition-overriding: true
+    web-application-type: servlet
+  
+  # Circuit breaker configuration
   cloud:
     gateway:
+      # MVC routes configuration
       mvc:
         routes:
           - id: authentication_service
-            uri: http://localhost:8081
+            uri: lb://authentication-service
             predicates:
               - Path=/authentication_service/${app.api-prefix}/**
+            filters:
+              - name: CircuitBreaker
+                args:
+                  name: authenticationCircuitBreaker
+                  fallbackUri: forward:/fallback/authentication
+              - name: RequestRateLimiter
+                args:
+                  redis-rate-limiter.replenishRate: 10
+                  redis-rate-limiter.burstCapacity: 20
+                  redis-rate-limiter.requestedTokens: 1
+
           - id: accommodation_service
-            uri: http://localhost:8083
+            uri: lb://accommodation-service
             predicates:
               - Path=/accommodation_service/${app.api-prefix}/**
+            filters:
+              - name: CircuitBreaker
+                args:
+                  name: accommodationCircuitBreaker
+                  fallbackUri: forward:/fallback/accommodation
+              - name: RequestRateLimiter
+                args:
+                  redis-rate-limiter.replenishRate: 50
+                  redis-rate-limiter.burstCapacity: 100
+
           - id: search_service
-            uri: http://localhost:8085
+            uri: lb://search-service
             predicates:
               - Path=/search_service/${app.api-prefix}/**
+            filters:
+              - name: CircuitBreaker
+                args:
+                  name: searchCircuitBreaker
+                  fallbackUri: forward:/fallback/search
+              - name: RequestRateLimiter
+                args:
+                  redis-rate-limiter.replenishRate: 100
+                  redis-rate-limiter.burstCapacity: 200
+
           - id: booking_service
-            uri: http://localhost:8084
+            uri: lb://booking-service
             predicates:
               - Path=/booking_service/${app.api-prefix}/**
+            filters:
+              - name: CircuitBreaker
+                args:
+                  name: bookingCircuitBreaker
+                  fallbackUri: forward:/fallback/booking
+
           - id: file_service
-            uri: http://localhost:8088
+            uri: lb://file-service
             predicates:
               - Path=/file_service/${app.api-prefix}/**
+            filters:
+              - name: CircuitBreaker
+                args:
+                  name: fileCircuitBreaker
+                  fallbackUri: forward:/fallback/file
+
           - id: profile_service
-            uri: http://localhost:8086
+            uri: lb://profile-service
             predicates:
               - Path=/profile_service/${app.api-prefix}/**
+            filters:
+              - name: CircuitBreaker
+                args:
+                  name: profileCircuitBreaker
+                  fallbackUri: forward:/fallback/profile
+
           - id: rating_service
-            uri: http://localhost:8089
+            uri: lb://rating-service
             predicates:
               - Path=/rating_service/${app.api-prefix}/**
+            filters:
+              - name: CircuitBreaker
+                args:
+                  name: ratingCircuitBreaker
+                  fallbackUri: forward:/fallback/rating
+
           - id: promotion_service
-            uri: http://localhost:8087
+            uri: lb://promotion-service
             predicates:
               - Path=/promotion_service/${app.api-prefix}/**
+            filters:
+              - name: CircuitBreaker
+                args:
+                  name: promotionCircuitBreaker
+                  fallbackUri: forward:/fallback/promotion
+
           - id: notification_service
-            uri: http://localhost:8082
+            uri: lb://notification-service
             predicates:
               - Path=/notification_service/${app.api-prefix}/**
+            filters:
+              - name: CircuitBreaker
+                args:
+                  name: notificationCircuitBreaker
+                  fallbackUri: forward:/fallback/notification
+
           - id: chat_service
-            uri: http://localhost:8090
+            uri: lb://chat-service
             predicates:
               - Path=/chat_service/${app.api-prefix}/**
+            filters:
+              - name: CircuitBreaker
+                args:
+                  name: chatCircuitBreaker
+                  fallbackUri: forward:/fallback/chat
+
           - id: location_service
-            uri: http://localhost:8091
+            uri: lb://location-service
             predicates:
               - Path=/location_service/${app.api-prefix}/**
+            filters:
+              - name: CircuitBreaker
+                args:
+                  name: locationCircuitBreaker
+                  fallbackUri: forward:/fallback/location
+
           - id: payment_service
-            uri: http://localhost:8092
+            uri: lb://payment-service
             predicates:
               - Path=/payment_service/${app.api-prefix}/**
-      # Cấu hình global CORS
-      globalcors:
-        corsConfigurations:
-          '[/**]':
-            allowedOrigins:
-              - "http://localhost:3000"
-              - "https://yourdomain.com" # Thay thế bằng domain frontend của bạn
-            allowedMethods:
-              - GET
-              - POST
-              - PUT
-              - DELETE
-              - PATCH
-              - OPTIONS
-            allowedHeaders:
-              - Authorization
-              - Content-Type
-              - X-Requested-With
-              - Accept
-            allowCredentials: true
-            maxAge: 3600
+            filters:
+              - name: CircuitBreaker
+                args:
+                  name: paymentCircuitBreaker
+                  fallbackUri: forward:/fallback/payment
+          
+          # API Documentation routes
+          - id: api_docs
+            uri: http://localhost:${server.port}
+            predicates:
+              - Path=/api-docs/**, /swagger-ui/**
+
+      # Service discovery configuration    discovery:
+      enabled: true
+
+  # Security configuration for OAuth2 (commented out for development)
+  # security:
+  #  oauth2:
+  #    resourceserver:
+  #      jwt:
+  #        issuer-uri: http://localhost:8081/authentication_service/${app.api-prefix}/auth
+
+# Circuit breaker and resilience configuration
+resilience4j:
+  circuitbreaker:
+    instances:
+      default:
+        registerHealthIndicator: true
+        slidingWindowSize: 100
+        permittedNumberOfCallsInHalfOpenState: 10
+        slidingWindowType: TIME_BASED
+        minimumNumberOfCalls: 20
+        waitDurationInOpenState: 10s
+        failureRateThreshold: 50
+        eventConsumerBufferSize: 10
+      authenticationCircuitBreaker:
+        registerHealthIndicator: true
+        slidingWindowSize: 10
+        permittedNumberOfCallsInHalfOpenState: 3
+        slidingWindowType: TIME_BASED
+        minimumNumberOfCalls: 5
+        waitDurationInOpenState: 30s
+        failureRateThreshold: 50
+      searchCircuitBreaker:
+        registerHealthIndicator: true
+        slidingWindowSize: 100
+        permittedNumberOfCallsInHalfOpenState: 30
+        slidingWindowType: COUNT_BASED
+        minimumNumberOfCalls: 10
+        waitDurationInOpenState: 5s
+        failureRateThreshold: 65
+  ratelimiter:
+    instances:
+      default:
+        limitForPeriod: 100
+        limitRefreshPeriod: 1s
+        timeoutDuration: 0s
+  retry:
+    instances:
+      default:
+        maxAttempts: 3
+        waitDuration: 100ms
+        enableExponentialBackoff: true
+        exponentialBackoffMultiplier: 2
+        retryExceptions:
+          - org.springframework.web.client.HttpServerErrorException
+          - java.io.IOException
+          - java.net.ConnectException
+  bulkhead:
+    instances:
+      default:
+        maxConcurrentCalls: 20
+        maxWaitDuration: 500ms
+
+# Actuator configuration for monitoring
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*" # Expose all endpoints for development, restrict in production
+  endpoint:
+    health:
+      show-details: when_authorized
+      probes:
+        enabled: true
+  health:
+    circuitbreakers:
+      enabled: true
+    ratelimiters:
+      enabled: true
+  metrics:
+    tags:
+      application: ${spring.application.name}
+    distribution:
+      percentiles:
+        http.server.requests: 0.5, 0.9, 0.95, 0.99
+  tracing:
+    sampling:
+      probability: 1.0
+    propagation:
+      type: w3c
+
+# Logging configuration
+logging:
+  level:
+    root: INFO
+    huy.project.api_gateway: DEBUG
+    org.springframework.cloud.gateway: INFO
+    org.springframework.web: INFO
+    org.springframework.security: INFO
+
+# OpenAPI Documentation configuration
+springdoc:
+  api-docs:
+    path: /api-docs
+    enabled: true
+  swagger-ui:
+    path: /swagger-ui
+    enabled: true
+    config-url: /api-docs/swagger-config
+    urls:
+      - name: API Gateway
+        url: /api-docs
+      - name: Authentication Service
+        url: /authentication_service/${app.api-prefix}/v3/api-docs
+      - name: Accommodation Service
+        url: /accommodation_service/${app.api-prefix}/v3/api-docs
+      - name: Search Service
+        url: /search_service/${app.api-prefix}/v3/api-docs
+
+# Eureka client configuration
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
+    register-with-eureka: true
+    fetch-registry: true
+  instance:
+    prefer-ip-address: true
+    hostname: localhost
