@@ -51,6 +51,7 @@ func JWTAuthMiddleware(config *JWTConfig) gin.HandlerFunc {
 			c.Abort()
 			return
 		}
+		c.Set("token", tokenString)
 
 		token, err := jwt.ParseWithClaims(tokenString, &JWTClaims{}, func(token *jwt.Token) (interface{}, error) {
 			if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {

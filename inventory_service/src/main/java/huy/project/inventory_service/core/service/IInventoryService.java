@@ -1,11 +1,10 @@
 package huy.project.inventory_service.core.service;
 
-import huy.project.inventory_service.core.domain.dto.request.AccommodationLockRequest;
-import huy.project.inventory_service.core.domain.dto.request.CancelBookingRequest;
-import huy.project.inventory_service.core.domain.dto.request.ConfirmBookingRequest;
-import huy.project.inventory_service.core.domain.dto.request.ConfirmBookingResponse;
+import huy.project.inventory_service.core.domain.dto.request.*;
 import huy.project.inventory_service.core.domain.dto.response.AccommodationLockResponse;
 import huy.project.inventory_service.core.domain.dto.response.CancelBookingResponse;
+import huy.project.inventory_service.core.domain.dto.response.CheckInResponse;
+import huy.project.inventory_service.core.domain.dto.response.CheckOutResponse;
 
 public interface IInventoryService {
     /**
@@ -30,4 +29,8 @@ public interface IInventoryService {
     boolean releaseLock(String lockId);
 
     CancelBookingResponse cancelBooking(CancelBookingRequest request);
+
+    CheckInResponse checkIn(CheckInRequest request);
+
+    CheckOutResponse checkOut(CheckOutRequest request);
 }

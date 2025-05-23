@@ -2,6 +2,7 @@ package usecase
 
 import (
 	"booking_service/core/domain/constant"
+	"booking_service/core/domain/dto/request"
 	"booking_service/core/port"
 	"booking_service/kernel/utils"
 	"context"
@@ -15,9 +16,8 @@ type ICancelBookingUseCase interface {
 
 type CancelBookingUseCase struct {
 	bookingPort          port.IBookingPort
-	bookingUnitPort      port.IBookingUnitPort
-	getInventoryUseCase  IGetInventoryUseCase
 	inventoryPort        port.IInventoryPort
+	cachePort            port.ICachePort
 	dbTransactionUseCase IDatabaseTransactionUseCase
 }
 
@@ -26,31 +26,30 @@ func (c CancelBookingUseCase) CancelBooking(ctx context.Context, userID, booking
 	if err != nil {
 		return err
 	}
-	bookingUnits, err := c.bookingUnitPort.GetBookingUnitsByBookingID(ctx, bookingID)
-	if err != nil {
-		return err
-	}
 
 	if booking.TouristID != userID {
 		log.Error(ctx, "user not allowed to cancel booking", err)
 		return errors.New(constant.ErrForbiddenCancelBooking)
 	}
-	if booking.Status != constant.PENDING {
-		log.Error(ctx, "booking not pending", err)
+	if booking.Status != constant.CONFIRMED && booking.Status != constant.APPROVED {
+		log.Error(ctx, "booking not allowed to cancel", err)
 		return errors.New(constant.ErrForbiddenCancelBooking)
 	}
 
-	// get inventories
-	stayFrom, stayTo := utils.EpochSecondToDay(booking.StayFrom), utils.EpochSecondToDay(booking.StayTo)
-	bookingUnitIDs := make([]int64, 0)
-	bookingQuantityMap := make(map[int64]int)
-	for _, unit := range bookingUnits {
-		bookingUnitIDs = append(bookingUnitIDs, unit.UnitID)
-		bookingQuantityMap[unit.UnitID] = unit.Quantity
+	// release inventories
+	cancelRequest := request.CancelBookingRequest{
+		BookingID: bookingID,
+		UserID:    userID,
 	}
-	inventories, err := c.getInventoryUseCase.GetInventories(ctx, booking.AccommodationID, bookingUnitIDs, stayFrom, stayTo)
+	log.Info(ctx, "booking cancel request: ", cancelRequest)
+	cancelResponse, err := c.inventoryPort.CancelBooking(ctx, &cancelRequest)
 	if err != nil {
+		log.Error(ctx, "cancel booking err: ", err)
 		return err
+	}
+	if !cancelResponse.Success {
+		log.Error(ctx, "cancel booking failed: ", cancelResponse.Errors)
+		return errors.New(constant.ErrCancelBookingFailed)
 	}
 
 	tx := c.dbTransactionUseCase.StartTransaction()
@@ -68,25 +67,17 @@ func (c CancelBookingUseCase) CancelBooking(ctx context.Context, userID, booking
 		return err
 	}
 
-	// update inventory
-	for _, inventory := range inventories {
-		inventory.AvailableCount += bookingQuantityMap[inventory.UnitID]
-		if inventory.AvailableCount >= inventory.TotalCount {
-			inventory.Status = constant.AVAILABLE
-		} else {
-			inventory.Status = constant.PARTIALLY_BOOKED
-		}
-	}
-	err = c.inventoryPort.SaveAll(ctx, tx, inventories)
-	if err != nil {
-		log.Error(ctx, "SaveAll inventory error", err)
-		return err
-	}
-
 	if err := c.dbTransactionUseCase.Commit(tx); err != nil {
 		log.Error(ctx, "commit transaction failed", err)
 		return err
 	}
+
+	go func() {
+		err = c.cachePort.DeleteFromCache(ctx, utils.BuildCacheKeyGetBooking(bookingID))
+		if err != nil {
+			log.Error(ctx, "DeleteFromCache error", err)
+		}
+	}()
 
 	return nil
 }
@@ -94,13 +85,13 @@ func (c CancelBookingUseCase) CancelBooking(ctx context.Context, userID, booking
 func NewCancelBookingUseCase(
 	bookingPort port.IBookingPort,
 	inventoryPort port.IInventoryPort,
+	cachePort port.ICachePort,
 	dbTransactionUseCase IDatabaseTransactionUseCase,
-	getInventoryUseCase IGetInventoryUseCase,
 ) ICancelBookingUseCase {
 	return &CancelBookingUseCase{
 		bookingPort:          bookingPort,
 		inventoryPort:        inventoryPort,
+		cachePort:            cachePort,
 		dbTransactionUseCase: dbTransactionUseCase,
-		getInventoryUseCase:  getInventoryUseCase,
 	}
 }

@@ -55,8 +55,6 @@ app:
       prefix: Bearer
     filter:
       publicUrls:
-        - first: /api/public/v1/inventories/**
-          second: GET
       protectedUrls:
   redis:
     lock:

@@ -135,7 +135,6 @@ public class LockRoomsUseCase {
     }
 
     private String generateLockId(AccommodationLockRequest request) {
-        // Tạo lockId dựa trên accommodationId, userId và thời gian hiện tại
         return String.format("%d_%d_%d",
                 request.getAccommodationId(),
                 request.getUserId(),
@@ -195,13 +194,13 @@ public class LockRoomsUseCase {
                         .orElse(null);
 
                 if (availability == null) {
-                    // Tạo mới nếu chưa có
-                    availability = RoomAvailability.builder()
-                            .roomId(room.getId())
-                            .date(currentDate)
-                            .price(room.getBasePrice())
-                            .basePrice(room.getBasePrice())
-                            .build();
+                        // Tạo mới nếu chưa có
+                        availability = RoomAvailability.builder()
+                                .roomId(room.getId())
+                                .date(currentDate)
+                                .price(room.getBasePrice())
+                                .basePrice(room.getBasePrice())
+                                .build();
                 }
 
                 availability.lockForBooking(lockId, LocalDateTime.now().plusSeconds(DEFAULT_LOCK_TIME_SECONDS));

@@ -41,7 +41,7 @@ public class ConfirmBookingUseCase {
             }
 
             for (RoomAvailability availability : lockedAvailabilities) {
-                availability.confirmBooking(bookingId);
+                availability.confirmBooking(bookingId, request.getUserId());
             }
 
             roomAvailabilityPort.saveAll(lockedAvailabilities);

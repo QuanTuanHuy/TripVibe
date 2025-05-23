@@ -6,6 +6,7 @@ import huy.project.inventory_service.core.domain.dto.request.ConfirmBookingReque
 import huy.project.inventory_service.core.domain.dto.response.AccommodationLockResponse;
 import huy.project.inventory_service.core.domain.dto.response.CancelBookingResponse;
 import huy.project.inventory_service.core.service.IInventoryService;
+import huy.project.inventory_service.kernel.util.AuthenUtils;
 import huy.project.inventory_service.ui.resource.Resource;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -14,7 +15,7 @@ import org.springframework.web.bind.annotation.*;
 
 @Slf4j
 @RestController
-@RequestMapping("/api/v1/inventory")
+@RequestMapping("/api/v1/inventories")
 @RequiredArgsConstructor
 public class InventoryController {
     private final IInventoryService inventoryService;
@@ -39,6 +40,9 @@ public class InventoryController {
     public ResponseEntity<Resource<?>> confirmBooking(@RequestBody ConfirmBookingRequest request) {
         log.info("Received request to confirm booking: {}, with lock: {}",
                 request.getBookingId(), request.getLockId());
+        Long userId = AuthenUtils.getCurrentUserId();
+        request.setUserId(userId);
+        log.info("User ID: {}", userId);
         return ResponseEntity.ok(new Resource<>(
                 inventoryService.confirmBooking(request)));
     }

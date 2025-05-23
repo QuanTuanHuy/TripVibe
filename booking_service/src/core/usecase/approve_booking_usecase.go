@@ -29,8 +29,8 @@ func (a ApproveBookingUseCase) ApproveBooking(ctx context.Context, userID, booki
 		return err
 	}
 
-	if booking.Status != constant.PENDING {
-		log.Error(ctx, "Booking status is not pending ", booking.Status)
+	if booking.Status != constant.CONFIRMED {
+		log.Error(ctx, "Booking status is not confirm ", booking.Status)
 		return errors.New(constant.ErrForbiddenApprovedBooking)
 	}
 

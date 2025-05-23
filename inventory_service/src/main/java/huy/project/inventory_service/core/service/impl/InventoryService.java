@@ -1,16 +1,12 @@
 package huy.project.inventory_service.core.service.impl;
 
-import huy.project.inventory_service.core.domain.dto.request.AccommodationLockRequest;
-import huy.project.inventory_service.core.domain.dto.request.CancelBookingRequest;
-import huy.project.inventory_service.core.domain.dto.request.ConfirmBookingRequest;
-import huy.project.inventory_service.core.domain.dto.request.ConfirmBookingResponse;
+import huy.project.inventory_service.core.domain.dto.request.*;
 import huy.project.inventory_service.core.domain.dto.response.AccommodationLockResponse;
 import huy.project.inventory_service.core.domain.dto.response.CancelBookingResponse;
+import huy.project.inventory_service.core.domain.dto.response.CheckInResponse;
+import huy.project.inventory_service.core.domain.dto.response.CheckOutResponse;
 import huy.project.inventory_service.core.service.IInventoryService;
-import huy.project.inventory_service.core.usecase.CancelBookingUseCase;
-import huy.project.inventory_service.core.usecase.ConfirmBookingUseCase;
-import huy.project.inventory_service.core.usecase.LockRoomsUseCase;
-import huy.project.inventory_service.core.usecase.LockTransactionManagerUseCase;
+import huy.project.inventory_service.core.usecase.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -23,6 +19,8 @@ public class InventoryService implements IInventoryService {
     private final LockRoomsUseCase lockRoomsUseCase;
     private final CancelBookingUseCase cancelBookingUseCase;
     private final LockTransactionManagerUseCase lockTransactionManagerUseCase;
+    private final CheckInUseCase checkInUseCase;
+    private final CheckOutUseCase checkOutUseCase;
 
     @Override
     public AccommodationLockResponse lockRoomsForBooking(AccommodationLockRequest request) {
@@ -45,4 +43,15 @@ public class InventoryService implements IInventoryService {
     public CancelBookingResponse cancelBooking(CancelBookingRequest request) {
         return cancelBookingUseCase.cancelBooking(request);
     }
+
+    @Override
+    public CheckInResponse checkIn(CheckInRequest request) {
+        return checkInUseCase.checkIn(request);
+    }
+
+    @Override
+    public CheckOutResponse checkOut(CheckOutRequest request) {
+        return checkOutUseCase.checkOut(request);
+    }
+
 }

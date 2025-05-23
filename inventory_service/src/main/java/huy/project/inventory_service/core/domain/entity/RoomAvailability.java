@@ -55,9 +55,10 @@ public class RoomAvailability {
         this.lastModified = LocalDateTime.now();
     }
 
-    public void confirmBooking(Long bookingId) {
+    public void confirmBooking(Long bookingId, Long guestId) {
         this.status = RoomStatus.BOOKED;
         this.bookingId = bookingId;
+        this.guestId = guestId;
         this.lockId = null;
         this.lockExpirationTime = null;
         this.lastModified = LocalDateTime.now();
