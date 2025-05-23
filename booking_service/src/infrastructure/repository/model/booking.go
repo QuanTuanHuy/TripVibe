@@ -16,6 +16,7 @@ type BookingModel struct {
 	StayTo          time.Time `gorm:"column:stay_to"`
 	InvoiceAmount   int64     `gorm:"column:invoice_amount"`
 	FinalAmount     int64     `gorm:"column:final_amount"`
+	InventoryLockID *string   `gorm:"column:inventory_lock_id"`
 }
 
 func (b BookingModel) TableName() string {

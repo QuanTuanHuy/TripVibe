@@ -86,11 +86,43 @@ func (b *BookingController) CreateBooking(c *gin.Context) {
 	booking, err := b.bookingService.CreateBooking(c, &req)
 	if err != nil {
 		log.Error(c, "error creating booking ", err)
+		if err.Error() == constant.ErrUnitQuantityExceedsAvailable {
+			apihelper.AbortErrorHandle(c, common.ErrUnitQuantityExceedsAvailable)
+			return
+		}
+		if err.Error() == constant.ErrInventoryNoLongerAvailable {
+			apihelper.AbortErrorHandle(c, common.ErrInventoryNoLongerAvailable)
+			return
+		}
 		apihelper.AbortErrorHandle(c, common.GeneralBadRequest)
 		return
 	}
 
 	apihelper.SuccessfulHandle(c, response.ToBookingResponse(booking))
+}
+
+func (b *BookingController) ConfirmBooking(c *gin.Context) {
+	_, ok := c.Get("userID")
+	if !ok {
+		log.Error(c, "error getting user id from context")
+		return
+	}
+
+	bookingID, err := strconv.ParseInt(c.Param("id"), 10, 64)
+	if err != nil {
+		log.Error(c, "error binding request ", err)
+		apihelper.AbortErrorHandle(c, common.GeneralBadRequest)
+		return
+	}
+
+	confirmResponse, err := b.bookingService.ConfirmBooking(c, bookingID)
+	if err != nil {
+		log.Error(c, "error confirming booking ", err)
+		apihelper.AbortErrorHandle(c, common.GeneralBadRequest)
+		return
+	}
+
+	apihelper.SuccessfulHandle(c, confirmResponse)
 }
 
 func (b *BookingController) ApproveBooking(c *gin.Context) {
@@ -166,6 +198,14 @@ func (b *BookingController) CancelBooking(c *gin.Context) {
 	err = b.bookingService.CancelBooking(c, userID.(int64), bookingID)
 	if err != nil {
 		log.Error(c, "error cancelling booking ", err)
+		if err.Error() == constant.ErrForbiddenCancelBooking {
+			apihelper.AbortErrorHandle(c, common.GeneralForbidden)
+			return
+		}
+		if err.Error() == constant.ErrCancelBookingFailed {
+			apihelper.AbortErrorHandle(c, common.GeneralBadRequest)
+			return
+		}
 		apihelper.AbortErrorHandle(c, common.GeneralServiceUnavailable)
 		return
 	}
