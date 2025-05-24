@@ -120,7 +120,7 @@ export default function MyAccountPage() {
             {
                 icon: <Heart className="h-5 w-5" />,
                 label: "Danh sách đã lưu",
-                link: "/mywhishlists"
+                link: "/mywishlists"
             },
             {
                 icon: <MessageCircle className="h-5 w-5" />,
