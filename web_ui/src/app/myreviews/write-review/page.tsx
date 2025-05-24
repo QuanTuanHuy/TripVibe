@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
 import Image from 'next/image';
@@ -11,7 +11,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { CreateRatingDto, RatingCriteriaType } from '@/types/rating/rating.types';
 import Header from '@/components/Header';
 
-export default function WriteReviewPage() {
+function WriteReviewContent() {
     const router = useRouter();
     const searchParams = useSearchParams();
     const { isAuthenticated } = useAuth();
@@ -509,10 +509,25 @@ export default function WriteReviewPage() {
                         ) : (
                             'Gửi đánh giá'
                         )}
-                    </Button>
-                </div>
+                    </Button>                </div>
             </div>
         </div>
 
+    );
+}
+
+export default function WriteReviewPage() {
+    return (
+        <Suspense fallback={
+            <div className="min-h-screen bg-gray-50">
+                <Header />
+                <div className="flex justify-center items-center py-12">
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+                    <span className="ml-3 text-lg">Đang tải...</span>
+                </div>
+            </div>
+        }>
+            <WriteReviewContent />
+        </Suspense>
     );
 }
