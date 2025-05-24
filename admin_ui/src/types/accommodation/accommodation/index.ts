@@ -91,7 +91,7 @@ export interface UnitAmenity {
 
 
 export interface Unit {
-    id?: number;
+    id: number;
     accommodationId: number;
     unitNameId: number;
     description: string;

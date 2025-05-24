@@ -1,6 +1,7 @@
 import apiClient from './apiClient';
 import authService from './auth/authService';
-import {accommodationService, bedTypeService, priceTypeService } from './accommodation';
+import { accommodationService, bedTypeService } from './accommodation';
+import { priceService, priceTypeService } from './price';
 import locationService from './location';
 
 export {
@@ -8,6 +9,7 @@ export {
   authService,
   accommodationService,
   bedTypeService,
+  priceService,
   priceTypeService,
   locationService
 };

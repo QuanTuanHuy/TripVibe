@@ -18,7 +18,8 @@ import {
     ChevronDown,
     PlusCircle,
     Settings,
-    List
+    List,
+    Calendar1
 } from "lucide-react";
 
 interface MainNavigationProps {
@@ -34,8 +35,15 @@ const navigationItems = [
     },
     {
         name: "Lịch & Giá",
-        href: "/calendar",
+        href: "/pricing",
         icon: <Calendar className="h-5 w-5" />,
+        subMenu: [
+            {
+                name: "Lịch",
+                href: "/pricing/calendar",
+                icon: <Calendar1 className="h-4 w-4" />
+            },
+        ]
     },
     {
         name: "Chương trình KM",
