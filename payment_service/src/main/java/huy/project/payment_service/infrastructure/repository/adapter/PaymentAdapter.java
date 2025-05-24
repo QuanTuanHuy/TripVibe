@@ -22,12 +22,13 @@ import java.util.List;
 @Slf4j
 public class PaymentAdapter implements IPaymentPort {
     IPaymentRepository paymentRepository;
+    PaymentMapper paymentMapper;
 
     @Override
     public PaymentEntity save(PaymentEntity payment) {
         try {
-            PaymentModel paymentModel = PaymentMapper.INSTANCE.toModel(payment);
-            return PaymentMapper.INSTANCE.toEntity(paymentRepository.save(paymentModel));
+            PaymentModel paymentModel = paymentMapper.toModel(payment);
+            return paymentMapper.toEntity(paymentRepository.save(paymentModel));
         } catch (Exception e) {
             log.error("Error saving payment: {}", e.getMessage());
             throw new AppException(ErrorCode.SAVE_PAYMENT_FAILED);
@@ -37,8 +38,8 @@ public class PaymentAdapter implements IPaymentPort {
     @Override
     public List<PaymentEntity> saveAll(List<PaymentEntity> payments) {
         try {
-            List<PaymentModel> paymentModels = PaymentMapper.INSTANCE.toListModel(payments);
-            return PaymentMapper.INSTANCE.toListEntity(paymentRepository.saveAll(paymentModels));
+            List<PaymentModel> paymentModels = paymentMapper.toListModel(payments);
+            return paymentMapper.toListEntity(paymentRepository.saveAll(paymentModels));
         } catch (Exception e) {
             log.error("Error saving payments: {}", e.getMessage());
             throw new AppException(ErrorCode.SAVE_PAYMENT_FAILED);
@@ -47,21 +48,21 @@ public class PaymentAdapter implements IPaymentPort {
 
     @Override
     public List<PaymentEntity> getPaymentsByBookingIdAndStatus(Long bookingId, PaymentStatus status) {
-        return PaymentMapper.INSTANCE.toListEntity(paymentRepository.findByBookingIdAndStatus(bookingId, status));
+        return paymentMapper.toListEntity(paymentRepository.findByBookingIdAndStatus(bookingId, status));
     }
 
     @Override
     public PaymentEntity getPaymentById(Long id) {
-        return PaymentMapper.INSTANCE.toEntity(paymentRepository.findById(id).orElse(null));
+        return paymentMapper.toEntity(paymentRepository.findById(id).orElse(null));
     }
 
     @Override
     public PaymentEntity getPaymentByTransactionId(String transactionId) {
-        return PaymentMapper.INSTANCE.toEntity(paymentRepository.findByTransactionId(transactionId).orElse(null));
+        return paymentMapper.toEntity(paymentRepository.findByTransactionId(transactionId).orElse(null));
     }
 
     @Override
     public List<PaymentEntity> getPaymentsByBookingId(Long bookingId) {
-        return PaymentMapper.INSTANCE.toListEntity(paymentRepository.findByBookingId(bookingId));
+        return paymentMapper.toListEntity(paymentRepository.findByBookingId(bookingId));
     }
 }

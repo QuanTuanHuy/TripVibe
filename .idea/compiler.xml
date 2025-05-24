@@ -9,15 +9,6 @@
         <outputRelativeToContentRoot value="true" />
         <module name="authentication_service" />
       </profile>
-      <profile name="Annotation profile for api_gateway" enabled="true">
-        <sourceOutputDir name="target/generated-sources/annotations" />
-        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
-        <outputRelativeToContentRoot value="true" />
-        <processorPath useClasspath="false">
-          <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok/1.18.36/lombok-1.18.36.jar" />
-        </processorPath>
-        <module name="api_gateway" />
-      </profile>
       <profile name="Annotation profile for search_service" enabled="true">
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
@@ -33,7 +24,7 @@
         <module name="profile_service" />
         <module name="accommodation_service" />
       </profile>
-      <profile name="Annotation profile for profile_service" enabled="true">
+      <profile name="Annotation profile for payment_service" enabled="true">
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
@@ -43,12 +34,11 @@
           <entry name="$MAVEN_REPOSITORY$/org/mapstruct/mapstruct/1.6.2/mapstruct-1.6.2.jar" />
         </processorPath>
         <module name="profile_service" />
+        <module name="api_gateway" />
         <module name="rating_service" />
+        <module name="payment_service" />
       </profile>
     </annotationProcessing>
-    <bytecodeTargetLevel>
-      <module name="inventory_service" target="1.5" />
-    </bytecodeTargetLevel>
   </component>
   <component name="JavacSettings">
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
