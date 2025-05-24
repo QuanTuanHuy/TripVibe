@@ -1,11 +1,9 @@
 package huy.project.rating_service.core.usecase;
 
 import huy.project.rating_service.core.domain.constant.ErrorCode;
+import huy.project.rating_service.core.domain.dto.request.MyRatingParams;
 import huy.project.rating_service.core.domain.dto.request.RatingParams;
-import huy.project.rating_service.core.domain.dto.response.PageInfo;
-import huy.project.rating_service.core.domain.dto.response.RatingDto;
-import huy.project.rating_service.core.domain.dto.response.UnitDto;
-import huy.project.rating_service.core.domain.dto.response.UserProfileDto;
+import huy.project.rating_service.core.domain.dto.response.*;
 import huy.project.rating_service.core.domain.entity.RatingEntity;
 import huy.project.rating_service.core.domain.exception.AppException;
 import huy.project.rating_service.core.domain.mapper.RatingMapper;
@@ -26,6 +24,7 @@ import java.util.stream.Collectors;
 public class GetRatingUseCase {
     private final IRatingPort ratingPort;
     private final GetAccommodationUseCase getAccommodationUseCase;
+    private final GetRatingResponseUseCase getRatingResponseUseCase;
     private final GetUserProfileUseCase getUserProfileUseCase;
 
     public Pair<PageInfo, List<RatingDto>> getAllRatings(RatingParams params) {
@@ -48,15 +47,34 @@ public class GetRatingUseCase {
         var ratingEntityMap = ratingEntities.stream()
                 .collect(Collectors.toMap(RatingEntity::getId, Function.identity()));
 
+        List<Long> ratingIds = ratingEntities.stream()
+                .map(RatingEntity::getId).distinct().toList();
+        var ratingResponseMap = getRatingResponseUseCase.getRatingResponsesByRatingIds(ratingIds)
+                .stream()
+                .map(RatingMapper.INSTANCE::toResponseDto)
+                .collect(Collectors.toMap(RatingResponseDto::getRatingId, Function.identity()));
+
         ratingDtoList.forEach(rating -> {
             var ratingEntity = ratingEntityMap.get(rating.getId());
             var userProfile = userProfileMap.get(ratingEntity.getUserId());
             var unit = unitMap.get(ratingEntity.getUnitId());
             rating.setUser(userProfile);
             rating.setUnit(unit);
+            rating.setRatingResponse(ratingResponseMap.get(rating.getId()));
         });
 
         return Pair.of(result.getFirst(), ratingDtoList);
+    }
+
+    public Pair<PageInfo, List<RatingDto>> getRatingsByUserId(MyRatingParams params) {
+        var newParams = RatingParams.builder()
+                .page(params.getPage())
+                .pageSize(params.getPageSize())
+                .sortBy(params.getSortBy())
+                .sortType(params.getSortType())
+                .userId(params.getUserId())
+                .build();
+        return getAllRatings(newParams);
     }
 
     public RatingEntity getRatingById(Long id) {

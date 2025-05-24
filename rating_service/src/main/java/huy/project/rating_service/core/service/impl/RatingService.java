@@ -2,6 +2,7 @@ package huy.project.rating_service.core.service.impl;
 
 import huy.project.rating_service.core.domain.dto.request.CreateRatingDto;
 import huy.project.rating_service.core.domain.dto.request.CreateRatingHelpfulnessDto;
+import huy.project.rating_service.core.domain.dto.request.MyRatingParams;
 import huy.project.rating_service.core.domain.dto.request.RatingParams;
 import huy.project.rating_service.core.domain.dto.response.PageInfo;
 import huy.project.rating_service.core.domain.dto.response.RatingDto;
@@ -33,6 +34,11 @@ public class RatingService implements IRatingService {
     @Override
     public RatingEntity createRating(CreateRatingDto req) {
         return createRatingUseCase.createRating(req);
+    }
+
+    @Override
+    public Pair<PageInfo, List<RatingDto>> getRatingsByUserId(MyRatingParams params) {
+        return getRatingUseCase.getRatingsByUserId(params);
     }
 
     @Override

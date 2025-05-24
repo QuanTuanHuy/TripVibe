@@ -2,6 +2,7 @@ package huy.project.rating_service.ui.controller;
 
 import huy.project.rating_service.core.domain.dto.request.CreateRatingDto;
 import huy.project.rating_service.core.domain.dto.request.CreateRatingHelpfulnessDto;
+import huy.project.rating_service.core.domain.dto.request.MyRatingParams;
 import huy.project.rating_service.core.domain.dto.request.RatingParams;
 import huy.project.rating_service.core.domain.dto.response.ListDataResponse;
 import huy.project.rating_service.core.domain.dto.response.RatingDto;
@@ -45,6 +46,24 @@ public class RatingController {
         var ratingHelpfulness = ratingService.createRatingHelpfulness(userId, req);
         return ResponseEntity.ok(new Resource<>(ratingHelpfulness));
     }
+
+    @GetMapping("/me")
+    public ResponseEntity<Resource<ListDataResponse<RatingDto>>> getMyRatings(
+            @RequestParam(name = "page", defaultValue = DEFAULT_PAGE) Integer page,
+            @RequestParam(name = "pageSize", defaultValue = DEFAULT_PAGE_SIZE) Integer pageSize,
+            @RequestParam(name = "sortBy", required = false) String sortBy,
+            @RequestParam(name = "sortType", required = false) String sortType
+    ) {
+        Long userId = AuthenUtils.getCurrentUserId();
+        var params = MyRatingParams.builder()
+                .userId(userId)
+                .page(page).pageSize(pageSize)
+                .sortBy(sortBy).sortType(sortType)
+                .build();
+        var result = ratingService.getRatingsByUserId(params);
+        return ResponseEntity.ok(new Resource<>(ListDataResponse.from(result.getFirst(), result.getSecond())));
+    }
+
 
     @GetMapping
     public ResponseEntity<Resource<ListDataResponse<RatingDto>>> getAllRatings(

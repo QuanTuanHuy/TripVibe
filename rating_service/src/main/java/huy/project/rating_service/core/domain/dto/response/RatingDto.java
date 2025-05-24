@@ -13,7 +13,10 @@ public class RatingDto {
     private String comment;
     private Long languageId;
     private Long createdAt;
+    private Integer numberOfHelpful;
+    private Integer numberOfUnhelpful;
 
+    private RatingResponseDto ratingResponse;
     private UnitDto unit;
     private UserProfileDto user;
 }
