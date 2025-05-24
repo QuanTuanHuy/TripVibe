@@ -43,7 +43,7 @@ func All() fx.Option {
 		fx.Provide(cache.NewRedisCacheAdapter),
 		fx.Provide(adapter.NewDatabaseTransactionAdapter),
 		fx.Provide(client.NewPromotionClientAdapter),
-		fx.Provide(adapter.NewInventoryAdapter),
+		fx.Provide(client.NewInventoryClientAdapter),
 		fx.Provide(client.NewNotificationClientAdapter),
 		fx.Provide(adapter.NewQuickBookingAdapter),
 
@@ -67,8 +67,8 @@ func All() fx.Option {
 		fx.Provide(usecase.NewCancelBookingUseCase),
 		fx.Provide(usecase.NewRejectBookingUseCase),
 		fx.Provide(usecase.NewApproveBookingUseCase),
+		fx.Provide(usecase.NewConfirmBookingUseCase),
 		fx.Provide(usecase.NewSendEmailUseCase),
-		fx.Provide(usecase.NewGetInventoryUseCase),
 
 		//Provide services
 		fx.Provide(service.NewAccommodationService),

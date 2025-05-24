@@ -38,6 +38,7 @@ func RegisterGinRouters(p RegisterRoutersIn) {
 	bookingV1 := router.Group("/public/v1/bookings", middleware.JWTAuthMiddleware(p.JWTConfig))
 	{
 		bookingV1.POST("", p.BookingController.CreateBooking)
+		bookingV1.PUT("/:id/confirm", p.BookingController.ConfirmBooking)
 		bookingV1.GET("/:id", p.BookingController.GetDetailBooking)
 		bookingV1.PUT("/:id/cancel", p.BookingController.CancelBooking)
 		bookingV1.GET("", p.BookingController.GetAllBookings)

@@ -42,4 +42,11 @@ public class TopicConstant {
         public static final String TOPIC = "accommodation_service.event";
         public static final String DELETE_UNIT = "delete_unit";
     }
+
+    @UtilityClass
+    public class InventoryCommand {
+        public static final String TOPIC = "inventory_service.accommodation";
+        public static final String SYNC_ACCOMMODATION = "sync_accommodation";
+        public static final String SYNC_UNIT = "sync_unit";
+    }
 }

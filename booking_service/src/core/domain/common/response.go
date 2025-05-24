@@ -17,10 +17,15 @@ const (
 
 	//ErrBadRequest error
 	ErrCodeAccommodationNotFound = 1001
+
+	ErrInventoryNoLongerAvailable = 1002
+
+	ErrUnitQuantityExceedsAvailable = 1003
 )
 
 const (
-	AccommodationNotFoundMessage = "accommodation not found"
+	InventoryNoLongerAvailableMessage   = "Inventory no longer available. Please try again later."
+	UnitQuantityExceedsAvailableMessage = "Unit quantity exceeds available"
 )
 
 // ErrorResponse error response struct
@@ -51,10 +56,17 @@ var errorResponseMap = map[int]ErrorResponse{
 		ServiceCode: GeneralForbidden,
 		Message:     "Forbidden",
 	},
-	ErrCodeAccommodationNotFound: {
-		HTTPCode:    http.StatusNotFound,
-		ServiceCode: ErrCodeAccommodationNotFound,
-		Message:     AccommodationNotFoundMessage,
+
+	ErrInventoryNoLongerAvailable: {
+		HTTPCode:    http.StatusBadRequest,
+		ServiceCode: ErrInventoryNoLongerAvailable,
+		Message:     InventoryNoLongerAvailableMessage,
+	},
+
+	ErrUnitQuantityExceedsAvailable: {
+		HTTPCode:    http.StatusBadRequest,
+		ServiceCode: ErrUnitQuantityExceedsAvailable,
+		Message:     UnitQuantityExceedsAvailableMessage,
 	},
 }
 

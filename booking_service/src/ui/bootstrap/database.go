@@ -19,7 +19,6 @@ func RunDatabase() {
 		&model.UnitModel{},
 		&model.BookingModel{},
 		&model.BookingUnitModel{},
-		&model.InventoryModel{},
 		&model.BookingPromotionModel{}, &model.UserModel{},
 		&model.QuickBookingModel{})
 	if err != nil {
