@@ -25,6 +25,7 @@ func ToBookingEntity(booking *model.BookingModel) *entity.BookingEntity {
 		StayTo:          booking.StayTo.Unix(),
 		InvoiceAmount:   booking.InvoiceAmount,
 		FinalAmount:     booking.FinalAmount,
+		InventoryLockID: booking.InventoryLockID,
 	}
 }
 
@@ -45,6 +46,7 @@ func ToBookingModel(booking *entity.BookingEntity) *model.BookingModel {
 		StayTo:          time.Unix(booking.StayTo, 0),
 		InvoiceAmount:   booking.InvoiceAmount,
 		FinalAmount:     booking.FinalAmount,
+		InventoryLockID: booking.InventoryLockID,
 	}
 }
 

@@ -67,7 +67,8 @@ const Header: React.FC = () => {
             onClick={handleHomeClick}>
             TripVibe
           </div>
-          <div className="flex items-center space-x-6 mt-2 md:mt-0 flex-wrap justify-center">            <div className="flex items-center">
+          <div className="flex items-center space-x-6 mt-2 md:mt-0 flex-wrap justify-center">
+            <div className="flex items-center">
               <span>VND</span>
               <div className="mx-2 h-6 w-6 rounded-full overflow-hidden">
                 <div className="bg-red-500 h-full relative">
@@ -75,11 +76,11 @@ const Header: React.FC = () => {
                 </div>
               </div>
             </div>
-            
+
             <div className="hidden md:block">
               <ThemeSwitcher />
             </div>
-            
+
             <button className="p-2 rounded-full bg-blue-700 cursor-pointer hover:bg-blue-600 transition duration-200">
               <span className="sr-only">Help</span>
               <span className="text-xl">?</span>
@@ -124,7 +125,10 @@ const Header: React.FC = () => {
 
                       <div className="py-2">
                         <button
-                          onClick={() => { router.push('/myaccount'); setShowDropdown(false); }}
+                          onClick={() => {
+                            router.push('/myaccount');
+                            setShowDropdown(false);
+                          }}
                           className="w-full text-left px-4 py-2 hover:bg-gray-100 flex items-center"
                         >
                           <svg className="w-5 h-5 mr-3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -133,7 +137,10 @@ const Header: React.FC = () => {
                           Tài khoản
                         </button>
                         <button
-                          onClick={() => { router.push('/myaccount/bookings'); setShowDropdown(false); }}
+                          onClick={() => {
+                            router.push('/mytrips');
+                            setShowDropdown(false);
+                          }}
                           className="w-full text-left px-4 py-2 hover:bg-gray-100 flex items-center"
                         >
                           <svg className="w-5 h-5 mr-3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -142,7 +149,10 @@ const Header: React.FC = () => {
                           Đặt chỗ & Chuyến đi
                         </button>
                         <button
-                          onClick={() => { router.push('/rewards'); setShowDropdown(false); }}
+                          onClick={() => {
+                            router.push('/rewards');
+                            setShowDropdown(false);
+                          }}
                           className="w-full text-left px-4 py-2 hover:bg-gray-100 flex items-center"
                         >
                           <svg className="w-5 h-5 mr-3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -151,7 +161,10 @@ const Header: React.FC = () => {
                           Thưởng & Ưu đãi
                         </button>
                         <button
-                          onClick={() => { router.push('/reviews'); setShowDropdown(false); }}
+                          onClick={() => {
+                            router.push('/myreviews');
+                            setShowDropdown(false);
+                          }}
                           className="w-full text-left px-4 py-2 hover:bg-gray-100 flex items-center"
                         >
                           <svg className="w-5 h-5 mr-3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -160,20 +173,24 @@ const Header: React.FC = () => {
                           Đánh giá
                         </button>
                         <button
-                          onClick={() => { router.push('/saved'); setShowDropdown(false); }}
+                          onClick={() => {
+                            router.push('/mywishlists');
+                            setShowDropdown(false);
+                          }}
                           className="w-full text-left px-4 py-2 hover:bg-gray-100 flex items-center"
                         >
                           <svg className="w-5 h-5 mr-3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
                           </svg>
                           Đã lưu
-                        </button>                        <div className="px-4 py-2 border-t border-gray-200 mt-1">
+                        </button>
+                        <div className="px-4 py-2 border-t border-gray-200 mt-1">
                           <p className="text-sm text-gray-600 mb-2">Chế độ hiển thị</p>
                           <div className="md:hidden">
                             <ThemeSwitcher />
                           </div>
                         </div>
-                        
+
                         <button
                           onClick={handleLogout}
                           className="w-full text-left px-4 py-2 hover:bg-gray-100 flex items-center mt-2"

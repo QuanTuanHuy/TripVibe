@@ -115,17 +115,17 @@ export default function MyAccountPage() {
             {
                 icon: <BaggageClaim className="h-5 w-5" />,
                 label: "Chuyến đi và đơn đặt",
-                link: "/myaccount/trips"
+                link: "/mytrips"
             },
             {
                 icon: <Heart className="h-5 w-5" />,
                 label: "Danh sách đã lưu",
-                link: "/myaccount/saved"
+                link: "/mywhishlists"
             },
             {
                 icon: <MessageCircle className="h-5 w-5" />,
                 label: "Đánh giá của tôi",
-                link: "/myaccount/reviews"
+                link: "/myreviews"
             }
         ]
     };

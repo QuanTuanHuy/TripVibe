@@ -5,6 +5,7 @@ import huy.project.accommodation_service.core.domain.dto.request.AccommodationPa
 import huy.project.accommodation_service.core.domain.dto.request.CreateAccommodationDtoV2;
 import huy.project.accommodation_service.core.domain.entity.*;
 import huy.project.accommodation_service.core.domain.kafka.*;
+import huy.project.accommodation_service.core.domain.kafka.inventory.SyncAccommodationDto;
 import huy.project.accommodation_service.core.domain.mapper.AccommodationMapper;
 import huy.project.accommodation_service.core.exception.AppException;
 import huy.project.accommodation_service.core.port.*;
@@ -96,6 +97,9 @@ public class CreateAccommodationUseCase {
         // create accommodation in search service
         var messageElastic = CreateAccElasticMessage.from(accommodation);
 
+        // create accommodation in inventory service
+        var syncAccDto = SyncAccommodationDto.from(accommodation);
+
         // create rating summary
         var ratingSummaryMessage = CreateRatingSummaryMessage.builder()
                 .accommodationId(accId)
@@ -104,6 +108,7 @@ public class CreateAccommodationUseCase {
         kafkaPublisher.pushAsync(message.toKafkaBaseDto(), TopicConstant.BookingCommand.TOPIC, "");
         kafkaPublisher.pushAsync(messageElastic.toKafkaBaseDto(), TopicConstant.SearchCommand.TOPIC, "");
         kafkaPublisher.pushAsync(ratingSummaryMessage.toKafkaBaseDto(), TopicConstant.RatingCommand.TOPIC, "");
+        kafkaPublisher.pushAsync(syncAccDto.toKafkaBaseDto(), TopicConstant.InventoryCommand.TOPIC, "");
     }
 
 }
