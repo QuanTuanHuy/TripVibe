@@ -14,7 +14,6 @@ import {
     Users,
     Clock,
     ChevronLeft,
-    Star,
     FileText,
     Phone,
     Mail,

@@ -46,6 +46,16 @@ interface UserProfile {
   avatarUrl?: string;
 }
 
+// Rating criteria types
+export enum RatingCriteriaType {
+  CLEANLINESS = "CLEANLINESS",
+  COMFORT = "COMFORT",
+  LOCATION = "LOCATION", 
+  FACILITIES = "FACILITIES",
+  STAFF = "STAFF",
+  VALUE_FOR_MONEY = "VALUE_FOR_MONEY"
+}
+
 // Request types
 export interface CreateRatingDto {
   accommodationId: number;
@@ -53,6 +63,8 @@ export interface CreateRatingDto {
   value: number;
   comment: string;
   languageId: number;
+  ratingDetails?: Record<RatingCriteriaType, number>;
+  userId?: number; // Added to match backend expectations
 }
 
 export interface CreateRatingResponseDto {

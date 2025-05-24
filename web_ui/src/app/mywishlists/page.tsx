@@ -2,11 +2,11 @@
 
 import React, { useState, useEffect } from 'react';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Search, Sliders, SlidersHorizontal, ArrowUpDown, Heart, X, Trash2, CheckSquare, LayoutList, LayoutGrid } from 'lucide-react';
+import { Search, SlidersHorizontal, Heart, X, Trash2, CheckSquare, LayoutList, LayoutGrid } from 'lucide-react';
 import Header from '@/components/Header';
 import Link from 'next/link';
 import Image from 'next/image';
@@ -178,7 +178,7 @@ const SavedPage = () => {
             clearHotelSelections();
             clearLocationSelections();
         }
-    }, [activeTab, clearHotelSelections, clearLocationSelections]);
+    }, [activeTab, bulkMode, clearHotelSelections, clearLocationSelections]);
 
     // Get sorted and filtered items
     const filteredHotels = getSortedHotels(sortBy, searchTerm);

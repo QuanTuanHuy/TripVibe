@@ -273,7 +273,7 @@ const BookingCard = ({ booking }: { booking: Booking }) => {
                                 {formatCurrency(booking.totalAmount, booking.currency)}
                             </p>
                             <Link
-                                href={`/myaccount/trips/${booking.id}`}
+                                href={`/mytrips/${booking.id}`}
                                 className="mt-2 inline-flex items-center text-[#0071c2] hover:text-[#00487a] dark:text-[#3b9de6] dark:hover:text-[#66b5f0] font-medium text-sm"
                             >
                                 Chi tiết
@@ -320,7 +320,7 @@ const EmptyState = ({ type }: { type: 'upcoming' | 'past' }) => {
 };
 
 export default function TripsPage() {
-    const [activeTab, setActiveTab] = useState("upcoming");
+    const [, setActiveTab] = useState("upcoming");
 
     return (
         <div className="min-h-screen bg-gray-50 dark:bg-gray-900">

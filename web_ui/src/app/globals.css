@@ -45,10 +45,8 @@
 
 :root {
   /* Booking.com inspired light theme */
-  --radius: 0.5rem;
-  --background: oklch(1 0 0);
+  --radius: 0.625rem;
   /* Pure white background */
-  --foreground: oklch(0.129 0.042 264.695);
   /* Dark text for readability */
   --card: oklch(1 0 0);
   /* White card background */
@@ -56,26 +54,26 @@
   /* Dark text on cards */
   --popover: oklch(1 0 0);
   --popover-foreground: oklch(0.129 0.042 264.695);
-  --primary: oklch(0.55 0.19 264);
+  --primary: oklch(0.208 0.042 265.755);
   /* Booking.com blue */
   --primary-foreground: oklch(0.984 0.003 247.858);
   /* White text on primary buttons */
   --secondary: oklch(0.968 0.007 247.896);
   --secondary-foreground: oklch(0.208 0.042 265.755);
-  --muted: oklch(0.98 0.005 247.896);
+  --muted: oklch(0.968 0.007 247.896);
   /* Even lighter background for muted areas */
-  --muted-foreground: oklch(0.4 0.046 257.417);
+  --muted-foreground: oklch(0.554 0.046 257.417);
   /* Medium gray for muted text */
-  --accent: oklch(0.96 0.03 200);
+  --accent: oklch(0.968 0.007 247.896);
   /* Light blue accent like Booking.com */
   --accent-foreground: oklch(0.208 0.042 265.755);
   --destructive: oklch(0.577 0.245 27.325);
   /* Red for destructive actions */
-  --border: oklch(0.91 0.013 255.508);
+  --border: oklch(0.929 0.013 255.508);
   /* Light gray border */
   --input: oklch(0.929 0.013 255.508);
   /* Light gray input borders */
-  --ring: oklch(0.6 0.1 260);
+  --ring: oklch(0.704 0.04 256.788);
   /* Blue focus ring */
   --chart-1: oklch(0.646 0.222 41.116);
   --chart-2: oklch(0.6 0.118 184.704);
@@ -86,7 +84,7 @@
   /* White sidebar */
   --sidebar-foreground: oklch(0.129 0.042 264.695);
   /* Dark text in sidebar */
-  --sidebar-primary: oklch(0.55 0.19 264);
+  --sidebar-primary: oklch(0.208 0.042 265.755);
   /* Booking.com blue for sidebar primary */
   --sidebar-primary-foreground: oklch(0.984 0.003 247.858);
   /* White text on primary */
@@ -97,10 +95,11 @@
   --sidebar-ring: oklch(0.704 0.04 256.788);
   --foreground-rgb: 0, 0, 0;
   --background-rgb: 255, 255, 255;
+  --background: oklch(1 0 0);
+  --foreground: oklch(0.129 0.042 264.695);
 }
 
 body {
-  color: rgb(var(--foreground-rgb));
   background: rgb(var(--background-rgb));
 }
 
