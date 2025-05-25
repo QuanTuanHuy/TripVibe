@@ -25,6 +25,15 @@ server:
   servlet:
     context-path: /profile_service
 
+logging:
+  level:
+    huy:
+      project:
+        profile_service:
+          infrastructure:
+            cache:
+              MultiLevelCache: DEBUG
+
 app:
   services:
     accommodation_service:

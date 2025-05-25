@@ -3,6 +3,13 @@
   "configurations": [
     {
       "type": "java",
+      "name": "ProfileServiceApplication",
+      "request": "launch",
+      "mainClass": "huy.project.profile_service.ProfileServiceApplication",
+      "projectName": "profile_service"
+    },
+    {
+      "type": "java",
       "name": "AuthenticationServiceApplication",
       "request": "launch",
       "mainClass": "huy.project.authentication_service.AuthenticationServiceApplication",

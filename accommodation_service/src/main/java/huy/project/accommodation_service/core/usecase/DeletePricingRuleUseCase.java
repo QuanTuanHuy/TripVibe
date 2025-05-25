@@ -45,6 +45,8 @@ public class DeletePricingRuleUseCase {
             }
         }
 
+        pricingRulePort.deletePricingRule(pricingRuleId);
+
         // apply rule amd invalidate cache
         if (pricingRule.getUnitId() != null) {
             dynamicPricingUseCase.applyPricingRules(pricingRule.getUnitId(), pricingRule.getStartDate(), pricingRule.getEndDate());
@@ -57,7 +59,5 @@ public class DeletePricingRuleUseCase {
                 priceCalculationCacheUseCase.invalidatePriceCache(unit.getId());
             }
         }
-
-        pricingRulePort.deletePricingRule(pricingRuleId);
     }
 }
