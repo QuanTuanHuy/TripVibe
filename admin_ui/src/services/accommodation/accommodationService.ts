@@ -1,6 +1,5 @@
 import { ListDataResponse } from '@/types/common';
 import apiClient from '../apiClient';
-import { MOCK_ACCOMMODATIONS, MOCK_UNITS } from '@/data/accommodation';
 import {
   CreateAccommodationDto,
   Accommodation,

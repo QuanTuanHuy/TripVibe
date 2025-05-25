@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { Home, Save, Trash2, ArrowLeft, PlusCircle } from "lucide-react";
+import { Save, Trash2, ArrowLeft, PlusCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -42,8 +42,9 @@ import {
     BreadcrumbSeparator,
     BreadcrumbPage
 } from "@/components/ui/breadcrumb";
-import { Accommodation, Amenity, Unit } from "@/types/accommodation/accommodation";
+import { Accommodation, Unit } from "@/types/accommodation/accommodation";
 import { BedType } from "@/types/accommodation";
+import { AmenityDialog, AmenityQuickLink } from "@/components/amenity";
 
 interface RoomFormValues {
     unitName: string;
@@ -686,6 +687,7 @@ export default function RoomDetailPage() {
 
                             {/* Amenities Tab */}
                             <TabsContent value="amenities">
+                                <AmenityQuickLink hotelId={Number(hotelId)} roomId={Number(roomId)} />
                                 <Card>
                                     <CardHeader>
                                         <CardTitle>Tiện nghi phòng</CardTitle>
