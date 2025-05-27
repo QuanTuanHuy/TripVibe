@@ -29,26 +29,16 @@ func NewChatController(chatRoomService service.IChatRoomService, wsManager *infr
 }
 
 func (ch *ChatController) GetChatRooms(c *gin.Context) {
-	var userID, chatUserID int64
+	var chatUserID int64
 	var err error
-	userIDFromContext, exists := c.Get("userID")
-	if exists {
-		userID = userIDFromContext.(int64)
-	} else {
-		userIDStr := c.Query("userId")
-		if userIDStr == "" {
-			log.Error(c, "User ID is required")
-			apihelper.AbortErrorHandle(c, common.GeneralBadRequest)
-			return
-		}
 
-		userID, err = strconv.ParseInt(userIDStr, 10, 64)
-		if err != nil {
-			log.Error(c, "Parse user id failed, ", err)
-			apihelper.AbortErrorHandle(c, common.GeneralBadRequest)
-			return
-		}
+	userIDStr, ok := c.Get("userID")
+	if !ok {
+		log.Error(c, "error getting user id from context")
+		apihelper.AbortErrorHandle(c, common.GeneralUnauthorized)
+		return
 	}
+	userID, _ := userIDStr.(int64)
 
 	chatUserIDStr := c.Query("chatUserId")
 	if chatUserIDStr != "" {
@@ -86,76 +76,32 @@ func (ch *ChatController) GetMessagesByRoomID(c *gin.Context) {
 		return
 	}
 
-	var userID int64
+	// Get userID from JWT context
 	userIDFromContext, exists := c.Get("userID")
-	if exists {
-		userID = userIDFromContext.(int64)
-	} else {
-		// Fallback: lấy từ query parameter
-		userIDStr := c.Query("userId")
-		if userIDStr == "" {
-			log.Error(c, "User ID is required")
-			apihelper.AbortErrorHandle(c, common.GeneralBadRequest)
-			return
-		}
+	if !exists {
+		log.Error(c, "User ID not found in context")
+		apihelper.AbortErrorHandle(c, common.GeneralUnauthorized)
+		return
+	}
+	userID := userIDFromContext.(int64)
 
-		userID, err = strconv.ParseInt(userIDStr, 10, 64)
-		if err != nil {
-			log.Error(c, "Parse user id failed, ", err)
-			apihelper.AbortErrorHandle(c, common.GeneralBadRequest)
-			return
-		}
+	// Bind query parameters using struct with form tags
+	var queryParams request2.MessageQueryParams
+	if err := c.ShouldBindQuery(&queryParams); err != nil {
+		log.Error(c, "Bind query parameters failed, ", err)
+		apihelper.AbortErrorHandle(c, common.GeneralBadRequest)
+		return
 	}
 
-	var params request2.MessageQueryParams
-
-	params.Direction = constant.OlderDirection
-	params.Limit = constant.DefaultLimitMessage
-
-	limitStr := c.Query("limit")
-	if limitStr != "" {
-		limit, err := strconv.ParseInt(limitStr, 10, 32)
-		if err != nil {
-			log.Error(c, "Parse limit failed, ", err)
-			apihelper.AbortErrorHandle(c, common.GeneralBadRequest)
-			return
-		}
-		params.Limit = int(limit)
+	// Set defaults if not provided
+	if queryParams.Limit <= 0 {
+		queryParams.Limit = constant.DefaultLimitMessage
+	}
+	if queryParams.Direction == "" {
+		queryParams.Direction = constant.OlderDirection
 	}
 
-	direction := c.Query("direction")
-	if direction != "" {
-		params.Direction = direction
-	}
-
-	cursorStr := c.Query("cursor")
-	if cursorStr != "" {
-		cursor, err := strconv.ParseInt(cursorStr, 10, 64)
-		if err != nil {
-			log.Error(c, "Parse cursor failed, ", err)
-			apihelper.AbortErrorHandle(c, common.GeneralBadRequest)
-			return
-		}
-		params.Cursor = &cursor
-	}
-
-	messageType := c.Query("messageType")
-	if messageType != "" {
-		params.MessageType = &messageType
-	}
-
-	senderIDStr := c.Query("senderId")
-	if senderIDStr != "" {
-		senderID, err := strconv.ParseInt(senderIDStr, 10, 64)
-		if err != nil {
-			log.Error(c, "Parse sender id failed, ", err)
-			apihelper.AbortErrorHandle(c, common.GeneralBadRequest)
-			return
-		}
-		params.SenderID = &senderID
-	}
-
-	messages, pagination, err := ch.chatRoomService.GetMessagesByRoomId(c, userID, roomID, &params)
+	messages, pagination, err := ch.chatRoomService.GetMessagesByRoomId(c, userID, roomID, &queryParams)
 	if err != nil {
 		log.Error(c, "Get messages failed, ", err)
 
@@ -177,13 +123,21 @@ func (ch *ChatController) GetMessagesByRoomID(c *gin.Context) {
 		"pagination": pagination,
 		"roomId":     roomID,
 		"meta": gin.H{
-			"direction": params.Direction,
+			"direction": queryParams.Direction,
 			"hasMore":   pagination.HasMore,
 		},
 	})
 }
 
 func (ch *ChatController) SendMessage(c *gin.Context) {
+	userIDStr, exists := c.Get("userID")
+	if !exists {
+		log.Error(c, "User ID not found in context")
+		apihelper.AbortErrorHandle(c, common.GeneralUnauthorized)
+		return
+	}
+	userID := userIDStr.(int64)
+
 	roomID, err := strconv.ParseInt(c.Param("roomId"), 10, 64)
 	if err != nil {
 		log.Error(c, "Parse room id failed, ", err)
@@ -197,6 +151,7 @@ func (ch *ChatController) SendMessage(c *gin.Context) {
 		apihelper.AbortErrorHandle(c, common.GeneralBadRequest)
 		return
 	}
+	req.SenderID = userID
 
 	messageType := constant.MessageType(req.MessageType)
 	message, err := ch.chatRoomService.CreateMessage(c, roomID, req.SenderID, req.Content, messageType)
@@ -225,25 +180,13 @@ func (ch *ChatController) MarkMessageAsRead(c *gin.Context) {
 		return
 	}
 
-	var userID int64
 	userIDFromContext, exists := c.Get("userID")
-	if exists {
-		userID = userIDFromContext.(int64)
-	} else {
-		userIDStr := c.Query("userId")
-		if userIDStr == "" {
-			log.Error(c, "User ID is required")
-			apihelper.AbortErrorHandle(c, common.GeneralBadRequest)
-			return
-		}
-
-		userID, err = strconv.ParseInt(userIDStr, 10, 64)
-		if err != nil {
-			log.Error(c, "Parse user id failed, ", err)
-			apihelper.AbortErrorHandle(c, common.GeneralBadRequest)
-			return
-		}
+	if !exists {
+		log.Error(c, "User ID not found in context")
+		apihelper.AbortErrorHandle(c, common.GeneralUnauthorized)
+		return
 	}
+	userID := userIDFromContext.(int64)
 
 	roomID, err := strconv.ParseInt(c.Param("roomId"), 10, 64)
 	if err != nil {
@@ -263,31 +206,19 @@ func (ch *ChatController) MarkMessageAsRead(c *gin.Context) {
 }
 
 func (ch *ChatController) CountUnreadMessages(c *gin.Context) {
+	userIDFromContext, exists := c.Get("userID")
+	if !exists {
+		log.Error(c, "User ID not found in context")
+		apihelper.AbortErrorHandle(c, common.GeneralUnauthorized)
+		return
+	}
+	userID := userIDFromContext.(int64)
+
 	roomID, err := strconv.ParseInt(c.Param("roomId"), 10, 64)
 	if err != nil {
 		log.Error(c, "Invalid room ID: %v", err)
 		apihelper.AbortErrorHandle(c, common.GeneralBadRequest)
 		return
-	}
-
-	var userID int64
-	userIDFromContext, exists := c.Get("userID")
-	if exists {
-		userID = userIDFromContext.(int64)
-	} else {
-		userIDStr := c.Query("userId")
-		if userIDStr == "" {
-			log.Error(c, "User ID is required")
-			apihelper.AbortErrorHandle(c, common.GeneralBadRequest)
-			return
-		}
-
-		userID, err = strconv.ParseInt(userIDStr, 10, 64)
-		if err != nil {
-			log.Error(c, "Parse user id failed, ", err)
-			apihelper.AbortErrorHandle(c, common.GeneralBadRequest)
-			return
-		}
 	}
 
 	count, err := ch.chatRoomService.CountUnreadMessages(c, roomID, userID)

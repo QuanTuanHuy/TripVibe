@@ -2,6 +2,7 @@ package router
 
 import (
 	"chat_service/ui/controller"
+	"chat_service/ui/middleware"
 	"github.com/gin-gonic/gin"
 	"github.com/golibs-starter/golib"
 	"go.uber.org/fx"
@@ -11,6 +12,7 @@ type RegisterRoutersIn struct {
 	fx.In
 	App                 *golib.App
 	Engine              *gin.Engine
+	JwtConfig           *middleware.JWTConfig
 	ChatController      *controller.ChatController
 	WebSocketController *controller.WebSocketController
 }
@@ -18,7 +20,7 @@ type RegisterRoutersIn struct {
 func RegisterGinRouters(p RegisterRoutersIn) {
 	router := p.Engine.Group(p.App.Path())
 
-	chatV1 := router.Group("/public/v1/chats")
+	chatV1 := router.Group("/public/v1/chats", middleware.JWTAuthMiddleware(p.JwtConfig))
 	{
 		chatV1.POST("/rooms", p.ChatController.CreateChatRoom)
 		chatV1.POST("/rooms/:roomId/send_message", p.ChatController.SendMessage)

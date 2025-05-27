@@ -4,6 +4,7 @@ go 1.24
 
 require (
 	github.com/gin-gonic/gin v1.9.1
+	github.com/golang-jwt/jwt/v5 v5.2.2
 	github.com/golibs-starter/golib v1.0.1
 	github.com/golibs-starter/golib-data v1.0.0
 	github.com/golibs-starter/golib-gin v1.0.0

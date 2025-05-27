@@ -6,6 +6,7 @@ import (
 	"chat_service/infrastructure"
 	"chat_service/infrastructure/repository/adapter"
 	"chat_service/ui/controller"
+	"chat_service/ui/middleware"
 	"chat_service/ui/router"
 	"github.com/golibs-starter/golib"
 	golibdata "github.com/golibs-starter/golib-data"
@@ -54,6 +55,7 @@ func All() fx.Option {
 		fx.Provide(infrastructure.NewWebSocketManager),
 
 		//Provide jwt
+		fx.Provide(middleware.NewJWTConfig),
 
 		//postgres
 		fx.Invoke(NewDatabase),
