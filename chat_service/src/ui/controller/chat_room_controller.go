@@ -11,9 +11,10 @@ import (
 	"chat_service/kernel/apihelper"
 	"chat_service/kernel/utils"
 	"chat_service/ui/resource/request"
+	"strconv"
+
 	"github.com/gin-gonic/gin"
 	"github.com/golibs-starter/golib/log"
-	"strconv"
 )
 
 type ChatController struct {

@@ -2,10 +2,13 @@ package controller
 
 import (
 	"chat_service/core/domain/common"
+	"chat_service/core/domain/constant"
 	"chat_service/core/domain/ws"
 	"chat_service/core/service"
 	"chat_service/infrastructure"
 	"chat_service/kernel/apihelper"
+	"context"
+	"encoding/json"
 	"github.com/gin-gonic/gin"
 	"github.com/golibs-starter/golib/log"
 	"github.com/gorilla/websocket"
@@ -35,21 +38,15 @@ func NewWebSocketController(wsManager *infrastructure.WebSocketManager, chatRoom
 
 // HandleConnection establishes a WebSocket connection
 func (wc *WebSocketController) HandleConnection(c *gin.Context) {
-	userIDStr := c.Query("userId")
+	userIDFromContext, exists := c.Get("userID")
+	if !exists {
+		log.Error(c, "User ID not found in context")
+		apihelper.AbortErrorHandle(c, common.GeneralUnauthorized)
+		return
+	}
+	userID := userIDFromContext.(int64)
+
 	roomIDStr := c.Query("roomId")
-
-	if userIDStr == "" || roomIDStr == "" {
-		log.Error(c, "Missing userId or roomId parameter")
-		apihelper.AbortErrorHandle(c, common.GeneralBadRequest)
-		return
-	}
-
-	userID, err := strconv.ParseInt(userIDStr, 10, 64)
-	if err != nil {
-		log.Error(c, "Invalid userId: ", err)
-		apihelper.AbortErrorHandle(c, common.GeneralBadRequest)
-		return
-	}
 
 	roomID, err := strconv.ParseInt(roomIDStr, 10, 64)
 	if err != nil {
@@ -109,13 +106,118 @@ func (wc *WebSocketController) handleMessages(client *ws.ClientConnection, roomI
 			break
 		}
 
-		// Process message (in a production app, you'd parse and validate the message)
-		log.Info(nil, "Received message from user ", client.UserID, ": ", string(message))
+		// Parse incoming WebSocket message
+		var wsMessage ws.WebSocketMessage
+		if err := json.Unmarshal(message, &wsMessage); err != nil {
+			log.Error(nil, "Failed to parse WebSocket message: ", err)
+			continue
+		}
 
-		// For simplicity, echo the message back
-		wc.wsManager.BroadcastToRoom(roomID, &ws.WebSocketMessage{
-			Type:    ws.MessageTypeNewMessage,
-			Payload: string(message),
-		})
+		// Handle different message types
+		switch wsMessage.Type {
+		case ws.MessageTypeStatusUpdate:
+			wc.handleStatusUpdate(client, roomID, &wsMessage)
+		case ws.MessageTypeAcknowledgment:
+			wc.handleAcknowledgment(client, roomID, &wsMessage)
+		case ws.MessageTypeNewMessage:
+			// Process new message (existing functionality)
+			log.Info(nil, "Received message from user ", client.UserID, ": ", wsMessage.Payload)
+			// Broadcast the message to the room with error handling
+			if err := wc.wsManager.BroadcastToRoomWithError(roomID, &wsMessage); err != nil {
+				log.Error(nil, "Failed to broadcast message to room ", roomID, ": ", err)
+			}
+		default:
+			log.Warn(nil, "Unknown message type: ", wsMessage.Type)
+		}
 	}
+}
+
+// handleStatusUpdate processes status update messages (e.g., marking messages as delivered/read)
+func (wc *WebSocketController) handleStatusUpdate(client *ws.ClientConnection, roomID int64, message *ws.WebSocketMessage) {
+	payload, ok := message.Payload.(map[string]interface{})
+	if !ok {
+		log.Error(nil, "Invalid status update payload")
+		return
+	}
+
+	messageIDFloat, exists := payload["messageId"]
+	if !exists {
+		log.Error(nil, "Missing messageId in status update")
+		return
+	}
+
+	messageID, ok := messageIDFloat.(float64)
+	if !ok {
+		log.Error(nil, "Invalid messageId type in status update")
+		return
+	}
+
+	statusStr, exists := payload["status"]
+	if !exists {
+		log.Error(nil, "Missing status in status update")
+		return
+	}
+
+	status, ok := statusStr.(string)
+	if !ok {
+		log.Error(nil, "Invalid status type in status update")
+		return
+	}
+
+	// Convert string status to constant
+	var messageStatus constant.MessageStatus
+	switch status {
+	case string(constant.MessageStatusDelivered):
+		messageStatus = constant.MessageStatusDelivered
+	case string(constant.MessageStatusRead):
+		messageStatus = constant.MessageStatusRead
+	default:
+		log.Error(nil, "Invalid status value: ", status)
+		return
+	}
+
+	// Update message status through service
+	ctx := context.Background() // Use background context for WebSocket operations
+	_, err := wc.chatRoomService.UpdateMessageStatus(ctx, int64(messageID), messageStatus, client.UserID)
+	if err != nil {
+		log.Error(nil, "Failed to update message status: ", err)
+		// Send error response back to client
+		errorResponse := &ws.WebSocketMessage{
+			Type: ws.MessageTypeStatusUpdate,
+			Payload: map[string]interface{}{
+				"error":     "Failed to update message status",
+				"messageId": int64(messageID),
+			},
+		}
+		wc.wsManager.SendToUser(client.UserID, errorResponse)
+		return
+	}
+
+	log.Info(nil, "Message status updated successfully: messageID=", int64(messageID), " status=", messageStatus, " userID=", client.UserID)
+}
+
+// handleAcknowledgment processes acknowledgment messages
+func (wc *WebSocketController) handleAcknowledgment(client *ws.ClientConnection, roomID int64, message *ws.WebSocketMessage) {
+	payload, ok := message.Payload.(map[string]interface{})
+	if !ok {
+		log.Error(nil, "Invalid acknowledgment payload")
+		return
+	}
+
+	ackIDFloat, exists := payload["ackId"]
+	if !exists {
+		log.Error(nil, "Missing ackId in acknowledgment")
+		return
+	}
+
+	ackID, ok := ackIDFloat.(string)
+	if !ok {
+		log.Error(nil, "Invalid ackID type in acknowledgment")
+		return
+	}
+
+	log.Info(nil, "Received acknowledgment from user ", client.UserID, " for ackId: ", ackID)
+
+	// Process acknowledgment (implementation depends on business requirements)
+	// For now, just log the acknowledgment
 }

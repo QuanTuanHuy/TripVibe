@@ -4,6 +4,7 @@ import (
 	"chat_service/core/service"
 	"chat_service/core/usecase"
 	"chat_service/infrastructure"
+	wsadapter "chat_service/infrastructure/adapter"
 	"chat_service/infrastructure/repository/adapter"
 	"chat_service/ui/controller"
 	"chat_service/ui/middleware"
@@ -35,6 +36,9 @@ func All() fx.Option {
 		fx.Provide(adapter.NewRoomParticipantAdapter),
 		fx.Provide(adapter.NewDatabaseTransactionAdapter),
 
+		//Provide infrastructure adapters
+		fx.Provide(wsadapter.NewWebSocketEventEmitter),
+
 		//Provide usecase
 		fx.Provide(usecase.NewDatabaseTransactionUseCase),
 		fx.Provide(usecase.NewCreateChatRoomUseCase),
@@ -42,7 +46,7 @@ func All() fx.Option {
 		fx.Provide(usecase.NewCreateMessageUseCase),
 		fx.Provide(usecase.NewGetMessageUseCase),
 		fx.Provide(usecase.NewGetParticipantUseCase),
-		fx.Provide(usecase.NewUpdateMessageUseCase),
+		fx.Provide(usecase.NewUpdateMessageUseCaseWithEvents),
 
 		//Provide services
 		fx.Provide(service.NewChatRoomService),

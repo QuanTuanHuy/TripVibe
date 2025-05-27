@@ -20,6 +20,9 @@ type IChatRoomService interface {
 	MarkMessageAsRead(ctx context.Context, roomID, userID, messageID int64) error
 	CountUnreadMessages(ctx context.Context, roomID, userID int64) (int64, error)
 	GetChatRoomByID(ctx context.Context, userID, chatRoomID int64) (*entity.ChatRoomEntity, error)
+	// New methods for message status updates
+	UpdateMessageStatus(ctx context.Context, messageID int64, status constant.MessageStatus, userID int64) (*entity.MessageEntity, error)
+	MarkMessagesAsDelivered(ctx context.Context, roomID, userID int64, messageIDs []int64) error
 }
 
 type ChatRoomService struct {
@@ -72,6 +75,14 @@ func (c ChatRoomService) CreateMessage(ctx context.Context, roomID, senderID int
 
 func (c ChatRoomService) CreateChatRoom(ctx context.Context, bookingID int64, tourist *dto.ParticipantDto, owner *dto.ParticipantDto) (*entity.ChatRoomEntity, error) {
 	return c.createChatRoomUseCase.CreateChatRoom(ctx, bookingID, tourist, owner)
+}
+
+func (c ChatRoomService) UpdateMessageStatus(ctx context.Context, messageID int64, status constant.MessageStatus, userID int64) (*entity.MessageEntity, error) {
+	return c.updateMessageUseCase.UpdateMessageStatus(ctx, messageID, status, userID)
+}
+
+func (c ChatRoomService) MarkMessagesAsDelivered(ctx context.Context, roomID, userID int64, messageIDs []int64) error {
+	return c.updateMessageUseCase.MarkMessagesAsDelivered(ctx, roomID, userID, messageIDs)
 }
 
 func NewChatRoomService(createChatRoomUseCase usecase.ICreateChatRoomUseCase,

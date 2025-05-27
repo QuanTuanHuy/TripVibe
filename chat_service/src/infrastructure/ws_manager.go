@@ -3,6 +3,8 @@ package infrastructure
 import (
 	"chat_service/core/domain/ws"
 	"encoding/json"
+	"errors"
+	"fmt"
 	"github.com/golibs-starter/golib/log"
 	"github.com/gorilla/websocket"
 	"sync"
@@ -102,6 +104,104 @@ func (m *WebSocketManager) BroadcastToRoom(roomID int64, message *ws.WebSocketMe
 		RoomID:  roomID,
 		Message: message,
 	}
+}
+
+// BroadcastToRoomWithError broadcasts a message to a room with error handling
+func (m *WebSocketManager) BroadcastToRoomWithError(roomID int64, message *ws.WebSocketMessage) error {
+	select {
+	case m.broadcast <- &BroadcastMessage{
+		RoomID:  roomID,
+		Message: message,
+	}:
+		return nil
+	default:
+		log.Error(nil, "Failed to queue broadcast message, channel full", "roomID", roomID)
+		return errors.New("broadcast channel full")
+	}
+}
+
+// SendToUser sends a message to a specific user
+func (m *WebSocketManager) SendToUser(userID int64, message *ws.WebSocketMessage) error {
+	m.mutex.RLock()
+	client, exists := m.clients[userID]
+	m.mutex.RUnlock()
+
+	if !exists {
+		log.Warn(nil, "User not connected", "userID", userID)
+		return errors.New("user not connected")
+	}
+
+	messageBytes, err := json.Marshal(message)
+	if err != nil {
+		log.Error(nil, "Failed to marshal message for user", "userID", userID, "error", err)
+		return err
+	}
+
+	// Use goroutine to prevent blocking
+	go func() {
+		err := client.Connection.WriteMessage(websocket.TextMessage, messageBytes)
+		if err != nil {
+			log.Error(nil, "Failed to send message to user", "userID", userID, "error", err)
+			m.unregister <- client
+		}
+	}()
+
+	return nil
+}
+
+// GetConnectedUsersInRoom returns list of connected users in a room
+func (m *WebSocketManager) GetConnectedUsersInRoom(roomID int64) []int64 {
+	m.mutex.RLock()
+	defer m.mutex.RUnlock()
+
+	roomUsers, exists := m.rooms[roomID]
+	if !exists {
+		return []int64{}
+	}
+
+	// Filter only connected users
+	var connectedUsers []int64
+	for _, userID := range roomUsers {
+		if _, connected := m.clients[userID]; connected {
+			connectedUsers = append(connectedUsers, userID)
+		}
+	}
+
+	return connectedUsers
+}
+
+// BroadcastToRoomWithAck broadcasts message to room and sends acknowledgments
+func (m *WebSocketManager) BroadcastToRoomWithAck(roomID int64, message *ws.WebSocketMessage, excludeUserID *int64) error {
+	connectedUsers := m.GetConnectedUsersInRoom(roomID)
+	
+	successCount := 0
+	var errors []error
+
+	for _, userID := range connectedUsers {
+		// Skip excluded user if specified
+		if excludeUserID != nil && userID == *excludeUserID {
+			continue
+		}
+
+		err := m.SendToUser(userID, message)
+		if err != nil {
+			errors = append(errors, err)
+			log.Error(nil, "Failed to send message to user in room", 
+				"userID", userID, "roomID", roomID, "error", err)
+		} else {
+			successCount++
+		}
+	}
+
+	log.Info(nil, "Broadcast completed", 
+		"roomID", roomID, "totalUsers", len(connectedUsers), 
+		"successCount", successCount, "errorCount", len(errors))
+
+	if len(errors) > 0 && successCount == 0 {
+		return fmt.Errorf("failed to send to all users in room %d", roomID)
+	}
+
+	return nil
 }
 
 func (m *WebSocketManager) JoinRoom(roomID int64, userID int64) {
