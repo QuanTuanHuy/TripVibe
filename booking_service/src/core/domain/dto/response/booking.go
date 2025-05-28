@@ -23,7 +23,7 @@ type BookingResponse struct {
 }
 
 type GetBookingResponse struct {
-	Bookings     []*BookingResponse `json:"bookings"`
+	Bookings     []*BookingResponse `json:"data"`
 	TotalItems   int64              `json:"totalItems"`
 	TotalPages   int64              `json:"totalPages"`
 	CurrentPage  int64              `json:"currentPage"`
