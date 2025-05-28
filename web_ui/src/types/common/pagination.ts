@@ -11,6 +11,15 @@ export interface ListDataResponse<T> {
     pageInfo: PageInfo;
 }
 
+export interface ListDataResponseV2<T> {
+    data: T[];
+    totalPage: number;
+    totalRecord: number;
+    pageSize: number;
+    nextPage: number | null;
+    previousPage: number | null;
+}
+
 export interface PaginationParams {
     page?: number;
     pageSize?: number;

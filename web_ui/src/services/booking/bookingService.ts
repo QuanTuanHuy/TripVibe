@@ -1,3 +1,4 @@
+import { ListDataResponse, ListDataResponseV2 } from '@/types/common';
 import { apiClient } from '../api.client';
 
 // Define booking types
@@ -33,6 +34,37 @@ export interface Booking {
     specialRequests?: string;
 }
 
+export interface BookingV2 {
+    id: number;
+    touristId: number;
+    accommodationId: number;
+    numberOfAdult: number;
+    numberOfChild: number;
+    paymentId: number | null;
+    currencyId: number;
+    status: string;
+    note: string;
+    stayFrom: number; // Unix timestamp
+    stayTo: number; // Unix timestamp
+    invoiceAmount: number;
+    finalAmount: number;
+    tourist: {
+        id: number;
+        lastName: string;
+        firstName: string;
+        email: string;
+        phoneNumber: string;
+    };
+    units: Array<{
+        id: number;
+        unitId: number;
+        quantity: number;
+        fullName: string;
+        email: string;
+        amount: number;
+    }>;
+}
+
 export type BookingStatus = 'UPCOMING' | 'COMPLETED' | 'CANCELLED';
 
 export interface GetBookingsParams {
@@ -43,28 +75,26 @@ export interface GetBookingsParams {
 }
 
 class BookingService {
-    private basePath = '/booking_service/api/v1';
+    private basePath = '/booking_service/api/public/v1';
 
     // Get all bookings for the current user with filters
-    async getBookings(params?: GetBookingsParams): Promise<{ content: Booking[], totalElements: number, totalPages: number }> {
-        const response = await apiClient.get<{ content: Booking[], totalElements: number, totalPages: number }>(`${this.basePath}/bookings`, { params });
-        return response;
+    async getBookings(params?: GetBookingsParams): Promise<ListDataResponseV2<BookingV2>> {
+        return await apiClient.get<ListDataResponseV2<BookingV2>>(`${this.basePath}/bookings`, { params });
     }
 
     // Get upcoming bookings (check-in date is in the future)
-    async getUpcomingBookings(params?: Omit<GetBookingsParams, 'status'>): Promise<{ content: Booking[], totalElements: number, totalPages: number }> {
+    async getUpcomingBookings(params?: Omit<GetBookingsParams, 'status'>): Promise<ListDataResponseV2<BookingV2>> {
         return this.getBookings({ ...params, status: 'UPCOMING' });
     }
 
     // Get past bookings (check-out date is in the past)
-    async getPastBookings(params?: Omit<GetBookingsParams, 'status'>): Promise<{ content: Booking[], totalElements: number, totalPages: number }> {
+    async getPastBookings(params?: Omit<GetBookingsParams, 'status'>): Promise<ListDataResponseV2<BookingV2>> {
         return this.getBookings({ ...params, status: 'COMPLETED' });
     }
 
     // Get booking details
-    async getBookingDetails(bookingId: string): Promise<Booking> {
-        const response = await apiClient.get<Booking>(`${this.basePath}/bookings/${bookingId}`);
-        return response;
+    async getBookingDetails(bookingId: number): Promise<BookingV2> {
+        return await apiClient.get<BookingV2>(`${this.basePath}/bookings/${bookingId}`);
     }
 
     // Cancel booking

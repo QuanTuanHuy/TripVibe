@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { useAuth } from '@/context/AuthContext';
 import Image from 'next/image';
 import { Star, ThumbsUp, ThumbsDown, Calendar, MapPin, Edit, Trash2, MessageSquare, AlertCircle, Loader2 } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
@@ -14,10 +13,11 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Textarea } from '@/components/ui/textarea';
 import Header from '@/components/Header';
+import { ratingService } from '@/services';
+import { PendingReview } from '@/services/rating/ratingService';
 
 export default function MyReviewsPage() {
     const router = useRouter();
-    const { user, isAuthenticated } = useAuth();
     const [activeTab, setActiveTab] = useState('my-reviews');
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
@@ -26,8 +26,8 @@ export default function MyReviewsPage() {
     const [currentReview, setCurrentReview] = useState<Rating | null>(null);
     const [editComment, setEditComment] = useState('');
     const [reviews, setReviews] = useState<Rating[]>([]);
-    const [pendingReviews, setPendingReviews] = useState<any[]>([]); // Properties to review
-    const [page, setPage] = useState(1);
+    const [pendingReviews, setPendingReviews] = useState<PendingReview[]>([]); // Properties to review
+    const [page, setPage] = useState(0);
     const [totalPages, setTotalPages] = useState(1);
     const [isEditLoading, setIsEditLoading] = useState(false);
 
@@ -35,51 +35,17 @@ export default function MyReviewsPage() {
         setIsLoading(true);
         setError(null);
         try {
-            // In a real implementation, we would call an API to get user's reviews
-            // For production, uncomment the following code:
-            /*
-            const response = await RatingService.getUserRatings({ 
-                page: page, 
-                pageSize: 10 
+            const response = await ratingService.getUserRatings({
+                page: page,
+                pageSize: 10
             });
-            setReviews(response.items);
-            setTotalPages(Math.ceil(response.totalCount / response.pageSize));
-            */
-
-            // For now, use mock data
-            setTimeout(() => {
-                const mockReviews: Rating[] = [
-                    {
-                        id: 1,
-                        value: 9,
-                        comment: 'Phòng rất rộng và thoáng mát, nhân viên phục vụ nhiệt tình, vị trí tuyệt vời, gần biển và các điểm tham quan. Tôi sẽ quay lại vào lần tới khi du lịch.',
-                        languageId: 1,
-                        createdAt: Date.now() - 86400000 * 3, // 3 days ago
-                        unit: { id: 101, name: 'Deluxe Ocean View', accommodationId: 201 },
-                        user: { userId: user?.id || 1, firstName: user?.name?.split(' ')[0] || 'Khách', lastName: user?.name?.split(' ').slice(1).join(' ') || 'Hàng', avatarUrl: user?.avatarUrl },
-                        numberOfHelpful: 5,
-                        numberOfUnhelpful: 1
-                    },
-                    {
-                        id: 2,
-                        value: 7,
-                        comment: 'Khách sạn sạch sẽ, nhân viên thân thiện. Tuy nhiên, hơi ồn vào buổi tối do có quán bar gần đó. Bữa sáng ngon, nhiều lựa chọn.',
-                        languageId: 1,
-                        createdAt: Date.now() - 86400000 * 10, // 10 days ago
-                        unit: { id: 102, name: 'Superior City View', accommodationId: 202 },
-                        user: { userId: user?.id || 1, firstName: user?.name?.split(' ')[0] || 'Khách', lastName: user?.name?.split(' ').slice(1).join(' ') || 'Hàng', avatarUrl: user?.avatarUrl },
-                        numberOfHelpful: 2,
-                        numberOfUnhelpful: 0
-                    }
-                ];
-
-                setReviews(mockReviews);
-                setTotalPages(2); // Mock total pages
-                setIsLoading(false);
-            }, 800);
+            console.log('Fetched user reviews:', response);
+            setReviews(response.data);
+            setTotalPages(response.totalPage);
         } catch (error: unknown) {
             const errorMessage = error instanceof Error ? error.message : 'Không thể tải đánh giá của bạn. Vui lòng thử lại sau.';
             setError(errorMessage);
+        } finally {
             setIsLoading(false);
         }
     };
@@ -87,73 +53,23 @@ export default function MyReviewsPage() {
     const fetchPendingReviews = async () => {
         try {
             setIsLoading(true);
-            // In production, we would fetch stays that haven't been reviewed yet
-            // For production, uncomment the following code:
-            /*
-            const response = await RatingService.getPendingReviews({ 
-                page: 1, 
-                pageSize: 10 
+            const response = await ratingService.getPendingReviews({
+                page: 0,
+                pageSize: 10
             });
-            setPendingReviews(response.items);
-            */
-
-            // For now, use mock data
-            setTimeout(() => {
-                const mockPendingReviews = [{
-                    id: 301,
-                    hotelId: 201,
-                    roomId: 101,
-                    hotelName: 'Sài Gòn Luxury Hotel & Spa',
-                    roomName: 'Phòng Deluxe Hướng Biển',
-                    checkIn: '2025-04-20',
-                    checkOut: '2025-04-23',
-                    hotelImage: 'https://images.unsplash.com/photo-1566073771259-6a8506099945',
-                    location: 'Quận 1, Tp. Hồ Chí Minh'
-                },
-                {
-                    id: 302,
-                    hotelId: 202,
-                    roomId: 102,
-                    hotelName: 'Đà Nẵng Beach Resort',
-                    roomName: 'Phòng Superior Hướng Vườn',
-                    checkIn: '2025-05-15',
-                    checkOut: '2025-05-18',
-                    hotelImage: 'https://images.unsplash.com/photo-1520250497591-112f2f40a3f4',
-                    location: 'Sơn Trà, Đà Nẵng'
-                },
-                {
-                    id: 303,
-                    hotelId: 203,
-                    roomId: 103,
-                    hotelName: 'Đà Nẵng Beachfront Resort',
-                    roomName: 'Biệt Thự Hồ Bơi Riêng',
-                    checkIn: '2025-03-15',
-                    checkOut: '2025-03-18',
-                    hotelImage: 'https://images.unsplash.com/photo-1520250497591-112f2f40a3f4',
-                    location: 'Bãi biển Mỹ Khê, Đà Nẵng'
-                }
-                ];
-                setPendingReviews(mockPendingReviews);
-                setIsLoading(false);
-            }, 800);
+            setPendingReviews(response.data);
         } catch (error: unknown) {
             const errorMessage = error instanceof Error ? error.message : 'Không thể tải danh sách chờ đánh giá. Vui lòng thử lại sau.';
             setError(errorMessage);
+        } finally {
             setIsLoading(false);
         }
     };
 
     useEffect(() => {
-        // Redirect to login if not authenticated
-        if (!isAuthenticated) {
-            router.push('/login');
-            return;
-        }
-
         fetchUserReviews();
         fetchPendingReviews();
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [isAuthenticated, router, page]);
+    }, [router, page]);
 
     const handleReviewLike = async (reviewId: number, isHelpful: boolean) => {
         try {
@@ -235,10 +151,10 @@ export default function MyReviewsPage() {
 
     const handleWriteReview = (stayId: number) => {
         // Get the hotel details from pendingReviews
-        const stay = pendingReviews.find(item => item.id === stayId);
+        const stay = pendingReviews.find(item => item.bookingId === stayId);
         if (stay) {
             // Navigate to write-review page with query parameters
-            router.push(`/myreviews/write-review?stayId=${stayId}&hotelId=${stay.hotelId || 0}&roomId=${stay.roomId || 0}`);
+            router.push(`/myreviews/write-review?stayId=${stayId}&accommodationId=${stay.accommodationId || 0}&unitId=${stay.unitId || 0}`);
         }
     };
 
@@ -340,13 +256,13 @@ export default function MyReviewsPage() {
                                                             {review.user?.avatarUrl ? (
                                                                 <Image
                                                                     src={review.user.avatarUrl}
-                                                                    alt={`${review.user.firstName} ${review.user.lastName}`}
+                                                                    alt={`${review.user.name}`}
                                                                     fill
                                                                     className="object-cover"
                                                                 />
                                                             ) : (
                                                                 <span className="text-xl font-bold text-gray-500">
-                                                                    {review.user?.firstName?.[0] || 'U'}
+                                                                    {review.user?.name[0] || 'U'}
                                                                 </span>
                                                             )}
                                                         </div>
@@ -432,18 +348,18 @@ export default function MyReviewsPage() {
                         {pendingReviews.length > 0 ? (
                             <>
                                 {pendingReviews.map((stay) => (
-                                    <Card key={stay.id} className="overflow-hidden">
+                                    <Card key={stay.bookingId} className="overflow-hidden">
                                         <div className="md:flex">
                                             <div className="relative h-48 md:h-auto md:w-1/3 md:min-h-[180px]">
                                                 <Image
-                                                    src={stay.hotelImage}
-                                                    alt={stay.hotelName}
+                                                    src={stay.accommodationImageUrl}
+                                                    alt={stay.accommodationName}
                                                     fill
                                                     className="object-cover"
                                                 />
                                             </div>
                                             <CardContent className="p-6 md:w-2/3">
-                                                <h3 className="font-semibold text-xl mb-2">{stay.hotelName}</h3>
+                                                <h3 className="font-semibold text-xl mb-2">{stay.accommodationName}</h3>
                                                 <div className="flex items-center text-gray-500 mb-2">
                                                     <MapPin className="mr-1 h-4 w-4" />
                                                     <span className="text-sm">{stay.location}</span>
@@ -454,18 +370,22 @@ export default function MyReviewsPage() {
                                                         <Calendar className="mr-2 h-4 w-4 text-gray-500" />
                                                         <span>
                                                             Check-in: <strong>{new Date(stay.checkIn).toLocaleDateString('vi-VN')}</strong>
-                                                            {' — '}
+                                                        </span>
+                                                    </div>
+                                                    <div className="flex items-center text-sm">
+                                                        <Calendar className="mr-2 h-4 w-4 text-gray-500" />
+                                                        <span>
                                                             Check-out: <strong>{new Date(stay.checkOut).toLocaleDateString('vi-VN')}</strong>
                                                         </span>
                                                     </div>
                                                     <div className="text-sm">
-                                                        <strong>{stay.roomName}</strong>
+                                                        <strong>{stay.unitName}</strong>
                                                     </div>
                                                 </div>
 
                                                 <Button
                                                     className="mt-4 w-full md:w-auto"
-                                                    onClick={() => handleWriteReview(stay.id)}
+                                                    onClick={() => handleWriteReview(stay.bookingId)}
                                                 >
                                                     Viết đánh giá
                                                 </Button>
