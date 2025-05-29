@@ -14,4 +14,6 @@ type IInventoryPort interface {
 	ConfirmBooking(ctx context.Context, req *request.ConfirmBookingRequest) (*response.ConfirmBookingResponse, error)
 
 	CancelBooking(ctx context.Context, req *request.CancelBookingRequest) (*response.CancelBookingResponse, error)
+
+	CheckInBooking(ctx context.Context, req *request.CheckInInventoryRequest) (*response.CheckInResponse, error)
 }

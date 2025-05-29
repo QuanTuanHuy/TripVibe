@@ -13,6 +13,7 @@ const (
 	ErrForbiddenRejectBooking       = "forbidden reject booking"
 	ErrForbiddenCancelBooking       = "forbidden cancel booking"
 	ErrForbiddenConfirmBooking      = "forbidden confirm booking"
+	ErrForbiddenCheckInBooking      = "forbidden check in booking"
 	ErrCancelBookingFailed          = "cancel booking failed"
 	ErrPromotionNotValid            = "promotion not valid"
 	ErrInventoryLockFailed          = "inventory lock failed"

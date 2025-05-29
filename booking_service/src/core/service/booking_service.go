@@ -20,6 +20,7 @@ type IBookingService interface {
 	RejectBooking(ctx context.Context, userID, bookingID int64) error
 	CancelBooking(ctx context.Context, userID int64, bookingID int64) error
 	GetCompletedBookingByUserIdAndUnitId(ctx context.Context, userId int64, unitId int64) (*entity.BookingEntity, error)
+	CheckInBooking(ctx context.Context, userID int64, req *request.CheckInBookingRequest) (*response.CheckInResponse, error)
 }
 
 type BookingService struct {
@@ -29,6 +30,11 @@ type BookingService struct {
 	rejectBookingUseCase  usecase.IRejectBookingUseCase
 	approveBookingUseCase usecase.IApproveBookingUseCase
 	cancelBookingUseCase  usecase.ICancelBookingUseCase
+	checkInBookingUseCase usecase.ICheckInBookingUseCase
+}
+
+func (b BookingService) CheckInBooking(ctx context.Context, userID int64, req *request.CheckInBookingRequest) (*response.CheckInResponse, error) {
+	return b.checkInBookingUseCase.CheckInBooking(ctx, userID, req)
 }
 
 func (b BookingService) ConfirmBooking(ctx context.Context, bookingID int64) (*response.ConfirmBookingResponse, error) {
@@ -84,6 +90,7 @@ func NewBookingService(
 	rejectBookingUseCase usecase.IRejectBookingUseCase,
 	confirmBookingUseCase usecase.IConfirmBookingUseCase,
 	approveBookingUseCase usecase.IApproveBookingUseCase,
+	checkInBookingUseCase usecase.ICheckInBookingUseCase,
 	cancelBookingUseCase usecase.ICancelBookingUseCase) IBookingService {
 	return &BookingService{
 		createBookingUseCase:  createBookingUseCase,
@@ -91,6 +98,7 @@ func NewBookingService(
 		confirmBookingUseCase: confirmBookingUseCase,
 		rejectBookingUseCase:  rejectBookingUseCase,
 		approveBookingUseCase: approveBookingUseCase,
+		checkInBookingUseCase: checkInBookingUseCase,
 		cancelBookingUseCase:  cancelBookingUseCase,
 	}
 }

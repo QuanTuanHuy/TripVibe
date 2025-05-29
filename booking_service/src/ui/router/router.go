@@ -34,13 +34,13 @@ func RegisterGinRouters(p RegisterRoutersIn) {
 		accommodationV1.DELETE("/:id", p.AccommodationController.DeleteAccommodationByID)
 		accommodationV1.PUT("", p.AccommodationController.UpdateAccommodation)
 	}
-
 	bookingV1 := router.Group("/public/v1/bookings", middleware.JWTAuthMiddleware(p.JWTConfig))
 	{
 		bookingV1.POST("", p.BookingController.CreateBooking)
 		bookingV1.PUT("/:id/confirm", p.BookingController.ConfirmBooking)
 		bookingV1.GET("/:id", p.BookingController.GetDetailBooking)
 		bookingV1.PUT("/:id/cancel", p.BookingController.CancelBooking)
+		bookingV1.PUT("/:id/checkin", p.BookingController.CheckInBooking)
 		bookingV1.GET("", p.BookingController.GetAllBookings)
 	}
 	bookingV1.Use(middleware.RoleAuthorization(constant.ROLE_OWNER, constant.ROLE_ADMIN))
