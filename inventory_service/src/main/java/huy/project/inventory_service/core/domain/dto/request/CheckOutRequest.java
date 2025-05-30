@@ -6,11 +6,14 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDate;
+
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class CheckOutRequest {
-    private Long roomId;
+    private Long guestId;
     private Long bookingId;
+    private LocalDate checkOutDate;
 }

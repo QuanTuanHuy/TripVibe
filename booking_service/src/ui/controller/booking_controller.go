@@ -251,6 +251,39 @@ func (b *BookingController) CheckInBooking(c *gin.Context) {
 	apihelper.SuccessfulHandle(c, checkInResponse)
 }
 
+func (b *BookingController) CheckOutBooking(c *gin.Context) {
+	userID, ok := c.Get("userID")
+	if !ok {
+		log.Error(c, "error getting user id from context")
+		apihelper.AbortErrorHandle(c, common.GeneralUnauthorized)
+		return
+	}
+
+	bookingID, err := strconv.ParseInt(c.Param("id"), 10, 64)
+	if err != nil {
+		log.Error(c, "error parsing bookingId ", err)
+		apihelper.AbortErrorHandle(c, common.GeneralBadRequest)
+		return
+	}
+
+	var req request.CheckOutBookingRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		log.Error(c, "error binding request ", err)
+		apihelper.AbortErrorHandle(c, common.GeneralBadRequest)
+		return
+	}
+	req.BookingID = bookingID
+
+	checkOutResponse, err := b.bookingService.CheckOutBooking(c, userID.(int64), &req)
+	if err != nil {
+		log.Error(c, "error checking out booking ", err)
+		apihelper.AbortErrorHandle(c, common.GeneralServiceUnavailable)
+		return
+	}
+
+	apihelper.SuccessfulHandle(c, checkOutResponse)
+}
+
 func NewBookingController(bookingService service.IBookingService) *BookingController {
 	return &BookingController{
 		bookingService: bookingService,

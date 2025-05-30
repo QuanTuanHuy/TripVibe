@@ -41,6 +41,7 @@ func RegisterGinRouters(p RegisterRoutersIn) {
 		bookingV1.GET("/:id", p.BookingController.GetDetailBooking)
 		bookingV1.PUT("/:id/cancel", p.BookingController.CancelBooking)
 		bookingV1.PUT("/:id/checkin", p.BookingController.CheckInBooking)
+		bookingV1.PUT("/:id/checkout", p.BookingController.CheckOutBooking)
 		bookingV1.GET("", p.BookingController.GetAllBookings)
 	}
 	bookingV1.Use(middleware.RoleAuthorization(constant.ROLE_OWNER, constant.ROLE_ADMIN))

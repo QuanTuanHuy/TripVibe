@@ -21,16 +21,22 @@ type IBookingService interface {
 	CancelBooking(ctx context.Context, userID int64, bookingID int64) error
 	GetCompletedBookingByUserIdAndUnitId(ctx context.Context, userId int64, unitId int64) (*entity.BookingEntity, error)
 	CheckInBooking(ctx context.Context, userID int64, req *request.CheckInBookingRequest) (*response.CheckInResponse, error)
+	CheckOutBooking(ctx context.Context, userID int64, req *request.CheckOutBookingRequest) (*response.CheckOutResponse, error)
 }
 
 type BookingService struct {
-	createBookingUseCase  usecase.ICreateBookingUseCase
-	getBookingUseCase     usecase.IGetBookingUseCase
-	confirmBookingUseCase usecase.IConfirmBookingUseCase
-	rejectBookingUseCase  usecase.IRejectBookingUseCase
-	approveBookingUseCase usecase.IApproveBookingUseCase
-	cancelBookingUseCase  usecase.ICancelBookingUseCase
-	checkInBookingUseCase usecase.ICheckInBookingUseCase
+	createBookingUseCase   usecase.ICreateBookingUseCase
+	getBookingUseCase      usecase.IGetBookingUseCase
+	confirmBookingUseCase  usecase.IConfirmBookingUseCase
+	rejectBookingUseCase   usecase.IRejectBookingUseCase
+	approveBookingUseCase  usecase.IApproveBookingUseCase
+	cancelBookingUseCase   usecase.ICancelBookingUseCase
+	checkInBookingUseCase  usecase.ICheckInBookingUseCase
+	checkOutBookingUseCase usecase.ICheckOutBookingUseCase
+}
+
+func (b *BookingService) CheckOutBooking(ctx context.Context, userID int64, req *request.CheckOutBookingRequest) (*response.CheckOutResponse, error) {
+	return b.checkOutBookingUseCase.CheckOutBooking(ctx, userID, req)
 }
 
 func (b BookingService) CheckInBooking(ctx context.Context, userID int64, req *request.CheckInBookingRequest) (*response.CheckInResponse, error) {
@@ -91,14 +97,16 @@ func NewBookingService(
 	confirmBookingUseCase usecase.IConfirmBookingUseCase,
 	approveBookingUseCase usecase.IApproveBookingUseCase,
 	checkInBookingUseCase usecase.ICheckInBookingUseCase,
+	checkOutBookingUseCase usecase.ICheckOutBookingUseCase,
 	cancelBookingUseCase usecase.ICancelBookingUseCase) IBookingService {
 	return &BookingService{
-		createBookingUseCase:  createBookingUseCase,
-		getBookingUseCase:     getBookingUseCase,
-		confirmBookingUseCase: confirmBookingUseCase,
-		rejectBookingUseCase:  rejectBookingUseCase,
-		approveBookingUseCase: approveBookingUseCase,
-		checkInBookingUseCase: checkInBookingUseCase,
-		cancelBookingUseCase:  cancelBookingUseCase,
+		createBookingUseCase:   createBookingUseCase,
+		getBookingUseCase:      getBookingUseCase,
+		confirmBookingUseCase:  confirmBookingUseCase,
+		rejectBookingUseCase:   rejectBookingUseCase,
+		approveBookingUseCase:  approveBookingUseCase,
+		checkInBookingUseCase:  checkInBookingUseCase,
+		checkOutBookingUseCase: checkOutBookingUseCase,
+		cancelBookingUseCase:   cancelBookingUseCase,
 	}
 }

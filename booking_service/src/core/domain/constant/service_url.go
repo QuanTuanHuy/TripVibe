@@ -20,4 +20,5 @@ const (
 	RELEASE_LOCK              = "/api/v1/inventories/release_lock/%s"
 	CANCEL_BOOKING_INVENTORY  = "/api/v1/inventories/cancel_booking"
 	CHECK_IN_BOOKING          = "/api/v1/inventories/checkin"
+	CHECK_OUT_BOOKING         = "/api/v1/inventories/checkout"
 )

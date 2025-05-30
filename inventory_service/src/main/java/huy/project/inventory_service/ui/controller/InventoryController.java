@@ -1,12 +1,10 @@
 package huy.project.inventory_service.ui.controller;
 
-import huy.project.inventory_service.core.domain.dto.request.AccommodationLockRequest;
-import huy.project.inventory_service.core.domain.dto.request.CancelBookingRequest;
-import huy.project.inventory_service.core.domain.dto.request.CheckInRequest;
-import huy.project.inventory_service.core.domain.dto.request.ConfirmBookingRequest;
+import huy.project.inventory_service.core.domain.dto.request.*;
 import huy.project.inventory_service.core.domain.dto.response.AccommodationLockResponse;
 import huy.project.inventory_service.core.domain.dto.response.CancelBookingResponse;
 import huy.project.inventory_service.core.domain.dto.response.CheckInResponse;
+import huy.project.inventory_service.core.domain.dto.response.CheckOutResponse;
 import huy.project.inventory_service.core.service.IInventoryService;
 import huy.project.inventory_service.kernel.util.AuthenUtils;
 import huy.project.inventory_service.ui.resource.Resource;
@@ -62,5 +60,13 @@ public class InventoryController {
         log.info("Received request to check in user: {}", userId);
         request.setGuestId(userId);
         return ResponseEntity.ok(new Resource<>(inventoryService.checkIn(request)));
+    }
+
+    @PostMapping("/checkout")
+    public ResponseEntity<Resource<CheckOutResponse>> checkOut(@RequestBody CheckOutRequest request) {
+        Long userId = AuthenUtils.getCurrentUserId();
+        log.info("Received request to check out user: {}", userId);
+        request.setGuestId(userId);
+        return ResponseEntity.ok(new Resource<>(inventoryService.checkOut(request)));
     }
 }
