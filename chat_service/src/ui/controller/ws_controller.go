@@ -6,11 +6,12 @@ import (
 	"chat_service/core/service"
 	"chat_service/infrastructure"
 	"chat_service/kernel/apihelper"
+	"net/http"
+	"strconv"
+
 	"github.com/gin-gonic/gin"
 	"github.com/golibs-starter/golib/log"
 	"github.com/gorilla/websocket"
-	"net/http"
-	"strconv"
 )
 
 type WebSocketController struct {
@@ -35,21 +36,21 @@ func NewWebSocketController(wsManager *infrastructure.WebSocketManager, chatRoom
 
 // HandleConnection establishes a WebSocket connection
 func (wc *WebSocketController) HandleConnection(c *gin.Context) {
-	userIDStr := c.Query("userId")
+	userIDStr, exists := c.Get("userID")
+	if !exists {
+		log.Error(c, "User ID not found in context")
+		apihelper.AbortErrorHandle(c, common.GeneralUnauthorized)
+		return
+	}
 	roomIDStr := c.Query("roomId")
 
-	if userIDStr == "" || roomIDStr == "" {
+	if roomIDStr == "" {
 		log.Error(c, "Missing userId or roomId parameter")
 		apihelper.AbortErrorHandle(c, common.GeneralBadRequest)
 		return
 	}
 
-	userID, err := strconv.ParseInt(userIDStr, 10, 64)
-	if err != nil {
-		log.Error(c, "Invalid userId: ", err)
-		apihelper.AbortErrorHandle(c, common.GeneralBadRequest)
-		return
-	}
+	userID := userIDStr.(int64)
 
 	roomID, err := strconv.ParseInt(roomIDStr, 10, 64)
 	if err != nil {

@@ -30,7 +30,8 @@ app:
     jwt:
       secret: MnAYFOKwxBOznHpxA3Wx4cJjeC3vYNtwzI6HRYT9SD++1BM9Pk32pTGETroljFsS
       expiration: 86400000  # 24 hours for backward compatibility
-      access-token-expiration: 900000  # 15 minutes for access token
+      # access-token-expiration: 900000  # 15 minutes for access token
+      access-token-expiration: 604800000 
       refresh-token-expiration: 604800000  # 7 days for refresh token
       header: Authorization
       prefix: Bearer
