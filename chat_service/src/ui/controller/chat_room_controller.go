@@ -128,6 +128,43 @@ func (ch *ChatController) GetMessagesByRoomID(c *gin.Context) {
 	})
 }
 
+func (ch *ChatController) SendMediaMessage(c *gin.Context) {
+	userID, exists := c.Get("userID")
+	if !exists {
+		log.Error(c, "User ID not found in context")
+		apihelper.AbortErrorHandle(c, common.GeneralUnauthorized)
+		return
+	}
+	roomID, err := strconv.ParseInt(c.Param("roomId"), 10, 64)
+	if err != nil {
+		log.Error(c, "Parse room id failed, ", err)
+		apihelper.AbortErrorHandle(c, common.GeneralBadRequest)
+		return
+	}
+
+	file, err := c.FormFile("file")
+	if err != nil {
+		log.Error(c, "Get file from form failed, ", err)
+		apihelper.AbortErrorHandle(c, common.GeneralBadRequest)
+		return
+	}
+	message, err := ch.chatRoomService.CreateMediaMessage(c, roomID, userID.(int64), file)
+	if err != nil {
+		log.Error(c, "Create media message failed, ", err)
+		if err.Error() == constant.ErrForbiddenSendMessage {
+			apihelper.AbortErrorHandle(c, common.GeneralForbidden)
+			return
+		}
+		apihelper.AbortErrorHandle(c, common.GeneralServiceUnavailable)
+		return
+	}
+
+	ch.wsManager.BroadcastToRoom(roomID, &ws.WebSocketMessage{
+		Payload: message,
+	})
+	apihelper.SuccessfulHandle(c, message)
+}
+
 func (ch *ChatController) SendMessage(c *gin.Context) {
 	userIDStr, exists := c.Get("userID")
 	if !exists {

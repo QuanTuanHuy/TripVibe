@@ -1,13 +1,16 @@
 package bootstrap
 
 import (
+	"chat_service/core/domain/constant"
 	"chat_service/core/service"
 	"chat_service/core/usecase"
 	"chat_service/infrastructure"
+	"chat_service/infrastructure/client"
 	"chat_service/infrastructure/repository/adapter"
 	"chat_service/ui/controller"
 	"chat_service/ui/middleware"
 	"chat_service/ui/router"
+	"time"
 
 	"github.com/golibs-starter/golib"
 	golibdata "github.com/golibs-starter/golib-data"
@@ -35,7 +38,8 @@ func All() fx.Option {
 		fx.Provide(adapter.NewParticipantAdapter),
 		fx.Provide(adapter.NewRoomParticipantAdapter),
 		fx.Provide(adapter.NewDatabaseTransactionAdapter),
-
+		fx.Provide(client.NewFileServiceClient),
+		fx.Provide(adapter.NewMediaDataAdapter),
 		//Provide usecase
 		fx.Provide(usecase.NewDatabaseTransactionUseCase),
 		fx.Provide(usecase.NewCreateChatRoomUseCase),
@@ -58,6 +62,9 @@ func All() fx.Option {
 		//Provide jwt
 		fx.Provide(middleware.NewJWTConfig),
 
+		// Provide client
+		fx.Provide(NewApiClient),
+
 		//postgres
 		fx.Invoke(NewDatabase),
 
@@ -68,4 +75,12 @@ func All() fx.Option {
 
 		golibgin.OnStopHttpServerOpt(),
 	)
+}
+
+func NewApiClient() *client.ApiClient {
+	apiClient := client.NewApiClient(
+		client.WithService(constant.FILE_SERVICE, constant.FILE_SERVICE_URL, 10*time.Second),
+	)
+
+	return apiClient
 }

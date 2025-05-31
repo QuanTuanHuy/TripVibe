@@ -9,6 +9,8 @@ import (
 	"chat_service/core/usecase"
 	"chat_service/kernel/utils"
 	"context"
+	"mime/multipart"
+
 	"github.com/golibs-starter/golib/log"
 )
 
@@ -20,6 +22,7 @@ type IChatRoomService interface {
 	MarkMessageAsRead(ctx context.Context, roomID, userID, messageID int64) error
 	CountUnreadMessages(ctx context.Context, roomID, userID int64) (int64, error)
 	GetChatRoomByID(ctx context.Context, userID, chatRoomID int64) (*entity.ChatRoomEntity, error)
+	CreateMediaMessage(ctx context.Context, roomID, senderID int64, file *multipart.FileHeader) (*entity.MessageEntity, error)
 }
 
 type ChatRoomService struct {
@@ -28,6 +31,10 @@ type ChatRoomService struct {
 	getMessageUseCase     usecase.IGetMessageUseCase
 	getChatRoomUseCase    usecase.IGetChatRoomUseCase
 	updateMessageUseCase  usecase.IUpdateMessageUseCase
+}
+
+func (c *ChatRoomService) CreateMediaMessage(ctx context.Context, roomID int64, senderID int64, file *multipart.FileHeader) (*entity.MessageEntity, error) {
+	return c.createMessageUseCase.CreateMediaMessage(ctx, roomID, senderID, file)
 }
 
 func (c ChatRoomService) GetChatRoomByID(ctx context.Context, userID, chatRoomID int64) (*entity.ChatRoomEntity, error) {
