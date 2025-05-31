@@ -10,6 +10,7 @@ import huy.project.accommodation_service.ui.resource.Resource;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
@@ -22,6 +23,7 @@ import java.util.List;
 @RequestMapping("/api/public/v1/accommodations")
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @RequiredArgsConstructor
+@Slf4j
 public class AccommodationController {
     IAccommodationService accommodationService;
     JsonUtils jsonUtils;

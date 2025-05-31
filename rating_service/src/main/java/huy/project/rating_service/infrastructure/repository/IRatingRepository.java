@@ -8,4 +8,6 @@ import java.util.Optional;
 @Repository
 public interface IRatingRepository extends IBaseRepository<RatingModel> {
     Optional<RatingModel> findByUnitIdAndUserId(Long unitId, Long userId);
+
+    boolean existsByUserIdAndBookingIdAndUnitId(Long userId, Long bookingId, Long unitId);
 }
