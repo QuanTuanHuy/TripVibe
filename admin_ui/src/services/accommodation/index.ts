@@ -1,9 +1,9 @@
-import  accommodationService  from './accommodationService';
+import accommodationService from './accommodationService';
 import bedTypeService from './bedTypeService';
-import priceTypeService from './priceTypeService';
+import amenityService from './amenityService';
 
 export {
     accommodationService,
     bedTypeService,
-    priceTypeService
+    amenityService
 }

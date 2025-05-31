@@ -16,11 +16,12 @@ func ToMessageEntity(message *model.MessageModel) *entity.MessageEntity {
 			CreatedAt: message.CreatedAt.Unix(),
 			UpdatedAt: message.UpdatedAt.Unix(),
 		},
-		ChatRoomID: message.ChatRoomID,
-		SenderID:   message.SenderID,
-		Content:    message.Content,
-		Type:       constant.MessageType(message.Type),
-		IsRead:     message.IsRead,
+		ChatRoomID:  message.ChatRoomID,
+		SenderID:    message.SenderID,
+		Content:     message.Content,
+		Type:        constant.MessageType(message.Type),
+		IsRead:      message.IsRead,
+		MediaDataID: message.MediaDataID,
 	}
 }
 
@@ -33,11 +34,12 @@ func ToMessageModel(message *entity.MessageEntity) *model.MessageModel {
 		BaseModel: model.BaseModel{
 			ID: message.ID,
 		},
-		ChatRoomID: message.ChatRoomID,
-		SenderID:   message.SenderID,
-		Content:    message.Content,
-		Type:       string(message.Type),
-		IsRead:     message.IsRead,
+		ChatRoomID:  message.ChatRoomID,
+		SenderID:    message.SenderID,
+		Content:     message.Content,
+		Type:        string(message.Type),
+		IsRead:      message.IsRead,
+		MediaDataID: message.MediaDataID,
 	}
 }
 

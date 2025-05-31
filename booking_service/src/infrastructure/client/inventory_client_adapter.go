@@ -7,12 +7,43 @@ import (
 	"booking_service/core/port"
 	"context"
 	"fmt"
-	"github.com/golibs-starter/golib/log"
 	"time"
+
+	"github.com/golibs-starter/golib/log"
 )
 
 type InventoryClientAdapter struct {
 	apiClient *ApiClient
+}
+
+func (i *InventoryClientAdapter) CheckOutBooking(ctx context.Context, req *request.CheckOutInventoryRequest) (*response.CheckOutResponse, error) {
+	err := i.SetAuthToken(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	var result response.CheckOutResponse
+	err = i.apiClient.PostJSON(ctx, constant.INVENTORY_SERVICE, constant.CHECK_OUT_BOOKING, req, &result)
+	if err != nil {
+		log.Error(ctx, "error calling inventory service to check out booking, ", err)
+		return nil, err
+	}
+	return &result, nil
+}
+
+func (i *InventoryClientAdapter) CheckInBooking(ctx context.Context, req *request.CheckInInventoryRequest) (*response.CheckInResponse, error) {
+	err := i.SetAuthToken(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	var result response.CheckInResponse
+	err = i.apiClient.PostJSON(ctx, constant.INVENTORY_SERVICE, constant.CHECK_IN_BOOKING, req, &result)
+	if err != nil {
+		log.Error(ctx, "error calling inventory service to check in booking, ", err)
+		return nil, err
+	}
+	return &result, nil
 }
 
 func (i *InventoryClientAdapter) CancelBooking(ctx context.Context, req *request.CancelBookingRequest) (*response.CancelBookingResponse, error) {

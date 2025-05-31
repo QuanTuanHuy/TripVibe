@@ -1,0 +1,554 @@
+package client
+
+import (
+	"bytes"
+	"chat_service/core/domain/dto/response"
+	"context"
+	"encoding/json"
+	"fmt"
+	"io"
+	"mime/multipart"
+	"net/http"
+	"time"
+
+	"github.com/golibs-starter/golib/log"
+)
+
+// ServiceConfig chứa cấu hình cho một service cụ thể
+type ServiceConfig struct {
+	BaseURL     string
+	Timeout     time.Duration
+	MaxRetries  int
+	RetryDelay  time.Duration
+	AuthToken   string
+	ServiceName string
+	Headers     map[string]string
+}
+
+// ApiClient được cải tiến với nhiều tính năng hơn
+type ApiClient struct {
+	services   map[string]ServiceConfig
+	httpClient *http.Client
+}
+
+// ApiClientOption là function tùy chọn để cấu hình ApiClient
+type ApiClientOption func(*ApiClient)
+
+// NewApiClient khởi tạo ApiClient với các tùy chọn
+func NewApiClient(options ...ApiClientOption) *ApiClient {
+	client := &ApiClient{
+		services: make(map[string]ServiceConfig),
+		httpClient: &http.Client{
+			Timeout: time.Second * 10,
+		},
+	}
+
+	// Áp dụng các tùy chọn
+	for _, option := range options {
+		option(client)
+	}
+
+	return client
+}
+
+// WithService thêm một service mới vào ApiClient
+func WithService(name, baseURL string, timeout time.Duration) ApiClientOption {
+	return func(client *ApiClient) {
+		client.services[name] = ServiceConfig{
+			BaseURL:     baseURL,
+			Timeout:     timeout,
+			MaxRetries:  3,
+			RetryDelay:  500 * time.Millisecond,
+			ServiceName: name,
+			Headers:     make(map[string]string),
+		}
+		client.httpClient.Timeout = timeout
+	}
+}
+
+// WithDefaultTimeout đặt timeout mặc định cho http client
+func WithDefaultTimeout(timeout time.Duration) ApiClientOption {
+	return func(client *ApiClient) {
+		client.httpClient.Timeout = timeout
+	}
+}
+
+// WithDefaultHeaders adds default headers to all services
+func WithDefaultHeaders(headers map[string]string) ApiClientOption {
+	return func(client *ApiClient) {
+		for serviceName, service := range client.services {
+			if service.Headers == nil {
+				service.Headers = make(map[string]string)
+			}
+			for key, value := range headers {
+				service.Headers[key] = value
+			}
+			client.services[serviceName] = service
+		}
+	}
+}
+
+// Request tạo một yêu cầu mới và thực hiện nó
+func (c *ApiClient) Request(ctx context.Context, serviceName, method, endpoint string, requestBody interface{}) (*response.ApiResponse, error) {
+	service, ok := c.services[serviceName]
+	if !ok {
+		return nil, fmt.Errorf("service %s not configured", serviceName)
+	}
+
+	url := service.BaseURL + endpoint
+	log.Info("Request to %s (%s): %s", serviceName, method, url)
+
+	return c.executeRequest(ctx, service, method, url, requestBody)
+}
+
+// executeRequest thực hiện HTTP request với logic retry
+func (c *ApiClient) executeRequest(ctx context.Context, service ServiceConfig, method, url string, requestBody interface{}) (*response.ApiResponse, error) {
+	var (
+		res     *response.ApiResponse
+		err     error
+		attempt int
+	)
+
+	for attempt = 0; attempt <= service.MaxRetries; attempt++ {
+		if attempt > 0 {
+			log.Info("Retrying request to %s (attempt %d/%d)", url, attempt, service.MaxRetries)
+			select {
+			case <-ctx.Done():
+				return nil, ctx.Err()
+			case <-time.After(service.RetryDelay * time.Duration(attempt)):
+				// Exponential backoff
+			}
+		}
+
+		res, err = c.doSingleRequest(ctx, service, method, url, requestBody)
+		if err == nil {
+			return res, nil
+		}
+
+		// Không retry nếu lỗi không phải là tạm thời
+		if !isRetryableError(err) {
+			break
+		}
+	}
+
+	if err != nil {
+		log.Error("Request failed after %d attempts: %v", attempt, err)
+	}
+	return res, err
+}
+
+// doSingleRequest thực hiện một request duy nhất
+func (c *ApiClient) doSingleRequest(ctx context.Context, service ServiceConfig, method, url string, requestBody interface{}) (*response.ApiResponse, error) {
+	// Tạo request body JSON
+	var reqBody []byte
+	var err error
+	if requestBody != nil {
+		reqBody, err = json.Marshal(requestBody)
+		if err != nil {
+			return nil, fmt.Errorf("failed to marshal request body: %w", err)
+		}
+	}
+
+	// Tạo HTTP request
+	httpReq, err := http.NewRequestWithContext(ctx, method, url, bytes.NewBuffer(reqBody))
+	if err != nil {
+		return nil, fmt.Errorf("failed to create request: %w", err)
+	}
+
+	// Thêm headers
+	httpReq.Header.Set("Content-Type", "application/json")
+	if service.AuthToken != "" {
+		httpReq.Header.Set("Authorization", "Bearer "+service.AuthToken)
+	}
+	httpReq.Header.Set("X-Service-Name", "chat-service")
+
+	// Add custom headers
+	if service.Headers != nil {
+		for key, value := range service.Headers {
+			httpReq.Header.Set(key, value)
+		}
+	}
+
+	// Thực hiện request
+	startTime := time.Now()
+	resp, err := c.httpClient.Do(httpReq)
+	duration := time.Since(startTime)
+
+	if err != nil {
+		log.Error("HTTP request failed in %v: %v", duration, err)
+		return nil, fmt.Errorf("HTTP request failed: %w", err)
+	}
+	defer resp.Body.Close()
+
+	log.Info("Response from %s: status=%d, time=%v", url, resp.StatusCode, duration)
+
+	// Đọc và xử lý response
+	respBody, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return nil, fmt.Errorf("failed to read response body: %w", err)
+	}
+
+	// Parse JSON response
+	var apiResp response.ApiResponse
+	if err := json.Unmarshal(respBody, &apiResp); err != nil {
+		// Nếu không phải cấu trúc ApiResponse, thử parse trực tiếp vào data field
+		if resp.StatusCode >= 200 && resp.StatusCode < 300 {
+			var data interface{}
+			if err := json.Unmarshal(respBody, &data); err != nil {
+				return nil, fmt.Errorf("failed to parse response: %w", err)
+			}
+			apiResp.Data = data
+		} else {
+			return nil, fmt.Errorf("invalid response format (status: %d): %s", resp.StatusCode, string(respBody))
+		}
+	}
+
+	// Xử lý lỗi HTTP
+	if resp.StatusCode >= 400 {
+		errMsg := "Request failed"
+		return &apiResp, fmt.Errorf("HTTP error %d: %s", resp.StatusCode, errMsg)
+	}
+
+	return &apiResp, nil
+}
+
+// GetJSON là phương thức tiện ích để thực hiện GET request
+func (c *ApiClient) GetJSON(ctx context.Context, serviceName, endpoint string, result interface{}) error {
+	resp, err := c.Request(ctx, serviceName, http.MethodGet, endpoint, nil)
+	if err != nil {
+		return err
+	}
+
+	// Chuyển đổi data thành result
+	if resp.Data != nil {
+		dataBytes, err := json.Marshal(resp.Data)
+		if err != nil {
+			return fmt.Errorf("error converting response data: %w", err)
+		}
+		return json.Unmarshal(dataBytes, result)
+	}
+	return nil
+}
+
+// PostJSON là phương thức tiện ích để thực hiện POST request
+func (c *ApiClient) PostJSON(ctx context.Context, serviceName, endpoint string, body interface{}, result interface{}) error {
+	resp, err := c.Request(ctx, serviceName, http.MethodPost, endpoint, body)
+	if err != nil {
+		return err
+	}
+
+	// Chuyển đổi data thành result
+	if resp.Data != nil && result != nil {
+		dataBytes, err := json.Marshal(resp.Data)
+		if err != nil {
+			return fmt.Errorf("error converting response data: %w", err)
+		}
+		return json.Unmarshal(dataBytes, result)
+	}
+	return nil
+}
+
+// PutJSON là phương thức tiện ích để thực hiện PUT request
+func (c *ApiClient) PutJSON(ctx context.Context, serviceName, endpoint string, body interface{}, result interface{}) error {
+	resp, err := c.Request(ctx, serviceName, http.MethodPut, endpoint, body)
+	if err != nil {
+		return err
+	}
+
+	// Chuyển đổi data thành result
+	if resp.Data != nil && result != nil {
+		dataBytes, err := json.Marshal(resp.Data)
+		if err != nil {
+			return fmt.Errorf("error converting response data: %w", err)
+		}
+		return json.Unmarshal(dataBytes, result)
+	}
+	return nil
+}
+
+// DeleteJSON là phương thức tiện ích để thực hiện DELETE request
+func (c *ApiClient) DeleteJSON(ctx context.Context, serviceName, endpoint string, result interface{}) error {
+	resp, err := c.Request(ctx, serviceName, http.MethodDelete, endpoint, nil)
+	if err != nil {
+		return err
+	}
+
+	// Chuyển đổi data thành result nếu có
+	if resp.Data != nil && result != nil {
+		dataBytes, err := json.Marshal(resp.Data)
+		if err != nil {
+			return fmt.Errorf("error converting response data: %w", err)
+		}
+		return json.Unmarshal(dataBytes, result)
+	}
+	return nil
+}
+
+// SetAuthToken cập nhật token xác thực cho service
+func (c *ApiClient) SetAuthToken(serviceName, token string) error {
+	service, ok := c.services[serviceName]
+	if !ok {
+		return fmt.Errorf("service %s not configured", serviceName)
+	}
+	service.AuthToken = token
+	c.services[serviceName] = service
+	return nil
+}
+
+// ConfigureService cập nhật cấu hình cho một service
+func (c *ApiClient) ConfigureService(serviceName string, config ServiceConfig) error {
+	if _, ok := c.services[serviceName]; !ok {
+		return fmt.Errorf("service %s not configured", serviceName)
+	}
+	c.services[serviceName] = config
+	return nil
+}
+
+// WithServiceRetry cấu hình retry cho một service cụ thể
+func WithServiceRetry(serviceName string, maxRetries int, retryDelay time.Duration) ApiClientOption {
+	return func(client *ApiClient) {
+		if service, ok := client.services[serviceName]; ok {
+			service.MaxRetries = maxRetries
+			service.RetryDelay = retryDelay
+			client.services[serviceName] = service
+		}
+	}
+}
+
+// WithServiceHeaders adds headers to a specific service
+func WithServiceHeaders(serviceName string, headers map[string]string) ApiClientOption {
+	return func(client *ApiClient) {
+		if service, ok := client.services[serviceName]; ok {
+			if service.Headers == nil {
+				service.Headers = make(map[string]string)
+			}
+			for key, value := range headers {
+				service.Headers[key] = value
+			}
+			client.services[serviceName] = service
+		}
+	}
+}
+
+// AddService thêm một service mới lúc runtime
+func (c *ApiClient) AddService(name, baseURL string, timeout time.Duration) {
+	c.services[name] = ServiceConfig{
+		BaseURL:     baseURL,
+		Timeout:     timeout,
+		MaxRetries:  3,
+		RetryDelay:  500 * time.Millisecond,
+		ServiceName: name,
+		Headers:     make(map[string]string),
+	}
+}
+
+// FileToUpload chứa thông tin của file cần tải lên
+type FileToUpload struct {
+	FieldName   string // Tên trường form
+	FileName    string // Tên file
+	FileContent []byte // Nội dung file
+}
+
+// UploadFile tải lên file sử dụng multipart/form-data
+func (c *ApiClient) UploadFile(ctx context.Context, serviceName, endpoint string, fileField string, fileName string, fileContent []byte, formFields map[string]string, result interface{}) error {
+	service, ok := c.services[serviceName]
+	if !ok {
+		return fmt.Errorf("service %s not configured", serviceName)
+	}
+
+	url := service.BaseURL + endpoint
+	log.Info("Uploading file to %s: %s", serviceName, url)
+
+	// Tạo body multipart/form-data
+	body := &bytes.Buffer{}
+	writer := multipart.NewWriter(body)
+
+	// Thêm file vào request
+	part, err := writer.CreateFormFile(fileField, fileName)
+	if err != nil {
+		return fmt.Errorf("failed to create form file: %w", err)
+	}
+	if _, err := io.Copy(part, bytes.NewReader(fileContent)); err != nil {
+		return fmt.Errorf("failed to copy file content: %w", err)
+	}
+
+	// Thêm các trường form khác nếu có
+	if formFields != nil {
+		for key, value := range formFields {
+			if err := writer.WriteField(key, value); err != nil {
+				return fmt.Errorf("failed to add form field %s: %w", key, err)
+			}
+		}
+	}
+
+	if err := writer.Close(); err != nil {
+		return fmt.Errorf("failed to close multipart writer: %w", err)
+	}
+
+	httpReq, err := http.NewRequestWithContext(ctx, http.MethodPost, url, body)
+	if err != nil {
+		return fmt.Errorf("failed to create request: %w", err)
+	}
+	httpReq.Header.Set("Content-Type", writer.FormDataContentType())
+
+	if service.AuthToken != "" {
+		httpReq.Header.Set("Authorization", "Bearer "+service.AuthToken)
+	}
+	httpReq.Header.Set("X-Service-Name", "chat-service")
+
+	if service.Headers != nil {
+		for key, value := range service.Headers {
+			httpReq.Header.Set(key, value)
+		}
+	}
+
+	startTime := time.Now()
+	resp, err := c.httpClient.Do(httpReq)
+	duration := time.Since(startTime)
+
+	if err != nil {
+		log.Error("HTTP request failed in %v: %v", duration, err)
+		return fmt.Errorf("HTTP request failed: %w", err)
+	}
+	defer resp.Body.Close()
+
+	log.Info("Response from %s: status=%d, time=%v", url, resp.StatusCode, duration)
+
+	respBody, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return fmt.Errorf("failed to read response body: %w", err)
+	}
+
+	var apiResp response.ApiResponse
+	if err := json.Unmarshal(respBody, &apiResp); err != nil {
+		// Nếu không phải cấu trúc ApiResponse, thử parse trực tiếp vào data field
+		if resp.StatusCode >= 200 && resp.StatusCode < 300 {
+			var data interface{}
+			if err := json.Unmarshal(respBody, &data); err != nil {
+				return fmt.Errorf("failed to parse response: %w", err)
+			}
+			apiResp.Data = data
+		} else {
+			return fmt.Errorf("invalid response format (status: %d): %s", resp.StatusCode, string(respBody))
+		}
+	}
+
+	if resp.StatusCode >= 400 {
+		return fmt.Errorf("HTTP error %d: %s", resp.StatusCode, string(respBody))
+	}
+
+	if apiResp.Data != nil && result != nil {
+		dataBytes, err := json.Marshal(apiResp.Data)
+		if err != nil {
+			return fmt.Errorf("error converting response data: %w", err)
+		}
+		return json.Unmarshal(dataBytes, result)
+	}
+
+	return nil
+}
+
+func (c *ApiClient) UploadMultipleFiles(ctx context.Context, serviceName, endpoint string, files []FileToUpload, formFields map[string]string, result interface{}) error {
+	service, ok := c.services[serviceName]
+	if !ok {
+		return fmt.Errorf("service %s not configured", serviceName)
+	}
+
+	url := service.BaseURL + endpoint
+	log.Info("Uploading multiple files to %s: %s", serviceName, url)
+
+	body := &bytes.Buffer{}
+	writer := multipart.NewWriter(body)
+
+	for _, file := range files {
+		part, err := writer.CreateFormFile(file.FieldName, file.FileName)
+		if err != nil {
+			return fmt.Errorf("failed to create form file %s: %w", file.FileName, err)
+		}
+		if _, err := io.Copy(part, bytes.NewReader(file.FileContent)); err != nil {
+			return fmt.Errorf("failed to copy content for file %s: %w", file.FileName, err)
+		}
+	}
+
+	if formFields != nil {
+		for key, value := range formFields {
+			if err := writer.WriteField(key, value); err != nil {
+				return fmt.Errorf("failed to add form field %s: %w", key, err)
+			}
+		}
+	}
+
+	if err := writer.Close(); err != nil {
+		return fmt.Errorf("failed to close multipart writer: %w", err)
+	}
+
+	httpReq, err := http.NewRequestWithContext(ctx, http.MethodPost, url, body)
+	if err != nil {
+		return fmt.Errorf("failed to create request: %w", err)
+	}
+
+	httpReq.Header.Set("Content-Type", writer.FormDataContentType())
+
+	if service.AuthToken != "" {
+		httpReq.Header.Set("Authorization", "Bearer "+service.AuthToken)
+	}
+	httpReq.Header.Set("X-Service-Name", "chat-service")
+
+	if service.Headers != nil {
+		for key, value := range service.Headers {
+			httpReq.Header.Set(key, value)
+		}
+	}
+
+	startTime := time.Now()
+	resp, err := c.httpClient.Do(httpReq)
+	duration := time.Since(startTime)
+
+	if err != nil {
+		log.Error("HTTP request failed in %v: %v", duration, err)
+		return fmt.Errorf("HTTP request failed: %w", err)
+	}
+	defer resp.Body.Close()
+
+	log.Info("Response from %s: status=%d, time=%v", url, resp.StatusCode, duration)
+
+	respBody, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return fmt.Errorf("failed to read response body: %w", err)
+	}
+
+	var apiResp response.ApiResponse
+	if err := json.Unmarshal(respBody, &apiResp); err != nil {
+		if resp.StatusCode >= 200 && resp.StatusCode < 300 {
+			var data interface{}
+			if err := json.Unmarshal(respBody, &data); err != nil {
+				return fmt.Errorf("failed to parse response: %w", err)
+			}
+			apiResp.Data = data
+		} else {
+			return fmt.Errorf("invalid response format (status: %d): %s", resp.StatusCode, string(respBody))
+		}
+	}
+
+	if resp.StatusCode >= 400 {
+		return fmt.Errorf("HTTP error %d: %s", resp.StatusCode, string(respBody))
+	}
+
+	if apiResp.Data != nil && result != nil {
+		dataBytes, err := json.Marshal(apiResp.Data)
+		if err != nil {
+			return fmt.Errorf("error converting response data: %w", err)
+		}
+		return json.Unmarshal(dataBytes, result)
+	}
+
+	return nil
+}
+
+// isRetryableError kiểm tra xem lỗi có phải là tạm thời và có thể retry không
+func isRetryableError(err error) bool {
+	// TODO: Có thể cài đặt chi tiết hơn để chỉ retry cho các lỗi tạm thời
+	// Ví dụ: kiểm tra các lỗi như timeout, connection refused, service unavailable
+	// Hiện tại, mặc định retry tất cả các lỗi
+	return true
+}

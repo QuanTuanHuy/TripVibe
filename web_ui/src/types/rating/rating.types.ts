@@ -37,12 +37,15 @@ interface Unit {
   id: number;
   name: string;
   accommodationId: number;
+  quantity: number | null;
 }
 
 interface UserProfile {
   userId: number;
-  firstName: string;
-  lastName: string;
+  name: string;
+  email: string;
+  countryId?: number;
+  countryName?: string;
   avatarUrl?: string;
 }
 
@@ -50,7 +53,7 @@ interface UserProfile {
 export enum RatingCriteriaType {
   CLEANLINESS = "CLEANLINESS",
   COMFORT = "COMFORT",
-  LOCATION = "LOCATION", 
+  LOCATION = "LOCATION",
   FACILITIES = "FACILITIES",
   STAFF = "STAFF",
   VALUE_FOR_MONEY = "VALUE_FOR_MONEY"
@@ -60,11 +63,11 @@ export enum RatingCriteriaType {
 export interface CreateRatingDto {
   accommodationId: number;
   unitId: number;
+  bookingId: number;
   value: number;
   comment: string;
   languageId: number;
   ratingDetails?: Record<RatingCriteriaType, number>;
-  userId?: number; // Added to match backend expectations
 }
 
 export interface CreateRatingResponseDto {

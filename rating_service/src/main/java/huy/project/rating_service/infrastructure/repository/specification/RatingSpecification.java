@@ -20,6 +20,10 @@ public class RatingSpecification {
                 predicates.add(criteriaBuilder.equal(root.get("unitId"), params.getUnitId()));
             }
 
+            if (params.getUserId() != null) {
+                predicates.add(criteriaBuilder.equal(root.get("userId"), params.getUserId()));
+            }
+
             if (params.getMinValue() != null) {
                 predicates.add(criteriaBuilder.greaterThanOrEqualTo(root.get("value"), params.getMinValue()));
             }

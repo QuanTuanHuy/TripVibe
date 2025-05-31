@@ -7,12 +7,14 @@
         <option value="$PROJECT_DIR$/authentication_service/pom.xml" />
         <option value="$PROJECT_DIR$/accommodation_service/pom.xml" />
         <option value="$PROJECT_DIR$/search_service/pom.xml" />
-        <option value="$PROJECT_DIR$/profile_service/pom.xml" />
         <option value="$PROJECT_DIR$/file_service/pom.xml" />
         <option value="$PROJECT_DIR$/api_gateway/pom.xml" />
         <option value="$PROJECT_DIR$/payment_service/pom.xml" />
         <option value="$PROJECT_DIR$/rating_service/pom.xml" />
         <option value="$PROJECT_DIR$/inventory_service/pom.xml" />
+        <option value="$PROJECT_DIR$/profile_service/pom.xml" />
+        <option value="$PROJECT_DIR$/common_lib/pom.xml" />
+        <option value="$PROJECT_DIR$/lib/java/common_lib/pom.xml" />
       </list>
     </option>
   </component>

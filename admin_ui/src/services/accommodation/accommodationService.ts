@@ -4,19 +4,34 @@ import {
   CreateAccommodationDto,
   Accommodation,
   AccommodationType,
-  Amenity,
   UnitName,
   Currency,
   AmenityGroup,
   Language,
   AmenityGroupParams,
-  AccommodationParams
+  AccommodationParams,
+  Unit
 } from '@/types/accommodation';
 
 // Path đến accommodation service thông qua API Gateway
 const ACCOMMODATION_PATH = '/accommodation_service/api/public/v1';
 
 const accommodationService = {
+  // Get accommodations owned by the current user
+  getMyAccommodations: async (userId: number): Promise<Accommodation[]> => {
+    return await accommodationService.getAccommodations(
+      {
+        hostId: userId
+      }
+    )
+  },
+
+  // Get units for an accommodation
+  getUnitsByAccommodationId: async (accommodationId: number): Promise<Unit[]> => {
+    const accommodation = await accommodationService.getAccommodationById(accommodationId);
+    return accommodation.units || [];
+  },
+
   // Lấy danh sách các loại chỗ nghỉ
   getAccommodationTypes: async (): Promise<AccommodationType[]> => {
     return apiClient.get<AccommodationType[]>(`${ACCOMMODATION_PATH}/accommodation_types`);

@@ -7,6 +7,8 @@ import huy.project.file_service.core.service.IFileStorageService;
 import huy.project.file_service.kernel.utils.AuthenUtils;
 import huy.project.file_service.ui.resource.Resource;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -18,6 +20,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/public/v1/file_storage")
 @RequiredArgsConstructor
+@Slf4j
 public class FileStorageController {
     private final IFileStorageService fileStorageService;
 
@@ -25,6 +28,7 @@ public class FileStorageController {
     public ResponseEntity<Resource<List<FileResourceResponse>>> uploadMultipleFiles(
             @RequestParam("files") MultipartFile[] files)
     {
+        log.info("Uploading {} files", files.length);
         Long userId = AuthenUtils.getCurrentUserId();
         var response = fileStorageService.storeFiles(userId, files).stream()
                 .map(FileResourceMapper::toResponse).toList();

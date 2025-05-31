@@ -4,6 +4,6 @@ type MessageType string
 
 const (
 	TextMessage   MessageType = "text"
-	ImageMessage  MessageType = "image"
+	MediaMessage  MessageType = "media"
 	SystemMessage MessageType = "system"
 )

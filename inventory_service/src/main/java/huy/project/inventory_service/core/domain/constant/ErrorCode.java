@@ -8,6 +8,7 @@ import org.springframework.http.HttpStatusCode;
 public enum ErrorCode {
     UNCATEGORIZED_EXCEPTION(100001, "Uncategorized error", HttpStatus.INTERNAL_SERVER_ERROR),
     SUCCESS(0, "Success", HttpStatus.OK),
+    VALIDATION_ERROR(100015, "Input validation failed", HttpStatus.BAD_REQUEST),
     ;
 
 

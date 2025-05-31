@@ -36,6 +36,8 @@ public class RatingParams extends BaseParams {
     @Positive(message = "Unit ID phải là số dương")
     private Long unitId;
 
+    private Long userId;
+
     // Custom validation cho khoảng giá trị min/max
     @AssertTrue(message = "minValue không được lớn hơn maxValue")
     private boolean isValidValueRange() {

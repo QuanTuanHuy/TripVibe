@@ -2,6 +2,7 @@ package huy.project.rating_service.core.service;
 
 import huy.project.rating_service.core.domain.dto.request.CreateRatingDto;
 import huy.project.rating_service.core.domain.dto.request.CreateRatingHelpfulnessDto;
+import huy.project.rating_service.core.domain.dto.request.MyRatingParams;
 import huy.project.rating_service.core.domain.dto.request.RatingParams;
 import huy.project.rating_service.core.domain.dto.response.PageInfo;
 import huy.project.rating_service.core.domain.dto.response.RatingDto;
@@ -14,6 +15,7 @@ import java.util.List;
 
 public interface IRatingService {
     RatingEntity createRating(CreateRatingDto req);
+    Pair<PageInfo, List<RatingDto>> getRatingsByUserId(MyRatingParams params);
     Pair<PageInfo, List<RatingDto>> getAllRatings(RatingParams params);
     RatingHelpfulnessEntity createRatingHelpfulness(Long userId, CreateRatingHelpfulnessDto req);
     RatingStatisticDto getStatisticByAccId(Long accommodationId);

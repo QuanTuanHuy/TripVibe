@@ -11,4 +11,5 @@ public class UnitDto {
     private Long id;
     private String name;
     private Long accommodationId;
+    private Integer quantity;
 }

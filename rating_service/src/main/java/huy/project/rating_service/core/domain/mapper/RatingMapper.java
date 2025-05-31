@@ -3,6 +3,7 @@ package huy.project.rating_service.core.domain.mapper;
 import huy.project.rating_service.core.domain.dto.request.CreateRatingDto;
 import huy.project.rating_service.core.domain.dto.request.CreateRatingResponseDto;
 import huy.project.rating_service.core.domain.dto.response.RatingDto;
+import huy.project.rating_service.core.domain.dto.response.RatingResponseDto;
 import huy.project.rating_service.core.domain.entity.RatingEntity;
 import huy.project.rating_service.core.domain.entity.RatingResponseEntity;
 import org.mapstruct.Mapper;
@@ -23,6 +24,8 @@ public abstract class RatingMapper {
                 .comment(rating.getComment())
                 .languageId(rating.getLanguageId())
                 .createdAt(rating.getCreatedAt())
+                .numberOfHelpful(rating.getNumberOfHelpful())
+                .numberOfUnhelpful(rating.getNumberOfUnhelpful())
                 .build();
     }
 
@@ -31,6 +34,15 @@ public abstract class RatingMapper {
                 .ratingId(req.getRatingId())
                 .ownerId(ownerId)
                 .content(req.getContent())
+                .build();
+    }
+
+    public RatingResponseDto toResponseDto(RatingResponseEntity entity) {
+        return RatingResponseDto.builder()
+                .id(entity.getId())
+                .ratingId(entity.getRatingId())
+                .content(entity.getContent())
+                .createdAt(entity.getCreatedAt())
                 .build();
     }
 }

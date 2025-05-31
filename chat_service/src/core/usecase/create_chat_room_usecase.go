@@ -2,16 +2,17 @@ package usecase
 
 import (
 	"chat_service/core/domain/constant"
-	"chat_service/core/domain/dto"
+	response "chat_service/core/domain/dto"
 	"chat_service/core/domain/dto/request"
 	"chat_service/core/domain/entity"
 	"chat_service/core/port"
 	"context"
+
 	"github.com/golibs-starter/golib/log"
 )
 
 type ICreateChatRoomUseCase interface {
-	CreateChatRoom(ctx context.Context, bookingID int64, tourist *dto.ParticipantDto, owner *dto.ParticipantDto) (*entity.ChatRoomEntity, error)
+	CreateChatRoom(ctx context.Context, bookingID int64, tourist *response.ParticipantDto, owner *response.ParticipantDto) (*entity.ChatRoomEntity, error)
 }
 
 type CreateChatRoomUseCase struct {
@@ -22,7 +23,7 @@ type CreateChatRoomUseCase struct {
 	dbTransactionUseCase IDatabaseTransactionUseCase
 }
 
-func (c CreateChatRoomUseCase) CreateChatRoom(ctx context.Context, bookingID int64, tourist *dto.ParticipantDto, owner *dto.ParticipantDto) (*entity.ChatRoomEntity, error) {
+func (c CreateChatRoomUseCase) CreateChatRoom(ctx context.Context, bookingID int64, tourist *response.ParticipantDto, owner *response.ParticipantDto) (*entity.ChatRoomEntity, error) {
 	_, err := c.chatRoomPort.GetChatRoomByBookingID(ctx, bookingID)
 	if err != nil && err.Error() != constant.ErrChatRoomNotFound {
 		log.Error(ctx, "Get chat room by booking id failed, ", err)

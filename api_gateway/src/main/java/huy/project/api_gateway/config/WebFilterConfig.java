@@ -20,6 +20,7 @@ public class WebFilterConfig {
         
         config.addAllowedOrigin("http://localhost:3000");
         config.addAllowedOrigin("http://localhost:3001");
+        config.addAllowedOrigin("https://tripvibe-quantuanhuys-projects.vercel.app");
         
         config.addAllowedMethod("*");
         

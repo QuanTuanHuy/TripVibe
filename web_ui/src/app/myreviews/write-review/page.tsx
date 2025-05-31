@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
 import Image from 'next/image';
@@ -10,8 +10,13 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Textarea } from '@/components/ui/textarea';
 import { CreateRatingDto, RatingCriteriaType } from '@/types/rating/rating.types';
 import Header from '@/components/Header';
+import { ratingService } from '@/services/rating/ratingService';
+import { bookingService, BookingV2 } from '@/services/booking/bookingService';
+import accommodationService from '@/services/accommodation/accommodation.service';
+import { AccommodationThumbnail } from '@/types/accommodation';
+import { epochToDate, formatDate } from '@/lib/datetime.utils';
 
-export default function WriteReviewPage() {
+function WriteReviewContent() {
     const router = useRouter();
     const searchParams = useSearchParams();
     const { isAuthenticated } = useAuth();
@@ -22,7 +27,8 @@ export default function WriteReviewPage() {
     const [success, setSuccess] = useState(false);
     const [rating, setRating] = useState(0);
     const [comment, setComment] = useState('');
-    const [hotelDetails, setHotelDetails] = useState<any>(null);
+    const [booking, setBooking] = useState<BookingV2 | null>(null);
+    const [accommodationDetails, setAccommodationDetails] = useState<AccommodationThumbnail | null>(null);
 
     // Detailed rating criteria
     const [criteriaRatings, setCriteriaRatings] = useState<Record<RatingCriteriaType, number>>({
@@ -34,104 +40,52 @@ export default function WriteReviewPage() {
         [RatingCriteriaType.VALUE_FOR_MONEY]: 8,
     });
 
-    // Get stayId from URL params
+    // Get URL params
     const stayId = searchParams.get('stayId');
-    const hotelId = searchParams.get('hotelId');
-    const roomId = searchParams.get('roomId');
+    const accommodationId = searchParams.get('accommodationId');
+    const unitId = searchParams.get('unitId');
 
     useEffect(() => {
-        // Redirect to login if not authenticated
         if (!isAuthenticated) {
             router.push('/login');
             return;
         }
 
-        if (!stayId || !hotelId || !roomId) {
+        if (!stayId || !accommodationId || !unitId) {
             setError('Thông tin không đầy đủ để viết đánh giá.');
             setIsLoading(false);
             return;
         }
 
-        fetchHotelDetails();
+        fetchDetails();
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [isAuthenticated, router, stayId, hotelId, roomId]);
+    }, [isAuthenticated, router, stayId, accommodationId, unitId]);
 
-    const fetchHotelDetails = async () => {
-        // In production, we would fetch real data about the stay
+    const fetchDetails = async () => {
         try {
             setIsLoading(true);
             setError(null);
 
-            // In production, uncomment the following code:
-            /*
-            // Fetch stay details from booking API
-            const stayDetails = await BookingService.getStayDetails(Number(stayId));
-            if (stayDetails) {
-                const hotelData = {
-                    id: stayDetails.accommodationId,
-                    name: stayDetails.accommodationName,
-                    roomName: stayDetails.unitName,
-                    checkIn: stayDetails.checkInDate,
-                    checkOut: stayDetails.checkOutDate,
-                    image: stayDetails.accommodationImageUrl || 'https://images.unsplash.com/photo-1566073771259-6a8506099945',
-                    location: stayDetails.accommodationLocation,
-                    stayId: Number(stayId),
-                    roomId: Number(roomId)
-                };
-                setHotelDetails(hotelData);
-                setIsLoading(false);
+            const booking = await bookingService.getBookingDetails(Number(stayId));
+            console.log('Booking details:', booking);
+            if (!booking) {
+                setError('Không tìm thấy thông tin đặt phòng.');
+                return;
             }
-            */
+            setBooking(booking);
 
-            // For development, use mock data
-            setTimeout(() => {
-                // Manually override mockHotelDetails based on hotelId for demo purposes
-                let mockHotelDetails;
-
-                if (hotelId === '201') {
-                    mockHotelDetails = {
-                        id: Number(hotelId),
-                        name: 'Sài Gòn Luxury Hotel & Spa',
-                        roomName: 'Phòng Deluxe Hướng Biển',
-                        checkIn: '2025-04-20',
-                        checkOut: '2025-04-23',
-                        image: 'https://images.unsplash.com/photo-1566073771259-6a8506099945',
-                        location: 'Quận 1, Tp. Hồ Chí Minh',
-                        stayId: Number(stayId),
-                        roomId: Number(roomId)
-                    };
-                } else if (hotelId === '202') {
-                    mockHotelDetails = {
-                        id: Number(hotelId),
-                        name: 'Đà Nẵng Beach Resort',
-                        roomName: 'Phòng Superior Hướng Vườn',
-                        checkIn: '2025-05-15',
-                        checkOut: '2025-05-18',
-                        image: 'https://images.unsplash.com/photo-1520250497591-112f2f40a3f4',
-                        location: 'Sơn Trà, Đà Nẵng',
-                        stayId: Number(stayId),
-                        roomId: Number(roomId)
-                    };
-                } else {
-                    mockHotelDetails = {
-                        id: Number(hotelId),
-                        name: 'Khách sạn Mẫu',
-                        roomName: 'Phòng Tiêu Chuẩn',
-                        checkIn: '2025-06-10',
-                        checkOut: '2025-06-15',
-                        image: 'https://images.unsplash.com/photo-1520250497591-112f2f40a3f4',
-                        location: 'Việt Nam',
-                        stayId: Number(stayId),
-                        roomId: Number(roomId)
-                    };
-                }
-
-                setHotelDetails(mockHotelDetails);
-                setIsLoading(false);
-            }, 800);
+            const accommodation = await accommodationService.getAccommodationThumbnails([Number(accommodationId)]);
+            console.log('Accommodation details:', accommodation);
+            if (!accommodation || accommodation.length === 0) {
+                setError('Không tìm thấy thông tin chỗ nghỉ.');
+                return;
+            }
+            setAccommodationDetails(accommodation[0]);
         } catch (error: unknown) {
             const errorMessage = error instanceof Error ? error.message : 'Vui lòng thử lại sau.';
             setError(`Không thể tải thông tin khách sạn: ${errorMessage}`);
+            setIsLoading(false);
+        } finally {
             setIsLoading(false);
         }
     };
@@ -169,48 +123,52 @@ export default function WriteReviewPage() {
             return;
         }
 
+        if (!booking || !accommodationDetails) {
+            setError('Không có đủ thông tin về chỗ nghỉ để đánh giá.');
+            return;
+        }
+
         setIsSubmitting(true);
         setError(null);
 
         try {
-            // Get user ID from auth context if available
-            const userId = 1; // In production, would get from auth context
-
             const reviewData: CreateRatingDto = {
-                accommodationId: hotelDetails.id,
-                unitId: hotelDetails.roomId,
+                accommodationId: booking.accommodationId,
+                unitId: booking.units?.[0]?.id || Number(unitId),
+                bookingId: booking.id,
                 value: rating,
                 comment: comment.trim(),
                 languageId: 1, // Assuming Vietnamese is language ID 1
-                ratingDetails: criteriaRatings,
-                userId: userId
+                ratingDetails: criteriaRatings
             };
 
-            // In production, uncomment the following code:
-            /*
-            await RatingService.createRating(reviewData);
+            await ratingService.createRating(reviewData);
             setSuccess(true);
-            
-            // Redirect back to myreviews page after successful submission
+
+            // Chuyển hướng về trang đánh giá sau khi gửi thành công
             setTimeout(() => {
                 router.push('/myreviews');
             }, 2000);
-            */
-
-            // Simulate API call success
-            setTimeout(() => {
-                console.log('Creating rating with data:', reviewData);
-                setSuccess(true);
-                setIsSubmitting(false);
-
-                // Redirect back to myreviews page after successful submission
-                setTimeout(() => {
-                    router.push('/myreviews');
-                }, 2000);
-            }, 1000);
         } catch (error: unknown) {
-            const errorMessage = error instanceof Error ? error.message : 'Vui lòng thử lại sau.';
-            setError(`Không thể gửi đánh giá: ${errorMessage}`);
+            console.error('Error submitting review:', error);
+
+            let errorMessage = 'Có lỗi xảy ra khi gửi đánh giá. Vui lòng thử lại sau.';
+
+            if (error instanceof Error) {
+                if (error.message.includes('401') || error.message.includes('Unauthorized')) {
+                    errorMessage = 'Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại để tiếp tục.';
+                } else if (error.message.includes('400') || error.message.includes('Bad Request')) {
+                    errorMessage = 'Dữ liệu đánh giá không hợp lệ. Vui lòng kiểm tra lại thông tin.';
+                } else if (error.message.includes('409') || error.message.includes('Conflict')) {
+                    errorMessage = 'Bạn đã đánh giá chỗ nghỉ này rồi.';
+                } else if (error.message.includes('403') || error.message.includes('Forbidden')) {
+                    errorMessage = 'Bạn không có quyền đánh giá chỗ nghỉ này.';
+                } else if (error.message.includes('Network Error')) {
+                    errorMessage = 'Không thể kết nối đến máy chủ. Vui lòng kiểm tra kết nối mạng của bạn.';
+                }
+            }
+
+            setError(errorMessage);
             setIsSubmitting(false);
         }
     };
@@ -225,7 +183,7 @@ export default function WriteReviewPage() {
         );
     }
 
-    if (error && !hotelDetails) {
+    if (error && !accommodationDetails) {
         return (
             <div className="container mx-auto px-4 py-8">
                 <div className="flex flex-col justify-center items-center min-h-[50vh]">
@@ -278,49 +236,54 @@ export default function WriteReviewPage() {
                     <ArrowLeft className="mr-2 h-4 w-4" /> Quay lại trang đánh giá
                 </Button>
 
-                <h1 className="text-2xl font-bold mb-6">Viết đánh giá</h1>            {error && (
+                <h1 className="text-2xl font-bold mb-6">Viết đánh giá</h1>
+
+                {error && (
                     <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded mb-6 flex items-center gap-2">
                         <AlertCircle className="w-5 h-5" />
                         <span>{error}</span>
                     </div>
                 )}
 
-                <Card className="mb-8">
-                    <CardContent className="pt-6">
-                        <div className="flex flex-col md:flex-row gap-6">
-                            <div className="relative h-48 w-full md:w-64 rounded-md overflow-hidden">
-                                <Image
-                                    src={hotelDetails?.image || '/placeholder-hotel.jpg'}
-                                    alt={hotelDetails?.name}
-                                    fill
-                                    className="object-cover"
-                                />
-                            </div>
-                            <div className="flex-1">
-                                <h2 className="text-xl font-bold">{hotelDetails?.name}</h2>
-                                <p className="text-gray-500 flex items-center mt-2">
-                                    <MapPin className="h-4 w-4 mr-2" />
-                                    {hotelDetails?.location}
-                                </p>
-                                <div className="mt-3 text-sm">
-                                    <div className="flex items-center">
-                                        <Calendar className="h-4 w-4 mr-2" />
-                                        <span>
-                                            Nhận phòng: <span className="font-medium">{hotelDetails?.checkIn}</span>
-                                        </span>
-                                    </div>
-                                    <div className="flex items-center mt-1">
-                                        <Calendar className="h-4 w-4 mr-2" />
-                                        <span>
-                                            Trả phòng: <span className="font-medium">{hotelDetails?.checkOut}</span>
-                                        </span>
-                                    </div>
+                {booking && accommodationDetails && (
+                    <Card className="mb-8">
+                        <CardContent className="pt-6">
+                            <div className="flex flex-col md:flex-row gap-6">
+                                <div className="relative h-48 w-full md:w-64 rounded-md overflow-hidden">
+                                    <Image
+                                        src={accommodationDetails.thumbnailUrl || '/placeholder-hotel.jpg'}
+                                        alt={accommodationDetails.name}
+                                        fill
+                                        className="object-cover"
+                                    />
                                 </div>
-                                <p className="text-sm mt-3 font-medium">{hotelDetails?.roomName}</p>
+                                <div className="flex-1">
+                                    <h2 className="text-xl font-bold">{accommodationDetails.name}</h2>
+                                    <p className="text-gray-500 flex items-center mt-2">
+                                        <MapPin className="h-4 w-4 mr-2" />
+                                        {accommodationDetails.location.address || 'Địa chỉ không rõ'}
+                                    </p>
+                                    <div className="mt-3 text-sm">
+                                        <div className="flex items-center">
+                                            <Calendar className="h-4 w-4 mr-2" />
+                                            <span>
+                                                Nhận phòng: <span className="font-medium">{formatDate(epochToDate(booking.stayFrom))}</span>
+                                            </span>
+                                        </div>
+                                        <div className="flex items-center mt-1">
+                                            <Calendar className="h-4 w-4 mr-2" />
+                                            <span>
+                                                Trả phòng: <span className="font-medium">{formatDate(epochToDate(booking.stayTo))}</span>
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <p className="text-sm mt-3 font-medium">{accommodationDetails.units.find(u => u.id === booking.units[0].id)?.name || "Phong khong xac dinh"}</p>
+                                </div>
                             </div>
-                        </div>
-                    </CardContent>
-                </Card>
+                        </CardContent>
+                    </Card>
+                )}
+
                 <div className="bg-white rounded-lg shadow-sm p-6 mb-8">
                     <h3 className="text-lg font-bold mb-4">Đánh giá của bạn</h3>
                     <div className="mb-6">
@@ -513,6 +476,21 @@ export default function WriteReviewPage() {
                 </div>
             </div>
         </div>
+    );
+}
 
+export default function WriteReviewPage() {
+    return (
+        <Suspense fallback={
+            <div className="min-h-screen bg-gray-50">
+                <Header />
+                <div className="flex justify-center items-center py-12">
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+                    <span className="ml-3 text-lg">Đang tải...</span>
+                </div>
+            </div>
+        }>
+            <WriteReviewContent />
+        </Suspense>
     );
 }
