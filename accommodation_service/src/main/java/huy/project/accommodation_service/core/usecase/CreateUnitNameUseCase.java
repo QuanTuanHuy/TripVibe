@@ -13,6 +13,8 @@ import org.springframework.data.util.Pair;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -31,5 +33,21 @@ public class CreateUnitNameUseCase {
 
         UnitNameEntity unitName = UnitNameMapper.INSTANCE.toEntity(req);
         return unitNamePort.save(unitName);
+    }
+
+    @Transactional(rollbackFor = Exception.class)
+    public void createIfNotExists(List<CreateUnitNameDto> unitNames) {
+        if (unitNamePort.countAll() > 0) {
+            log.info("Unit names already exist, skipping creation.");
+            return;
+        }
+
+        unitNames.forEach(unitName -> {
+            try {
+                createUnitName(unitName);
+            } catch (Exception e) {
+                log.warn("Failed to create unit name: {}, error: {}", unitName.getName(), e.getMessage());
+            }
+        });
     }
 }

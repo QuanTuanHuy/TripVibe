@@ -42,4 +42,9 @@ public class AccommodationTypeAdapter implements IAccommodationTypePort {
         return AccommodationTypeMapper.INSTANCE.toListEntity(accommodationTypeRepository
                 .findAll(AccommodationTypeSpecification.getAccommodationTypes(params)));
     }
+
+    @Override
+    public long countAll() {
+        return accommodationTypeRepository.count();
+    }
 }

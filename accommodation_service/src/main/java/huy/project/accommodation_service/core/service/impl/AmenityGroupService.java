@@ -48,4 +48,9 @@ public class AmenityGroupService implements IAmenityGroupService {
     public AmenityGroupEntity updateAmenityGroup(Long id, UpdateAmenityGroupRequestDto req) {
         return updateAmenityGroupUseCase.updateAmenityGroup(id, req);
     }
+
+    @Override
+    public void createIfNotExists(List<CreateAmenityGroupRequestDto> amenityGroups) {
+        createAmenityGroupUseCase.createIfNotExists(amenityGroups);
+    }
 }

@@ -13,4 +13,5 @@ public interface IAmenityPort {
     void deleteAmenityById(Long id);
     void deleteAmenityByGroupId(Long groupId);
     List<AmenityEntity> getAmenitiesByIds(List<Long> ids);
+    long countAll();
 }

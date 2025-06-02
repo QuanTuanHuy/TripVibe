@@ -62,4 +62,9 @@ public class LanguageAdapter implements ILanguagePort {
     public List<LanguageEntity> getLanguagesByIds(List<Long> ids) {
         return LanguageMapper.INSTANCE.toListEntity(languageRepository.findByIdIn(ids));
     }
+
+    @Override
+    public long countAll() {
+        return languageRepository.count();
+    }
 }

@@ -11,6 +11,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -29,5 +31,21 @@ public class CreateAccommodationTypeUseCase {
 
         AccommodationTypeEntity accommodationType = AccommodationTypeMapper.INSTANCE.toEntity(req);
         return accommodationTypePort.save(accommodationType);
+    }
+
+    @Transactional(rollbackFor = Exception.class)
+    public void createIfNotExists(List<CreateAccommodationTypeDto> accommodationTypes) {
+        if (accommodationTypePort.countAll() > 0) {
+            log.info("Accommodation types already exist, skipping creation.");
+            return;
+        }
+
+        accommodationTypes.forEach(accType -> {
+            try {
+                createAccommodationType(accType);
+            } catch (Exception e) {
+                log.warn("Failed to create accommodation type: {}, error: {}", accType.getName(), e.getMessage());
+            }
+        });
     }
 }

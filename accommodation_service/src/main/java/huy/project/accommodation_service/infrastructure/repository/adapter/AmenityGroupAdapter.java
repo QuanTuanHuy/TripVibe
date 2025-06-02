@@ -53,4 +53,9 @@ public class AmenityGroupAdapter implements IAmenityGroupPort {
     public void deleteAmenityGroupById(Long id) {
         amenityGroupRepository.deleteById(id);
     }
+
+    @Override
+    public long countAll() {
+        return amenityGroupRepository.count();
+    }
 }

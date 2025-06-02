@@ -28,4 +28,9 @@ public class BedTypeService implements IBedTypeService {
     public Pair<PageInfo, List<BedTypeEntity>> getBedTypes(BedTypeParams params) {
         return getBedTypeUseCase.getBedTypes(params);
     }
+
+    @Override
+    public void createIfNotExists(List<CreateBedTypeDto> bedTypes) {
+        createBedTypeUseCase.createIfNotExists(bedTypes);
+    }
 }

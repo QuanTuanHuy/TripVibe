@@ -11,6 +11,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -28,5 +30,22 @@ public class CreateBedTypeUseCase {
 
         BedTypeEntity bedType = BedTypeMapper.INSTANCE.toEntity(req);
         return bedTypePort.save(bedType);
+    }
+
+    @Transactional(rollbackFor = Exception.class)
+    public void createIfNotExists(List<CreateBedTypeDto> bedTypes) {
+        long existingCount = bedTypePort.countAll();
+        if (existingCount > 0) {
+            log.info("Bed types already exist, skipping creation.");
+            return;
+        }
+
+        bedTypes.forEach(bedType -> {
+            try {
+                createBedType(bedType);
+            } catch (Exception e) {
+                log.warn("Failed to create bed type: {}, error: {}", bedType.getName(), e.getMessage());
+            }
+        });
     }
 }

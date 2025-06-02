@@ -9,4 +9,5 @@ public interface ICurrencyService {
     CurrencyEntity createCurrency(CreateCurrencyDto req);
     List<CurrencyEntity> getCurrencies();
     void deleteCurrencyById(Long id);
+    void createIfNotExists(List<CreateCurrencyDto> currencies);
 }

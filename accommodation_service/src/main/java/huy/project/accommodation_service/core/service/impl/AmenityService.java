@@ -11,6 +11,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -22,6 +24,11 @@ public class AmenityService implements IAmenityService {
     @Override
     public AmenityEntity createAmenity(CreateAmenityRequestDto req) {
         return createAmenityUseCase.createAmenity(req);
+    }
+
+    @Override
+    public void createIfNotExists(List<CreateAmenityRequestDto> amenities) {
+        createAmenityUseCase.createIfNotExists(amenities);
     }
 
     @Override

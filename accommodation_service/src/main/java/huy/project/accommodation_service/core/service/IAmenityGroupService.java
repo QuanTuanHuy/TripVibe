@@ -15,4 +15,5 @@ public interface IAmenityGroupService {
     Pair<PageInfo, List<AmenityGroupEntity>> getAllAmenityGroups(AmenityGroupParams params);
     void deleteAmenityGroupById(Long id);
     AmenityGroupEntity updateAmenityGroup(Long id, UpdateAmenityGroupRequestDto req);
+    void createIfNotExists(List<CreateAmenityGroupRequestDto> amenityGroups);
 }

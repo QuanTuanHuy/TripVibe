@@ -15,4 +15,5 @@ public interface ILanguagePort {
     void deleteLanguageById(Long id);
     LanguageEntity getLanguageById(Long id);
     List<LanguageEntity> getLanguagesByIds(List<Long> ids);
+    long countAll();
 }

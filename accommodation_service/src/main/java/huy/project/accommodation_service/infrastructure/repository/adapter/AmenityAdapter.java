@@ -16,6 +16,11 @@ public class AmenityAdapter implements IAmenityPort {
     private final IAmenityRepository amenityRepository;
 
     @Override
+    public long countAll() {
+        return amenityRepository.count();
+    }
+
+    @Override
     public AmenityEntity save(AmenityEntity amenity) {
         AmenityModel amenityModel = AmenityMapper.INSTANCE.toModel(amenity);
         return AmenityMapper.INSTANCE.toEntity(amenityRepository.save(amenityModel));
