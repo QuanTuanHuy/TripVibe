@@ -3,7 +3,7 @@
 import { useState, useRef } from 'react';
 import { ChevronRight, X } from 'lucide-react';
 import Header from '@/components/Header';
-import { availableRooms } from './roomData';
+import { sampleRooms } from '@/data/sampleRooms'; // Use our test data
 import ReviewSection from '@/components/HotelDetail/ReviewSection';
 import DateRangePicker from '@/components/HotelDetail/DateRangePicker';
 import GuestSelector from '@/components/HotelDetail/GuestSelector';
@@ -185,10 +185,9 @@ export default function HotelDetailPage() {
                             <button className="bg-blue-600 text-white font-medium px-6 rounded-r flex items-center">
                                 Tìm
                             </button>
-                        </div>
-                        {/* Available Rooms Component */}
+                        </div>                        {/* Available Rooms Component */}
                         <AvailableRooms
-                            rooms={availableRooms}
+                            rooms={sampleRooms}
                         />
                     </div>
 

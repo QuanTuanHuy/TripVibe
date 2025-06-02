@@ -48,6 +48,15 @@ interface AvailableRoomsProps {
     onShowRoomDetails?: (roomId: number) => void;
 }
 
+// Selected room interface for booking summary
+interface SelectedRoom {
+    roomId: number;
+    roomName: string;
+    quantity: number;
+    price: number;
+    totalPrice: number;
+}
+
 // Format price function
 const formatPrice = (price: number): string => {
     return new Intl.NumberFormat('vi-VN', {
@@ -134,6 +143,37 @@ export default function AvailableRooms({ rooms, onShowRoomDetails }: AvailableRo
             document.removeEventListener('mousedown', handleClickOutside);
         };
     }, []);
+
+    // Get selected rooms for guest form
+    const getSelectedRooms = (): SelectedRoom[] => {
+        return Object.entries(roomQuantities)
+            .filter(([, quantity]) => quantity > 0)
+            .map(([roomId, quantity]) => {
+                const room = rooms.find(r => r.id === parseInt(roomId));
+                return {
+                    roomId: parseInt(roomId),
+                    roomName: room?.name || '',
+                    quantity,
+                    price: room?.price || 0,
+                    totalPrice: (room?.price || 0) * quantity
+                };
+            });
+    };
+
+    // Handle proceed to booking
+    const handleProceedToBooking = () => {
+        if (hasSelectedRooms()) {
+            // Redirect to booking page with selected rooms data
+            const selectedRooms = getSelectedRooms();
+            const hotelId = "1"; // This should come from props
+            const hotelName = "La Passion Classic Hotel"; // This should come from props
+
+            // For now, we'll use router to navigate to booking page
+            // You can pass room data via URL params or localStorage
+            localStorage.setItem('selectedRooms', JSON.stringify(selectedRooms));
+            window.location.href = `/booking?hotelId=${hotelId}&hotelName=${encodeURIComponent(hotelName)}`;
+        }
+    };
 
     return (
         <>
@@ -228,7 +268,8 @@ export default function AvailableRooms({ rooms, onShowRoomDetails }: AvailableRo
                                             <Check size={16} className="text-green-700" />
                                             <span>Miễn phí hủy</span>
                                         </div>
-                                    )}                                    {/* Special Offers */}
+                                    )}
+                                    {/* Special Offers */}
                                     {room.specialOffers && room.specialOffers.length > 0 && (
                                         <div className="mt-3 p-3 bg-green-50 rounded-lg">
                                             <p className="text-sm font-medium text-green-700">Ưu đãi đặc biệt:</p>
@@ -255,7 +296,8 @@ export default function AvailableRooms({ rooms, onShowRoomDetails }: AvailableRo
                                             <div className="mb-3 text-sm text-red-600 font-medium">
                                                 Chỉ còn {room.remainingRooms} phòng với giá này!
                                             </div>
-                                        )}                                        {/* Room Quantity Selector */}
+                                        )}
+                                        {/* Room Quantity Selector */}
                                         <div className="mt-3 mb-4">
                                             <div className="relative room-quantity-dropdown">
                                                 <button
@@ -306,21 +348,22 @@ export default function AvailableRooms({ rooms, onShowRoomDetails }: AvailableRo
                                         </div>
                                     </div>
 
-                                    <div>                                        <button
-                                        className={`w-full ${roomQuantities[room.id] > 0 ? 'bg-blue-600 hover:bg-blue-700' : 'bg-gray-400 cursor-not-allowed'} text-white font-medium rounded-md px-4 py-2 mb-2 transition-colors`}
-                                        disabled={!roomQuantities[room.id]}
-                                        onClick={() => {
-                                            if (roomQuantities[room.id] > 0) {
-                                                console.log(`Đặt ${roomQuantities[room.id]} phòng ${room.name} với giá ${formatPrice(room.price * roomQuantities[room.id])}`);
-                                                // Thêm logic đặt phòng riêng cho từng loại phòng
+                                    <div>
+                                        <button
+                                            className={`w-full ${roomQuantities[room.id] > 0 ? 'bg-blue-600 hover:bg-blue-700' : 'bg-gray-400 cursor-not-allowed'} text-white font-medium rounded-md px-4 py-2 mb-2 transition-colors`}
+                                            disabled={!roomQuantities[room.id]}
+                                            onClick={() => {
+                                                if (roomQuantities[room.id] > 0) {
+                                                    console.log(`Đặt ${roomQuantities[room.id]} phòng ${room.name} với giá ${formatPrice(room.price * roomQuantities[room.id])}`);
+                                                    // Thêm logic đặt phòng riêng cho từng loại phòng
+                                                }
+                                            }}
+                                        >
+                                            {roomQuantities[room.id] > 0
+                                                ? `Đặt ${roomQuantities[room.id]} phòng - ${formatPrice(room.price * roomQuantities[room.id])}`
+                                                : 'Chọn số lượng phòng'
                                             }
-                                        }}
-                                    >
-                                        {roomQuantities[room.id] > 0
-                                            ? `Đặt ${roomQuantities[room.id]} phòng - ${formatPrice(room.price * roomQuantities[room.id])}`
-                                            : 'Chọn số lượng phòng'
-                                        }
-                                    </button>
+                                        </button>
                                         <button
                                             onClick={() => handleShowRoomDetailsLocal(room.id)}
                                             className="w-full border border-blue-600 text-blue-600 hover:bg-blue-50 font-medium rounded-md px-4 py-2"
@@ -332,7 +375,8 @@ export default function AvailableRooms({ rooms, onShowRoomDetails }: AvailableRo
                             </div>
                         </div>
                     </div>
-                ))}            </div>
+                ))}
+            </div>
 
             {/* Booking Summary - Only show when rooms are selected */}
             {hasSelectedRooms() && (
@@ -340,25 +384,26 @@ export default function AvailableRooms({ rooms, onShowRoomDetails }: AvailableRo
                     <h3 className="text-lg font-bold text-blue-800 mb-4">Tóm tắt đặt phòng</h3>
 
                     {/* Selected Rooms List */}
-                    <div className="space-y-3 mb-4">                        {Object.entries(roomQuantities)
-                        .filter(([, quantity]) => quantity > 0)
-                        .map(([roomId, quantity]) => {
-                            const room = rooms.find(r => r.id === parseInt(roomId));
-                            if (!room) return null;
+                    <div className="space-y-3 mb-4">
+                        {Object.entries(roomQuantities)
+                            .filter(([, quantity]) => quantity > 0)
+                            .map(([roomId, quantity]) => {
+                                const room = rooms.find(r => r.id === parseInt(roomId));
+                                if (!room) return null;
 
-                            return (
-                                <div key={roomId} className="flex justify-between items-center bg-white p-3 rounded-md">
-                                    <div>
-                                        <span className="font-medium">{room.name}</span>
-                                        <span className="text-gray-600 ml-2">x {quantity}</span>
+                                return (
+                                    <div key={roomId} className="flex justify-between items-center bg-white p-3 rounded-md">
+                                        <div>
+                                            <span className="font-medium">{room.name}</span>
+                                            <span className="text-gray-600 ml-2">x {quantity}</span>
+                                        </div>
+                                        <div className="text-right">
+                                            <div className="font-medium">{formatPrice(room.price * quantity)}</div>
+                                            <div className="text-sm text-gray-600">{formatPrice(room.price)}/phòng</div>
+                                        </div>
                                     </div>
-                                    <div className="text-right">
-                                        <div className="font-medium">{formatPrice(room.price * quantity)}</div>
-                                        <div className="text-sm text-gray-600">{formatPrice(room.price)}/phòng</div>
-                                    </div>
-                                </div>
-                            );
-                        })}
+                                );
+                            })}
                     </div>
 
                     {/* Total Price */}
@@ -372,23 +417,10 @@ export default function AvailableRooms({ rooms, onShowRoomDetails }: AvailableRo
                                 {formatPrice(calculateTotalPrice())}
                             </div>
                         </div>
-
                         {/* Book Now Button */}
                         <button
                             className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg transition-colors duration-200"
-                            onClick={() => {
-                                const selectedRooms = Object.entries(roomQuantities)
-                                    .filter(([, quantity]) => quantity > 0)
-                                    .map(([roomId, quantity]) => ({
-                                        roomId: parseInt(roomId),
-                                        quantity,
-                                        room: rooms.find(r => r.id === parseInt(roomId))
-                                    }));
-
-                                console.log('Đặt phòng:', selectedRooms);
-                                console.log('Tổng giá:', calculateTotalPrice());
-                                // Thêm logic đặt phòng ở đây
-                            }}
+                            onClick={handleProceedToBooking}
                         >
                             Đặt phòng ngay - {formatPrice(calculateTotalPrice())}
                         </button>
@@ -414,8 +446,10 @@ export default function AvailableRooms({ rooms, onShowRoomDetails }: AvailableRo
                                     className="absolute right-4 top-4 bg-white/80 hover:bg-white backdrop-blur-sm rounded-full p-2 shadow-md z-20 transition-all duration-200"
                                 >
                                     <X size={24} />
-                                </button>                                {/* Room gallery - Featured image and thumbnails */}
-                                <div className="bg-gray-100">                                    {/* Main image */}
+                                </button>
+                                {/* Room gallery - Featured image and thumbnails */}
+                                <div className="bg-gray-100">
+                                    {/* Main image */}
                                     <div className="relative h-96 w-full group">
                                         <Image
                                             src={room.images[selectedImageIndex[room.id] || 0]}
