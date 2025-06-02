@@ -13,4 +13,6 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder
 public class PendingReviewParams extends BaseParams {
     private Long userId;
+    private Long bookingId;
+    private Long unitId;
 }

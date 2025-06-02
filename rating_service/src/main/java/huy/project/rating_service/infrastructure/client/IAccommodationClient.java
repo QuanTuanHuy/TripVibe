@@ -1,5 +1,6 @@
 package huy.project.rating_service.infrastructure.client;
 
+import huy.project.rating_service.core.domain.dto.response.AccThumbnailDto;
 import huy.project.rating_service.core.domain.dto.response.AccommodationDto;
 import huy.project.rating_service.core.domain.dto.response.UnitDto;
 import huy.project.rating_service.kernel.config.FeignClientConfig;
@@ -24,4 +25,9 @@ public interface IAccommodationClient {
 
     @GetMapping("/api/internal/v1/accommodations/{id}")
     Resource<AccommodationDto> getAccommodationById(@PathVariable Long id);
+
+    @GetMapping("/api/public/v1/accommodations/thumbnails")
+    Resource<List<AccThumbnailDto>> getAccThumbnails(
+            @RequestParam("ids") List<Long> ids
+    );
 }

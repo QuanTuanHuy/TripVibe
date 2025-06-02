@@ -1,6 +1,6 @@
 import apiClient from '../api.client';
 import { CreateRatingDto, CreateRatingHelpfulnessDto, CreateRatingResponseDto, Rating, RatingHelpfulness, RatingParams, RatingResponse, RatingSummary } from '../../types/rating/rating.types';
-import { ListDataResponse, ListDataResponseV2 } from '@/types/common';
+import { ListDataResponseV2 } from '@/types/common';
 import { bookingService } from '../booking';
 import accommodationService from '../accommodation/accommodation.service';
 import { epochToDate } from '@/lib/datetime.utils';

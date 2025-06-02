@@ -58,7 +58,7 @@ public class AmenityGroupController {
                 .type(type)
                 .build();
         var result = amenityGroupService.getAllAmenityGroups(params);
-        var response = ListDataResponse.of(result.getLeft(), result.getRight());
+        var response = ListDataResponse.of(result.getFirst(), result.getSecond());
         return ResponseEntity.ok(new Resource<>(response));
     }
 

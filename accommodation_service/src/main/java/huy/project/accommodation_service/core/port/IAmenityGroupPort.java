@@ -1,9 +1,9 @@
 package huy.project.accommodation_service.core.port;
 
-import com.nimbusds.jose.util.Pair;
 import huy.project.accommodation_service.core.domain.dto.request.AmenityGroupParams;
 import huy.project.accommodation_service.core.domain.dto.response.PageInfo;
 import huy.project.accommodation_service.core.domain.entity.AmenityGroupEntity;
+import org.springframework.data.util.Pair;
 
 import java.util.List;
 

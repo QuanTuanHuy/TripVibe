@@ -1,6 +1,5 @@
 package huy.project.rating_service.infrastructure.repository.adapter;
 
-import com.nimbusds.jose.util.Pair;
 import huy.project.rating_service.core.domain.dto.request.PendingReviewParams;
 import huy.project.rating_service.core.domain.dto.response.PageInfo;
 import huy.project.rating_service.core.domain.entity.PendingReviewEntity;
@@ -10,6 +9,7 @@ import huy.project.rating_service.infrastructure.repository.mapper.PendingReview
 import huy.project.rating_service.infrastructure.repository.specification.PendingReviewSpecification;
 import huy.project.rating_service.kernel.utils.PageUtils;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.util.Pair;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -28,9 +28,21 @@ public class PendingReviewAdapter implements IPendingReviewPort {
     @Override
     public Pair<PageInfo, List<PendingReviewEntity>> getPendingReviews(PendingReviewParams params) {
         var pageable = PageUtils.getPageable(params);
-        var pendingReviews = pendingReviewRepository.findAll(PendingReviewSpecification.getPendingReviews(params), pageable);
+        var pendingReviews = pendingReviewRepository.findAll(
+                PendingReviewSpecification.getPendingReviews(params), pageable);
         var pageInfo = PageUtils.getPageInfo(pendingReviews);
         return Pair.of(pageInfo, PendingReviewMapper.INSTANCE.toListEntity(pendingReviews.getContent()));
+    }
+
+    @Override
+    public List<PendingReviewEntity> getPendingReviewsByIds(List<Long> ids) {
+        if (ids.size() == 1) {
+            return List.of(
+                    PendingReviewMapper.INSTANCE.toEntity(
+                            pendingReviewRepository.findById(ids.getFirst()).orElse(null)));
+        }
+        return PendingReviewMapper.INSTANCE.toListEntity(
+                pendingReviewRepository.findByIdIn(ids));
     }
 
     @Override

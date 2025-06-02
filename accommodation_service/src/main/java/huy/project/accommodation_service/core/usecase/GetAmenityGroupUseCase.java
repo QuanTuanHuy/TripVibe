@@ -1,6 +1,5 @@
 package huy.project.accommodation_service.core.usecase;
 
-import com.nimbusds.jose.util.Pair;
 import huy.project.accommodation_service.core.domain.constant.CacheConstant;
 import huy.project.accommodation_service.core.domain.constant.ErrorCode;
 import huy.project.accommodation_service.core.domain.dto.request.AmenityGroupParams;
@@ -14,6 +13,7 @@ import huy.project.accommodation_service.kernel.utils.CacheUtils;
 import huy.project.accommodation_service.kernel.utils.JsonUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.util.Pair;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
@@ -63,11 +63,11 @@ public class GetAmenityGroupUseCase {
 
         // get from db
         Pair<PageInfo, List<AmenityGroupEntity>> amenityGroupPage = amenityGroupPort.getAllAmenityGroups(params);
-        if (CollectionUtils.isEmpty(amenityGroupPage.getRight())) {
+        if (CollectionUtils.isEmpty(amenityGroupPage.getSecond())) {
             return amenityGroupPage;
         }
 
-        var amenityGroups = amenityGroupPage.getRight();
+        var amenityGroups = amenityGroupPage.getSecond();
 
         List<Long> amenityGroupIds = amenityGroups.stream().map(AmenityGroupEntity::getId).toList();
         List<AmenityEntity> amenities = getAmenityUseCase.getAmenitiesByGroupIds(amenityGroupIds);
@@ -92,6 +92,6 @@ public class GetAmenityGroupUseCase {
         // set to cache
 //        cachePort.setToCache(CacheUtils.CACHE_AMENITY_GROUP_LIST, amenityGroups, CacheConstant.DEFAULT_TTL);
 
-        return Pair.of(amenityGroupPage.getLeft(), amenityGroups);
+        return Pair.of(amenityGroupPage.getFirst(), amenityGroups);
     }
 }

@@ -15,6 +15,12 @@ public class PendingReviewSpecification {
             if (params.getUserId() != null) {
                 predicates.add(criteriaBuilder.equal(root.get("userId"), params.getUserId()));
             }
+            if (params.getBookingId() != null) {
+                predicates.add(criteriaBuilder.equal(root.get("bookingId"), params.getBookingId()));
+            }
+            if (params.getUnitId() != null) {
+                predicates.add(criteriaBuilder.equal(root.get("unitId"), params.getUnitId()));
+            }
 
             return criteriaBuilder.and(predicates.toArray(new Predicate[0]));
         };

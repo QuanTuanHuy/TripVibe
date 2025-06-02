@@ -42,4 +42,9 @@ public class RatingAdapter implements IRatingPort {
     public RatingEntity getRatingById(Long id) {
         return RatingMapper.INSTANCE.toEntity(ratingRepository.findById(id).orElse(null));
     }
+
+    @Override
+    public boolean isRatingExisted(Long userId, Long bookingId, Long unitId) {
+        return ratingRepository.existsByUserIdAndBookingIdAndUnitId(userId, bookingId, unitId) ;
+    }
 }

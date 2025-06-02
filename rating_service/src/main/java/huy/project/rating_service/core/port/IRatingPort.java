@@ -12,4 +12,5 @@ public interface IRatingPort {
     RatingEntity getRatingByUnitIdAndUserId(Long unitId, Long userId);
     Pair<PageInfo, List<RatingEntity>> getAllRatings(RatingParams params);
     RatingEntity getRatingById(Long id);
+    boolean isRatingExisted(Long userId, Long bookingId, Long unitId);
 }

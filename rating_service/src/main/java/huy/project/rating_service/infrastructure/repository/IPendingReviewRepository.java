@@ -8,4 +8,5 @@ import java.util.List;
 @Repository
 public interface IPendingReviewRepository extends IBaseRepository<PendingReviewModel> {
     void deleteByIdIn(List<Long> ids);
+    List<PendingReviewModel> findByIdIn(List<Long> ids);
 }

@@ -1,6 +1,5 @@
 package huy.project.accommodation_service.infrastructure.repository.adapter;
 
-import com.nimbusds.jose.util.Pair;
 import huy.project.accommodation_service.core.domain.dto.request.AmenityGroupParams;
 import huy.project.accommodation_service.core.domain.dto.response.PageInfo;
 import huy.project.accommodation_service.core.domain.entity.AmenityGroupEntity;
@@ -11,6 +10,7 @@ import huy.project.accommodation_service.infrastructure.repository.model.Amenity
 import huy.project.accommodation_service.infrastructure.repository.specification.AmenityGroupSpecification;
 import huy.project.accommodation_service.kernel.utils.PageUtils;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.util.Pair;
 import org.springframework.stereotype.Service;
 
 import java.util.List;

@@ -1,6 +1,5 @@
 package huy.project.accommodation_service.core.service.impl;
 
-import com.nimbusds.jose.util.Pair;
 import huy.project.accommodation_service.core.domain.dto.request.AmenityGroupParams;
 import huy.project.accommodation_service.core.domain.dto.request.CreateAmenityGroupRequestDto;
 import huy.project.accommodation_service.core.domain.dto.request.UpdateAmenityGroupRequestDto;
@@ -12,6 +11,7 @@ import huy.project.accommodation_service.core.usecase.DeleteAmenityGroupUseCase;
 import huy.project.accommodation_service.core.usecase.GetAmenityGroupUseCase;
 import huy.project.accommodation_service.core.usecase.UpdateAmenityGroupUseCase;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.util.Pair;
 import org.springframework.stereotype.Service;
 
 import java.util.List;

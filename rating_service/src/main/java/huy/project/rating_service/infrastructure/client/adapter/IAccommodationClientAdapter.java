@@ -1,6 +1,7 @@
 package huy.project.rating_service.infrastructure.client.adapter;
 
 import huy.project.rating_service.core.domain.constant.ErrorCode;
+import huy.project.rating_service.core.domain.dto.response.AccThumbnailDto;
 import huy.project.rating_service.core.domain.dto.response.AccommodationDto;
 import huy.project.rating_service.core.domain.dto.response.UnitDto;
 import huy.project.rating_service.core.domain.exception.AppException;
@@ -42,6 +43,21 @@ public class IAccommodationClientAdapter implements IAccommodationPort {
                 return response.getData();
             } else {
                 return null;
+            }
+        } catch (Exception e) {
+            log.error("error when calling accommodation service: ", e);
+            throw new AppException(ErrorCode.SERVICE_UNAVAILABLE);
+        }
+    }
+
+    @Override
+    public List<AccThumbnailDto> getAccThumbnailsByIds(List<Long> accIds) {
+        try {
+            Resource<List<AccThumbnailDto>> response = accommodationClient.getAccThumbnails(accIds);
+            if (response.getMeta().getMessage().equals("Success") && response.getData() != null) {
+                return response.getData();
+            } else {
+                return List.of();
             }
         } catch (Exception e) {
             log.error("error when calling accommodation service: ", e);
