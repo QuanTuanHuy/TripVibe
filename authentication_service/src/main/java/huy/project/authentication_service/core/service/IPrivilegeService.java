@@ -10,4 +10,5 @@ public interface IPrivilegeService {
     PrivilegeEntity createPrivilege(CreatePrivilegeRequestDto req);
     List<PrivilegeEntity> getAllPrivileges();
     PrivilegeEntity updatePrivilege(Long id, UpdatePrivilegeRequestDto req);
+    void createIfNotExists(List<CreatePrivilegeRequestDto> privileges);
 }

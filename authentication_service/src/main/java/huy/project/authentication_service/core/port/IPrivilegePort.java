@@ -10,4 +10,5 @@ public interface IPrivilegePort {
     PrivilegeEntity getPrivilegeById(Long id);
     List<PrivilegeEntity> getAllPrivileges();
     List<PrivilegeEntity> getPrivilegesByIds(List<Long> privilegeIds);
+    long countAll();
 }

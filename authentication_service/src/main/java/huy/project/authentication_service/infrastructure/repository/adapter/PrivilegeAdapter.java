@@ -38,4 +38,9 @@ public class PrivilegeAdapter implements IPrivilegePort {
     public List<PrivilegeEntity> getPrivilegesByIds(List<Long> privilegeIds) {
         return PrivilegeMapper.INSTANCE.toListPrivilegeEntity(privilegeRepository.findByIdIn(privilegeIds));
     }
+
+    @Override
+    public long countAll() {
+        return privilegeRepository.count();
+    }
 }

@@ -31,4 +31,9 @@ public class UserAdapter implements IUserPort {
     public void deleteUserById(Long id) {
         userRepository.deleteById(id);
     }
+
+    @Override
+    public long countAll() {
+        return userRepository.count();
+    }
 }

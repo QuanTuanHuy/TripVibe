@@ -22,10 +22,10 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.util.Pair;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 
 import java.time.Instant;
 import java.util.List;
@@ -40,6 +40,7 @@ public class CreateUserUseCase {
     INotificationPort notificationPort;
     ICachePort cachePort;
 
+    GetRoleUseCase getRoleUseCase;
     RoleValidation roleValidation;
     UserValidation userValidation;
 
@@ -47,38 +48,76 @@ public class CreateUserUseCase {
 
     PasswordEncoder passwordEncoder;
 
-    @Transactional(rollbackFor = Exception.class)
-    public UserEntity createUser(CreateUserRequestDto request) {
-        // validate req
-        if (userValidation.isEmailExist(request.getEmail())) {
-            log.error("Email is already taken");
-            throw new AppException(ErrorCode.USER_EMAIL_EXISTED);
-        }
+//    @Transactional(rollbackFor = Exception.class)
+//    public UserEntity createUser(CreateUserRequestDto request) {
+//        // validate req
+//        if (userValidation.isEmailExist(request.getEmail())) {
+//            log.error("Email is already taken");
+//            throw new AppException(ErrorCode.USER_EMAIL_EXISTED);
+//        }
+//
+//        Pair<Boolean, List<RoleEntity>> roleExisted = roleValidation.isRolesExist(request.getRoleIds());
+//        if (!roleExisted.getFirst()) {
+//            log.error("Some roles are not existed");
+//            throw new AppException(ErrorCode.ROLE_NOT_FOUND);
+//        }
+//
+//        // create user
+//        UserEntity user = UserMapper.INSTANCE.toEntity(request);
+//        user.setPassword(passwordEncoder.encode(request.getPassword()));
+//        user.setEnabled(false);
+//        user = userPort.save(user);
+//        user.setRoles(roleExisted.getSecond());
+//        user.setPassword(null);
+//        final Long userId = user.getId();
+//
+//        List<UserRoleEntity> userRoles = roleExisted.getSecond().stream()
+//                .map(role -> UserRoleEntity.builder()
+//                        .userId(userId)
+//                        .roleId(role.getId())
+//                        .build())
+//                .toList();
+//        userRolePort.saveAll(userRoles);
+//
+//        // send otp to user
+//        OtpDto otp = createOtpForRegister();
+//        cachePort.setToCache(CacheUtils.buildCacheKeyOtpRegister(user.getEmail()), otp, otp.getExpiredAt());
+//        var createNotificationDto = buildCreateNotification(user, otp);
+//        notificationPort.createNotification(createNotificationDto);
+//
+//        return user;
+//    }
 
-        Pair<Boolean, List<RoleEntity>> roleExisted = roleValidation.isRolesExist(request.getRoleIds());
-        if (!roleExisted.getFirst()) {
-            log.error("Some roles are not existed");
+    @Transactional(rollbackFor = Exception.class)
+    public UserEntity createUser(String email, String password, List<String> roleNames) {
+        validateRequest(email, roleNames);
+
+        List<RoleEntity>  roles = getRoleUseCase.getAllRoles().stream()
+                .filter(role -> roleNames.contains(role.getName()))
+                .toList();
+        if (CollectionUtils.isEmpty(roles)) {
+            log.error("No valid roles found for user creation");
             throw new AppException(ErrorCode.ROLE_NOT_FOUND);
         }
 
-        // create user
+        CreateUserRequestDto request = CreateUserRequestDto.builder()
+                .email(email)
+                .password(passwordEncoder.encode(password))
+                .roleIds(roles.stream().map(RoleEntity::getId).toList())
+                .build();
         UserEntity user = UserMapper.INSTANCE.toEntity(request);
-        user.setPassword(passwordEncoder.encode(request.getPassword()));
         user.setEnabled(false);
         user = userPort.save(user);
-        user.setRoles(roleExisted.getSecond());
-        user.setPassword(null);
-        final Long userId = user.getId();
+        user.setRoles(roles);
+        final long userId = user.getId();
 
-        List<UserRoleEntity> userRoles = roleExisted.getSecond().stream()
+        userRolePort.saveAll(roles.stream()
                 .map(role -> UserRoleEntity.builder()
                         .userId(userId)
                         .roleId(role.getId())
                         .build())
-                .toList();
-        userRolePort.saveAll(userRoles);
+                .toList());
 
-        // send otp to user
         OtpDto otp = createOtpForRegister();
         cachePort.setToCache(CacheUtils.buildCacheKeyOtpRegister(user.getEmail()), otp, otp.getExpiredAt());
         var createNotificationDto = buildCreateNotification(user, otp);
@@ -105,6 +144,20 @@ public class CreateUserUseCase {
                 .content("your otp for registration of booking: " + otpDto.getOtp())
                 .recipient(user.getEmail())
                 .build();
+    }
+
+    private void validateRequest(String email, List<String> roleNames) {
+        if (userValidation.isEmailExist(email)) {
+            log.error("Email is already taken");
+            throw new AppException(ErrorCode.USER_EMAIL_EXISTED);
+        }
+
+        roleNames.forEach(roleName -> {
+            if (!roleValidation.isRoleNameExist(roleName)) {
+                log.error("Role {} does not exist", roleName);
+                throw new AppException(ErrorCode.ROLE_NOT_FOUND);
+            }
+        });
     }
 
 }

@@ -17,9 +17,11 @@ spring:
   kafka:
     bootstrap-servers: localhost:9094
     consumer:
-      group-id: tourist_group
+      group-id: profile_group
+      auto-offset-reset: earliest
       key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
       value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      max-poll-records: 10
 server:
   port: 8086
   servlet:

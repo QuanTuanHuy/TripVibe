@@ -33,4 +33,9 @@ public class RoleService implements IRoleService {
     public RoleEntity updateRole(Long roleId, UpdateRoleRequestDto req) {
         return updateRoleUseCase.updateRole(roleId, req);
     }
+
+    @Override
+    public void createIfNotExists(List<CreateRoleRequestDto> roles) {
+        createRoleUseCase.createIfNotExists(roles);
+    }
 }

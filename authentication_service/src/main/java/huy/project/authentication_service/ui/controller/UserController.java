@@ -1,14 +1,17 @@
 package huy.project.authentication_service.ui.controller;
 
-import huy.project.authentication_service.core.domain.dto.request.CreateUserRequestDto;
+import huy.project.authentication_service.core.domain.constant.RoleType;
 import huy.project.authentication_service.core.domain.dto.request.UpdateUserRequestDto;
 import huy.project.authentication_service.core.domain.entity.UserEntity;
 import huy.project.authentication_service.core.service.IUserService;
 import huy.project.authentication_service.kernel.utils.AuthenUtils;
 import huy.project.authentication_service.ui.resource.Resource;
+import huy.project.authentication_service.ui.resource.request.CreateUserRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -16,9 +19,31 @@ import org.springframework.web.bind.annotation.*;
 public class UserController {
     private final IUserService userService;
 
-    @PostMapping
-    public ResponseEntity<Resource<UserEntity>> register(@RequestBody CreateUserRequestDto request) {
-        return ResponseEntity.ok(new Resource<>(userService.createUser(request)));
+    @PostMapping("/customer")
+    public ResponseEntity<Resource<UserEntity>> registerCustomer(@RequestBody CreateUserRequest request) {
+        return ResponseEntity.ok(new Resource<>(
+                userService.createUser(
+                        request.getEmail(),
+                        request.getPassword(),
+                        List.of(RoleType.CUSTOMER.name()))));
+    }
+
+    @PostMapping("/host")
+    public ResponseEntity<Resource<UserEntity>> registerHost(@RequestBody CreateUserRequest request) {
+        return ResponseEntity.ok(new Resource<>(
+                userService.createUser(
+                        request.getEmail(),
+                        request.getPassword(),
+                        List.of(RoleType.HOST.name()))));
+    }
+
+    @PostMapping("/admin")
+    public ResponseEntity<Resource<UserEntity>> registerAdmin(@RequestBody CreateUserRequest request) {
+        return ResponseEntity.ok(new Resource<>(
+                userService.createUser(
+                        request.getEmail(),
+                        request.getPassword(),
+                        List.of(RoleType.ADMIN.name()))));
     }
 
     @PostMapping("/otp/verify")

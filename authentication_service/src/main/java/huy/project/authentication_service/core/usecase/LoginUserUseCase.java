@@ -36,6 +36,7 @@ public class LoginUserUseCase {
 
         if (!passwordEncoder.matches(password, existedUser.getPassword())) {
             log.error("Password is incorrect");
+            log.error("password: {}, user password: {}", password, existedUser.getPassword());
             throw new AppException(ErrorCode.UNAUTHORIZED);
         }
 

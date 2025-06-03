@@ -33,4 +33,9 @@ public class PrivilegeService implements IPrivilegeService {
     public PrivilegeEntity updatePrivilege(Long id, UpdatePrivilegeRequestDto req) {
         return updatePrivilegeUseCase.updatePrivilege(id, req);
     }
+
+    @Override
+    public void createIfNotExists(List<CreatePrivilegeRequestDto> privileges) {
+        createPrivilegeUseCase.createIfNotExists(privileges);
+    }
 }
