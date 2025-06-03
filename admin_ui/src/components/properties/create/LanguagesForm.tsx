@@ -33,7 +33,11 @@ export default function LanguagesForm({ formData, updateFormData }: LanguagesFor
         setLoading(true);
         setError(null);
 
-        const languagesResponse = await accommodationService.getLanguages();
+        const languagesResponse = await accommodationService.getLanguages({
+          page: 0,
+          pageSize: 100,
+          sortType: 'asc',
+        });
         setLanguages(languagesResponse.data || []);
 
       } catch (err) {
@@ -101,7 +105,7 @@ export default function LanguagesForm({ formData, updateFormData }: LanguagesFor
                 className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
               >
                 {language.name}
-                <span className="ml-1 text-gray-500">({language.nativeName})</span>
+                <span className="text-gray-500">({language.nativeName})</span>
               </Label>
             </div>
           ))}

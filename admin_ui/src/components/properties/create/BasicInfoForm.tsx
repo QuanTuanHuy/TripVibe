@@ -94,7 +94,7 @@ export default function BasicInfoForm({ formData, updateFormData }: BasicInfoFor
             <SelectTrigger>
               <SelectValue placeholder="Chọn loại chỗ nghỉ" />
             </SelectTrigger>
-            <SelectContent>
+            <SelectContent className='max-h-120 overflow-y-auto'>
               {accommodationTypes.map((type) => (
                 <SelectItem key={type.id} value={type.id.toString()}>
                   {type.name}
@@ -131,7 +131,7 @@ export default function BasicInfoForm({ formData, updateFormData }: BasicInfoFor
             <SelectTrigger>
               <SelectValue placeholder="Chọn đơn vị tiền tệ" />
             </SelectTrigger>
-            <SelectContent>
+            <SelectContent className='max-h-120 overflow-y-auto'>
               {currencies.map((currency) => (
                 <SelectItem key={currency.id} value={currency.id.toString()}>
                   {currency.code} ({currency.symbol})

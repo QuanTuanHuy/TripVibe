@@ -13,6 +13,14 @@ export interface Language {
     nativeName: string;
 }
 
+export interface LanguageParams {
+    page?: number;
+    pageSize?: number;
+    sortBy?: string;
+    sortType?: 'asc' | 'desc';
+    name?: string;
+}
+
 
 export interface CreateLocationDto {
     countryId: number;

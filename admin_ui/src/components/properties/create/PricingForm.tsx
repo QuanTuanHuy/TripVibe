@@ -30,9 +30,12 @@ export default function PricingForm({ formData, updateFormData }: PricingFormPro
                 setLoading(true);
                 setError(null);
 
-                // Giả lập dữ liệu loại giá
-                const types = await priceTypeService.getPriceTypes();
-                setPriceTypes(types || []);
+                const response = await priceTypeService.getPriceTypes({
+                    page: 0,
+                    pageSize: 2,
+                    sortType: 'asc'
+                });
+                setPriceTypes(response.data || []);
             } catch (err) {
                 console.error('Error fetching price types:', err);
                 setError('Có lỗi xảy ra khi tải dữ liệu loại giá. Vui lòng tải lại trang.');

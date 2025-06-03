@@ -52,3 +52,11 @@ export interface UnitName {
     name: string;
     description?: string;
 }
+
+export interface UnitNameParams {
+    page?: number;
+    pageSize?: number;
+    sortBy?: string;
+    sortType?: 'asc' | 'desc';
+    name?: string;
+}

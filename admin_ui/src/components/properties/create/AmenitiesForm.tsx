@@ -25,7 +25,9 @@ export default function AmenitiesForm({ formData, updateFormData }: AmenitiesFor
         setError(null);
 
         // Group tiện nghi theo groupId
-        const amenityGroups = await accommodationService.getAmenityGroups();
+        const amenityGroups = await accommodationService.getAmenityGroups({
+          isPopular: true,
+        });
         const finalAmenityGroups = amenityGroups.data.filter(group => group.amenities && group.amenities.length > 0);
 
         setAmenityGroups(finalAmenityGroups);
@@ -97,6 +99,9 @@ export default function AmenitiesForm({ formData, updateFormData }: AmenitiesFor
                       htmlFor={`amenity-${amenity.id}`}
                       className="text-sm font-medium leading-none"
                     >
+                      {amenity.icon && (
+                        <span className="ml-1">{amenity.icon}</span>
+                      )}
                       {amenity.name}
                       {amenity.needToReserve && (
                         <span className="text-xs text-amber-600 ml-1">(Cần đặt trước)</span>

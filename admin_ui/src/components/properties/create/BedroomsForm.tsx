@@ -29,7 +29,11 @@ export default function BedroomsForm({ formData, updateFormData }: BedroomsFormP
         setLoading(true);
         setError(null);
 
-        const response = await bedTypeService.getBedTypes({ page: 0, pageSize: 100 });
+        const response = await bedTypeService.getBedTypes({ 
+          page: 0,
+          pageSize: 100,
+          sortType: 'asc', 
+        });
         setBedTypes(response.data || []);
       } catch (error) {
         console.error('Error fetching bed types:', error);
@@ -342,7 +346,7 @@ export default function BedroomsForm({ formData, updateFormData }: BedroomsFormP
                           <SelectTrigger>
                             <SelectValue placeholder="Chọn loại giường" />
                           </SelectTrigger>
-                          <SelectContent>
+                          <SelectContent className='max-h-120 overflow-y-auto'>
                             {bedTypes.map((type) => (
                               <SelectItem
                                 key={type.id}

@@ -10,7 +10,9 @@ import {
   Language,
   AmenityGroupParams,
   AccommodationParams,
-  Unit
+  Unit,
+  UnitNameParams,
+  LanguageParams
 } from '@/types/accommodation';
 
 // Path đến accommodation service thông qua API Gateway
@@ -46,15 +48,25 @@ const accommodationService = {
     if (params?.sortBy) queryParams.append('sortBy', params.sortBy);
     if (params?.sortType) queryParams.append('sortType', params.sortType);
     if (params?.type) queryParams.append('type', params.type);
-    if (params?.isPopular) queryParams.append('isPopular', params.isPopular.toString());
+    if (params?.isPopular != null) queryParams.append('isPopular', params.isPopular.toString());
 
     const queryString = queryParams.toString() ? `?${queryParams.toString()}` : '';
     return apiClient.get<ListDataResponse<AmenityGroup>>(`${ACCOMMODATION_PATH}/amenity_groups${queryString}`);
   },
 
   // Lấy danh sách tên đơn vị/phòng
-  getUnitNames: async (): Promise<ListDataResponse<UnitName>> => {
-    return apiClient.get<ListDataResponse<UnitName>>(`${ACCOMMODATION_PATH}/unit_names`);
+  getUnitNames: async (params?: UnitNameParams): Promise<ListDataResponse<UnitName>> => {
+    const queryParams = new URLSearchParams();
+
+    if (params?.page) queryParams.append('page', params.page.toString());
+    if (params?.pageSize) queryParams.append('pageSize', params.pageSize.toString());
+    if (params?.sortBy) queryParams.append('sortBy', params.sortBy);
+    if (params?.sortType) queryParams.append('sortType', params.sortType);
+    if (params?.name) queryParams.append('name', params.name);
+
+    const queryString = queryParams.toString() ? `?${queryParams.toString()}` : '';
+
+    return apiClient.get<ListDataResponse<UnitName>>(`${ACCOMMODATION_PATH}/unit_names${queryString}`);
   },
 
   // Lấy danh sách các đơn vị tiền tệ
@@ -62,8 +74,18 @@ const accommodationService = {
     return apiClient.get<Currency[]>(`${ACCOMMODATION_PATH}/currencies`);
   },
 
-  getLanguages: async (): Promise<ListDataResponse<Language>> => {
-    return apiClient.get<ListDataResponse<Language>>(`${ACCOMMODATION_PATH}/languages`);
+  getLanguages: async (params?: LanguageParams): Promise<ListDataResponse<Language>> => {
+    const queryParams = new URLSearchParams();
+
+    if (params?.page) queryParams.append('page', params.page.toString());
+    if (params?.pageSize) queryParams.append('pageSize', params.pageSize.toString());
+    if (params?.sortBy) queryParams.append('sortBy', params.sortBy);
+    if (params?.sortType) queryParams.append('sortType', params.sortType);
+    if (params?.name) queryParams.append('name', params.name);
+
+    const queryString = queryParams.toString() ? `?${queryParams.toString()}` : '';
+
+    return apiClient.get<ListDataResponse<Language>>(`${ACCOMMODATION_PATH}/languages${queryString}`);
   },
 
   // Tạo chỗ nghỉ mới

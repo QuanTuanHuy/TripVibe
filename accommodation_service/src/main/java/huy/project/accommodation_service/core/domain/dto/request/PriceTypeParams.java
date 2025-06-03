@@ -4,12 +4,13 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.experimental.SuperBuilder;
 
-@NoArgsConstructor
-@AllArgsConstructor
 @Getter
 @Setter
-public class CreatePriceTypeDto {
+@NoArgsConstructor
+@AllArgsConstructor
+@SuperBuilder
+public class PriceTypeParams extends BaseGetParams {
     private String name;
-    private String description;
 }

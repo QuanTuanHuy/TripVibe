@@ -7,6 +7,7 @@ import huy.project.accommodation_service.core.exception.AppException;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.util.Pair;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
@@ -16,6 +17,7 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
+@Slf4j
 public class UnitValidation {
     AmenityValidation amenityValidation;
     UnitNameValidation unitNameValidation;
@@ -33,6 +35,7 @@ public class UnitValidation {
         }
 
         if (!CollectionUtils.isEmpty(req.getPriceTypes())) {
+            log.info("price type ids: {}", req.getPriceTypes().stream().map(CreateUnitPriceTypeDto::getPriceTypeId).toList());
             List<Long> priceTypeIds = req.getPriceTypes().stream()
                     .map(CreateUnitPriceTypeDto::getPriceTypeId)
                     .toList();

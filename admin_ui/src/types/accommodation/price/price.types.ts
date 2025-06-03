@@ -48,3 +48,11 @@ export interface UnitPriceCalendar {
     lastUpdated: number;
     updateSource: string;
 }
+
+export interface PriceTypeParams {
+    page?: number;
+    pageSize?: number;
+    sortBy?: string;
+    sortType?: 'asc' | 'desc';
+    name?: string;
+}
