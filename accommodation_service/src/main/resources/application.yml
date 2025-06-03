@@ -103,6 +103,7 @@ app:
         - urlPattern: /api/public/v1/accommodations
           roles:
             - ADMIN
+            - HOST
         - urlPattern: /api/public/v1/currencies
           roles:
             - ADMIN
