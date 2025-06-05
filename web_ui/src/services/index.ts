@@ -3,7 +3,8 @@ import authService from './auth.service';
 import { bookingService } from './booking';
 import { profileService } from './profile/profileService';
 import { ratingService } from './rating/ratingService';
-import accommodationService from './accommodation/accommodation.service';
+import accommodationService from './accommodation/accommodationService';
+import { locationService } from './location';
 
 export {
   apiClient,
@@ -12,4 +13,5 @@ export {
   profileService,
   ratingService,
   accommodationService,
+  locationService,
 };

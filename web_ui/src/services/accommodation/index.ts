@@ -1,2 +1,2 @@
-export * from './accommodation.service';
-export * from './amenity.service';
+export * from './accommodationService';
+export * from './amenityService';
