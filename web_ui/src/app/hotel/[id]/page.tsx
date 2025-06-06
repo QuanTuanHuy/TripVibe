@@ -15,6 +15,7 @@ import DetailedAmenities from '@/components/HotelDetail/DetailedAmenities';
 import HotelDescription from '@/components/HotelDetail/HotelDescription';
 import HotelRules from '@/components/HotelDetail/HotelRules';
 import HotelSidebar from '@/components/HotelDetail/HotelSidebar';
+import HotelLocationSection from '@/components/HotelDetail/HotelLocationSection';
 import accommodationService from '@/services/accommodation/accommodationService';
 import { locationService } from '@/services';
 import ratingService from '@/services/rating/ratingService';
@@ -31,7 +32,6 @@ export default function HotelDetailPage() {
     const [ratingSummary, setRatingSummary] = useState<RatingSummary | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
-
     // Refs cho các phần tương ứng với tab
     const overviewRef = useRef<HTMLDivElement>(null);
     const infoRef = useRef<HTMLDivElement>(null);
@@ -71,7 +71,8 @@ export default function HotelDetailPage() {
                             setProvince(provinceData);
                         }
                     } catch (locationError) {
-                        console.error('Error fetching location details:', locationError);                        // Don't break the whole page if location fetch fails
+                        console.error('Error fetching location details:', locationError);
+                        // Don't break the whole page if location fetch fails
                     }
                 }
 
@@ -102,8 +103,7 @@ export default function HotelDetailPage() {
                 break;
             case 'info':
                 infoRef.current?.scrollIntoView({ behavior: 'smooth' });
-                break;
-            case 'amenities':
+                break; case 'amenities':
                 amenitiesRef.current?.scrollIntoView({ behavior: 'smooth' });
                 break;
             case 'rules':
@@ -210,7 +210,7 @@ export default function HotelDetailPage() {
                                     Đánh giá của khách ({ratingSummary?.numberOfRatings || 0})
                                 </button>
                             </div>
-                            
+
                             {/* Hotel Title & Rating */}
                             <HotelHeader
                                 name={accommodation.name}
@@ -239,6 +239,8 @@ export default function HotelDetailPage() {
                                     onShowMore={() => console.log('Show more clicked')}
                                 />
                                 <HotelSidebar
+                                    location={accommodation.location}
+                                    hotelName={accommodation.name}
                                     onShowMap={() => console.log('Show map clicked')}
                                 />
                             </div>
@@ -297,9 +299,16 @@ export default function HotelDetailPage() {
                                 accommodationAmenities={accommodation.amenities}
                                 units={accommodation.units}
                             />
-
                             {/* Hotel Rules Section */}
                             <HotelRules ref={rulesRef} />
+
+                            {/* Hotel Location Section */}
+                            <HotelLocationSection
+                                ref={null}
+                                location={accommodation.location}
+                                hotelName={accommodation.name}
+                                address={accommodation.location?.detailAddress || 'Địa chỉ không có sẵn'}
+                            />
 
                             {/* Genius Discount Banner */}
                             <div className="border border-gray-200 rounded p-6 mt-8 flex justify-between items-center">

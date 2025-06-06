@@ -108,7 +108,8 @@ const DetailedAmenities = forwardRef<HTMLDivElement, DetailedAmenitiesProps>(
                                         {category.icon}
                                     </span>
                                     {category.title}
-                                </h3>                                <ul className="space-y-3">
+                                </h3>
+                                <ul className="space-y-3">
                                     {category.items.map((item: AmenityItem, itemIndex: number) => (
                                         <li key={itemIndex} className="flex items-start gap-3">
                                             <div className="flex-shrink-0 mt-0.5">

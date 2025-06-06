@@ -2,6 +2,10 @@
 
 import Image from 'next/image';
 import { MapPin, Coffee } from 'lucide-react';
+import HotelMap from './HotelMap';
+import MapModal from './MapModal';
+import { Location } from '@/types/location';
+import { useState } from 'react';
 
 // Interface for hotel rating info
 interface HotelRating {
@@ -19,25 +23,24 @@ interface GuestReview {
     avatar: string;
 }
 
-// Interface for staff rating
 interface StaffRating {
     label: string;
     score: number;
 }
 
-// Interface for highlight point
 interface HighlightPoint {
     icon: React.ReactNode;
     text: string;
 }
 
-// Props interface
 interface HotelSidebarProps {
     rating?: HotelRating;
     guestReview?: GuestReview;
     staffRating?: StaffRating;
     highlights?: HighlightPoint[];
     breakfastInfo?: string;
+    location?: Location;
+    hotelName?: string;
     onShowMap?: () => void;
 }
 
@@ -78,8 +81,11 @@ const HotelSidebar: React.FC<HotelSidebarProps> = ({
     staffRating = defaultStaffRating,
     highlights = defaultHighlights,
     breakfastInfo = "Kiểu lục địa, Tự chọn, Bữa sáng mang đi",
+    location,
+    hotelName = "Khách sạn",
     onShowMap
 }) => {
+    const [isMapModalOpen, setIsMapModalOpen] = useState(false);
     return (
         <div>
             <div className="bg-gray-50 border border-gray-200 rounded p-4">
@@ -132,18 +138,15 @@ const HotelSidebar: React.FC<HotelSidebarProps> = ({
                 </div>
 
                 {/* Map Section */}
-                <div className="mt-4">
-                    <div className="w-full h-48 bg-blue-100 rounded mb-2">
-                        <div className="h-full flex items-center justify-center text-blue-800">
-                            Bản đồ
-                        </div>
-                    </div>
-                    <button
-                        onClick={onShowMap}
-                        className="w-full text-center bg-blue-600 text-white py-2 rounded font-medium hover:bg-blue-700 transition-colors"
-                    >
-                        Hiển thị trên bản đồ
-                    </button>
+                <div className="mt-4"
+                    onClick={() => setIsMapModalOpen(true)}
+                >
+                    <HotelMap
+                        location={location}
+                        hotelName={hotelName}
+                        className="rounded-lg"
+                        isModalOpen={isMapModalOpen}
+                    />
                 </div>
 
                 {/* Highlights Section */}
@@ -165,6 +168,14 @@ const HotelSidebar: React.FC<HotelSidebarProps> = ({
                     </div>
                 )}
             </div>
+
+            <MapModal
+                isOpen={isMapModalOpen}
+                onClose={() => setIsMapModalOpen(false)}
+                location={location}
+                hotelName={hotelName}
+                address={''}
+            />
         </div>
     );
 };

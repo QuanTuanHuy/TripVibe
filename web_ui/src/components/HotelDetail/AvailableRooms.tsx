@@ -576,16 +576,16 @@ export default function AvailableRooms({ units, onShowRoomDetails, hotelId, hote
                                         {/* Tiện nghi phòng */}
                                         <div className="rounded-xl p-6 border border-blue-100 shadow-sm">
                                             <div className="flex items-center gap-3 mb-6">
-                                                <div className="bg-blue-600 rounded-lg p-2">
-                                                    <Check size={20} className="text-white" />
+                                                <div className="rounded-lg p-2">
+                                                    <Check size={20} className="text-green-600"></Check>
                                                 </div>
                                                 <h3 className="text-xl font-bold text-gray-800">Tiện nghi phòng</h3>
                                             </div>
                                             <div className="space-y-3">
                                                 {getAmenityNames(unit).map((amenityName, index) => (
                                                     <div key={index} className="flex items-center gap-3 p-2 hover:bg-white/60 rounded-lg transition-colors duration-200">
-                                                        <div className="bg-green-500 rounded-full p-1">
-                                                            <Check size={12} className="text-white" />
+                                                        <div className="">
+                                                            <Check size={16} className="text-green-600"></Check>
                                                         </div>
                                                         <span className="text-gray-700 font-medium">{amenityName}</span>
                                                     </div>
@@ -602,7 +602,7 @@ export default function AvailableRooms({ units, onShowRoomDetails, hotelId, hote
                                         </div>
 
                                         {/* Thông tin phòng */}
-                                        <div className="rounded-xl p-6 border border-amber-100 shadow-sm">
+                                        <div className="rounded-xl p-6 border border-blue-100 shadow-sm">
                                             <div className="flex items-center gap-3 mb-6">
                                                 <div className="bg-amber-600 rounded-lg p-2">
                                                     <Bed size={20} className="text-white" />
