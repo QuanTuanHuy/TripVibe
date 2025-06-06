@@ -3,9 +3,10 @@ package infrastructure
 import (
 	"chat_service/core/domain/ws"
 	"encoding/json"
+	"sync"
+
 	"github.com/golibs-starter/golib/log"
 	"github.com/gorilla/websocket"
-	"sync"
 )
 
 type WebSocketManager struct {
