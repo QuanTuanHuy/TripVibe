@@ -30,7 +30,10 @@ func RegisterGinRouters(p RegisterRoutersIn) {
 		chatV1.GET("/rooms", p.ChatController.GetChatRooms)
 		chatV1.POST("/rooms/:roomId/messages/:messageId/read", p.ChatController.MarkMessageAsRead)
 		chatV1.GET("/rooms/:roomId/unread", p.ChatController.CountUnreadMessages)
+	}
 
-		chatV1.GET("/ws", p.WebSocketController.HandleConnection)
+	wsV1 := router.Group("/v1/chats/ws")
+	{
+		wsV1.GET("/connect", p.WebSocketController.HandleConnection)
 	}
 }

@@ -8,6 +8,7 @@ import (
 	"chat_service/core/port"
 	"context"
 	"errors"
+
 	"github.com/golibs-starter/golib/log"
 )
 
@@ -20,6 +21,7 @@ type IGetMessageUseCase interface {
 type GetMessageUseCase struct {
 	getChatRoomUseCase IGetChatRoomUseCase
 	messagePort        port.IMessagePort
+	mediaDataPort      port.IMediaDataPort
 }
 
 func (g GetMessageUseCase) CountUnreadMessages(ctx context.Context, roomID, userID int64) (int64, error) {
@@ -47,12 +49,48 @@ func (g GetMessageUseCase) GetMessagesByRoomId(ctx context.Context, userID, chat
 		return nil, nil, err
 	}
 
-	return g.messagePort.GetMessagesByRoomId(ctx, chatRoomID, params)
+	messages, pagination, err := g.messagePort.GetMessagesByRoomId(ctx, chatRoomID, params)
+	if err != nil {
+		log.Error(ctx, "Get messages by room id failed, ", err)
+		return nil, nil, err
+	}
+	if len(messages) > 0 {
+		mediaIDs := make([]int64, 0)
+		for _, msg := range messages {
+			if msg.MediaDataID != nil {
+				mediaIDs = append(mediaIDs, *msg.MediaDataID)
+			}
+		}
+
+		if len(mediaIDs) > 0 {
+			mediaData, err := g.mediaDataPort.GetMediaDataByIDs(ctx, mediaIDs)
+			if err != nil {
+				log.Error(ctx, "Get media data by ids failed, ", err)
+				return messages, pagination, err
+			}
+
+			mediaDataMap := make(map[int64]*entity.MediaDataEntity)
+			for _, media := range mediaData {
+				mediaDataMap[media.ID] = media
+			}
+
+			for _, msg := range messages {
+				if msg.MediaDataID != nil {
+					msg.MediaData = mediaDataMap[*msg.MediaDataID]
+				}
+			}
+		}
+	}
+	return messages, pagination, nil
 }
 
-func NewGetMessageUseCase(getChatRoomUseCase IGetChatRoomUseCase, messagePort port.IMessagePort) IGetMessageUseCase {
+func NewGetMessageUseCase(
+	getChatRoomUseCase IGetChatRoomUseCase,
+	messagePort port.IMessagePort,
+	mediaDataPort port.IMediaDataPort) IGetMessageUseCase {
 	return &GetMessageUseCase{
 		getChatRoomUseCase: getChatRoomUseCase,
 		messagePort:        messagePort,
+		mediaDataPort:      mediaDataPort,
 	}
 }
