@@ -5,6 +5,7 @@ import { profileService } from './profile/profileService';
 import { ratingService } from './rating/ratingService';
 import accommodationService from './accommodation/accommodationService';
 import { locationService } from './location';
+import { chatService } from './chat';
 
 export {
   apiClient,
@@ -14,4 +15,5 @@ export {
   ratingService,
   accommodationService,
   locationService,
+  chatService,
 };

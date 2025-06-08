@@ -5,6 +5,7 @@ import Footer from "@/components/Footer";
 import { AuthProvider } from "@/context/AuthContext";
 import { FavoritesProvider } from "@/context/FavoritesContext";
 import { ThemeProvider } from "@/components/ThemeProvider";
+import { TooltipProvider } from "@/components/ui/tooltip";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -33,12 +34,14 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased bg-[var(--background)] text-[var(--foreground)]`}
       >
         <ThemeProvider>
-          <AuthProvider>
-            <FavoritesProvider>
-              {children}
-              <Footer />
-            </FavoritesProvider>
-          </AuthProvider>
+          <TooltipProvider >
+            <AuthProvider>
+              <FavoritesProvider>
+                {children}
+                <Footer />
+              </FavoritesProvider>
+            </AuthProvider>
+          </TooltipProvider>
         </ThemeProvider>
       </body>
     </html>

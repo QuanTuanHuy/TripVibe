@@ -12,9 +12,9 @@ const (
 	MessageTypeAuthSuccess = "auth_success"
 	MessageTypeAuthError   = "auth_error"
 
-	MessageTypeNewMessage  = "message"
-	MessageTypeTyping      = "typing"
-	MessageTypeReadMessage = "read"
+	MessageTypeNewMessage  = "new_message"
+	MessageTypeTyping      = "typing_indicator"
+	MessageTypeReadMessage = "message_read"
 	MessageTypeError       = "error"
 
 	MessageTypeUserConnected    = "user_connected"
