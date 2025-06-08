@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from 'react';
-import { MapPin, Navigation } from 'lucide-react';
+import { MapPin } from 'lucide-react';
 import { Location } from '@/types/location';
 
 interface HotelMapProps {
@@ -47,7 +47,8 @@ const HotelMap: React.FC<HotelMapProps> = ({ location, hotelName, className = ""
             });
         }
 
-        return () => {            // Cleanup map instance
+        return () => {
+            // Cleanup map instance
             if (mapInstanceRef.current) {
                 mapInstanceRef.current.remove();
                 mapInstanceRef.current = null;
@@ -205,13 +206,6 @@ const HotelMap: React.FC<HotelMapProps> = ({ location, hotelName, className = ""
     const openInGoogleMaps = () => {
         if (location) {
             const url = `https://www.google.com/maps?q=${location.latitude},${location.longitude}`;
-            window.open(url, '_blank');
-        }
-    };
-
-    const openDirections = () => {
-        if (location) {
-            const url = `https://www.google.com/maps/dir/?api=1&destination=${location.latitude},${location.longitude}`;
             window.open(url, '_blank');
         }
     };

@@ -159,8 +159,10 @@ func (ch *ChatController) SendMediaMessage(c *gin.Context) {
 		return
 	}
 
-	ch.wsManager.BroadcastToRoom(roomID, &ws.WebSocketMessage{
+	ch.wsManager.BroadcastToRoomExcept(0, roomID, &ws.WebSocketMessage{
+		Type:    ws.MessageTypeNewMessage,
 		Payload: message,
+		RoomID:  &roomID,
 	})
 	apihelper.SuccessfulHandle(c, message)
 }
@@ -200,9 +202,10 @@ func (ch *ChatController) SendMessage(c *gin.Context) {
 		return
 	}
 
-	// Notify connected clients about the new message
-	ch.wsManager.BroadcastToRoom(roomID, &ws.WebSocketMessage{
+	ch.wsManager.BroadcastToRoomExcept(0, roomID, &ws.WebSocketMessage{
+		Type:    ws.MessageTypeNewMessage,
 		Payload: message,
+		RoomID:  &roomID,
 	})
 
 	apihelper.SuccessfulHandle(c, message)

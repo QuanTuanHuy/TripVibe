@@ -83,7 +83,6 @@ const HotelSidebar: React.FC<HotelSidebarProps> = ({
     breakfastInfo = "Kiểu lục địa, Tự chọn, Bữa sáng mang đi",
     location,
     hotelName = "Khách sạn",
-    onShowMap
 }) => {
     const [isMapModalOpen, setIsMapModalOpen] = useState(false);
     return (
