@@ -15,6 +15,8 @@ import org.springframework.data.util.Pair;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -50,5 +52,21 @@ public class CreateAmenityUseCase {
 //        cachePort.deleteFromCache(CacheUtils.CACHE_AMENITY_GROUP_LIST);
 
         return amenity;
+    }
+
+    @Transactional(rollbackFor = Exception.class)
+    public void createIfNotExists(List<CreateAmenityRequestDto> amenities) {
+        if (amenityPort.countAll() > 0) {
+            log.info("Amenities already exist, skipping creation.");
+            return;
+        }
+
+        amenities.forEach(amenity -> {
+            try {
+                createAmenity(amenity);
+            } catch (Exception e) {
+                log.warn("Failed to create amenity: {}, error: {}", amenity.getName(), e.getMessage());
+            }
+        });
     }
 }

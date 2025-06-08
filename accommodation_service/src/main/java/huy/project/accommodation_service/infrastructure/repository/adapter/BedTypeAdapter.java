@@ -48,4 +48,9 @@ public class BedTypeAdapter implements IBedTypePort {
     public List<BedTypeEntity> getBedTypesByIds(List<Long> ids) {
         return BedTypeMapper.INSTANCE.toListEntity(bedTypeRepository.findByIdIn(ids));
     }
+
+    @Override
+    public long countAll() {
+        return bedTypeRepository.count();
+    }
 }

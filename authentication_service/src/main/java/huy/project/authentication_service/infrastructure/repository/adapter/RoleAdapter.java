@@ -38,4 +38,9 @@ public class RoleAdapter implements IRolePort {
     public List<RoleEntity> getAllRoles() {
         return RoleMapper.INSTANCE.toListRoleEntity(roleRepository.findAll());
     }
+
+    @Override
+    public long countAll() {
+        return roleRepository.count();
+    }
 }

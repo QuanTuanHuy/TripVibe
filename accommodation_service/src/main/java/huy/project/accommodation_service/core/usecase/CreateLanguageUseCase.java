@@ -11,6 +11,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -29,5 +31,21 @@ public class CreateLanguageUseCase {
 
         LanguageEntity language = LanguageMapper.INSTANCE.toEntity(req);
         return languagePort.save(language);
+    }
+
+    @Transactional(rollbackFor = Exception.class)
+    public void createIfNotExists(List<CreateLanguageRequestDto> languages) {
+        if (languagePort.countAll() > 0) {
+            log.info("Languages already exist, skipping creation.");
+            return;
+        }
+
+        languages.forEach(language -> {
+            try {
+                createLanguage(language);
+            } catch (Exception e) {
+                log.warn("Failed to create language: {}, error: {}", language.getName(), e.getMessage());
+            }
+        });
     }
 }

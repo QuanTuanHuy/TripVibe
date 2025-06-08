@@ -10,4 +10,5 @@ public interface ICurrencyPort {
     CurrencyEntity getCurrencyById(Long id);
     CurrencyEntity getCurrencyByCode(String code);
     void deleteById(Long id);
+    long countAll();
 }

@@ -45,7 +45,7 @@ public class AmenityGroupController {
     @GetMapping
     public ResponseEntity<Resource<ListDataResponse<AmenityGroupEntity>>> getAllAmenityGroups(
             @RequestParam(name = "page", defaultValue = DEFAULT_PAGE) int page,
-            @RequestParam(name = "size", defaultValue = DEFAULT_SIZE) int pageSize,
+            @RequestParam(name = "pageSize", defaultValue = DEFAULT_SIZE) int pageSize,
             @RequestParam(name = "sortBy", required = false) String sortBy,
             @RequestParam(name = "sortType", required = false) String sortType,
             @RequestParam(name = "isPopular", required = false) Boolean isPopular,

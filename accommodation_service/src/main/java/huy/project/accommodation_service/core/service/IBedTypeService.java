@@ -11,4 +11,5 @@ import java.util.List;
 public interface IBedTypeService {
     BedTypeEntity createBedType(CreateBedTypeDto req);
     Pair<PageInfo, List<BedTypeEntity>> getBedTypes(BedTypeParams params);
+    void createIfNotExists(List<CreateBedTypeDto> bedTypes);
 }

@@ -12,7 +12,7 @@ import { CreateRatingDto, RatingCriteriaType } from '@/types/rating/rating.types
 import Header from '@/components/Header';
 import { ratingService } from '@/services/rating/ratingService';
 import { bookingService, BookingV2 } from '@/services/booking/bookingService';
-import accommodationService from '@/services/accommodation/accommodation.service';
+import accommodationService from '@/services/accommodation/accommodationService';
 import { AccommodationThumbnail } from '@/types/accommodation';
 import { epochToDate, formatDate } from '@/lib/datetime.utils';
 

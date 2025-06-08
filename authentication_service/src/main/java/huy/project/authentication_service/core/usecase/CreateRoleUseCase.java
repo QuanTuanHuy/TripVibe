@@ -64,4 +64,20 @@ public class CreateRoleUseCase {
         return role;
     }
 
+    @Transactional(rollbackFor = Exception.class)
+    public void createIfNotExists(List<CreateRoleRequestDto> roles) {
+        if (rolePort.countAll() > 0) {
+            log.info("Roles already exist, skipping creation");
+            return;
+        }
+
+        for (CreateRoleRequestDto role : roles) {
+            try {
+                createRole(role);
+            } catch (Exception e) {
+                log.error("Failed to create role: {}, error: {}", role.getName(), e.getMessage());
+            }
+        }
+    }
+
 }

@@ -44,12 +44,12 @@ export default function ReviewForm({ formData, images }: ReviewFormProps) {
         // Gọi các API để lấy dữ liệu tham chiếu
         const [types, unitNames, amenitiGroups, currencies, bedTypes, priceTypes, languages] = await Promise.all([
           accommodationService.getAccommodationTypes(),
-          accommodationService.getUnitNames(),
-          accommodationService.getAmenityGroups(),
+          accommodationService.getUnitNames({ page: 0, pageSize: 100, sortType: 'asc' }),
+          accommodationService.getAmenityGroups({ page: 0, pageSize: 100 }),
           accommodationService.getCurrencies(),
-          bedTypeService.getBedTypes(),
-          priceTypeService.getPriceTypes(),
-          accommodationService.getLanguages()
+          bedTypeService.getBedTypes({ page: 0, pageSize: 100, sortType: 'asc' }),
+          priceTypeService.getPriceTypes({ page: 0, pageSize: 2, sortType: 'asc' }),
+          accommodationService.getLanguages({ page: 0, pageSize: 100, sortType: 'asc' })
         ]);
 
         setLookupData({
@@ -58,7 +58,7 @@ export default function ReviewForm({ formData, images }: ReviewFormProps) {
           amenities: amenitiGroups.data.flatMap(group => group.amenities) || [],
           currencies: currencies || [],
           bedTypes: bedTypes.data || [],
-          priceTypes: priceTypes || [],
+          priceTypes: priceTypes.data || [],
           languages: languages.data || [],
           loading: false
         });

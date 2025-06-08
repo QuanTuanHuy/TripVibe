@@ -41,7 +41,7 @@ const authService = {
   },
 
   register: async (userData: RegisterRequest): Promise<void> => {
-    return apiClient.post<void>(`${AUTH_PATH}/users`, userData);
+    return apiClient.post<void>(`${AUTH_PATH}/users/customer`, userData);
   },
 
   verifyOtp: async (email: string, otp: string): Promise<void> => {

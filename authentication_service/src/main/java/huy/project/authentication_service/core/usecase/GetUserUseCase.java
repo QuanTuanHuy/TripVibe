@@ -81,4 +81,8 @@ public class GetUserUseCase {
                 .collect(Collectors.toList());
         user.setRoles(roles);
     }
+
+    public long countAll() {
+        return userPort.countAll();
+    }
 }

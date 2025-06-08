@@ -10,4 +10,5 @@ public interface IRoleService {
     RoleEntity createRole(CreateRoleRequestDto req);
     List<RoleEntity> getAllRoles();
     RoleEntity updateRole(Long roleId, UpdateRoleRequestDto req);
+    void createIfNotExists(List<CreateRoleRequestDto> roles);
 }

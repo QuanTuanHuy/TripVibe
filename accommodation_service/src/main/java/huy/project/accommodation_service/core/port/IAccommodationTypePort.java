@@ -11,4 +11,5 @@ public interface IAccommodationTypePort {
     AccommodationTypeEntity getAccommodationTypeById(Long id);
 
     List<AccommodationTypeEntity> getAccommodationTypes(AccommodationTypeParams params);
+    long countAll();
 }

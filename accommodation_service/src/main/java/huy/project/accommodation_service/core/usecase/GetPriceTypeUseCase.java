@@ -1,11 +1,14 @@
 package huy.project.accommodation_service.core.usecase;
 
 import huy.project.accommodation_service.core.domain.constant.ErrorCode;
+import huy.project.accommodation_service.core.domain.dto.request.PriceTypeParams;
+import huy.project.accommodation_service.core.domain.dto.response.PageInfo;
 import huy.project.accommodation_service.core.domain.entity.PriceTypeEntity;
 import huy.project.accommodation_service.core.exception.AppException;
 import huy.project.accommodation_service.core.port.IPriceTypePort;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.util.Pair;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -27,5 +30,9 @@ public class GetPriceTypeUseCase {
 
     public List<PriceTypeEntity> getAllPriceTypes() {
         return priceTypePort.getAllPriceTypes();
+    }
+
+    public Pair<PageInfo, List<PriceTypeEntity>> getPriceTypes(PriceTypeParams params) {
+        return priceTypePort.getPriceTypes(params);
     }
 }

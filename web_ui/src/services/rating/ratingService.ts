@@ -2,7 +2,7 @@ import apiClient from '../api.client';
 import { CreateRatingDto, CreateRatingHelpfulnessDto, CreateRatingResponseDto, Rating, RatingHelpfulness, RatingParams, RatingResponse, RatingSummary } from '../../types/rating/rating.types';
 import { ListDataResponseV2 } from '@/types/common';
 import { bookingService } from '../booking';
-import accommodationService from '../accommodation/accommodation.service';
+import accommodationService from '../accommodation/accommodationService';
 import { epochToDate } from '@/lib/datetime.utils';
 
 // Path đến rating service thông qua API Gateway
@@ -34,7 +34,6 @@ export interface PendingReview {
 }
 
 export const ratingService = {
-    // Get ratings for an accommodation with pagination and filters
     getAllRatings: async (params: RatingParams): Promise<ListDataResponseV2<Rating>> => {
         return apiClient.get<ListDataResponseV2<Rating>>(RATING_API, { params });
     },
@@ -44,27 +43,22 @@ export const ratingService = {
         return apiClient.get<ListDataResponseV2<Rating>>(USER_RATINGS_API, { params });
     },
 
-    // Get a single rating by ID
     getRatingById: async (id: number): Promise<Rating> => {
         return apiClient.get<Rating>(`${RATING_API}/${id}`);
     },
 
-    // Create a new rating
     createRating: async (ratingData: CreateRatingDto): Promise<Rating> => {
         return apiClient.post<Rating>(RATING_API, ratingData);
     },
 
-    // Update an existing rating
     updateRating: async (id: number, ratingData: Partial<CreateRatingDto>): Promise<Rating> => {
         return apiClient.put<Rating>(`${RATING_API}/${id}`, ratingData);
     },
 
-    // Delete a rating
     deleteRating: async (id: number): Promise<void> => {
         return apiClient.delete(`${RATING_API}/${id}`);
     },
 
-    // Mark a rating as helpful or unhelpful
     createRatingHelpfulness: async (ratingId: number, helpfulnessData: CreateRatingHelpfulnessDto): Promise<RatingHelpfulness> => {
         return apiClient.post<RatingHelpfulness>(`${RATING_API}/${ratingId}/helpfulness`, helpfulnessData);
     },
@@ -120,11 +114,6 @@ export const ratingService = {
         return apiClient.get<RatingResponse[]>(RATING_RESPONSE_API, {
             params: { ratingIds: ratingIds.join(',') }
         });
-    },
-
-    // Create a response to a rating (typically by accommodation owner)
-    createRatingResponse: async (responseData: CreateRatingResponseDto): Promise<RatingResponse> => {
-        return apiClient.post<RatingResponse>(RATING_RESPONSE_API, responseData);
     },
 
     // Get rating summaries for multiple accommodations

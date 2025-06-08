@@ -52,4 +52,9 @@ public class CurrencyAdapter implements ICurrencyPort {
     public void deleteById(Long id) {
         currencyRepository.deleteById(id);
     }
+
+    @Override
+    public long countAll() {
+        return currencyRepository.count();
+    }
 }

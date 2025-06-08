@@ -30,8 +30,10 @@ export default function UnitAmenitiesForm({ formData, updateFormData }: UnitAmen
         const groups = await accommodationService.getAmenityGroups(
           {
             page: 0,
-            pageSize: 10,
-            type: 'Unit',
+            pageSize: 5,
+            isPopular: false,
+            sortBy: 'displayOrder',
+            sortType: 'asc',
           }
         );
 
@@ -145,6 +147,9 @@ export default function UnitAmenitiesForm({ formData, updateFormData }: UnitAmen
                         htmlFor={`unit-amenity-${amenity.id}`}
                         className="text-sm font-medium leading-none"
                       >
+                        {amenity.icon && (
+                          <span className="ml-1">{amenity.icon}</span>
+                        )}
                         {amenity.name}
                         {amenity.needToReserve && (
                           <span className="text-xs text-amber-600 ml-1">(Cần đặt trước)</span>

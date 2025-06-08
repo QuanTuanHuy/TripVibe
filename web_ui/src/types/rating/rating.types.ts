@@ -16,6 +16,8 @@ export interface RatingSummary {
   totalRating: number;
   numberOfRatings: number;
   isSyncedWithSearchService: boolean;
+  distribution: Record<number, number>;
+  criteriaAverages?: Record<RatingCriteriaType, number>;
 }
 
 export interface RatingResponse {

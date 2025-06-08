@@ -28,4 +28,9 @@ public class UnitNameService implements IUnitNameService {
     public Pair<PageInfo, List<UnitNameEntity>> getUnitNames(UnitNameParams params) {
         return getUnitNameUseCase.getUnitNames(params);
     }
+
+    @Override
+    public void createIfNotExists(List<CreateUnitNameDto> unitNames) {
+        createUnitNameUseCase.createIfNotExists(unitNames);
+    }
 }

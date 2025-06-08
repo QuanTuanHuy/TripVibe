@@ -35,4 +35,9 @@ public class CurrencyService implements ICurrencyService {
     public void deleteCurrencyById(Long id) {
         deleteCurrencyUseCase.deleteCurrency(id);
     }
+
+    @Override
+    public void createIfNotExists(List<CreateCurrencyDto> currencies) {
+        createCurrencyUseCase.createIfNotExists(currencies);
+    }
 }

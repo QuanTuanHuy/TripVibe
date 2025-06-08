@@ -35,4 +35,9 @@ public class LanguageService implements ILanguageService {
     public void deleteLanguage(Long id) {
         deleteLanguageUseCase.deleteLanguage(id);
     }
+
+    @Override
+    public void createIfNotExists(List<CreateLanguageRequestDto> languages) {
+        createLanguageUseCase.createIfNotExists(languages);
+    }
 }

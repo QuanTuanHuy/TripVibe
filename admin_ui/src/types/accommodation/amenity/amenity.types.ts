@@ -29,7 +29,7 @@ export interface AmenityGroupParams {
   sortBy?: string;
   sortType?: string;
   type?: string;
-  isPopular?: boolean;
+  isPopular?: boolean | null;
 }
 
 export interface UpdateUnitAmenityRequest {

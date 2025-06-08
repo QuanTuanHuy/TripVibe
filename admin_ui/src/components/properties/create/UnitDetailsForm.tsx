@@ -38,7 +38,11 @@ export default function UnitDetailsForm({ formData, updateFormData }: UnitDetail
         setLoading(true);
         setError(null);
 
-        const response = await accommodationService.getUnitNames();
+        const response = await accommodationService.getUnitNames({
+          page: 0,
+          pageSize: 100,
+          sortType: 'asc',
+        });
 
         setUnitNames(response.data || []);
       } catch (err) {

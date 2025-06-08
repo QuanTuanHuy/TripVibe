@@ -30,6 +30,7 @@ export interface AmenityGroupParams {
   sortType?: string;
   type?: string;
   isPopular?: boolean;
+  ids?: number[];
 }
 
 export interface UpdateUnitAmenityRequest {

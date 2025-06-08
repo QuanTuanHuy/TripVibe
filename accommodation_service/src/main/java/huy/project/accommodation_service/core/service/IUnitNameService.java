@@ -12,4 +12,6 @@ public interface IUnitNameService {
     UnitNameEntity createUnitName(CreateUnitNameDto req);
 
     Pair<PageInfo, List<UnitNameEntity>> getUnitNames(UnitNameParams params);
+
+    void createIfNotExists(List<CreateUnitNameDto> unitNames);
 }

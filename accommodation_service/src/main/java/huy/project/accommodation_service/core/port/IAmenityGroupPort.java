@@ -13,4 +13,5 @@ public interface IAmenityGroupPort {
     AmenityGroupEntity getAmenityGroupByName(String name);
     Pair<PageInfo, List<AmenityGroupEntity>> getAllAmenityGroups(AmenityGroupParams params);
     void deleteAmenityGroupById(Long id);
+    long countAll();
 }

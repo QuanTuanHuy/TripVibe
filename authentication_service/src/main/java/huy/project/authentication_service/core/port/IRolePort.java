@@ -10,4 +10,5 @@ public interface IRolePort {
     RoleEntity getRoleById(Long id);
     List<RoleEntity> getRolesByIds(List<Long> ids);
     List<RoleEntity> getAllRoles();
+    long countAll();
 }

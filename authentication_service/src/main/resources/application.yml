@@ -37,7 +37,9 @@ app:
       prefix: Bearer
     filter:
       publicUrls:
-        - first: /api/public/v1/users
+        - first: /api/public/v1/users/customer
+          second: POST
+        - first: /api/public/v1/users/host
           second: POST
         - first: /api/public/v1/auth/login
           second: POST
@@ -46,9 +48,9 @@ app:
         - first: /api/public/v1/users/otp/verify
           second: POST
       protectedUrls:
-#        - url-pattern: /api/public/v1/roles
-#          roles:
-#            - ADMIN
+        - url-pattern: /api/public/v1/users/admin
+          roles:
+            - SUPER_ADMIN
 #        - urlPattern: /api/public/v1/sessions/**
 #          roles:
 #            - USER

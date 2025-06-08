@@ -29,4 +29,9 @@ public class AccommodationTypeService implements IAccommodationTypeService {
     public List<AccommodationTypeEntity> getAccommodationTypes(AccommodationTypeParams params) {
         return getAccommodationTypeUseCase.getAccommodationTypes(params);
     }
+
+    @Override
+    public void createIfNotExists(List<CreateAccommodationTypeDto> accommodationTypes) {
+        createAccommodationTypeUseCase.createIfNotExists(accommodationTypes);
+    }
 }

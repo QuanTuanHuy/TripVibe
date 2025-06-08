@@ -10,4 +10,6 @@ public interface IAccommodationTypeService {
     AccommodationTypeEntity createAccommodationType(CreateAccommodationTypeDto req);
 
     List<AccommodationTypeEntity> getAccommodationTypes(AccommodationTypeParams params);
+
+    void createIfNotExists(List<CreateAccommodationTypeDto> accommodationTypes);
 }

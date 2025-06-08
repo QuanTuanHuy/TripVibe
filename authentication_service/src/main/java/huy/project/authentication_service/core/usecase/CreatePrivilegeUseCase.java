@@ -12,6 +12,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -28,5 +30,21 @@ public class CreatePrivilegeUseCase {
 
         PrivilegeEntity privilege = PrivilegeMapper.INSTANCE.toEntity(req);
         return privilegePort.save(privilege);
+    }
+
+    @Transactional(rollbackFor = Exception.class)
+    public void createIfNotExists(List<CreatePrivilegeRequestDto> privileges) {
+        if (privilegePort.countAll() > 0) {
+            log.info("Privileges already exist, skipping creation.");
+            return;
+        }
+
+        privileges.forEach(privilege -> {
+            try {
+                createPrivilege(privilege);
+            } catch (Exception e) {
+                log.warn("Failed to create privilege: {}, error: {}", privilege.getName(), e.getMessage());
+            }
+        });
     }
 }

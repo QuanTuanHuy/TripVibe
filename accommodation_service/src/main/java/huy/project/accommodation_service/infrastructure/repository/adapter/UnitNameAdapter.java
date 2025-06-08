@@ -51,4 +51,9 @@ public class UnitNameAdapter implements IUnitNamePort {
     public UnitNameEntity getUnitNameById(Long id) {
         return unitNameRepository.findById(id).map(UnitNameMapper.INSTANCE::toEntity).orElse(null);
     }
+
+    @Override
+    public long countAll() {
+        return unitNameRepository.count();
+    }
 }

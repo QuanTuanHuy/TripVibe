@@ -3,9 +3,10 @@ package infrastructure
 import (
 	"chat_service/core/domain/ws"
 	"encoding/json"
+	"sync"
+
 	"github.com/golibs-starter/golib/log"
 	"github.com/gorilla/websocket"
-	"sync"
 )
 
 type WebSocketManager struct {
@@ -20,8 +21,9 @@ type WebSocketManager struct {
 }
 
 type BroadcastMessage struct {
-	RoomID  int64                `json:"roomId"`
-	Message *ws.WebSocketMessage `json:"message"`
+	RoomID       int64                `json:"roomId"`
+	Message      *ws.WebSocketMessage `json:"message"`
+	ExceptUserID int64                `json:"exceptUserId,omitempty"`
 }
 
 func NewWebSocketManager() *WebSocketManager {
@@ -70,6 +72,10 @@ func (m *WebSocketManager) run() {
 			m.mutex.RLock()
 			users := m.rooms[message.RoomID]
 			for _, userID := range users {
+				if message.ExceptUserID != 0 && userID == message.ExceptUserID {
+					continue
+				}
+
 				if client, ok := m.clients[userID]; ok {
 					messageBytes, err := json.Marshal(message.Message)
 					if err != nil {
@@ -97,10 +103,11 @@ func (m *WebSocketManager) UnregisterClient(client *ws.ClientConnection) {
 	m.unregister <- client
 }
 
-func (m *WebSocketManager) BroadcastToRoom(roomID int64, message *ws.WebSocketMessage) {
+func (m *WebSocketManager) BroadcastToRoomExcept(userID, roomID int64, message *ws.WebSocketMessage) {
 	m.broadcast <- &BroadcastMessage{
-		RoomID:  roomID,
-		Message: message,
+		RoomID:       roomID,
+		Message:      message,
+		ExceptUserID: userID,
 	}
 }
 
