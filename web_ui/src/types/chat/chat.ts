@@ -35,7 +35,10 @@ export interface Message {
   isRead: boolean;
   mediaDataId?: number;
   mediaUrl?: string;
+  mimeType?: string;
   mediaType?: string;
+  mediaName?: string;
+  mediaSize?: number;
 }
 
 export enum MessageType {

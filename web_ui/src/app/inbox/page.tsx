@@ -11,9 +11,9 @@ export default function Inbox() {
     const currentUserId = user?.id;
 
     return (
-        <div className="h-screen">
+        <div className="h-full">
             <Suspense fallback={
-                <div className="h-screen flex items-center justify-center">
+                <div className="h-full flex items-center justify-center">
                     <LoadingSpinner />
                 </div>
             }>

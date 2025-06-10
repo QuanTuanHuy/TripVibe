@@ -3,19 +3,24 @@
 import React, { useState } from 'react';
 import { useChatRooms } from '@/hooks/chat';
 import { ChatProvider, useChatContext } from '@/context/ChatContext';
+import { SidebarProvider } from '@/context/SidebarContext';
 import { ChatRoomList } from '@/components/chat/ChatRoomList';
 import { MessageList } from '@/components/chat/MessageList';
 import { MessageInput } from '@/components/chat/MessageInput';
 import { TypingIndicator } from '@/components/chat/TypingIndicator';
+import ChatHeader from '@/components/chat/ChatHeader';
+import RightSidebar from '@/components/chat/RightSidebar';
 import { Button } from '@/components/ui/button';
 import { MessageType } from '@/types/chat';
+import { Participant } from '@/types/chat/sidebar';
 
 // Active chat component - when a room is selected
 interface ActiveChatProps {
   currentUserId: number | null;
+  activeRoomId: number;
 }
 
-const ActiveChat: React.FC<ActiveChatProps> = ({ currentUserId }) => {
+const ActiveChat: React.FC<ActiveChatProps> = ({ currentUserId, activeRoomId }) => {
   const {
     isConnected,
     connectionError,
@@ -32,6 +37,19 @@ const ActiveChat: React.FC<ActiveChatProps> = ({ currentUserId }) => {
     reconnect
   } = useChatContext();
 
+  const { chatRooms } = useChatRooms();
+
+  const currentRoom = chatRooms.find(room => room.id === activeRoomId);
+
+  // Convert participants to the format expected by Sidebar
+  const participants: Participant[] = currentRoom?.participants?.map(p => ({
+    id: p.id,
+    name: p.name,
+    role: p.role as 'GUEST' | 'OWNER' | 'ADMIN',
+    isOnline: false, // This should come from user status
+    lastSeen: Date.now() - Math.random() * 86400000 // Mock data
+  })) || [];
+
   // Wrapper functions to handle return types
   const handleSendMessage = async (content: string, type?: MessageType) => {
     await sendMessage(content, type);
@@ -39,60 +57,74 @@ const ActiveChat: React.FC<ActiveChatProps> = ({ currentUserId }) => {
 
   const handleSendMediaMessage = async (file: File) => {
     await sendMediaMessage(file);
-  };
-
-  return (
+  }; return (
     <div className="flex-1 flex flex-col min-h-0">
-      {/* Messages area */}
-      <div className="flex-1 flex flex-col min-h-0">
-        <MessageList
-          messages={messages}
-          currentUserId={currentUserId}
-          loading={loadingMoreMessages}
-          hasMore={hasMoreMessages}
-          onLoadMore={loadMoreMessages}
-          className="flex-1"
-        />
-
-        {/* Typing indicator */}
-        {hasTypingUsers && (
-          <TypingIndicator typingUsers={typingUsers} />
-        )}
-
-      </div>
-
-      {/* Message input */}
-      <MessageInput
-        onSendMessage={handleSendMessage}
-        onSendMediaMessage={handleSendMediaMessage}
-        onStartTyping={startTyping}
-        onStopTyping={stopTyping}
-        disabled={!isConnected}
-        placeholder={
-          !isConnected
-            ? "Đang kết nối..."
-            : "Nhập tin nhắn..."
-        }
+      {/* Chat Header */}
+      <ChatHeader
+        participants={participants}
+        roomId={activeRoomId}
+        onCall={() => console.log('Voice call')}
+        onVideoCall={() => console.log('Video call')}
       />
 
-      {/* Connection error */}
-      {connectionError && (
-        <div className="p-3 bg-destructive/10 border-t border-destructive/20">
-          <div className="flex items-center justify-between">
-            <span className="text-sm text-destructive">
-              Lỗi kết nối: {connectionError}
-            </span>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={reconnect}
-              className="text-xs"
-            >
-              Thử lại
-            </Button>
-          </div>
+      <div className="flex-1 flex min-h-0">
+        {/* Messages area */}
+        <div className="flex-1 flex flex-col min-h-0">
+          <MessageList
+            messages={messages}
+            currentUserId={currentUserId}
+            loading={loadingMoreMessages}
+            hasMore={hasMoreMessages}
+            onLoadMore={loadMoreMessages}
+            className="flex-1"
+          />
+
+          {/* Typing indicator */}
+          {hasTypingUsers && (
+            <TypingIndicator typingUsers={typingUsers} />
+          )}
+
+          {/* Message input */}
+          <MessageInput
+            onSendMessage={handleSendMessage}
+            onSendMediaMessage={handleSendMediaMessage}
+            onStartTyping={startTyping}
+            onStopTyping={stopTyping}
+            disabled={!isConnected}
+            placeholder={
+              !isConnected
+                ? "Đang kết nối..."
+                : "Nhập tin nhắn..."
+            }
+          />
+
+          {/* Connection error */}
+          {connectionError && (
+            <div className="p-3 bg-destructive/10 border-t border-destructive/20">
+              <div className="flex items-center justify-between">
+                <span className="text-sm text-destructive">
+                  Lỗi kết nối: {connectionError}
+                </span>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={reconnect}
+                  className="text-xs"
+                >
+                  Thử lại
+                </Button>
+              </div>
+            </div>
+          )}
         </div>
-      )}
+
+        {/* Right Sidebar */}
+        <RightSidebar
+          roomId={activeRoomId}
+          participants={participants}
+          messages={messages}
+        />
+      </div>
     </div>
   );
 };
@@ -110,33 +142,34 @@ export const InboxPage: React.FC<InboxPageProps> = ({
   const [activeRoomId, setActiveRoomId] = useState<number | null>(initialRoomId);
 
   const effectiveUserId = currentUserId || 1;
-
   return (
     <ChatProvider
       roomId={activeRoomId}
       currentUserId={effectiveUserId}
       autoConnect={!!activeRoomId}
-    >
-      <div className="h-screen flex bg-background">
-        {/* Left sidebar - Chat rooms */}
-        <div className="w-80 border-r flex flex-col">
-          <InboxSidebar
-            activeRoomId={activeRoomId}
-            currentUserId={effectiveUserId}
-            onRoomSelect={setActiveRoomId}
-          />
-        </div>
-        {/* Right side - Chat area */}
-        <div className="flex-1 flex flex-col">
-          {activeRoomId ? (
-            <ActiveChat
+    >      <SidebarProvider>
+        <div className="h-full flex bg-background">
+          {/* Left sidebar - Chat rooms */}
+          <div className="w-80 border-r flex flex-col">
+            <InboxSidebar
+              activeRoomId={activeRoomId}
               currentUserId={effectiveUserId}
+              onRoomSelect={setActiveRoomId}
             />
-          ) : (
-            <InboxEmptyState />
-          )}
+          </div>
+          {/* Center - Chat area */}
+          <div className="flex-1 flex flex-col min-h-0">
+            {activeRoomId ? (
+              <ActiveChat
+                currentUserId={effectiveUserId}
+                activeRoomId={activeRoomId}
+              />
+            ) : (
+              <InboxEmptyState />
+            )}
+          </div>
         </div>
-      </div>
+      </SidebarProvider>
     </ChatProvider>
   );
 };

@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import Footer from "@/components/Footer";
+import ConditionalFooter from "@/components/ConditionalFooter";
 import { AuthProvider } from "@/context/AuthContext";
 import { FavoritesProvider } from "@/context/FavoritesContext";
 import { ThemeProvider } from "@/components/ThemeProvider";
@@ -32,13 +32,12 @@ export default function RootLayout({
       <head />
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased bg-[var(--background)] text-[var(--foreground)]`}
-      >
-        <ThemeProvider>
+      >        <ThemeProvider>
           <TooltipProvider >
             <AuthProvider>
               <FavoritesProvider>
                 {children}
-                <Footer />
+                <ConditionalFooter />
               </FavoritesProvider>
             </AuthProvider>
           </TooltipProvider>
