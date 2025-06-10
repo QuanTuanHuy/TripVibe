@@ -3,162 +3,75 @@
 import { useState, useEffect } from 'react';
 import { Filter, SlidersHorizontal } from 'lucide-react';
 import SearchResultItem from '../SearchResultItem';
-
-const mockHotels = [
-    {
-        id: '1',
-        name: 'La Passion Hanoi Hotel & Spa',
-        imageUrl: 'https://cf.bstatic.com/xdata/images/hotel/square600/303038392.webp?k=76ff82cbb302474f4d65f7486d2b683c811d033d1415335e95d690172a763149&o=',
-        rating: 9.2,
-        reviewCount: 2954,
-        location: 'Quận Hoàn Kiếm, Hà Nội',
-        distance: '0.5km',
-        description: 'Phòng Deluxe Giường Đôi - 1 giường đôi lớn. Phòng này có điều hòa không khí, minibar và TV màn hình phẳng.',
-        price: 3780000,
-        discountPrice: 5000000,
-        amenities: [
-            { id: 'free-cancel', name: 'Miễn phí hủy' },
-            { id: 'breakfast', name: 'Bao gồm bữa sáng' }
-        ],
-        type: 'Phòng Deluxe Giường Đôi',
-        rooms: 1,
-        hasPromotion: true,
-        geniusLevel: 1
-    },
-    {
-        id: '2',
-        name: 'Hanoi Ben\'s Apartment And Hotel',
-        imageUrl: 'https://cf.bstatic.com/xdata/images/hotel/square600/303038392.webp?k=76ff82cbb302474f4d65f7486d2b683c811d033d1415335e95d690172a763149&o=',
-        rating: 8.9,
-        reviewCount: 192,
-        location: 'Quận Hai Bà Trưng, Hà Nội',
-        distance: '1.3km',
-        description: 'Phòng Deluxe Giường Đôi với ban công hướng nhìn thành phố, có bể bơi ngoài trời và quán bar trên tầng thượng.',
-        price: 2004750,
-        discountPrice: 2450000,
-        amenities: [
-            { id: 'free-cancel', name: 'Miễn phí hủy' },
-            { id: 'wifi', name: 'WiFi miễn phí' },
-            { id: 'pool', name: 'Hồ bơi' }
-        ],
-        type: 'Phòng Deluxe Giường Đôi',
-        rooms: 1,
-        hasPromotion: true,
-        geniusLevel: 1
-    },
-    {
-        id: '3',
-        name: 'Full House Times City',
-        imageUrl: 'https://cf.bstatic.com/xdata/images/hotel/square600/303038392.webp?k=76ff82cbb302474f4d65f7486d2b683c811d033d1415335e95d690172a763149&o=',
-        rating: 9.0,
-        reviewCount: 95,
-        location: 'Quận Hai Bà Trưng, Hà Nội',
-        distance: '3.0km',
-        description: 'Căn hộ 1 Phòng ngủ - 1 phòng ngủ • 1 phòng khách • 1 phòng tắm • 1 phòng bếp • 53m²',
-        price: 3159000,
-        discountPrice: 3510000,
-        amenities: [
-            { id: 'free-cancel', name: 'Miễn phí hủy' },
-            { id: 'kitchen', name: 'Bếp đầy đủ' }
-        ],
-        type: 'Căn hộ 1 Phòng ngủ',
-        rooms: 1,
-        beds: 2,
-        geniusLevel: 1
-    },
-    {
-        id: '4',
-        name: 'Eli Rina Hotel',
-        imageUrl: 'https://cf.bstatic.com/xdata/images/hotel/square600/303038392.webp?k=76ff82cbb302474f4d65f7486d2b683c811d033d1415335e95d690172a763149&o=',
-        rating: 9.2,
-        reviewCount: 272,
-        location: 'Quận Đống Đa, Hà Nội',
-        distance: '2.5km',
-        description: 'Phòng Deluxe Giường Đôi/2 Giường Đơn Nhìn Ra Thành Phố',
-        price: 2755620,
-        discountPrice: 3061800,
-        amenities: [
-            { id: 'free-cancel', name: 'Miễn phí hủy' },
-            { id: 'breakfast', name: 'Bao gồm bữa sáng' }
-        ],
-        type: 'Phòng Deluxe Giường Đôi',
-        hasPromotion: true,
-        geniusLevel: 1
-    },
-    {
-        id: '5',
-        name: 'An Suites',
-        imageUrl: 'https://cf.bstatic.com/xdata/images/hotel/square600/303038392.webp?k=76ff82cbb302474f4d65f7486d2b683c811d033d1415335e95d690172a763149&o=',
-        rating: 8.7,
-        reviewCount: 52,
-        location: 'Quận Đống Đa, Hà Nội',
-        distance: '0.8km',
-        description: 'Studio Có Ban Công - 1 studio nguyên căn • 1 phòng tắm • 1 phòng bếp • 35m²',
-        price: 1386000,
-        discountPrice: 1560000,
-        amenities: [
-            { id: 'kitchen', name: 'Bếp đầy đủ' },
-            { id: 'wifi', name: 'WiFi miễn phí' }
-        ],
-        type: 'Studio Có Ban Công',
-        rooms: 1,
-        hasPromotion: true,
-        geniusLevel: 0
-    }
-];
+import { AccommodationThumbnail } from '@/types/accommodation/accommodation';
 
 interface SearchResultsListProps {
     onFilterClick?: () => void;
+    accommodations?: AccommodationThumbnail[];
+    loading?: boolean;
+    totalResults?: number;
+    onSortChange?: (sortBy: string) => void;
+    onPageChange?: (page: number) => void;
+    currentPage?: number;
 }
 
-const SearchResultsList: React.FC<SearchResultsListProps> = ({ onFilterClick }) => {
-    const [hotels, setHotels] = useState(mockHotels);
+const SearchResultsList: React.FC<SearchResultsListProps> = ({
+    onFilterClick,
+    accommodations = [],
+    loading = false,
+    totalResults = 0,
+    onSortChange,
+    onPageChange,
+    currentPage = 1
+}) => {
     const [sortBy, setSortBy] = useState<string>('recommended');
-    const [loading, setLoading] = useState(false);
 
-    useEffect(() => {
-        // Giả lập tải dữ liệu
-        setLoading(true);
-        setTimeout(() => {
-            setLoading(false);
-        }, 500);
-    }, []);
-
-    // Sắp xếp kết quả dựa trên lựa chọn
-    useEffect(() => {
-        const sortedHotels = [...mockHotels];
-
-        switch (sortBy) {
-            case 'price-asc':
-                sortedHotels.sort((a, b) => a.price - b.price);
-                break;
-            case 'price-desc':
-                sortedHotels.sort((a, b) => b.price - a.price);
-                break;
-            case 'rating':
-                sortedHotels.sort((a, b) => (b.rating || 0) - (a.rating || 0));
-                break;
-            case 'distance':
-                // Ví dụ này giả định rằng khoảng cách là chuỗi có dạng "0.5km"
-                sortedHotels.sort((a, b) => {
-                    const distanceA = a.distance ? parseFloat(a.distance.replace('km', '')) : 999;
-                    const distanceB = b.distance ? parseFloat(b.distance.replace('km', '')) : 999;
-                    return distanceA - distanceB;
-                });
-                break;
-            default:
-                // Mặc định giữ nguyên thứ tự ban đầu
-                break;
+    const handleSortChange = (value: string) => {
+        setSortBy(value);
+        if (onSortChange) {
+            onSortChange(value);
         }
+    };
 
-        setHotels(sortedHotels);
-    }, [sortBy]);
+    // Function to transform AccommodationThumbnail to SearchResultItem props
+    const transformAccommodation = (accommodation: AccommodationThumbnail) => {
+        // Use the first unit's description, or accommodation description as fallback
+        const description = accommodation.units && accommodation.units.length > 0
+            ? accommodation.units[0].description
+            : accommodation.description;
+
+        // Use the first unit's name as type, or a default value
+        const type = accommodation.units && accommodation.units.length > 0
+            ? accommodation.units[0].name
+            : 'Phòng nghỉ';
+
+        return {
+            id: accommodation.id.toString(),
+            name: accommodation.name,
+            imageUrl: accommodation.thumbnailUrl || '',
+            rating: accommodation.ratingSummary?.rating || 0,
+            reviewCount: accommodation.ratingSummary?.numberOfRatings || 0,
+            location: accommodation.location?.address || 'Không xác định',
+            distance: '0km', // This would need to be calculated based on user location
+            description: description, price: accommodation.priceInfo?.currentPrice || 0,
+            discountPrice: accommodation.priceInfo?.initialPrice || undefined,
+            amenities: [
+                { id: 'free-cancel', name: 'Miễn phí hủy' },
+                { id: 'wifi', name: 'WiFi miễn phí' }
+            ], // Default amenities - these would come from API
+            type: type,
+            rooms: 1, // Default value - this would need to be calculated
+            beds: undefined, // Optional property
+            hasPromotion: accommodation.priceInfo ? accommodation.priceInfo.initialPrice > accommodation.priceInfo.currentPrice : false,
+            geniusLevel: 1 // Default value
+        };
+    };
 
     return (
         <div className="flex-1 px-0 md:px-6 py-4">
             <div className="flex flex-wrap items-center justify-between mb-8">
                 <h1 className="text-2xl font-bold mb-2 md:mb-0 text-gray-800">
-                    Hà Nội: tìm thấy {hotels.length} chỗ nghỉ
+                    Hà Nội: tìm thấy {totalResults} chỗ nghỉ
                 </h1>
 
                 <div className="w-full md:w-auto flex items-center space-x-4">
@@ -176,7 +89,7 @@ const SearchResultsList: React.FC<SearchResultsListProps> = ({ onFilterClick }) 
                             <select
                                 className="bg-transparent outline-none appearance-none w-full text-gray-700"
                                 value={sortBy}
-                                onChange={(e) => setSortBy(e.target.value)}
+                                onChange={(e) => handleSortChange(e.target.value)}
                             >
                                 <option value="recommended">Lựa chọn hàng đầu của chúng tôi</option>
                                 <option value="price-asc">Giá (thấp đến cao)</option>
@@ -207,35 +120,62 @@ const SearchResultsList: React.FC<SearchResultsListProps> = ({ onFilterClick }) 
             {/* Results list */}
             {!loading && (
                 <div className="space-y-8">
-                    {hotels.map((hotel) => (
-                        <SearchResultItem
-                            key={hotel.id}
-                            id={hotel.id}
-                            name={hotel.name}
-                            imageUrl={hotel.imageUrl}
-                            rating={hotel.rating}
-                            reviewCount={hotel.reviewCount}
-                            location={hotel.location}
-                            distance={hotel.distance}
-                            description={hotel.description}
-                            price={hotel.price}
-                            discountPrice={hotel.discountPrice}
-                            amenities={hotel.amenities}
-                            type={hotel.type}
-                            beds={hotel.beds}
-                            rooms={hotel.rooms}
-                            hasPromotion={hotel.hasPromotion}
-                            geniusLevel={hotel.geniusLevel}
-                        />
-                    ))}
+                    {accommodations.map((accommodation) => {
+                        const transformedData = transformAccommodation(accommodation);
+                        return (
+                            <SearchResultItem
+                                key={transformedData.id}
+                                id={transformedData.id}
+                                name={transformedData.name}
+                                imageUrl={transformedData.imageUrl}
+                                rating={transformedData.rating}
+                                reviewCount={transformedData.reviewCount}
+                                location={transformedData.location}
+                                distance={transformedData.distance}
+                                description={transformedData.description}
+                                price={transformedData.price}
+                                discountPrice={transformedData.discountPrice}
+                                amenities={transformedData.amenities}
+                                type={transformedData.type}
+                                beds={transformedData.beds}
+                                rooms={transformedData.rooms}
+                                hasPromotion={transformedData.hasPromotion}
+                                geniusLevel={transformedData.geniusLevel}
+                            />
+                        );
+                    })}
                 </div>
             )}
 
             {/* No results */}
-            {!loading && hotels.length === 0 && (
+            {!loading && accommodations.length === 0 && (
                 <div className="text-center py-8">
                     <p className="text-gray-700 text-lg">Không tìm thấy kết quả phù hợp.</p>
                     <p className="text-gray-600">Vui lòng thử lại với tiêu chí tìm kiếm khác.</p>
+                </div>
+            )}
+
+            {/* Pagination - Simple example */}
+            {!loading && accommodations.length > 0 && onPageChange && (
+                <div className="flex justify-center mt-8">
+                    <div className="flex space-x-2">
+                        <button
+                            onClick={() => onPageChange(Math.max(1, currentPage - 1))}
+                            disabled={currentPage <= 1}
+                            className="px-4 py-2 border border-gray-300 rounded-md disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                            Trước
+                        </button>
+                        <span className="px-4 py-2 text-gray-700">
+                            Trang {currentPage}
+                        </span>
+                        <button
+                            onClick={() => onPageChange(currentPage + 1)}
+                            className="px-4 py-2 border border-gray-300 rounded-md"
+                        >
+                            Sau
+                        </button>
+                    </div>
                 </div>
             )}
         </div>

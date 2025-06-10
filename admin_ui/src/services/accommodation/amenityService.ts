@@ -21,7 +21,7 @@ const amenityService = {
     if (params?.sortBy) queryParams.append('sortBy', params.sortBy);
     if (params?.sortType) queryParams.append('sortType', params.sortType);
     if (params?.type) queryParams.append('type', params.type);
-    if (params?.isPopular !== undefined) queryParams.append('isPopular', params.isPopular.toString());
+    if (params?.isPopular !== undefined && params.isPopular !== null) queryParams.append('isPopular', params.isPopular.toString());
 
     const queryString = queryParams.toString() ? `?${queryParams.toString()}` : '';
     return apiClient.get<ListDataResponse<AmenityGroup>>(`${ACCOMMODATION_PATH}/amenity_groups${queryString}`);

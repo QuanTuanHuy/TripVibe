@@ -24,11 +24,13 @@ public class AccommodationClientAdapter implements IAccommodationClientPort {
 
     @Override
     public List<AccommodationThumbnail> getAccommodations(AccommodationThumbnailParams params) {
+        log.info("start date: {}, end date: {}, guest count: {}",
+                params.getStartDate(), params.getEndDate(), params.getGuestCount());
         try {
             Resource<List<AccommodationThumbnail>> response = accommodationClient.getAccommodationsThumbnail(
                     params.getIds(),
-                    params.getStartDate(),
-                    params.getEndDate(),
+                    params.getStartDate().toString(),
+                    params.getEndDate().toString(),
                     params.getGuestCount()
             );
             if (response.getMeta().getMessage().equals("Success")) {

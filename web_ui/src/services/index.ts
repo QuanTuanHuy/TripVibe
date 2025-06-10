@@ -4,8 +4,10 @@ import { bookingService } from './booking';
 import { profileService } from './profile/profileService';
 import { ratingService } from './rating/ratingService';
 import accommodationService from './accommodation/accommodationService';
+import amenityService from './accommodation/amenityService';
 import { locationService } from './location';
 import { chatService } from './chat';
+import searchService from './search/searchService';
 
 export {
   apiClient,
@@ -14,6 +16,8 @@ export {
   profileService,
   ratingService,
   accommodationService,
+  amenityService,
   locationService,
   chatService,
+  searchService,
 };

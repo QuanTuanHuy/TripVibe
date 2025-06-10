@@ -182,7 +182,7 @@ public class GetAccommodationUseCase {
         var ratingSummaryMap = ratingSummaries.stream()
                 .collect(Collectors.toMap(RatingSummaryDto::getAccommodationId,
                         rs -> AccommodationThumbnail.RatingSummary.builder()
-                                .rating((double) rs.getTotalRating() / rs.getNumberOfRatings())
+                                .rating(rs.getNumberOfRatings() > 0 ? (double) rs.getTotalRating() / rs.getNumberOfRatings(): 0)
                                 .numberOfRatings(rs.getNumberOfRatings())
                                 .build()));
 
