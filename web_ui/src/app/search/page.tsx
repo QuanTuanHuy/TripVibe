@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Header from "@/components/Header";
 import SearchBar from "@/components/SearchBar";
@@ -12,7 +12,7 @@ import { AccommodationThumbnail } from '@/types/accommodation';
 import { SearchResult } from '@/types/search';
 import { searchService } from '@/services';
 
-export default function SearchPage() {
+function SearchContent() {
     const urlParams = useSearchParams();
     const [showMobileFilters, setShowMobileFilters] = useState(false);
     const [showMap, setShowMap] = useState(false);
@@ -247,7 +247,29 @@ export default function SearchPage() {
                         </div>
                     </div>
                 </div>
+            </div>        </div>
+    );
+}
+
+// Loading component for Suspense fallback
+function SearchPageSkeleton() {
+    return (
+        <div className="min-h-screen bg-gray-50">
+            <Header />
+            <div className="container mx-auto px-4 py-4">
+                <div className="animate-pulse">
+                    <div className="h-8 bg-gray-200 rounded mb-4"></div>
+                    <div className="h-64 bg-gray-200 rounded"></div>
+                </div>
             </div>
         </div>
+    );
+}
+
+export default function SearchPage() {
+    return (
+        <Suspense fallback={<SearchPageSkeleton />}>
+            <SearchContent />
+        </Suspense>
     );
 }
