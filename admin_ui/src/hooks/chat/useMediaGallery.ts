@@ -16,7 +16,6 @@ export const useMediaGallery = (messages: Message[]) => {
         const links: LinkItem[] = [];
 
         messages.forEach(message => {
-            // Extract media (images/videos)
             if (message.type === 'media' && message.mediaType === 'image') {
                 const mediaItem: MediaItem = {
                     id: message.mediaDataId!,
@@ -26,13 +25,12 @@ export const useMediaGallery = (messages: Message[]) => {
                     filename: `media_${message.mediaDataId}`,
                     size: message.mediaSize || 0,
                     createdAt: new Date(message.createdAt).getTime(),
-                    senderId: message.senderId || 0,
+                    senderId: message.senderId!,
                     senderName: userStore.getUser(message.senderId!)
                 };
                 media.push(mediaItem);
             }
 
-            // Extract files (non-image media)
             if (message.mediaType === 'file' || (message.type === 'media' && message.mediaDataId)) {
                 // Similar logic for files
                 const fileItem: FileItem = {
@@ -44,7 +42,7 @@ export const useMediaGallery = (messages: Message[]) => {
                     size: message.mediaSize || 0,
                     createdAt: new Date(message.createdAt).getTime(),
                     senderId: message.senderId || 0,
-                    senderName:  userStore.getUser(message.senderId!)
+                    senderName: userStore.getUser(message.senderId!)
                 };
                 files.push(fileItem);
             }
@@ -63,7 +61,7 @@ export const useMediaGallery = (messages: Message[]) => {
                             domain: new URL(url).hostname,
                             createdAt: new Date(message.createdAt).getTime(),
                             senderId: message.senderId || 0,
-                            senderName:  userStore.getUser(message.senderId!)
+                            senderName: userStore.getUser(message.senderId!)
                         };
                         links.push(linkItem);
                     });
