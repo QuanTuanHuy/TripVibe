@@ -59,4 +59,24 @@ public class WishlistItemAdapter implements IWishlistItemPort {
     public List<WishlistItemEntity> getWishlistsByWishlistId(Long wishlistId) {
         return WishlistItemMapper.INSTANCE.toListEntity(wishlistItemRepository.findByWishlistId(wishlistId));
     }
+
+    @Override
+    public List<WishlistItemEntity> getItemsByWishlistIds(List<Long> wishlistIds) {
+        return WishlistItemMapper.INSTANCE.toListEntity(wishlistItemRepository.findByWishlistIdIn(wishlistIds));
+    }
+
+    @Override
+    public void deleteByWishlistId(Long wishlistId) {
+        wishlistItemRepository.deleteByWishlistId(wishlistId);
+    }
+
+    @Override
+    public void deleteById(Long id) {
+        wishlistItemRepository.deleteById(id);
+    }
+
+    @Override
+    public WishlistItemEntity getWishlistItemById(Long id) {
+        return WishlistItemMapper.INSTANCE.toEntity(wishlistItemRepository.findById(id).orElse(null));
+    }
 }

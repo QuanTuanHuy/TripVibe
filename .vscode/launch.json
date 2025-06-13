@@ -3,6 +3,13 @@
   "configurations": [
     {
       "type": "java",
+      "name": "InventoryServiceApplication",
+      "request": "launch",
+      "mainClass": "huy.project.inventory_service.InventoryServiceApplication",
+      "projectName": "inventory_service"
+    },
+    {
+      "type": "java",
       "name": "FileServiceApplication",
       "request": "launch",
       "mainClass": "huy.project.file_service.FileServiceApplication",

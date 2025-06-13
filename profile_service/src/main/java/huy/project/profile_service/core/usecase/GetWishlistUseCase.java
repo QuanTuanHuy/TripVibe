@@ -10,6 +10,10 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
+
+import java.util.Collections;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -34,5 +38,21 @@ public class GetWishlistUseCase {
         wishlist.setItems(wishlistItemPort.getWishlistsByWishlistId(wishlistId));
 
         return wishlist;
+    }
+
+    public List<WishlistEntity> getWishlistByTouristId(Long touristId) {
+        List<WishlistEntity> wishLists = wishlistPort.getWishlistByTouristId(touristId);
+        if (CollectionUtils.isEmpty(wishLists)) {
+            return Collections.emptyList();
+        }
+
+        List<Long> wishlistIds = wishLists.stream().map(WishlistEntity::getId).toList();
+        var wishlistItems = wishlistItemPort.getItemsByWishlistIds(wishlistIds);
+
+        wishLists.forEach(wishlist -> wishlist.setItems(wishlistItems.stream()
+                .filter(item -> item.getWishlistId().equals(wishlist.getId()))
+                .toList()));
+
+        return wishLists;
     }
 }

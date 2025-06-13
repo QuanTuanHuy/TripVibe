@@ -13,4 +13,8 @@ public interface IWishlistItemRepository extends IBaseRepository<WishlistItemMod
     List<WishlistItemModel> findByWishlistIdAndAccommodationIdIn(Long wishlistId, List<Long> accommodationIds);
 
     List<WishlistItemModel> findByWishlistId(Long wishlistId);
+
+    List<WishlistItemModel> findByWishlistIdIn(List<Long> wishlistIds);
+
+    void deleteByWishlistId(Long wishlistId);
 }
