@@ -15,14 +15,14 @@ export interface BookingPromotion {
 }
 
 export interface Tourist {
-    touristID: number; // Changed from string to number to match backend int64
+    touristID: number;
     firstName: string;
     lastName: string;
     email: string;
-    phoneNumber?: string; // Made optional since backend doesn't require it
-    address?: string; // Made optional since backend doesn't require it
-    dateOfBirth?: string; // Made optional since backend doesn't require it
-    nationality?: string; // Made optional since backend doesn't require it
+    phoneNumber?: string;
+    address?: string;
+    dateOfBirth?: string;
+    nationality?: string;
 }
 
 export interface CreateBookingRequest {
@@ -32,7 +32,7 @@ export interface CreateBookingRequest {
     numberOfChild: number;
     note?: string;
     stayFrom: number; // Unix timestamp (epoch seconds)
-    stayTo: number; // Unix timestamp (epoch seconds)
+    stayTo: number;
     invoiceAmount?: number;
     finalInvoiceAmount?: number;
     tourist: Tourist;
@@ -50,8 +50,8 @@ export interface BookingResponse {
     paymentId?: number;
     currencyId: number;
     note?: string;
-    stayFrom: number; // Unix timestamp
-    stayTo: number; // Unix timestamp
+    stayFrom: number;
+    stayTo: number;
     invoiceAmount: number;
     finalAmount: number;
     tourist?: Tourist;
