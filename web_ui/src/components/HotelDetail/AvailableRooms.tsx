@@ -23,6 +23,8 @@ interface AvailableRoomsProps {
     onShowRoomDetails?: (unitId: number) => void;
     hotelId?: string;
     hotelName?: string;
+    checkIn?: Date;
+    checkOut?: Date;
 }
 
 // Selected room interface for booking summary
@@ -76,7 +78,7 @@ const getUnitImage = (unit: Unit): string => {
     return '/images/default-room.jpg'; // Fallback image
 };
 
-export default function AvailableRooms({ units, onShowRoomDetails, hotelId, hotelName }: AvailableRoomsProps) {
+export default function AvailableRooms({ units, onShowRoomDetails, hotelId, hotelName, checkIn, checkOut }: AvailableRoomsProps) {
     const [roomQuantities, setRoomQuantities] = useState<{ [key: number]: number }>({});
     const [showRoomDropdown, setShowRoomDropdown] = useState<{ [key: number]: boolean }>({});
     const [selectedRoomDetails, setSelectedRoomDetails] = useState<number | null>(null);
@@ -175,11 +177,15 @@ export default function AvailableRooms({ units, onShowRoomDetails, hotelId, hote
             const selectedRooms = getSelectedRooms();
             const accommodationId = hotelId || "1";
             const accommodationName = hotelName || "Hotel";
+            const checkInDate = checkIn
+                ? checkIn.toISOString().split('T')[0]
+                : new Date().toISOString().split('T')[0];
+            const checkOutDate = checkOut
+                ? checkOut.toISOString().split('T')[0]
+                : new Date(new Date().setDate(new Date().getDate() + 1)).toISOString().split('T')[0];
 
-            // For now, we'll use router to navigate to booking page
-            // You can pass room data via URL params or localStorage
             localStorage.setItem('selectedRooms', JSON.stringify(selectedRooms));
-            window.location.href = `/booking?hotelId=${accommodationId}&hotelName=${encodeURIComponent(accommodationName)}`;
+            window.location.href = `/booking?hotelId=${accommodationId}&hotelName=${encodeURIComponent(accommodationName)}&checkIn=${checkInDate}&checkOut=${checkOutDate}`;
         }
     };
 

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
 import {
     ChevronDown,
@@ -12,11 +12,13 @@ import {
     X,
     ChevronLeft,
     ChevronRight,
+    Loader2,
+    AlertCircle,
 } from 'lucide-react';
 import { useBooking, Room } from '@/context/BookingContext';
-import { sampleRooms } from '@/data/sampleRooms';
+import accommodationService from '@/services/accommodation/accommodationService';
+import { Unit } from '@/types/accommodation';
 
-// Format price function
 const formatPrice = (price: number): string => {
     return new Intl.NumberFormat('vi-VN', {
         style: 'currency',
@@ -24,11 +26,70 @@ const formatPrice = (price: number): string => {
     }).format(price);
 };
 
+
+const transformUnitToRoom = (unit: Unit): Room => {
+    // Extract bed information from bedrooms
+    const beds = unit.bedrooms?.flatMap(bedroom =>
+        bedroom.beds?.map(bed => ({
+            type: bed.type?.name || 'bed',
+            count: bed.quantity || 1
+        })) || [{ type: 'bed', count: bedroom.quantity || 1 }]
+    ) || [{ type: 'bed', count: 1 }];
+
+    return {
+        id: unit.id,
+        name: unit.unitName?.name || `Unit ${unit.id}`,
+        size: `${unit.maxAdults + unit.maxChildren} guests`,
+        beds,
+        occupancy: {
+            adults: unit.maxAdults,
+            children: unit.maxChildren
+        },
+        amenities: unit.amenities?.map(amenity => amenity.amenity?.name || 'Amenity').slice(0, 10) || [
+            'Free WiFi', 'Air conditioning', 'Private bathroom'
+        ],
+        breakfast: unit.amenities?.some(amenity => amenity.amenity?.name?.toLowerCase().includes('breakfast')) || false,
+        freeCancellation: true,
+        prepayment: false,
+        price: unit.pricePerNight,
+        remainingRooms: unit.quantity,
+        images: unit.images?.map(img => img.url) || ['/images/placeholder-room.jpg'],
+        specialOffers: []
+    };
+};
+
 export default function RoomSelection() {
     const { state, addRoom, updateRoomQuantity, goToStep, hasSelectedRooms } = useBooking();
     const [showRoomDropdown, setShowRoomDropdown] = useState<{ [key: number]: boolean }>({});
     const [selectedRoomDetails, setSelectedRoomDetails] = useState<number | null>(null);
     const [selectedImageIndex, setSelectedImageIndex] = useState<{ [key: number]: number }>({});
+
+    // State for accommodation data
+    const [rooms, setRooms] = useState<Room[]>([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
+
+    // Fetch accommodation units and transform to rooms
+    useEffect(() => {
+        const fetchRooms = async () => {
+            try {
+                setLoading(true);
+                setError(null);
+                const accommodationId = state.hotelId ? parseInt(state.hotelId) : 1;
+                const units = await accommodationService.getUnitsByAccommodationId(accommodationId);
+
+                const transformedRooms = units.map(transformUnitToRoom);
+                setRooms(transformedRooms);
+            } catch (err) {
+                console.error('Error fetching rooms:', err);
+                setError('Failed to load rooms. Please try again.');
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchRooms();
+    }, [state.hotelId]);
 
     // Get room quantities from booking context
     const getRoomQuantity = (roomId: number) => {
@@ -45,10 +106,8 @@ export default function RoomSelection() {
         } else {
             const currentQuantity = getRoomQuantity(room.id);
             if (currentQuantity === 0) {
-                // Add new room
                 addRoom(room, newQuantity);
             } else {
-                // Update existing room
                 updateRoomQuantity(room.id, newQuantity);
             }
         }
@@ -86,17 +145,35 @@ export default function RoomSelection() {
         if (hasSelectedRooms()) {
             goToStep('guest-info');
         }
-    };
-
-    return (
+    }; return (
         <div>
             <div className="mb-6">
                 <h2 className="text-2xl font-bold text-gray-900 mb-2">Chọn phòng</h2>
                 <p className="text-gray-600">Chọn loại phòng và số lượng phù hợp với nhu cầu của bạn</p>
             </div>
 
+            {loading && (
+                <div className="flex justify-center items-center py-8">
+                    <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
+                    <span className="ml-2 text-gray-600">Đang tải danh sách phòng...</span>
+                </div>
+            )}
+
+            {error && (
+                <div className="flex items-center gap-2 p-4 bg-red-50 border border-red-200 rounded-lg mb-6">
+                    <AlertCircle className="w-5 h-5 text-red-600" />
+                    <p className="text-red-800">{error}</p>
+                </div>
+            )}
+
+            {!loading && !error && rooms.length === 0 && (
+                <div className="text-center py-8">
+                    <p className="text-gray-600">Không có phòng nào có sẵn.</p>
+                </div>
+            )}
+
             <div className="space-y-6">
-                {sampleRooms.map((room) => (
+                {rooms.map((room) => (
                     <div key={room.id} className="border border-gray-200 rounded-lg overflow-hidden shadow-sm bg-white">
                         {/* Room Header */}
                         <div className="bg-blue-50 p-4 border-b border-gray-200">
@@ -236,12 +313,12 @@ export default function RoomSelection() {
                                                             <button
                                                                 key={index}
                                                                 onClick={() => {
-                                                                    handleRoomQuantityChange(room, index);
+                                                                    handleRoomQuantityChange(room, index + 1);
                                                                     setShowRoomDropdown(prev => ({ ...prev, [room.id]: false }));
                                                                 }}
                                                                 className="w-full px-3 py-2 text-left text-sm hover:bg-blue-50 flex justify-between items-center"
                                                             >
-                                                                <span>{index} phòng</span>
+                                                                <span>{index + 1} phòng</span>
                                                                 {getRoomQuantity(room.id) === index && (
                                                                     <Check size={16} className="text-blue-600" />
                                                                 )}
@@ -278,13 +355,11 @@ export default function RoomSelection() {
                         Tiếp tục - Điền thông tin khách
                     </button>
                 </div>
-            )}
-
-            {/* Modal Room Details */}
+            )}            {/* Modal Room Details */}
             {selectedRoomDetails !== null && (
                 <div className="fixed inset-0 bg-gradient-to-br from-gray-600/80 to-gray-900/80 backdrop-blur-sm flex items-center justify-center z-50 p-4">
                     <div className="bg-white rounded-lg max-w-5xl w-full max-h-[90vh] overflow-y-auto shadow-2xl">
-                        {sampleRooms.filter(room => room.id === selectedRoomDetails).map(room => (
+                        {rooms.filter(room => room.id === selectedRoomDetails).map(room => (
                             <div key={`detail-${room.id}`} className="relative">
                                 {/* Close button */}
                                 <button

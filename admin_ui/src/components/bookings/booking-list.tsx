@@ -32,7 +32,6 @@ import {
     Clock
 } from "lucide-react";
 import { format, parseISO } from "date-fns";
-import { vi } from "date-fns/locale";
 
 interface Guest {
     id: number;

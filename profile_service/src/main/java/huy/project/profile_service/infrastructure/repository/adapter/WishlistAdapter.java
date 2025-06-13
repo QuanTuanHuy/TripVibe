@@ -42,4 +42,9 @@ public class WishlistAdapter implements IWishlistPort {
     public WishlistEntity getWishlistById(Long id) {
         return WishlistMapper.INSTANCE.toEntity(wishlistRepository.findById(id).orElse(null));
     }
+
+    @Override
+    public void deleteWishlistById(Long id) {
+        wishlistRepository.deleteById(id);
+    }
 }

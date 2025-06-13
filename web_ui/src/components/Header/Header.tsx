@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from 'react';
-import { Building, Plane, Car, Hotel, MapPin, Bus } from 'lucide-react';
+import { Building, Plane, Car, Hotel, MapPin, Bus, MessageCircle } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
 import { ThemeSwitcher } from '@/components/ThemeSwitcher';
@@ -53,10 +53,13 @@ const Header: React.FC = () => {
   const handleHomeClick = () => {
     router.push('/');
   };
-
   const handleLogout = () => {
     logout();
     setShowDropdown(false);
+  };
+
+  const handleInboxClick = () => {
+    router.push('/inbox');
   };
   return (
     <header className="bg-[#003b95] dark:bg-[#001f4d] text-white">
@@ -79,9 +82,7 @@ const Header: React.FC = () => {
 
             <div className="hidden md:block">
               <ThemeSwitcher />
-            </div>
-
-            <button className="p-2 rounded-full bg-blue-700 cursor-pointer hover:bg-blue-600 transition duration-200">
+            </div>            <button className="p-2 rounded-full bg-blue-700 cursor-pointer hover:bg-blue-600 transition duration-200">
               <span className="sr-only">Help</span>
               <span className="text-xl">?</span>
             </button>
@@ -135,8 +136,7 @@ const Header: React.FC = () => {
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                           </svg>
                           Tài khoản
-                        </button>
-                        <button
+                        </button>                        <button
                           onClick={() => {
                             router.push('/mytrips');
                             setShowDropdown(false);
@@ -147,6 +147,16 @@ const Header: React.FC = () => {
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                           </svg>
                           Đặt chỗ & Chuyến đi
+                        </button>
+                        <button
+                          onClick={() => {
+                            router.push('/inbox');
+                            setShowDropdown(false);
+                          }}
+                          className="w-full text-left px-4 py-2 hover:bg-gray-100 flex items-center"
+                        >
+                          <MessageCircle className="w-5 h-5 mr-3" />
+                          Tin nhắn
                         </button>
                         <button
                           onClick={() => {

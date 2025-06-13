@@ -107,7 +107,7 @@ export default function HotelGallery({
     if (selectedImageIndex !== null) {
         return (
             <div
-                className="fixed inset-0 bg-black bg-opacity-90 z-50 flex items-center justify-center"
+                className="fixed inset-0 bg-black bg-opacity-90 z-[9999] flex items-center justify-center"
                 role="dialog"
                 aria-label="Xem ảnh chi tiết"
                 onClick={(e) => {
@@ -124,7 +124,9 @@ export default function HotelGallery({
                         aria-label="Đóng xem ảnh chi tiết"
                     >
                         <X size={24} />
-                    </button>                    {/* Previous button */}
+                    </button>
+
+                    {/* Previous button */}
                     <button
                         onClick={goToPrevious}
                         className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-black bg-opacity-50 text-white p-2 rounded-full hover:bg-opacity-70 transition-colors z-10 hidden md:block"
@@ -140,7 +142,9 @@ export default function HotelGallery({
                         aria-label="Ảnh tiếp theo"
                     >
                         <ChevronRight size={32} />
-                    </button>{/* Main image */}
+                    </button>
+
+                    {/* Main image */}
                     <div
                         className="relative max-w-4xl max-h-[90vh] w-full h-full mx-4"
                         onTouchStart={onTouchStart}
@@ -182,7 +186,7 @@ export default function HotelGallery({
     }
     if (showAllPhotos) {
         return (
-            <div className="fixed inset-0 bg-white z-50 overflow-y-auto" role="dialog" aria-label="Thư viện ảnh khách sạn">
+            <div className="fixed inset-0 bg-white z-[9999] overflow-y-auto" role="dialog" aria-label="Thư viện ảnh khách sạn">
                 <div className="sticky top-0 bg-white p-4 border-b flex justify-between items-center">
                     <h2 className="text-xl font-bold">{hotelName} - Tất cả hình ảnh</h2>
                     <button
@@ -193,7 +197,8 @@ export default function HotelGallery({
                         <X size={16} />
                         Đóng
                     </button>
-                </div>                <div className="p-4">
+                </div>
+                <div className="p-4">
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                         {images.map((image, idx) => (
                             <div

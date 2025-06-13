@@ -1,215 +1,209 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
-import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Card, CardContent, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Search, SlidersHorizontal, Heart, X, Trash2, CheckSquare, LayoutList, LayoutGrid } from 'lucide-react';
+import { Search, Heart, Trash2, CheckSquare, LayoutList, LayoutGrid, Plus, Star, MapPin } from 'lucide-react';
+import { Checkbox } from "@/components/ui/checkbox";
+import { Pagination } from "@/components/ui/pagination";
+import { toast } from "sonner";
 import Header from '@/components/Header';
 import Link from 'next/link';
 import Image from 'next/image';
-import { useFavorites, FavoriteHotel, FavoriteLocation, SortOption } from '@/context/FavoritesContext';
-import { FavoriteButton } from '@/components/ui/favorite-button';
-import { HotelSkeleton, LocationSkeleton } from '@/components/ui/skeletons';
-import { Checkbox } from "@/components/ui/checkbox";
-import { Pagination } from "@/components/ui/pagination";
 
-// Initialize mock data for new installations
-const initHotels = [
-    {
-        id: '1',
-        name: 'Vinpearl Resort & Spa Nha Trang Bay',
-        imageUrl: 'https://images.unsplash.com/photo-1566073771259-6a8506099945?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3',
-        rating: 9.2,
-        reviewCount: 1205,
-        location: 'Nha Trang, Khánh Hòa',
-        distance: '5.1 km từ trung tâm',
-        price: 2500000,
-        discountPrice: 2100000,
-        amenities: [
-            { id: '1', name: 'WiFi miễn phí' },
-            { id: '2', name: 'Hồ bơi' },
-            { id: '3', name: 'Bãi đậu xe' },
-            { id: '4', name: 'Spa' },
-            { id: '5', name: 'Phòng gym' },
-        ],
-        type: 'Resort',
-        beds: 2,
-        rooms: 1,
-        isFavorite: true,
-        hasPromotion: true,
-        geniusLevel: 1,
-        savedAt: new Date()
-    },
-    {
-        id: '2',
-        name: 'Mường Thanh Luxury Đà Nẵng',
-        imageUrl: 'https://images.unsplash.com/photo-1551882547-ff40c63fe5fa?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3',
-        rating: 8.7,
-        reviewCount: 872,
-        location: 'Đà Nẵng',
-        distance: '2.3 km từ trung tâm',
-        price: 1800000,
-        amenities: [
-            { id: '1', name: 'WiFi miễn phí' },
-            { id: '2', name: 'Hồ bơi' },
-            { id: '3', name: 'Bãi đậu xe' },
-        ],
-        type: 'Khách sạn',
-        beds: 1,
-        rooms: 1,
-        isFavorite: true,
-        geniusLevel: 2,
-        savedAt: new Date()
-    },
-    {
-        id: '3',
-        name: 'Intercontinental Phú Quốc',
-        imageUrl: 'https://images.unsplash.com/photo-1584132967334-10e028bd69f7?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3',
-        rating: 9.5,
-        reviewCount: 1502,
-        location: 'Phú Quốc, Kiên Giang',
-        distance: '7.8 km từ trung tâm',
-        price: 5200000,
-        discountPrice: 4680000,
-        amenities: [
-            { id: '1', name: 'WiFi miễn phí' },
-            { id: '2', name: 'Hồ bơi' },
-            { id: '3', name: 'Bãi đậu xe' },
-            { id: '4', name: 'Spa' },
-            { id: '5', name: 'Phòng gym' },
-            { id: '6', name: 'Nhà hàng' },
-        ],
-        type: 'Resort',
-        beds: 3,
-        rooms: 2,
-        isFavorite: true,
-        hasPromotion: true,
-        savedAt: new Date()
-    }
-];
+// Import wishlist types and service
+import {
+    Wishlist,
+    WishlistWithDetails,
+    WishlistItemWithDetails,
+} from '@/types/wishlist';
+import wishlistService from '@/services/wishlist/wishlistService';
 
-const initLocations = [
-    {
-        id: '1',
-        name: 'Phú Quốc',
-        imageUrl: 'https://images.unsplash.com/photo-1583127812417-7c06e950a432?q=80&w=2069&auto=format&fit=crop&ixlib=rb-4.0.3',
-        description: 'Đảo ngọc với những bãi biển đẹp nhất Việt Nam',
-        totalHotels: 238,
-        averagePrice: 2800000,
-        isFavorite: true,
-        savedAt: new Date()
-    },
-    {
-        id: '2',
-        name: 'Đà Lạt',
-        imageUrl: 'https://images.unsplash.com/photo-1586959140255-7545c0e66e32?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3',
-        description: 'Thành phố ngàn hoa, khí hậu mát mẻ quanh năm',
-        totalHotels: 412,
-        averagePrice: 1200000,
-        isFavorite: true,
-        savedAt: new Date()
-    },
-    {
-        id: '3',
-        name: 'Hạ Long',
-        imageUrl: 'https://images.unsplash.com/photo-1528127269322-539801943592?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3',
-        description: 'Vịnh đẹp kỳ quan thế giới với hàng nghìn hòn đảo đá vôi',
-        totalHotels: 187,
-        averagePrice: 2100000,
-        isFavorite: true,
-        savedAt: new Date()
-    }
-];
+type SortOption = 'recent' | 'name-asc' | 'name-desc' | 'price-low' | 'price-high' | 'rating';
 
-const SavedPage = () => {
-    const [activeTab, setActiveTab] = useState('hotels');
+const MyWishlistsPage = () => {
+    // States
+    const [wishlists, setWishlists] = useState<Wishlist[]>([]);
+    const [selectedWishlist, setSelectedWishlist] = useState<WishlistWithDetails | null>(null);
+    const [wishlistItems, setWishlistItems] = useState<WishlistItemWithDetails[]>([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
+
+    // UI States
     const [searchTerm, setSearchTerm] = useState('');
     const [sortBy, setSortBy] = useState<SortOption>('recent');
-    const [showFilters, setShowFilters] = useState(false);
     const [bulkMode, setBulkMode] = useState(false);
     const [viewMode, setViewMode] = useState<'grid' | 'list'>('list');
-    const [currentHotelPage, setCurrentHotelPage] = useState(1);
-    const [currentLocationPage, setCurrentLocationPage] = useState(1);
+    const [currentPage, setCurrentPage] = useState(1);
+    const [selectedItems, setSelectedItems] = useState<Set<number>>(new Set());
+
+    // Create wishlist states
+    const [isCreatingWishlist, setIsCreatingWishlist] = useState(false);
+    const [newWishlistName, setNewWishlistName] = useState('');
+    const [showCreateForm, setShowCreateForm] = useState(false);
+
     const itemsPerPage = 6;
 
-    const {
-        favoriteHotels,
-        favoriteLocations,
-        removeHotelFromFavorites,
-        removeLocationFromFavorites,
-        addHotelToFavorites,
-        addLocationToFavorites,
-        getSortedHotels,
-        getSortedLocations,
-        loading,
-        // New bulk selection props
-        selectedHotelIds,
-        selectedLocationIds,
-        toggleHotelSelection,
-        toggleLocationSelection,
-        selectAllHotels,
-        selectAllLocations,
-        clearHotelSelections,
-        clearLocationSelections,
-        removeSelectedHotels,
-        removeSelectedLocations,
-        isAllHotelsSelected,
-        isAllLocationsSelected
-    } = useFavorites();
+    // Load wishlists data
+    const loadWishlists = useCallback(async () => {
+        try {
+            setLoading(true);
+            setError(null);
+            const wishlistsData = await wishlistService.getWishlists();
+            setWishlists(wishlistsData);
 
-    // Initialize with mock data if empty
-    useEffect(() => {
-        if (!loading && favoriteHotels.length === 0) {
-            initHotels.forEach(hotel => addHotelToFavorites(hotel as FavoriteHotel));
+            // Auto-select first wishlist if available
+            if (wishlistsData.length > 0 && !selectedWishlist) {
+                await loadWishlistDetails(wishlistsData[0].id);
+            }
+        } catch (err) {
+            console.error('Failed to load wishlists:', err);
+            setError('Không thể tải danh sách yêu thích. Vui lòng thử lại.');
+            toast.error('Không thể tải danh sách yêu thích');
+        } finally {
+            setLoading(false);
+        }
+    }, [selectedWishlist]);
+
+    // Load wishlist details with accommodation info
+    const loadWishlistDetails = useCallback(async (wishlistId: number) => {
+        try {
+            const wishlistWithDetails = await wishlistService.getWishlistWithDetails(wishlistId);
+            setSelectedWishlist(wishlistWithDetails);
+            setWishlistItems(wishlistWithDetails.items || []);
+        } catch (err) {
+            console.error('Failed to load wishlist details:', err);
+            toast.error('Không thể tải chi tiết danh sách yêu thích');
+        }
+    }, []);
+
+    // Create new wishlist
+    const handleCreateWishlist = useCallback(async () => {
+        if (!newWishlistName.trim()) {
+            toast.error('Vui lòng nhập tên danh sách');
+            return;
         }
 
-        if (!loading && favoriteLocations.length === 0) {
-            initLocations.forEach(location => addLocationToFavorites(location as FavoriteLocation));
-        }
-    }, [loading, favoriteHotels.length, favoriteLocations.length, addHotelToFavorites, addLocationToFavorites]);
+        try {
+            setIsCreatingWishlist(true);
+            const newWishlist = await wishlistService.createWishlist({
+                name: newWishlistName.trim(),
+                items: []
+            });
 
-    // Reset bulk mode when tab changes
-    useEffect(() => {
-        if (bulkMode) {
+            setWishlists(prev => [...prev, newWishlist]);
+            setNewWishlistName('');
+            setShowCreateForm(false);
+            await loadWishlistDetails(newWishlist.id);
+            toast.success('Tạo danh sách yêu thích thành công');
+        } catch (err) {
+            console.error('Failed to create wishlist:', err);
+            toast.error('Không thể tạo danh sách yêu thích');
+        } finally {
+            setIsCreatingWishlist(false);
+        }
+    }, [newWishlistName, loadWishlistDetails]);
+
+    // Remove items from wishlist
+    const handleRemoveItems = useCallback(async () => {
+        if (!selectedWishlist || selectedItems.size === 0) return;
+
+        try {
+            // Remove selected items
+            for (const itemId of selectedItems) {
+                await wishlistService.removeWishlistItem(selectedWishlist.id, itemId);
+            }
+
+            // Reload wishlist details
+            await loadWishlistDetails(selectedWishlist.id);
+            setSelectedItems(new Set());
             setBulkMode(false);
-            clearHotelSelections();
-            clearLocationSelections();
+            toast.success(`Đã xóa ${selectedItems.size} khách sạn khỏi danh sách`);
+        } catch (err) {
+            console.error('Failed to remove items:', err);
+            toast.error('Không thể xóa khách sạn khỏi danh sách');
         }
-    }, [activeTab, bulkMode, clearHotelSelections, clearLocationSelections]);
+    }, [selectedWishlist, selectedItems, loadWishlistDetails]);
 
-    // Get sorted and filtered items
-    const filteredHotels = getSortedHotels(sortBy, searchTerm);
-    const filteredLocations = getSortedLocations(sortBy, searchTerm);
+    // Toggle item selection
+    const toggleItemSelection = useCallback((itemId: number) => {
+        setSelectedItems(prev => {
+            const newSet = new Set(prev);
+            if (newSet.has(itemId)) {
+                newSet.delete(itemId);
+            } else {
+                newSet.add(itemId);
+            }
+            return newSet;
+        });
+    }, []);
+
+    // Select all items
+    const selectAllItems = useCallback(() => {
+        setSelectedItems(new Set(wishlistItems.map(item => item.id)));
+    }, [wishlistItems]);
+
+    // Clear selections
+    const clearSelections = useCallback(() => {
+        setSelectedItems(new Set());
+    }, []);
+
+    // Load data on mount
+    useEffect(() => {
+        loadWishlists();
+    }, [loadWishlists]);
+
+    // Filter and sort wishlist items
+    const filteredItems = wishlistItems.filter(item => {
+        if (!searchTerm) return true;
+        return item.accommodationName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            item.accommodation?.location.address.toLowerCase().includes(searchTerm.toLowerCase());
+    });
+
+    // Sort items based on sortBy
+    const sortedItems = [...filteredItems].sort((a, b) => {
+        switch (sortBy) {
+            case 'recent':
+                return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+            case 'name-asc':
+                return a.accommodationName.localeCompare(b.accommodationName);
+            case 'name-desc':
+                return b.accommodationName.localeCompare(a.accommodationName);
+            case 'price-low':
+                const priceA = a.accommodation?.priceInfo?.currentPrice || 0;
+                const priceB = b.accommodation?.priceInfo?.currentPrice || 0;
+                return priceA - priceB;
+            case 'price-high':
+                const priceA2 = a.accommodation?.priceInfo?.currentPrice || 0;
+                const priceB2 = b.accommodation?.priceInfo?.currentPrice || 0;
+                return priceB2 - priceA2;
+            case 'rating':
+                const ratingA = a.accommodation?.ratingSummary?.rating || 0;
+                const ratingB = b.accommodation?.ratingSummary?.rating || 0;
+                return ratingB - ratingA;
+            default:
+                return 0;
+        }
+    });
+
+    // Apply pagination to sorted items
+    const paginatedItems = sortedItems.slice(
+        (currentPage - 1) * itemsPerPage,
+        currentPage * itemsPerPage
+    );
 
     // Reset pagination when filters change
     useEffect(() => {
-        setCurrentHotelPage(1);
-    }, [sortBy, searchTerm, favoriteHotels.length]);
-
-    useEffect(() => {
-        setCurrentLocationPage(1);
-    }, [sortBy, searchTerm, favoriteLocations.length]);
-
-    // Apply pagination
-    const paginatedHotels = filteredHotels.slice(
-        (currentHotelPage - 1) * itemsPerPage,
-        currentHotelPage * itemsPerPage
-    );
-
-    const paginatedLocations = filteredLocations.slice(
-        (currentLocationPage - 1) * itemsPerPage,
-        currentLocationPage * itemsPerPage
-    );
+        setCurrentPage(1);
+    }, [sortBy, searchTerm, wishlistItems.length]);
 
     // Toggle bulk mode
     const toggleBulkMode = () => {
         setBulkMode(!bulkMode);
         if (bulkMode) {
-            clearHotelSelections();
-            clearLocationSelections();
+            setSelectedItems(new Set());
         }
     };
 
@@ -221,36 +215,46 @@ const SavedPage = () => {
         }).format(price);
     };
 
+    if (error) {
+        return (
+            <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+                <Header />
+                <div className="container mx-auto px-4 max-w-7xl mt-8">
+                    <div className="text-center py-16">
+                        <div className="h-20 w-20 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <Heart className="h-8 w-8 text-red-500" />
+                        </div>
+                        <h3 className="text-lg font-medium mb-2">Có lỗi xảy ra</h3>
+                        <p className="text-gray-500 mb-6">{error}</p>
+                        <Button onClick={loadWishlists}>
+                            Thử lại
+                        </Button>
+                    </div>
+                </div>
+            </div>
+        );
+    }
+
     return (
         <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
             <Header />
             <div className="container mx-auto px-4 max-w-7xl mt-8">
+                {/* Page Header */}
                 <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-6">
                     <div>
-                        <h1 className="text-2xl font-bold mb-2">Danh sách đã lưu</h1>
-                        <p className="text-gray-600">Quản lý các khách sạn và điểm đến bạn đã lưu</p>
+                        <h1 className="text-2xl font-bold mb-2">Danh sách yêu thích</h1>
+                        <p className="text-gray-600">Quản lý các khách sạn bạn đã lưu</p>
                     </div>
                     <div className="mt-4 md:mt-0 flex space-x-2">
-                        {activeTab === 'hotels' && selectedHotelIds.length > 0 && bulkMode && (
+                        {selectedItems.size > 0 && bulkMode && (
                             <Button
                                 variant="destructive"
-                                onClick={removeSelectedHotels}
+                                onClick={handleRemoveItems}
                                 size="sm"
                                 className="flex items-center"
                             >
                                 <Trash2 className="mr-1 h-4 w-4" />
-                                Xóa ({selectedHotelIds.length})
-                            </Button>
-                        )}
-                        {activeTab === 'locations' && selectedLocationIds.length > 0 && bulkMode && (
-                            <Button
-                                variant="destructive"
-                                onClick={removeSelectedLocations}
-                                size="sm"
-                                className="flex items-center"
-                            >
-                                <Trash2 className="mr-1 h-4 w-4" />
-                                Xóa ({selectedLocationIds.length})
+                                Xóa ({selectedItems.size})
                             </Button>
                         )}
                         <Button
@@ -258,547 +262,490 @@ const SavedPage = () => {
                             onClick={toggleBulkMode}
                             size="sm"
                             className="flex items-center"
+                            disabled={wishlistItems.length === 0}
                         >
                             <CheckSquare className="mr-1 h-4 w-4" />
                             {bulkMode ? "Hủy chọn" : "Chọn nhiều"}
                         </Button>
-                        <Link href="/myaccount">
-                            <Button variant="outline" size="sm">
-                                Quay lại tài khoản
-                            </Button>
-                        </Link>
+                        <Button
+                            onClick={() => setShowCreateForm(true)}
+                            size="sm"
+                            className="flex items-center"
+                        >
+                            <Plus className="mr-1 h-4 w-4" />
+                            Tạo danh sách mới
+                        </Button>
                     </div>
                 </div>
 
+                {/* Main Content */}
                 <div className="bg-white rounded-lg shadow-sm border border-gray-100 mb-8">
                     <div className="p-6">
-                        <Tabs value={activeTab} onValueChange={setActiveTab}>
-                            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6 gap-4">
-                                <TabsList className="mb-4 sm:mb-0">
-                                    <TabsTrigger value="hotels" className="px-4">
-                                        Khách sạn đã lưu ({loading ? '...' : favoriteHotels.length})
-                                    </TabsTrigger>
-                                    <TabsTrigger value="locations" className="px-4">
-                                        Địa điểm đã lưu ({loading ? '...' : favoriteLocations.length})
-                                    </TabsTrigger>
-                                </TabsList>
-
-                                <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
-                                    <div className="relative flex-1">
-                                        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-                                        <Input
-                                            placeholder="Tìm kiếm..."
-                                            className="pl-9"
-                                            value={searchTerm}
-                                            onChange={(e) => setSearchTerm(e.target.value)}
-                                        />
-                                    </div>
-
-                                    <div className="flex gap-2">
-                                        <div className="flex border rounded-md overflow-hidden">
-                                            <Button
-                                                variant={viewMode === 'list' ? "secondary" : "ghost"}
-                                                size="icon"
-                                                className="rounded-none border-0"
-                                                onClick={() => setViewMode('list')}
-                                            >
-                                                <LayoutList className="h-4 w-4" />
-                                            </Button>
-                                            <Button
-                                                variant={viewMode === 'grid' ? "secondary" : "ghost"}
-                                                size="icon"
-                                                className="rounded-none border-0"
-                                                onClick={() => setViewMode('grid')}
-                                            >
-                                                <LayoutGrid className="h-4 w-4" />
-                                            </Button>
-                                        </div>
-                                        <Button
-                                            variant="outline"
-                                            size="icon"
-                                            onClick={() => setShowFilters(!showFilters)}
-                                            className={showFilters ? 'bg-blue-50 text-blue-600 border-blue-200' : ''}
-                                        >
-                                            <SlidersHorizontal className="h-4 w-4" />
-                                        </Button>
-                                        <Select value={sortBy} onValueChange={(value) => setSortBy(value as SortOption)}>
-                                            <SelectTrigger className="w-full sm:w-[180px]">
-                                                <SelectValue placeholder="Sắp xếp theo" />
-                                            </SelectTrigger>
-                                            <SelectContent>
-                                                <SelectItem value="recent">Mới nhất</SelectItem>
-                                                <SelectItem value="price-high">Giá cao nhất</SelectItem>
-                                                <SelectItem value="price-low">Giá thấp nhất</SelectItem>
-                                                <SelectItem value="rating">Đánh giá cao nhất</SelectItem>
-                                                <SelectItem value="name-asc">Tên A-Z</SelectItem>
-                                                <SelectItem value="name-desc">Tên Z-A</SelectItem>
-                                            </SelectContent>
-                                        </Select>
-                                    </div>
-                                </div>
+                        {/* Wishlist Selector and Controls */}
+                        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6 gap-4">
+                            {/* Wishlist Selector */}
+                            <div className="flex items-center gap-4">
+                                <Select
+                                    value={selectedWishlist?.id.toString() || ""}
+                                    onValueChange={(value) => loadWishlistDetails(Number(value))}
+                                >
+                                    <SelectTrigger className="w-[200px]">
+                                        <SelectValue placeholder="Chọn danh sách" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        {wishlists.map((wishlist) => (
+                                            <SelectItem key={wishlist.id} value={wishlist.id.toString()}>
+                                                {wishlist.name} ({wishlist.items?.length || 0})
+                                            </SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
                             </div>
 
-                            {showFilters && (
-                                <div className="mb-6 p-4 bg-gray-50 rounded-md border border-gray-100 animate-in fade-in-0 slide-in-from-top-5">
-                                    <div className="flex justify-between items-center mb-3">
-                                        <h3 className="font-semibold text-sm">Lọc thêm</h3>
-                                        <Button variant="ghost" size="sm" onClick={() => setShowFilters(false)}>
-                                            <X className="h-4 w-4" />
-                                        </Button>
-                                    </div>
-
-                                    {activeTab === 'hotels' && (
-                                        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                                            <div>
-                                                <label className="text-xs font-medium block mb-1">Loại chỗ nghỉ</label>
-                                                <Select>
-                                                    <SelectTrigger className="w-full">
-                                                        <SelectValue placeholder="Tất cả" />
-                                                    </SelectTrigger>
-                                                    <SelectContent>
-                                                        <SelectItem value="all">Tất cả</SelectItem>
-                                                        <SelectItem value="hotel">Khách sạn</SelectItem>
-                                                        <SelectItem value="resort">Resort</SelectItem>
-                                                        <SelectItem value="apartment">Căn hộ</SelectItem>
-                                                    </SelectContent>
-                                                </Select>
-                                            </div>
-
-                                            <div>
-                                                <label className="text-xs font-medium block mb-1">Xếp hạng sao</label>
-                                                <Select>
-                                                    <SelectTrigger className="w-full">
-                                                        <SelectValue placeholder="Tất cả" />
-                                                    </SelectTrigger>
-                                                    <SelectContent>
-                                                        <SelectItem value="all">Tất cả</SelectItem>
-                                                        <SelectItem value="5">5 sao</SelectItem>
-                                                        <SelectItem value="4">4 sao</SelectItem>
-                                                        <SelectItem value="3">3 sao</SelectItem>
-                                                        <SelectItem value="2">2 sao</SelectItem>
-                                                    </SelectContent>
-                                                </Select>
-                                            </div>
-
-                                            <div>
-                                                <label className="text-xs font-medium block mb-1">Điểm đánh giá</label>
-                                                <Select>
-                                                    <SelectTrigger className="w-full">
-                                                        <SelectValue placeholder="Tất cả" />
-                                                    </SelectTrigger>
-                                                    <SelectContent>
-                                                        <SelectItem value="all">Tất cả</SelectItem>
-                                                        <SelectItem value="9+">Tuyệt hảo: 9+</SelectItem>
-                                                        <SelectItem value="8+">Rất tốt: 8+</SelectItem>
-                                                        <SelectItem value="7+">Tốt: 7+</SelectItem>
-                                                        <SelectItem value="6+">Tạm được: 6+</SelectItem>
-                                                    </SelectContent>
-                                                </Select>
-                                            </div>
-
-                                            <div>
-                                                <label className="text-xs font-medium block mb-1">Địa điểm</label>
-                                                <Select>
-                                                    <SelectTrigger className="w-full">
-                                                        <SelectValue placeholder="Tất cả" />
-                                                    </SelectTrigger>
-                                                    <SelectContent>
-                                                        <SelectItem value="all">Tất cả</SelectItem>
-                                                        <SelectItem value="nha-trang">Nha Trang</SelectItem>
-                                                        <SelectItem value="da-nang">Đà Nẵng</SelectItem>
-                                                        <SelectItem value="phu-quoc">Phú Quốc</SelectItem>
-                                                        <SelectItem value="da-lat">Đà Lạt</SelectItem>
-                                                    </SelectContent>
-                                                </Select>
-                                            </div>
-                                        </div>
-                                    )}
-
-                                    {activeTab === 'locations' && (
-                                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                                            <div>
-                                                <label className="text-xs font-medium block mb-1">Khu vực</label>
-                                                <Select>
-                                                    <SelectTrigger className="w-full">
-                                                        <SelectValue placeholder="Tất cả" />
-                                                    </SelectTrigger>
-                                                    <SelectContent>
-                                                        <SelectItem value="all">Tất cả</SelectItem>
-                                                        <SelectItem value="north">Miền Bắc</SelectItem>
-                                                        <SelectItem value="central">Miền Trung</SelectItem>
-                                                        <SelectItem value="south">Miền Nam</SelectItem>
-                                                    </SelectContent>
-                                                </Select>
-                                            </div>
-
-                                            <div>
-                                                <label className="text-xs font-medium block mb-1">Loại điểm đến</label>
-                                                <Select>
-                                                    <SelectTrigger className="w-full">
-                                                        <SelectValue placeholder="Tất cả" />
-                                                    </SelectTrigger>
-                                                    <SelectContent>
-                                                        <SelectItem value="all">Tất cả</SelectItem>
-                                                        <SelectItem value="beach">Biển</SelectItem>
-                                                        <SelectItem value="mountain">Núi</SelectItem>
-                                                        <SelectItem value="city">Thành phố</SelectItem>
-                                                        <SelectItem value="countryside">Miền quê</SelectItem>
-                                                    </SelectContent>
-                                                </Select>
-                                            </div>
-
-                                            <div>
-                                                <label className="text-xs font-medium block mb-1">Mức giá</label>
-                                                <Select>
-                                                    <SelectTrigger className="w-full">
-                                                        <SelectValue placeholder="Tất cả" />
-                                                    </SelectTrigger>
-                                                    <SelectContent>
-                                                        <SelectItem value="all">Tất cả</SelectItem>
-                                                        <SelectItem value="budget">Tiết kiệm</SelectItem>
-                                                        <SelectItem value="mid">Trung bình</SelectItem>
-                                                        <SelectItem value="luxury">Cao cấp</SelectItem>
-                                                    </SelectContent>
-                                                </Select>
-                                            </div>
-                                        </div>
-                                    )}
-
-                                    <div className="flex justify-end mt-4 space-x-2">
-                                        <Button
-                                            variant="outline"
-                                            size="sm"
-                                            onClick={() => {
-                                                setSearchTerm('');
-                                                setSortBy('recent');
-                                            }}
-                                        >
-                                            Xóa bộ lọc
-                                        </Button>
-                                        <Button size="sm">Áp dụng</Button>
-                                    </div>
+                            {/* Search and Controls */}
+                            <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
+                                <div className="relative flex-1">
+                                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+                                    <Input
+                                        placeholder="Tìm kiếm khách sạn..."
+                                        className="pl-9"
+                                        value={searchTerm}
+                                        onChange={(e) => setSearchTerm(e.target.value)}
+                                    />
                                 </div>
-                            )}
 
-                            <TabsContent value="hotels" className="mt-2">
-                                {bulkMode && filteredHotels.length > 0 && (
-                                    <div className="mb-4 p-3 bg-gray-50 rounded-md border border-gray-200 flex items-center justify-between">
-                                        <div className="flex items-center space-x-2">
-                                            <Checkbox
-                                                id="select-all-hotels"
-                                                checked={isAllHotelsSelected}
-                                                onCheckedChange={selectAllHotels}
-                                            />
-                                            <label htmlFor="select-all-hotels" className="text-sm font-medium">
-                                                Chọn tất cả ({filteredHotels.length})
-                                            </label>
-                                        </div>
-                                        {selectedHotelIds.length > 0 && (
-                                            <Button
-                                                variant="destructive"
-                                                size="sm"
-                                                onClick={removeSelectedHotels}
-                                                className="flex items-center"
-                                            >
-                                                <Trash2 className="mr-1 h-4 w-4" />
-                                                Xóa đã chọn ({selectedHotelIds.length})
-                                            </Button>
-                                        )}
+                                <div className="flex gap-2">
+                                    <div className="flex border rounded-md overflow-hidden">
+                                        <Button
+                                            variant={viewMode === 'list' ? "secondary" : "ghost"}
+                                            size="icon"
+                                            onClick={() => setViewMode('list')}
+                                            className="rounded-none"
+                                        >
+                                            <LayoutList className="h-4 w-4" />
+                                        </Button>
+                                        <Button
+                                            variant={viewMode === 'grid' ? "secondary" : "ghost"}
+                                            size="icon"
+                                            onClick={() => setViewMode('grid')}
+                                            className="rounded-none"
+                                        >
+                                            <LayoutGrid className="h-4 w-4" />
+                                        </Button>
                                     </div>
-                                )}
 
-                                {loading ? (
-                                    <div className="space-y-6">
-                                        {[1, 2, 3].map(i => <HotelSkeleton key={i} />)}
+                                    <Select value={sortBy} onValueChange={(value: SortOption) => setSortBy(value)}>
+                                        <SelectTrigger className="w-[140px]">
+                                            <SelectValue />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            <SelectItem value="recent">Mới nhất</SelectItem>
+                                            <SelectItem value="name-asc">Tên A-Z</SelectItem>
+                                            <SelectItem value="name-desc">Tên Z-A</SelectItem>
+                                            <SelectItem value="price-low">Giá thấp</SelectItem>
+                                            <SelectItem value="price-high">Giá cao</SelectItem>
+                                            <SelectItem value="rating">Đánh giá</SelectItem>
+                                        </SelectContent>
+                                    </Select>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Bulk Selection Controls */}
+                        {bulkMode && wishlistItems.length > 0 && (
+                            <div className="flex items-center gap-4 mb-4 p-3 bg-blue-50 rounded-lg">
+                                <Checkbox
+                                    id="select-all"
+                                    checked={selectedItems.size === wishlistItems.length && wishlistItems.length > 0}
+                                    onCheckedChange={(checked) => {
+                                        if (checked) {
+                                            selectAllItems();
+                                        } else {
+                                            clearSelections();
+                                        }
+                                    }}
+                                />
+                                <label htmlFor="select-all" className="text-sm font-medium">
+                                    Chọn tất cả ({wishlistItems.length} khách sạn)
+                                </label>
+                            </div>
+                        )}
+
+                        {/* Content */}
+                        {loading ? (
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                                {[...Array(6)].map((_, i) => (
+                                    <div key={i} className="animate-pulse">
+                                        <div className="bg-gray-200 h-48 rounded-lg mb-4"></div>
+                                        <div className="h-4 bg-gray-200 rounded mb-2"></div>
+                                        <div className="h-4 bg-gray-200 rounded w-2/3"></div>
                                     </div>
-                                ) : filteredHotels.length > 0 ? (
-                                    <>
-                                        <div className={viewMode === 'list' ? 'space-y-6' : 'grid grid-cols-1 md:grid-cols-2 gap-6'}>
-                                            {paginatedHotels.map(hotel => (
-                                                <Card
-                                                    key={hotel.id}
-                                                    className={`overflow-hidden transition-all duration-300 hover:shadow-md group ${selectedHotelIds.includes(hotel.id) ? 'ring-2 ring-primary ring-offset-1' : ''
-                                                        }`}
-                                                >
-                                                    <div className={`flex flex-col ${viewMode === 'list' ? 'md:flex-row' : ''}`}>
-                                                        <div className={`relative ${viewMode === 'list' ? 'md:w-1/3' : ''} h-[200px] md:h-auto`}>
-                                                            {bulkMode && (
-                                                                <div className="absolute top-2 left-2 z-10">
-                                                                    <Checkbox
-                                                                        id={`hotel-${hotel.id}`}
-                                                                        checked={selectedHotelIds.includes(hotel.id)}
-                                                                        onCheckedChange={() => toggleHotelSelection(hotel.id)}
-                                                                        className="bg-white/80 border-gray-400"
-                                                                    />
-                                                                </div>
-                                                            )}
+                                ))}
+                            </div>
+                        ) : !selectedWishlist ? (
+                            <div className="text-center py-16">
+                                <div className="h-20 w-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                                    <Heart className="h-8 w-8 text-gray-400" />
+                                </div>
+                                <h3 className="text-lg font-medium mb-2">Chưa có danh sách yêu thích</h3>
+                                <p className="text-gray-500 mb-6">Tạo danh sách đầu tiên để bắt đầu lưu các khách sạn yêu thích</p>
+                                <Button onClick={() => setShowCreateForm(true)}>
+                                    <Plus className="mr-2 h-4 w-4" />
+                                    Tạo danh sách mới
+                                </Button>
+                            </div>
+                        ) : sortedItems.length > 0 ? (
+                            <>
+                                {viewMode === 'grid' ? (
+                                    // Grid Layout
+                                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                                        {paginatedItems.map((item) => (
+                                            <Card key={item.id} className="group overflow-hidden hover:shadow-xl transition-all duration-300 border border-gray-200 rounded-xl bg-white">
+                                                {bulkMode && (
+                                                    <div className="absolute top-4 left-4 z-20">
+                                                        <Checkbox
+                                                            checked={selectedItems.has(item.id)}
+                                                            onCheckedChange={() => toggleItemSelection(item.id)}
+                                                            className="bg-white shadow-md border-2"
+                                                        />
+                                                    </div>
+                                                )}
+
+                                                <div className="relative overflow-hidden">
+                                                    <Link href={`/hotel/${item.accommodationId}`}>
+                                                        <div className="relative h-48 cursor-pointer">
                                                             <Image
-                                                                src={hotel.imageUrl}
-                                                                alt={hotel.name}
+                                                                src={item.accommodationImageUrl || '/placeholder-hotel.jpg'}
+                                                                alt={item.accommodationName}
                                                                 fill
-                                                                className="object-cover group-hover:scale-105 transition-transform duration-500"
+                                                                className="object-cover group-hover:scale-105 transition-transform duration-300"
                                                             />
-                                                            {hotel.hasPromotion && (
-                                                                <div className="absolute top-2 left-2 bg-red-500 text-white text-xs font-medium px-2 py-1 rounded">
-                                                                    Giảm giá
-                                                                </div>
-                                                            )}
-                                                            {!bulkMode && (
-                                                                <div className="absolute top-2 right-2">
-                                                                    <FavoriteButton
-                                                                        isFavorite={true}
-                                                                        onClick={() => removeHotelFromFavorites(hotel.id)}
-                                                                        size="md"
-                                                                    />
-                                                                </div>
-                                                            )}
+                                                            <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                                                         </div>
+                                                    </Link>
 
-                                                        <div className="p-6 flex-1 flex flex-col justify-between">
-                                                            <div>
-                                                                <div className="flex justify-between items-start mb-2">
-                                                                    <h3 className="text-xl font-bold">{hotel.name}</h3>
-                                                                    {hotel.rating && (
-                                                                        <div className="flex items-center">
-                                                                            <div className={`${hotel.rating >= 9 ? 'bg-green-600' :
-                                                                                hotel.rating >= 8 ? 'bg-green-500' :
-                                                                                    hotel.rating >= 7 ? 'bg-[#febb02] text-[#262626]' :
-                                                                                        'bg-orange-500'
-                                                                                } text-white px-2 py-1 rounded font-medium`}>
-                                                                                {hotel.rating}
-                                                                            </div>
-                                                                            <span className="ml-2 text-sm text-gray-600">
-                                                                                {hotel.reviewCount} đánh giá
+                                                    {/* Heart Button */}
+                                                    <button
+                                                        onClick={async () => {
+                                                            try {
+                                                                await wishlistService.removeWishlistItem(selectedWishlist!.id, item.id);
+                                                                await loadWishlistDetails(selectedWishlist!.id);
+                                                                toast.success('Đã xóa khỏi danh sách yêu thích');
+                                                            } catch (error) {
+                                                                toast.error('Không thể xóa khỏi danh sách');
+                                                            }
+                                                        }}
+                                                        className="absolute top-4 right-4 z-10 p-2 rounded-full bg-white/90 backdrop-blur-sm border border-white/20 shadow-lg hover:bg-white hover:scale-110 transition-all duration-200 group/heart"
+                                                    >
+                                                        <Heart className="h-4 w-4 text-red-500 fill-red-500 group-hover/heart:scale-110 transition-transform duration-200" />
+                                                    </button>
+
+                                                    {/* Price Badge */}
+                                                    {item.accommodation?.priceInfo && (
+                                                        <div className="absolute bottom-4 right-4 bg-white/95 backdrop-blur-sm px-3 py-1 rounded-full shadow-lg border border-white/20">
+                                                            <span className="text-sm font-semibold text-gray-900">
+                                                                {formatPrice(item.accommodation.priceInfo.currentPrice)}
+                                                            </span>
+                                                            <span className="text-xs text-gray-500 ml-1">/đêm</span>
+                                                        </div>
+                                                    )}
+                                                </div>
+
+                                                <CardContent className="p-4 space-y-3">
+                                                    <div className="space-y-2">
+                                                        <Link href={`/hotel/${item.accommodationId}`}>
+                                                            <h3 className="font-semibold text-lg text-gray-900 hover:text-blue-600 transition-colors duration-200 overflow-hidden text-ellipsis whitespace-nowrap cursor-pointer">
+                                                                {item.accommodationName}
+                                                            </h3>
+                                                        </Link>
+
+                                                        {item.accommodation && (
+                                                            <>
+                                                                <div className="flex items-center gap-1.5 text-gray-600">
+                                                                    <MapPin className="h-4 w-4 text-gray-400 flex-shrink-0" />
+                                                                    <span className="text-sm overflow-hidden text-ellipsis whitespace-nowrap">
+                                                                        {item.accommodation.location.address}
+                                                                    </span>
+                                                                </div>
+
+                                                                {item.accommodation.ratingSummary.numberOfRatings > 0 && (
+                                                                    <div className="flex items-center gap-2">
+                                                                        <div className="flex items-center gap-1">
+                                                                            <Star className="h-4 w-4 text-yellow-400 fill-yellow-400" />
+                                                                            <span className="text-sm font-medium text-gray-900">
+                                                                                {item.accommodation.ratingSummary.rating.toFixed(1)}
+                                                                            </span>
+                                                                        </div>
+                                                                        <span className="text-sm text-gray-500">
+                                                                            ({item.accommodation.ratingSummary.numberOfRatings} đánh giá)
+                                                                        </span>
+                                                                    </div>
+                                                                )}
+
+                                                                <p className="text-sm text-gray-600 leading-relaxed overflow-hidden" style={{
+                                                                    display: '-webkit-box',
+                                                                    WebkitLineClamp: 2,
+                                                                    WebkitBoxOrient: 'vertical'
+                                                                }}>
+                                                                    {item.accommodation.description}
+                                                                </p>
+                                                            </>
+                                                        )}
+                                                    </div>
+
+                                                    <div className="flex items-center justify-between pt-2 border-t border-gray-100">
+                                                        <div className="text-xs text-gray-500">
+                                                            Đã lưu: {new Date(item.createdAt).toLocaleDateString('vi-VN')}
+                                                        </div>
+                                                    </div>
+                                                </CardContent>
+
+                                                <CardFooter className="p-4 pt-0 flex gap-2">
+                                                    <Link href={`/hotel/${item.accommodationId}`} className="flex-1">
+                                                        <Button size="sm" className="w-full">
+                                                            Xem chi tiết
+                                                        </Button>
+                                                    </Link>
+                                                    {!bulkMode && (
+                                                        <Button
+                                                            variant="outline"
+                                                            size="sm"
+                                                            onClick={async () => {
+                                                                try {
+                                                                    await wishlistService.removeWishlistItem(selectedWishlist!.id, item.id);
+                                                                    await loadWishlistDetails(selectedWishlist!.id);
+                                                                    toast.success('Đã xóa khỏi danh sách');
+                                                                } catch (error) {
+                                                                    toast.error('Không thể xóa khỏi danh sách');
+                                                                }
+                                                            }}
+                                                            className="h-8 w-8 p-0"
+                                                        >
+                                                            <Trash2 className="h-4 w-4" />
+                                                        </Button>
+                                                    )}
+                                                </CardFooter>
+                                            </Card>
+                                        ))}
+                                    </div>
+                                ) : (
+                                    // List Layout - Horizontal Cards
+                                    <div className="space-y-4">
+                                        {paginatedItems.map((item) => (
+                                            <Card key={item.id} className="group overflow-hidden hover:shadow-lg transition-all duration-300 border border-gray-200 rounded-xl bg-white">
+                                                <div className="flex">
+                                                    {bulkMode && (
+                                                        <div className="absolute top-4 left-4 z-20">
+                                                            <Checkbox
+                                                                checked={selectedItems.has(item.id)}
+                                                                onCheckedChange={() => toggleItemSelection(item.id)}
+                                                                className="bg-white shadow-md border-2"
+                                                            />
+                                                        </div>
+                                                    )}
+
+                                                    {/* Image Section */}
+                                                    <div className="relative md:w-1/3 h-[200px] md:h-auto bg-gray-200">
+                                                        <Link href={`/hotel/${item.accommodationId}`}>
+                                                            <div className="relative w-full h-full cursor-pointer overflow-hidden rounded-l-xl">
+                                                                <Image
+                                                                    src={item.accommodationImageUrl || '/placeholder-hotel.jpg'}
+                                                                    alt={item.accommodationName}
+                                                                    fill
+                                                                    className="object-cover group-hover:scale-105 transition-transform duration-300"
+                                                                />
+                                                                <div className="absolute inset-0 bg-gradient-to-r from-transparent to-black/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                                                            </div>
+                                                        </Link>
+
+                                                        {/* Heart Button */}
+                                                        <button
+                                                            onClick={async () => {
+                                                                try {
+                                                                    await wishlistService.removeWishlistItem(selectedWishlist!.id, item.id);
+                                                                    await loadWishlistDetails(selectedWishlist!.id);
+                                                                    toast.success('Đã xóa khỏi danh sách yêu thích');
+                                                                } catch (error) {
+                                                                    toast.error('Không thể xóa khỏi danh sách');
+                                                                }
+                                                            }}
+                                                            className="absolute top-3 right-3 z-10 p-1.5 rounded-full bg-white/90 backdrop-blur-sm border border-white/20 shadow-md hover:bg-white hover:scale-110 transition-all duration-200 group/heart"
+                                                        >
+                                                            <Heart className="h-3.5 w-3.5 text-red-500 fill-red-500 group-hover/heart:scale-110 transition-transform duration-200" />
+                                                        </button>
+                                                    </div>
+
+                                                    {/* Content Section */}
+                                                    <div className="flex-1 p-4 flex flex-col justify-between">
+                                                        <div className="space-y-2">
+                                                            <div className="flex items-start justify-between">
+                                                                <div className="flex-1">
+                                                                    <Link href={`/hotel/${item.accommodationId}`}>
+                                                                        <h3 className="font-semibold text-lg text-gray-900 hover:text-blue-600 transition-colors duration-200 overflow-hidden text-ellipsis whitespace-nowrap cursor-pointer">
+                                                                            {item.accommodationName}
+                                                                        </h3>
+                                                                    </Link>
+
+                                                                    {item.accommodation && (
+                                                                        <div className="flex items-center gap-1.5 text-gray-600 mt-1">
+                                                                            <MapPin className="h-4 w-4 text-gray-400 flex-shrink-0" />
+                                                                            <span className="text-sm overflow-hidden text-ellipsis whitespace-nowrap">
+                                                                                {item.accommodation.location.address}
                                                                             </span>
                                                                         </div>
                                                                     )}
                                                                 </div>
 
-                                                                <p className="text-gray-600 mb-4">
-                                                                    <span className="font-medium">{hotel.location}</span>
-                                                                    {hotel.distance && <span> • {hotel.distance}</span>}
-                                                                </p>
-
-                                                                <div className="flex flex-wrap gap-2 mb-4">
-                                                                    {hotel.amenities && hotel.amenities.slice(0, 3).map(amenity => (
-                                                                        <span key={amenity.id} className="inline-flex items-center bg-gray-100 px-2 py-1 rounded text-sm">
-                                                                            {amenity.name}
-                                                                        </span>
-                                                                    ))}
-                                                                    {hotel.amenities && hotel.amenities.length > 3 && (
-                                                                        <span className="inline-flex items-center bg-gray-100 px-2 py-1 rounded text-sm">
-                                                                            +{hotel.amenities.length - 3} tiện ích khác
-                                                                        </span>
-                                                                    )}
-                                                                </div>
-
-                                                                <div className="flex items-center text-gray-600 text-sm mb-4">
-                                                                    {hotel.type && <span className="mr-2">{hotel.type}</span>}
-                                                                    {hotel.beds && <span className="mr-2">• {hotel.beds} giường</span>}
-                                                                    {hotel.rooms && <span>• {hotel.rooms} phòng</span>}
-                                                                </div>
-
-                                                                <div className="text-xs text-gray-500">
-                                                                    Đã lưu {new Date(hotel.savedAt).toLocaleDateString('vi-VN')}
-                                                                </div>
+                                                                {/* Price Section */}
+                                                                {item.accommodation?.priceInfo && (
+                                                                    <div className="text-right ml-4">
+                                                                        <div className="text-lg font-semibold text-gray-900">
+                                                                            {formatPrice(item.accommodation.priceInfo.currentPrice)}
+                                                                        </div>
+                                                                        <div className="text-xs text-gray-500">
+                                                                            /đêm
+                                                                        </div>
+                                                                    </div>
+                                                                )}
                                                             </div>
 
-                                                            <div className="flex justify-between items-end mt-4">
-                                                                <div>
-                                                                    <div className="font-bold text-xl text-[#0071c2]">
-                                                                        {formatPrice(hotel.discountPrice || hotel.price)}
-                                                                    </div>
-                                                                    {hotel.discountPrice && (
-                                                                        <div className="text-gray-500 line-through text-sm">
-                                                                            {formatPrice(hotel.price)}
+                                                            {item.accommodation && (
+                                                                <>
+                                                                    {item.accommodation.ratingSummary.numberOfRatings > 0 && (
+                                                                        <div className="flex items-center gap-2">
+                                                                            <div className="flex items-center gap-1">
+                                                                                <Star className="h-4 w-4 text-yellow-400 fill-yellow-400" />
+                                                                                <span className="text-sm font-medium text-gray-900">
+                                                                                    {item.accommodation.ratingSummary.rating.toFixed(1)}
+                                                                                </span>
+                                                                            </div>
+                                                                            <span className="text-sm text-gray-500">
+                                                                                ({item.accommodation.ratingSummary.numberOfRatings} đánh giá)
+                                                                            </span>
                                                                         </div>
                                                                     )}
-                                                                </div>
 
-                                                                <div className="flex space-x-2">
-                                                                    {!bulkMode && (
-                                                                        <Button
-                                                                            variant="outline"
-                                                                            size="sm"
-                                                                            onClick={() => removeHotelFromFavorites(hotel.id)}
-                                                                        >
-                                                                            Xóa
-                                                                        </Button>
-                                                                    )}
-                                                                    <Link href={`/hotel/${hotel.id}`}>
-                                                                        <Button size="sm">
-                                                                            Xem chi tiết
-                                                                        </Button>
-                                                                    </Link>
-                                                                </div>
+                                                                    <p className="text-sm text-gray-600 leading-relaxed overflow-hidden" style={{
+                                                                        display: '-webkit-box',
+                                                                        WebkitLineClamp: 2,
+                                                                        WebkitBoxOrient: 'vertical'
+                                                                    }}>
+                                                                        {item.accommodation.description}
+                                                                    </p>
+                                                                </>
+                                                            )}
+                                                        </div>
+
+                                                        {/* Bottom Section */}
+                                                        <div className="flex items-center justify-between pt-3 mt-3 border-t border-gray-100">
+                                                            <div className="text-xs text-gray-500">
+                                                                Đã lưu: {new Date(item.createdAt).toLocaleDateString('vi-VN')}
+                                                            </div>
+
+                                                            <div className="flex gap-2">
+                                                                {!bulkMode && (
+                                                                    <Button
+                                                                        variant="outline"
+                                                                        size="sm"
+                                                                        onClick={async () => {
+                                                                            try {
+                                                                                await wishlistService.removeWishlistItem(selectedWishlist!.id, item.id);
+                                                                                await loadWishlistDetails(selectedWishlist!.id);
+                                                                                toast.success('Đã xóa khỏi danh sách');
+                                                                            } catch (error) {
+                                                                                toast.error('Không thể xóa khỏi danh sách');
+                                                                            }
+                                                                        }}
+                                                                        className="h-8 w-8 p-0"
+                                                                    >
+                                                                        <Trash2 className="h-4 w-4" />
+                                                                    </Button>
+                                                                )}
+                                                                <Link href={`/hotel/${item.accommodationId}`}>
+                                                                    <Button size="sm" className="h-8 px-4">
+                                                                        Xem chi tiết
+                                                                    </Button>
+                                                                </Link>
                                                             </div>
                                                         </div>
                                                     </div>
-                                                </Card>
-                                            ))}
-                                        </div>
-
-                                        {filteredHotels.length > itemsPerPage && (
-                                            <div className="mt-6">
-                                                <Pagination
-                                                    total={filteredHotels.length}
-                                                    perPage={itemsPerPage}
-                                                    currentPage={currentHotelPage}
-                                                    onPageChange={setCurrentHotelPage}
-                                                />
-                                            </div>
-                                        )}
-                                    </>
-                                ) : (
-                                    <div className="text-center py-16">
-                                        <div className="h-20 w-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                                            <Heart className="h-8 w-8 text-gray-400 stroke-[1.5]" />
-                                        </div>
-                                        <h3 className="text-lg font-medium mb-2">Không tìm thấy khách sạn đã lưu</h3>
-                                        <p className="text-gray-500 mb-6">Bạn chưa lưu khách sạn nào hoặc không có kết quả phù hợp với tìm kiếm của bạn</p>
-                                        <Link href="/search">
-                                            <Button>
-                                                Tìm kiếm khách sạn
-                                            </Button>
-                                        </Link>
-                                    </div>
-                                )}
-                            </TabsContent>
-
-                            <TabsContent value="locations" className="mt-2">
-                                {bulkMode && filteredLocations.length > 0 && (
-                                    <div className="mb-4 p-3 bg-gray-50 rounded-md border border-gray-200 flex items-center justify-between">
-                                        <div className="flex items-center space-x-2">
-                                            <Checkbox
-                                                id="select-all-locations"
-                                                checked={isAllLocationsSelected}
-                                                onCheckedChange={selectAllLocations}
-                                            />
-                                            <label htmlFor="select-all-locations" className="text-sm font-medium">
-                                                Chọn tất cả ({filteredLocations.length})
-                                            </label>
-                                        </div>
-                                        {selectedLocationIds.length > 0 && (
-                                            <Button
-                                                variant="destructive"
-                                                size="sm"
-                                                onClick={removeSelectedLocations}
-                                                className="flex items-center"
-                                            >
-                                                <Trash2 className="mr-1 h-4 w-4" />
-                                                Xóa đã chọn ({selectedLocationIds.length})
-                                            </Button>
-                                        )}
+                                                </div>
+                                            </Card>
+                                        ))}
                                     </div>
                                 )}
 
-                                {loading ? (
-                                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                                        {[1, 2, 3].map(i => <LocationSkeleton key={i} />)}
-                                    </div>
-                                ) : filteredLocations.length > 0 ? (
-                                    <>
-                                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                                            {paginatedLocations.map(location => (
-                                                <Card
-                                                    key={location.id}
-                                                    className={`overflow-hidden transition-all duration-300 hover:shadow-md group ${selectedLocationIds.includes(location.id) ? 'ring-2 ring-primary ring-offset-1' : ''
-                                                        }`}
-                                                >
-                                                    <div className="relative h-[200px]">
-                                                        {bulkMode && (
-                                                            <div className="absolute top-2 left-2 z-10">
-                                                                <Checkbox
-                                                                    id={`location-${location.id}`}
-                                                                    checked={selectedLocationIds.includes(location.id)}
-                                                                    onCheckedChange={() => toggleLocationSelection(location.id)}
-                                                                    className="bg-white/80 border-gray-400"
-                                                                />
-                                                            </div>
-                                                        )}
-                                                        <Image
-                                                            src={location.imageUrl}
-                                                            alt={location.name}
-                                                            fill
-                                                            className="object-cover group-hover:scale-105 transition-transform duration-500"
-                                                        />
-                                                        {!bulkMode && (
-                                                            <div className="absolute top-2 right-2">
-                                                                <FavoriteButton
-                                                                    isFavorite={true}
-                                                                    onClick={() => removeLocationFromFavorites(location.id)}
-                                                                    size="md"
-                                                                />
-                                                            </div>
-                                                        )}
-                                                    </div>
-
-                                                    <CardContent className="p-6">
-                                                        <h3 className="text-xl font-bold mb-2">{location.name}</h3>
-                                                        <p className="text-gray-600 mb-4 h-12 line-clamp-2">{location.description}</p>
-
-                                                        <div className="flex justify-between text-sm text-gray-600 mb-2">
-                                                            <span>{location.totalHotels} khách sạn</span>
-                                                            <span>Trung bình {formatPrice(location.averagePrice)}/đêm</span>
-                                                        </div>
-
-                                                        <div className="text-xs text-gray-500">
-                                                            Đã lưu {new Date(location.savedAt).toLocaleDateString('vi-VN')}
-                                                        </div>
-                                                    </CardContent>
-
-                                                    <CardFooter className="px-6 pb-6 pt-0 flex justify-between">
-                                                        {!bulkMode && (
-                                                            <Button
-                                                                variant="outline"
-                                                                size="sm"
-                                                                onClick={() => removeLocationFromFavorites(location.id)}
-                                                            >
-                                                                Xóa
-                                                            </Button>
-                                                        )}
-                                                        <Link href={`/search?location=${encodeURIComponent(location.name)}`}>
-                                                            <Button size="sm">
-                                                                Xem khách sạn
-                                                            </Button>
-                                                        </Link>
-                                                    </CardFooter>
-                                                </Card>
-                                            ))}
-                                        </div>
-
-                                        {filteredLocations.length > itemsPerPage && (
-                                            <div className="mt-6">
-                                                <Pagination
-                                                    total={filteredLocations.length}
-                                                    perPage={itemsPerPage}
-                                                    currentPage={currentLocationPage}
-                                                    onPageChange={setCurrentLocationPage}
-                                                />
-                                            </div>
-                                        )}
-                                    </>
-                                ) : (
-                                    <div className="text-center py-16">
-                                        <div className="h-20 w-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                                            <Heart className="h-8 w-8 text-gray-400 stroke-[1.5]" />
-                                        </div>
-                                        <h3 className="text-lg font-medium mb-2">Không tìm thấy địa điểm đã lưu</h3>
-                                        <p className="text-gray-500 mb-6">Bạn chưa lưu địa điểm nào hoặc không có kết quả phù hợp với tìm kiếm của bạn</p>
-                                        <Link href="/">
-                                            <Button>
-                                                Khám phá điểm đến
-                                            </Button>
-                                        </Link>
+                                {/* Pagination */}
+                                {sortedItems.length > itemsPerPage && (
+                                    <div className="mt-6">
+                                        <Pagination
+                                            total={sortedItems.length}
+                                            perPage={itemsPerPage}
+                                            currentPage={currentPage}
+                                            onPageChange={setCurrentPage}
+                                        />
                                     </div>
                                 )}
-                            </TabsContent>
-                        </Tabs>
+                            </>
+                        ) : (
+                            <div className="text-center py-16">
+                                <div className="h-20 w-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                                    <Heart className="h-8 w-8 text-gray-400 stroke-[1.5]" />
+                                </div>
+                                <h3 className="text-lg font-medium mb-2">Không tìm thấy khách sạn</h3>
+                                <p className="text-gray-500 mb-6">
+                                    {searchTerm
+                                        ? 'Không có kết quả phù hợp với tìm kiếm của bạn'
+                                        : 'Danh sách này chưa có khách sạn nào'
+                                    }
+                                </p>
+                                <Link href="/search">
+                                    <Button>
+                                        Khám phá khách sạn
+                                    </Button>
+                                </Link>
+                            </div>
+                        )}
                     </div>
                 </div>
             </div>
+
+            {/* Create Wishlist Modal */}
+            {showCreateForm && (
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+                    <div className="bg-white rounded-lg p-6 w-full max-w-md mx-4">
+                        <h3 className="text-lg font-semibold mb-4">Tạo danh sách yêu thích mới</h3>
+                        <Input
+                            placeholder="Tên danh sách..."
+                            value={newWishlistName}
+                            onChange={(e) => setNewWishlistName(e.target.value)}
+                            onKeyPress={(e) => e.key === 'Enter' && handleCreateWishlist()}
+                            className="mb-4"
+                        />
+                        <div className="flex gap-2">
+                            <Button
+                                variant="outline"
+                                onClick={() => {
+                                    setShowCreateForm(false);
+                                    setNewWishlistName('');
+                                }}
+                                className="flex-1"
+                            >
+                                Hủy
+                            </Button>
+                            <Button
+                                onClick={handleCreateWishlist}
+                                disabled={isCreatingWishlist || !newWishlistName.trim()}
+                                className="flex-1"
+                            >
+                                {isCreatingWishlist ? 'Đang tạo...' : 'Tạo'}
+                            </Button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };
 
-export default SavedPage;
+export default MyWishlistsPage;

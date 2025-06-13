@@ -30,7 +30,7 @@ interface PaymentFormErrors {
 }
 
 export default function Payment() {
-    const { state, goToStep, setPaymentInfo } = useBooking();
+    const { state, goToStep, setPaymentInfo, confirmBooking } = useBooking();
 
     const [paymentMethod, setPaymentMethod] = useState<'credit-card' | 'internet-banking' | 'e-wallet'>('credit-card');
     const [paymentData, setPaymentData] = useState({
@@ -43,31 +43,13 @@ export default function Payment() {
     });
     const [errors, setErrors] = useState<PaymentFormErrors>({});
     const [isProcessing, setIsProcessing] = useState(false);
-    const [showSuccess, setShowSuccess] = useState(false);
-
-    // Calculate total price
-    const calculateTotal = () => {
-        if (!state.bookingDates || !state.selectedRooms.length) {
-            return { subtotal: 0, tax: 0, service: 0, total: 0 };
-        }
-
-        const nights = state.bookingDates.nights;
-        const subtotal = state.selectedRooms.reduce((total, selectedRoom) => {
-            const room = sampleRooms.find(r => r.id === selectedRoom.roomId);
-            if (room) {
-                return total + (room.price * selectedRoom.quantity * nights);
-            }
-            return total;
-        }, 0);
-
-        const tax = subtotal * 0.1; // 10% VAT
-        const service = subtotal * 0.05; // 5% service charge
-        const total = subtotal + tax + service;
-
-        return { subtotal, tax, service, total };
+    const [showSuccess, setShowSuccess] = useState(false);    // Use calculated pricing from context
+    const pricing = {
+        subtotal: state.subtotal,
+        tax: state.taxes,
+        service: state.fees,
+        total: state.total
     };
-
-    const pricing = calculateTotal();
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         const { name, value, type } = e.target;
@@ -154,9 +136,7 @@ export default function Payment() {
 
         setErrors(newErrors);
         return Object.keys(newErrors).length === 0;
-    };
-
-    const handlePayment = async () => {
+    }; const handlePayment = async () => {
         if (!validatePaymentForm()) {
             return;
         }
@@ -164,8 +144,7 @@ export default function Payment() {
         setIsProcessing(true);
 
         try {
-            // Simulate payment processing
-            await new Promise(resolve => setTimeout(resolve, 3000));            // Save payment info
+            // Save payment info first
             setPaymentInfo({
                 method: paymentMethod,
                 cardNumber: paymentData.cardNumber,
@@ -174,13 +153,12 @@ export default function Payment() {
                 cvv: paymentData.cvv
             });
 
+            // Call API to confirm booking
+            await confirmBooking();
+
             setShowSuccess(true);
 
-            // Redirect to confirmation after success animation
-            setTimeout(() => {
-                goToStep('confirmation');
-            }, 2000);
-
+            // The confirmBooking function will automatically navigate to confirmation step on success
         } catch (error) {
             console.error('Payment failed:', error);
             setErrors({ general: 'Thanh toán thất bại. Vui lòng thử lại.' });
@@ -239,8 +217,8 @@ export default function Payment() {
                             <button
                                 onClick={() => setPaymentMethod('credit-card')}
                                 className={`p-4 border-2 rounded-lg text-center transition-colors ${paymentMethod === 'credit-card'
-                                        ? 'border-blue-500 bg-blue-50'
-                                        : 'border-gray-200 hover:border-gray-300'
+                                    ? 'border-blue-500 bg-blue-50'
+                                    : 'border-gray-200 hover:border-gray-300'
                                     }`}
                             >
                                 <CreditCard size={24} className="mx-auto mb-2 text-gray-600" />
@@ -251,8 +229,8 @@ export default function Payment() {
                             <button
                                 onClick={() => setPaymentMethod('internet-banking')}
                                 className={`p-4 border-2 rounded-lg text-center transition-colors ${paymentMethod === 'internet-banking'
-                                        ? 'border-blue-500 bg-blue-50'
-                                        : 'border-gray-200 hover:border-gray-300'
+                                    ? 'border-blue-500 bg-blue-50'
+                                    : 'border-gray-200 hover:border-gray-300'
                                     }`}
                             >
                                 <Building2 size={24} className="mx-auto mb-2 text-gray-600" />
@@ -263,8 +241,8 @@ export default function Payment() {
                             <button
                                 onClick={() => setPaymentMethod('e-wallet')}
                                 className={`p-4 border-2 rounded-lg text-center transition-colors ${paymentMethod === 'e-wallet'
-                                        ? 'border-blue-500 bg-blue-50'
-                                        : 'border-gray-200 hover:border-gray-300'
+                                    ? 'border-blue-500 bg-blue-50'
+                                    : 'border-gray-200 hover:border-gray-300'
                                     }`}
                             >
                                 <Smartphone size={24} className="mx-auto mb-2 text-gray-600" />
@@ -498,13 +476,28 @@ export default function Payment() {
                         <p className="text-red-700">{errors.general}</p>
                     </div>
                 </div>
+            )}            {/* Error Messages */}
+            {(errors.general || state.error) && (
+                <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+                    <div className="flex">
+                        <AlertCircle className="h-5 w-5 text-red-400 flex-shrink-0" />
+                        <div className="ml-3">
+                            <h3 className="text-sm font-medium text-red-800">
+                                Có lỗi xảy ra
+                            </h3>
+                            <div className="mt-2 text-sm text-red-700">
+                                <p>{errors.general || state.error}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             )}
 
             {/* Action Buttons */}
             <div className="flex flex-col sm:flex-row justify-between gap-4 pt-6">
                 <button
                     onClick={handleBackToReview}
-                    disabled={isProcessing}
+                    disabled={state.isLoading || isProcessing}
                     className="flex items-center justify-center gap-2 px-6 py-3 border border-gray-300 text-gray-700 rounded-lg font-medium hover:bg-gray-50 transition-colors disabled:opacity-50"
                 >
                     <ArrowLeft size={16} />
@@ -513,10 +506,10 @@ export default function Payment() {
 
                 <button
                     onClick={handlePayment}
-                    disabled={isProcessing}
+                    disabled={state.isLoading || isProcessing}
                     className="flex items-center justify-center gap-2 bg-blue-600 text-white px-8 py-3 rounded-lg font-medium hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors disabled:opacity-50"
                 >
-                    {isProcessing ? (
+                    {(state.isLoading || isProcessing) ? (
                         <>
                             <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
                             Đang xử lý...

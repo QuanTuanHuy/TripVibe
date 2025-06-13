@@ -8,4 +8,5 @@ public interface IWishlistPort {
     WishlistEntity save(WishlistEntity wishlist);
     List<WishlistEntity> getWishlistByTouristId(Long touristId);
     WishlistEntity getWishlistById(Long id);
+    void deleteWishlistById(Long id);
 }

@@ -31,8 +31,8 @@ public class LockRoomsUseCase {
     private final IRoomAvailabilityPort roomAvailabilityPort;
     private final ILockPort lockPort;
 
-    private static final long DEFAULT_LOCK_TIME_SECONDS = 60 * 30; // 30 phút
-    private static final long DEFAULT_TIME_TO_TRY_SECONDS = 5; // 5 giây
+    private static final long DEFAULT_LOCK_TIME_SECONDS = 60 * 30;
+    private static final long DEFAULT_TIME_TO_TRY_SECONDS = 5;
 
     @Transactional
     public AccommodationLockResponse execute(AccommodationLockRequest request) {
@@ -42,20 +42,15 @@ public class LockRoomsUseCase {
         List<String> errors = new ArrayList<>();
         boolean success = false;
 
-        // Thiết lập thời gian hết hạn cho lock
         long expiresAt = System.currentTimeMillis() + TimeUnit.SECONDS.toMillis(DEFAULT_LOCK_TIME_SECONDS);
 
-        // Bước 1: lấy distributed lock từ Redis để đảm bảo tính độc quyền
-        // Sử dụng tên lock riêng cho mỗi accommodation để cho phép các accommodation khác nhau có thể được lock đồng thời
         String distributedLockKey = "inventory_lock:" + request.getAccommodationId();
         boolean distributedLockAcquired = false;
 
         try {
-            // Thử lấy distributed lock với timeout ngắn (5 giây)
             distributedLockAcquired = lockPort.acquireLock(distributedLockKey, DEFAULT_TIME_TO_TRY_SECONDS, 30, TimeUnit.SECONDS);
 
             if (!distributedLockAcquired) {
-                // Không thể lấy được distributed lock, có thể có người khác đang cố lock cùng accommodation
                 return AccommodationLockResponse.builder()
                         .lockId(null)
                         .success(false)
@@ -63,14 +58,11 @@ public class LockRoomsUseCase {
                         .build();
             }
 
-            // Bước 2: Khi đã có distributed lock, bắt đầu khóa các phòng trong database
             try {
-                // Lock cho từng unit request
                 for (UnitLockRequest unitRequest : request.getUnitLockRequests()) {
                     lockUnitRooms(unitRequest, lockId);
                 }
 
-                // Nếu tất cả lệnh lock phòng thành công, tạo lock chính thức trong Redis với thời gian tồn tại lâu hơn
                 boolean lockCreated = lockPort.acquireLock(lockId, DEFAULT_TIME_TO_TRY_SECONDS, DEFAULT_LOCK_TIME_SECONDS, TimeUnit.SECONDS);
 
                 if (!lockCreated) {
@@ -79,12 +71,10 @@ public class LockRoomsUseCase {
 
                 success = true;
             } catch (Exception e) {
-                // Nếu gặp lỗi, giải phóng tất cả các lock đã tạo
                 releaseLockForRooms(lockId);
                 errors.add(e.getMessage());
             }
         } finally {
-            // Giải phóng distributed lock sau khi hoàn thành thao tác, bất kể thành công hay thất bại
             if (distributedLockAcquired) {
                 lockPort.releaseLock(distributedLockKey);
             }
@@ -154,14 +144,12 @@ public class LockRoomsUseCase {
             throw new InsufficientAvailabilityException("No rooms available for unit: " + unitRequest.getUnitId());
         }
 
-        // Kiểm tra số lượng phòng có đủ không
         if (rooms.size() < unitRequest.getQuantity()) {
             throw new InsufficientAvailabilityException(
                     String.format("Requested %d rooms but only %d available for unit: %d",
                             unitRequest.getQuantity(), rooms.size(), unitRequest.getUnitId()));
         }
 
-        // Kiểm tra tình trạng phòng trong khoảng thời gian yêu cầu
         Map<Long, List<RoomAvailability>> roomAvailabilityMap = new HashMap<>();
         for (Room room : rooms) {
             List<RoomAvailability> availabilities = roomAvailabilityPort.getAvailabilitiesByRoomIdAndDateRange(
@@ -169,7 +157,6 @@ public class LockRoomsUseCase {
             roomAvailabilityMap.put(room.getId(), availabilities);
         }
 
-        // Tìm các phòng có thể lock
         List<Room> availableRooms = findAvailableRooms(rooms, roomAvailabilityMap, unitRequest);
 
         if (availableRooms.size() < unitRequest.getQuantity()) {
@@ -178,10 +165,8 @@ public class LockRoomsUseCase {
                             unitRequest.getQuantity(), availableRooms.size()));
         }
 
-        // Chỉ lấy số lượng phòng cần thiết
         List<Room> roomsToLock = availableRooms.subList(0, unitRequest.getQuantity());
 
-        // Cập nhật trạng thái phòng thành TEMPORARILY_LOCKED
         List<RoomAvailability> updatedAvailabilities = new ArrayList<>();
         for (Room room : roomsToLock) {
             LocalDate currentDate = unitRequest.getStartDate();
@@ -210,7 +195,6 @@ public class LockRoomsUseCase {
             }
         }
 
-        // Lưu tất cả cập nhật vào database
         roomAvailabilityPort.saveAll(updatedAvailabilities);
     }
 
@@ -225,12 +209,10 @@ public class LockRoomsUseCase {
 
     private boolean isRoomAvailable(Room room, List<RoomAvailability> availabilities,
                                     LocalDate startDate, LocalDate endDate) {
-        // Nếu không có bản ghi availability, phòng được coi là available
         if (availabilities == null || availabilities.isEmpty()) {
             return true;
         }
 
-        // Kiểm tra tất cả các ngày trong khoảng thời gian
         Map<LocalDate, RoomAvailability> availabilityByDate = availabilities.stream()
                 .collect(Collectors.toMap(RoomAvailability::getDate, Function.identity()));
 
@@ -238,7 +220,6 @@ public class LockRoomsUseCase {
         while (!currentDate.isAfter(endDate)) {
             RoomAvailability availability = availabilityByDate.get(currentDate);
 
-            // Nếu ngày không có bản ghi availability hoặc trạng thái là AVAILABLE, phòng được coi là available
             if (availability != null && !availability.isAvailable()) {
                 return false;
             }

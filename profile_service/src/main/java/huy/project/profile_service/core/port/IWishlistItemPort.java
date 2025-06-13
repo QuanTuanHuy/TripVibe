@@ -10,4 +10,8 @@ public interface IWishlistItemPort {
     WishlistItemEntity getWishListByAccIdAndWishlistId(Long accId, Long wishlistId);
     List<WishlistItemEntity> getWishlistByAccIdsAndWishlistId(List<Long> accIds, Long wishlistId);
     List<WishlistItemEntity> getWishlistsByWishlistId(Long wishlistId);
+    List<WishlistItemEntity> getItemsByWishlistIds(List<Long> wishlistIds);
+    void deleteByWishlistId(Long wishlistId);
+    void deleteById(Long id);
+    WishlistItemEntity getWishlistItemById(Long id);
 }

@@ -8,11 +8,17 @@ import { EnvelopeIcon, PhoneIcon } from '@heroicons/react/24/outline';
 export default function Confirmation() {
     const { state, resetBooking } = useBooking();
     const [bookingReference, setBookingReference] = useState('');
+
     useEffect(() => {
-        // Generate booking reference
-        const ref = `HB${Date.now().toString().slice(-6)}`;
-        setBookingReference(ref);
-    }, []);
+        if (state.bookingResponse?.id) {
+            setBookingReference(`BK${state.bookingResponse.id.toString().padStart(6, '0')}`);
+        } else if (state.bookingId) {
+            setBookingReference(`BK${state.bookingId.padStart(6, '0')}`);
+        } else {
+            const ref = `HB${Date.now().toString().slice(-6)}`;
+            setBookingReference(ref);
+        }
+    }, [state.bookingResponse, state.bookingId]);
 
     const formatDate = (date: Date) => {
         return new Intl.DateTimeFormat('en-US', {
@@ -29,6 +35,7 @@ export default function Confirmation() {
             currency: 'USD'
         }).format(amount);
     };
+
     const handlePrint = () => {
         if (typeof window !== 'undefined') {
             window.print();
@@ -177,11 +184,9 @@ export default function Confirmation() {
                         <div className="flex items-center space-x-3">
                             <EnvelopeIcon className="w-5 h-5 text-gray-400" />
                             <p className="text-sm text-gray-600">{state.guestInfo.email}</p>
-                        </div>
-
-                        <div className="flex items-center space-x-3">
+                        </div>                        <div className="flex items-center space-x-3">
                             <PhoneIcon className="w-5 h-5 text-gray-400" />
-                            <p className="text-sm text-gray-600">{state.guestInfo.phone}</p>
+                            <p className="text-sm text-gray-600">{state.guestInfo.phoneNumber}</p>
                         </div>
 
                         <div>

@@ -77,9 +77,9 @@ module.exports = {
                 "heartbeat": "heartbeat 0.6s ease-in-out",
             },
         },
-    },
-    plugins: [
+    },    plugins: [
         require("tailwindcss-animate"),
+        require('@tailwindcss/line-clamp'),
         function ({ addUtilities }) {
             const newUtilities = {
                 '.text-shadow-sm': {

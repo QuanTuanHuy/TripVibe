@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import {
     Tabs,
@@ -41,14 +41,11 @@ import {
     CalendarDays,
     Search,
     Plus,
-    Filter,
-    ListFilter,
     Loader2
 } from "lucide-react";
 import { type DateRange } from "react-day-picker";
 import { toast } from "sonner";
 import { format } from "date-fns";
-import { vi } from "date-fns/locale";
 
 // Types for booking data
 interface Guest {
@@ -192,7 +189,8 @@ function PaginationButton({
     );
 }
 
-export default function BookingsPage() {
+// Component chứa logic chính với useSearchParams
+function BookingsContent() {
     const searchParams = useSearchParams();
     const [activeTab, setActiveTab] = useState("all");
     const [currentPage, setCurrentPage] = useState(1);
@@ -626,16 +624,36 @@ export default function BookingsPage() {
             </div>
 
             {/* Booking Detail Dialog */}
-            {selectedBooking && (
-                <BookingDetailDialog
-                    open={detailDialogOpen}
-                    onOpenChange={setDetailDialogOpen}
-                    booking={selectedBooking}
-                    onStatusChange={handleStatusChange}
-                    formatCurrency={formatCurrency}
-                    getStatusDisplayName={getStatusDisplayName}
-                />
+            {selectedBooking && (<BookingDetailDialog
+                open={detailDialogOpen}
+                onOpenChange={setDetailDialogOpen}
+                booking={selectedBooking}
+                onStatusChange={handleStatusChange}
+                formatCurrency={formatCurrency}
+                getStatusDisplayName={getStatusDisplayName}
+            />
             )}
         </div>
+    );
+}
+
+// Loading component for Suspense fallback
+function BookingsPageSkeleton() {
+    return (
+        <div className="container mx-auto py-8 px-4">
+            <div className="animate-pulse">
+                <div className="h-8 bg-gray-200 rounded mb-4"></div>
+                <div className="h-64 bg-gray-200 rounded"></div>
+            </div>
+        </div>
+    );
+}
+
+// Main component với Suspense wrapper
+export default function BookingsPage() {
+    return (
+        <Suspense fallback={<BookingsPageSkeleton />}>
+            <BookingsContent />
+        </Suspense>
     );
 }

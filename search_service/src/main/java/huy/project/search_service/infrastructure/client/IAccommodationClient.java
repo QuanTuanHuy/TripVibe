@@ -17,8 +17,8 @@ public interface IAccommodationClient {
     @GetMapping("/api/public/v1/accommodations/thumbnails")
     Resource<List<AccommodationThumbnail>> getAccommodationsThumbnail(
             @RequestParam(name = "ids") List<Long> ids,
-            @RequestParam(name = "startDate") LocalDate startDate,
-            @RequestParam(name = "endDate") LocalDate endDate,
+            @RequestParam(name = "startDate") String startDate,
+            @RequestParam(name = "endDate") String endDate,
             @RequestParam(name = "guestCount") Integer guestCount
     );
 }

@@ -39,31 +39,14 @@ const formatDate = (dateString: string): string => {
 };
 
 export default function BookingReview() {
-    const { state, goToStep } = useBooking();
+    const { state, goToStep, createBooking } = useBooking();
 
-    // Calculate total price
-    const calculateTotal = () => {
-        if (!state.bookingDates || !state.selectedRooms.length) {
-            return 0;
-        }
-
-        const nights = state.bookingDates.nights;
-
-        return state.selectedRooms.reduce((total, selectedRoom) => {
-            const room = sampleRooms.find(r => r.id === selectedRoom.roomId);
-            if (room) {
-                return total + (room.price * selectedRoom.quantity * nights);
-            }
-            return total;
-        }, 0);
-    };
-
-    const totalAmount = calculateTotal();
-    const taxAmount = totalAmount * 0.1; // 10% VAT
-    const serviceCharge = totalAmount * 0.05; // 5% service charge
-    const finalAmount = totalAmount + taxAmount + serviceCharge;
-
+    // Use calculated pricing from context
     const nights = state.bookingDates ? state.bookingDates.nights : 0;
+    const totalAmount = state.subtotal;
+    const taxAmount = state.taxes;
+    const serviceCharge = state.fees;
+    const finalAmount = state.total;
 
     // Get selected room details
     const selectedRoomDetails = state.selectedRooms.map(selectedRoom => {
@@ -74,8 +57,14 @@ export default function BookingReview() {
         };
     });
 
-    const handleProceedToPayment = () => {
-        goToStep('payment');
+    const handleProceedToPayment = async () => {
+        try {
+            await createBooking();
+            // The createBooking function will automatically navigate to payment step on success
+        } catch (error) {
+            console.error('Failed to create booking:', error);
+            // Error handling is done in the context
+        }
     };
 
     const handleBackToGuestInfo = () => {
@@ -236,7 +225,7 @@ export default function BookingReview() {
                             <Phone className="text-gray-400" size={20} />
                             <div>
                                 <p className="text-sm text-gray-600">Số điện thoại</p>
-                                <p className="font-medium">{state.guestInfo.phone}</p>
+                                <p className="font-medium">{state.guestInfo.phoneNumber}</p>
                             </div>
                         </div>
 
@@ -327,13 +316,33 @@ export default function BookingReview() {
                         <li>• Có thể hủy miễn phí trong 24h</li>
                     </ul>
                 </div>
-            </div>
+            </div>            {/* Error Message */}
+            {state.error && (
+                <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+                    <div className="flex">
+                        <div className="flex-shrink-0">
+                            <svg className="h-5 w-5 text-red-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                            </svg>
+                        </div>
+                        <div className="ml-3">
+                            <h3 className="text-sm font-medium text-red-800">
+                                Có lỗi xảy ra
+                            </h3>
+                            <div className="mt-2 text-sm text-red-700">
+                                <p>{state.error}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
 
             {/* Action Buttons */}
             <div className="flex flex-col sm:flex-row justify-between gap-4 pt-6">
                 <button
                     onClick={handleBackToGuestInfo}
-                    className="flex items-center justify-center gap-2 px-6 py-3 border border-gray-300 text-gray-700 rounded-lg font-medium hover:bg-gray-50 transition-colors"
+                    disabled={state.isLoading}
+                    className="flex items-center justify-center gap-2 px-6 py-3 border border-gray-300 text-gray-700 rounded-lg font-medium hover:bg-gray-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                     <ArrowLeft size={16} />
                     Quay lại
@@ -341,10 +350,20 @@ export default function BookingReview() {
 
                 <button
                     onClick={handleProceedToPayment}
-                    className="flex items-center justify-center gap-2 bg-blue-600 text-white px-8 py-3 rounded-lg font-medium hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors"
+                    disabled={state.isLoading}
+                    className="flex items-center justify-center gap-2 bg-blue-600 text-white px-8 py-3 rounded-lg font-medium hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                    Tiến hành thanh toán
-                    <ArrowRight size={16} />
+                    {state.isLoading ? (
+                        <>
+                            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                            Đang xử lý...
+                        </>
+                    ) : (
+                        <>
+                            Tiến hành thanh toán
+                            <ArrowRight size={16} />
+                        </>
+                    )}
                 </button>
             </div>
         </div>

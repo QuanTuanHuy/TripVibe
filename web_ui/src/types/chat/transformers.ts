@@ -42,6 +42,9 @@ export const transformMessageEntity = (entity: MessageEntity): Message => {
     mediaDataId: entity.mediaDataId,
     mediaUrl: entity.mediaData?.url,
     mediaType: entity.mediaData?.mediaType,
+    mimeType: entity.mediaData?.mimeType,
+    mediaName: entity.mediaData?.fileName,
+    mediaSize: entity.mediaData?.fileSize,
   };
 };
 

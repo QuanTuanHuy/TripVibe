@@ -42,6 +42,8 @@ app:
       publicUrls:
         - first: /api/public/v1/search/**
           second: GET
+        - first: /api/public/v1/accommodations/search/**
+          second: POST
       protectedUrls:
         - urlPattern: /api/public/v1/**
           roles:
