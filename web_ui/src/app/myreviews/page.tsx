@@ -262,7 +262,7 @@ export default function MyReviewsPage() {
                                                                 />
                                                             ) : (
                                                                 <span className="text-xl font-bold text-gray-500">
-                                                                    {review.user?.name[0] || 'U'}
+                                                                    {review.user?.name || 'U'}
                                                                 </span>
                                                             )}
                                                         </div>

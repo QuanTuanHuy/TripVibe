@@ -6,6 +6,7 @@ import { AuthProvider } from "@/context/AuthContext";
 import { FavoritesProvider } from "@/context/FavoritesContext";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import { TooltipProvider } from "@/components/ui/tooltip";
+import { Toaster } from "sonner";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -39,6 +40,7 @@ export default function RootLayout({
               <FavoritesProvider>
                 {children}
                 <ConditionalFooter />
+                <Toaster />
               </FavoritesProvider>
             </AuthProvider>
           </TooltipProvider>

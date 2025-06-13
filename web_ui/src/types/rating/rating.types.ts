@@ -44,7 +44,7 @@ interface Unit {
 
 interface UserProfile {
   userId: number;
-  name: string;
+  name: string | null;
   email: string;
   countryId?: number;
   countryName?: string;
