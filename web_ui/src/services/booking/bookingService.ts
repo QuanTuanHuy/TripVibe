@@ -1,8 +1,15 @@
-import { ListDataResponse, ListDataResponseV2 } from '@/types/common';
+import { ListDataResponseV2 } from '@/types/common';
+import { 
+    CreateBookingRequest, 
+    BookingResponse, 
+    ConfirmBookingResponse, 
+    BookingParams,
+    BookingStatus as BookingStatusType
+} from '@/types/booking';
 import { apiClient } from '../api.client';
 
-// Define booking types
-export interface Booking {
+// Legacy booking interface for backward compatibility
+export interface LegacyBooking {
     id: string;
     bookingNumber: string;
     status: string;
@@ -34,37 +41,6 @@ export interface Booking {
     specialRequests?: string;
 }
 
-export interface BookingV2 {
-    id: number;
-    touristId: number;
-    accommodationId: number;
-    numberOfAdult: number;
-    numberOfChild: number;
-    paymentId: number | null;
-    currencyId: number;
-    status: string;
-    note: string;
-    stayFrom: number; // Unix timestamp
-    stayTo: number; // Unix timestamp
-    invoiceAmount: number;
-    finalAmount: number;
-    tourist: {
-        id: number;
-        lastName: string;
-        firstName: string;
-        email: string;
-        phoneNumber: string;
-    };
-    units: Array<{
-        id: number;
-        unitId: number;
-        quantity: number;
-        fullName: string;
-        email: string;
-        amount: number;
-    }>;
-}
-
 export type BookingStatus = 'UPCOMING' | 'COMPLETED' | 'CANCELLED';
 
 export interface GetBookingsParams {
@@ -77,30 +53,60 @@ export interface GetBookingsParams {
 class BookingService {
     private basePath = '/booking_service/api/public/v1';
 
+    // Create a new booking
+    async createBooking(bookingData: CreateBookingRequest): Promise<BookingResponse> {
+        console.log("create bookingData:", bookingData);
+        return await apiClient.post<BookingResponse>(`${this.basePath}/bookings`, bookingData);
+    }
+
+    // Confirm booking after payment
+    async confirmBooking(bookingId: number): Promise<ConfirmBookingResponse> {
+        return await apiClient.put<ConfirmBookingResponse>(`${this.basePath}/bookings/${bookingId}/confirm`, {});
+    }
+
     // Get all bookings for the current user with filters
-    async getBookings(params?: GetBookingsParams): Promise<ListDataResponseV2<BookingV2>> {
-        return await apiClient.get<ListDataResponseV2<BookingV2>>(`${this.basePath}/bookings`, { params });
+    async getBookings(params?: GetBookingsParams): Promise<ListDataResponseV2<BookingResponse>> {
+        return await apiClient.get<ListDataResponseV2<BookingResponse>>(`${this.basePath}/bookings`, { params });
     }
 
     // Get upcoming bookings (check-in date is in the future)
-    async getUpcomingBookings(params?: Omit<GetBookingsParams, 'status'>): Promise<ListDataResponseV2<BookingV2>> {
+    async getUpcomingBookings(params?: Omit<GetBookingsParams, 'status'>): Promise<ListDataResponseV2<BookingResponse>> {
         return this.getBookings({ ...params, status: 'UPCOMING' });
     }
 
     // Get past bookings (check-out date is in the past)
-    async getPastBookings(params?: Omit<GetBookingsParams, 'status'>): Promise<ListDataResponseV2<BookingV2>> {
+    async getPastBookings(params?: Omit<GetBookingsParams, 'status'>): Promise<ListDataResponseV2<BookingResponse>> {
         return this.getBookings({ ...params, status: 'COMPLETED' });
     }
 
     // Get booking details
-    async getBookingDetails(bookingId: number): Promise<BookingV2> {
-        return await apiClient.get<BookingV2>(`${this.basePath}/bookings/${bookingId}`);
+    async getBookingDetails(bookingId: number): Promise<BookingResponse> {
+        return await apiClient.get<BookingResponse>(`${this.basePath}/bookings/${bookingId}`);
     }
 
     // Cancel booking
-    async cancelBooking(bookingId: string): Promise<Booking> {
-        const response = await apiClient.post<Booking>(`${this.basePath}/bookings/${bookingId}/cancel`, {});
-        return response;
+    async cancelBooking(bookingId: number): Promise<BookingResponse> {
+        return await apiClient.post<BookingResponse>(`${this.basePath}/bookings/${bookingId}/cancel`, {});
+    }
+
+    // Approve booking (admin/host only)
+    async approveBooking(bookingId: number): Promise<ConfirmBookingResponse> {
+        return await apiClient.put<ConfirmBookingResponse>(`${this.basePath}/bookings/${bookingId}/approve`, {});
+    }
+
+    // Reject booking (admin/host only)
+    async rejectBooking(bookingId: number): Promise<ConfirmBookingResponse> {
+        return await apiClient.put<ConfirmBookingResponse>(`${this.basePath}/bookings/${bookingId}/reject`, {});
+    }
+
+    // Check-in booking
+    async checkInBooking(bookingId: number): Promise<ConfirmBookingResponse> {
+        return await apiClient.put<ConfirmBookingResponse>(`${this.basePath}/bookings/${bookingId}/check-in`, {});
+    }
+
+    // Check-out booking
+    async checkOutBooking(bookingId: number): Promise<ConfirmBookingResponse> {
+        return await apiClient.put<ConfirmBookingResponse>(`${this.basePath}/bookings/${bookingId}/check-out`, {});
     }
 }
 

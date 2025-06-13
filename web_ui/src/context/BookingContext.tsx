@@ -1,6 +1,9 @@
 "use client";
 
 import React, { createContext, useContext, useReducer, ReactNode, useCallback, useMemo } from 'react';
+import { bookingService } from '@/services/booking/bookingService';
+import { transformToCreateBookingRequest, validateBookingData, BookingFlowData } from '@/utils/booking';
+import type { BookingResponse } from '@/types/booking';
 
 // Types
 interface Bed {
@@ -39,14 +42,14 @@ interface SelectedRoom {
 }
 
 interface GuestInfo {
-    touristID: string;
+    touristID: string; // Keep as string in UI for form handling, will convert to number in transform
     firstName: string;
     lastName: string;
     email: string;
-    phone: string;
-    address?: string;
-    dateOfBirth?: string;
-    nationality?: string;
+    phoneNumber: string;
+    address: string;
+    dateOfBirth: string;
+    nationality: string;
     specialRequests?: string;
 }
 
@@ -92,11 +95,9 @@ interface BookingState {
     guestInfo: GuestInfo | null;
 
     // Payment information
-    paymentInfo: PaymentInfo | null;
-
-    // Booking details
+    paymentInfo: PaymentInfo | null;    // Booking details
     bookingId: string | null;
-    inventoryLockId: string | null;
+    bookingResponse: BookingResponse | null;
 
     // Payment
     paymentStatus: 'idle' | 'processing' | 'success' | 'failed';
@@ -124,7 +125,7 @@ type BookingAction =
     | { type: 'SET_GUEST_INFO'; payload: GuestInfo }
     | { type: 'SET_PAYMENT_INFO'; payload: PaymentInfo }
     | { type: 'SET_BOOKING_ID'; payload: string }
-    | { type: 'SET_INVENTORY_LOCK_ID'; payload: string }
+    | { type: 'SET_BOOKING_RESPONSE'; payload: BookingResponse }
     | { type: 'SET_PAYMENT_STATUS'; payload: BookingState['paymentStatus'] }
     | { type: 'SET_PAYMENT_METHOD'; payload: string }
     | { type: 'SET_LOADING'; payload: boolean }
@@ -141,7 +142,7 @@ const initialState: BookingState = {
     guestInfo: null,
     paymentInfo: null,
     bookingId: null,
-    inventoryLockId: null,
+    bookingResponse: null,
     paymentStatus: 'idle',
     paymentMethod: null,
     isLoading: false,
@@ -216,8 +217,12 @@ function bookingReducer(state: BookingState, action: BookingAction): BookingStat
         case 'SET_BOOKING_ID':
             return { ...state, bookingId: action.payload };
 
-        case 'SET_INVENTORY_LOCK_ID':
-            return { ...state, inventoryLockId: action.payload };
+        case 'SET_BOOKING_RESPONSE':
+            return {
+                ...state,
+                bookingResponse: action.payload,
+                bookingId: action.payload.id.toString()
+            };
 
         case 'SET_PAYMENT_STATUS':
             return { ...state, paymentStatus: action.payload };
@@ -280,6 +285,8 @@ interface BookingContextType {
     setGuestInfo: (guestInfo: GuestInfo) => void;
     setPaymentInfo: (paymentInfo: PaymentInfo) => void;
     resetBooking: () => void;
+    createBooking: () => Promise<void>;
+    confirmBooking: () => Promise<void>;
 }
 
 const BookingContext = createContext<BookingContextType | undefined>(undefined);
@@ -330,6 +337,7 @@ export function BookingProvider({ children }: { children: ReactNode }) {
             payload: { checkIn, checkOut, nights }
         });
     }, []);
+
     const setGuestInfo = useCallback((guestInfo: GuestInfo) => {
         dispatch({ type: 'SET_GUEST_INFO', payload: guestInfo });
     }, []);
@@ -337,9 +345,81 @@ export function BookingProvider({ children }: { children: ReactNode }) {
     const setPaymentInfo = useCallback((paymentInfo: PaymentInfo) => {
         dispatch({ type: 'SET_PAYMENT_INFO', payload: paymentInfo });
     }, []);
+
     const resetBooking = useCallback(() => {
         dispatch({ type: 'RESET_BOOKING' });
     }, []);
+
+    const createBooking = useCallback(async () => {
+        try {
+            dispatch({ type: 'SET_LOADING', payload: true });
+
+            // Check required data
+            if (!state.guestInfo || !state.bookingDates || state.selectedRooms.length === 0) {
+                dispatch({ type: 'SET_ERROR', payload: 'Missing required booking information' });
+                return;
+            }
+
+            const bookingData: BookingFlowData = {
+                accommodationId: parseInt(state.hotelId),
+                checkInDate: state.bookingDates.checkIn,
+                checkOutDate: state.bookingDates.checkOut,
+                numberOfAdult: state.selectedRooms.reduce((total, room) => total + room.room.occupancy.adults * room.quantity, 0),
+                numberOfChild: state.selectedRooms.reduce((total, room) => total + room.room.occupancy.children * room.quantity, 0),
+                selectedUnits: state.selectedRooms.map(room => ({
+                    unitId: room.roomId,
+                    quantity: room.quantity,
+                    unitName: room.roomName,
+                    pricePerNight: room.price,
+                    totalPrice: room.totalPrice,
+                })),
+                subTotal: state.subtotal,
+                finalTotal: state.total,
+                guestInfo: state.guestInfo,
+                specialRequests: state.guestInfo.specialRequests,
+            };
+
+            // Validate booking data
+            const validation = validateBookingData(bookingData);
+            if (!validation.isValid) {
+                dispatch({ type: 'SET_ERROR', payload: validation.errors.join(', ') });
+                return;
+            }
+
+            // Create booking
+            const response: BookingResponse = await bookingService.createBooking(transformToCreateBookingRequest(bookingData));
+            dispatch({ type: 'SET_BOOKING_RESPONSE', payload: response });
+            dispatch({ type: 'SET_STEP', payload: 'payment' });
+
+        } catch (error: any) {
+            dispatch({ type: 'SET_ERROR', payload: error.message });
+        } finally {
+            dispatch({ type: 'SET_LOADING', payload: false });
+        }
+    }, [state.guestInfo, state.bookingDates, state.selectedRooms, state.hotelId]);
+
+    const confirmBooking = useCallback(async () => {
+        try {
+            if (!state.bookingId) {
+                dispatch({ type: 'SET_ERROR', payload: 'No booking ID available' });
+                return;
+            }
+
+            dispatch({ type: 'SET_LOADING', payload: true });
+            dispatch({ type: 'SET_PAYMENT_STATUS', payload: 'processing' });
+
+            // Confirm booking
+            await bookingService.confirmBooking(parseInt(state.bookingId));
+            dispatch({ type: 'SET_PAYMENT_STATUS', payload: 'success' });
+            dispatch({ type: 'SET_STEP', payload: 'confirmation' });
+        } catch (error: any) {
+            dispatch({ type: 'SET_ERROR', payload: error.message });
+            dispatch({ type: 'SET_PAYMENT_STATUS', payload: 'failed' });
+        } finally {
+            dispatch({ type: 'SET_LOADING', payload: false });
+        }
+    }, [state.bookingId]);
+
     const value: BookingContextType = useMemo(() => ({
         state,
         dispatch,
@@ -354,6 +434,8 @@ export function BookingProvider({ children }: { children: ReactNode }) {
         setGuestInfo,
         setPaymentInfo,
         resetBooking,
+        createBooking,
+        confirmBooking,
     }), [
         state,
         goToStep,
@@ -366,7 +448,9 @@ export function BookingProvider({ children }: { children: ReactNode }) {
         setBookingDates,
         setGuestInfo,
         setPaymentInfo,
-        resetBooking
+        resetBooking,
+        createBooking,
+        confirmBooking
     ]);
 
     return (

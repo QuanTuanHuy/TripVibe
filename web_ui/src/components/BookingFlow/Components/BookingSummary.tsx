@@ -4,7 +4,6 @@ import React from 'react';
 import { Calendar, MapPin, Users, Clock, Trash2 } from 'lucide-react';
 import { useBooking } from '@/context/BookingContext';
 
-// Format price function
 const formatPrice = (price: number): string => {
     return new Intl.NumberFormat('vi-VN', {
         style: 'currency',
@@ -12,7 +11,6 @@ const formatPrice = (price: number): string => {
     }).format(price);
 };
 
-// Format date function
 const formatDate = (date: Date): string => {
     return new Intl.DateTimeFormat('vi-VN', {
         weekday: 'short',
@@ -24,7 +22,7 @@ const formatDate = (date: Date): string => {
 
 export default function BookingSummary() {
     const { state, updateRoomQuantity, removeRoom, hasSelectedRooms } = useBooking();
-    
+
     if (!hasSelectedRooms()) {
         return (
             <div className="bg-white rounded-lg shadow-lg p-6">
@@ -38,11 +36,11 @@ export default function BookingSummary() {
             </div>
         );
     }
-    
+
     return (
         <div className="bg-white rounded-lg shadow-lg p-6 sticky top-6">
             <h3 className="text-lg font-bold text-gray-900 mb-4">Tóm tắt đặt phòng</h3>
-            
+
             {/* Hotel Info */}
             <div className="mb-6 pb-4 border-b border-gray-200">
                 <div className="flex items-start gap-3 mb-3">
@@ -52,7 +50,7 @@ export default function BookingSummary() {
                         <p className="text-sm text-gray-600">La Passion Classic Hotel</p>
                     </div>
                 </div>
-                
+
                 {/* Booking Dates */}
                 {state.bookingDates && (
                     <div className="flex items-center gap-3 text-sm">
@@ -72,7 +70,7 @@ export default function BookingSummary() {
                     </div>
                 )}
             </div>
-            
+
             {/* Selected Rooms */}
             <div className="mb-6">
                 <h4 className="font-semibold text-gray-900 mb-3">Phòng đã chọn</h4>
@@ -88,7 +86,7 @@ export default function BookingSummary() {
                                         <Users size={12} />
                                         <span>
                                             {selectedRoom.room.occupancy.adults} người lớn
-                                            {selectedRoom.room.occupancy.children > 0 && 
+                                            {selectedRoom.room.occupancy.children > 0 &&
                                                 `, ${selectedRoom.room.occupancy.children} trẻ em`
                                             }
                                         </span>
@@ -102,7 +100,7 @@ export default function BookingSummary() {
                                     <Trash2 size={14} />
                                 </button>
                             </div>
-                            
+
                             {/* Quantity Selector */}
                             <div className="flex items-center justify-between">
                                 <div className="flex items-center gap-2">
@@ -127,7 +125,7 @@ export default function BookingSummary() {
                                         </button>
                                     </div>
                                 </div>
-                                
+
                                 <div className="text-right">
                                     <div className="font-semibold text-sm">
                                         {formatPrice(selectedRoom.totalPrice)}
@@ -137,7 +135,7 @@ export default function BookingSummary() {
                                     </div>
                                 </div>
                             </div>
-                            
+
                             {/* Room Features */}
                             <div className="mt-2 flex flex-wrap gap-1">
                                 {selectedRoom.room.breakfast && (
@@ -155,7 +153,7 @@ export default function BookingSummary() {
                     ))}
                 </div>
             </div>
-            
+
             {/* Price Breakdown */}
             <div className="border-t border-gray-200 pt-4">
                 <div className="space-y-2 text-sm">
@@ -165,13 +163,13 @@ export default function BookingSummary() {
                         </span>
                         <span className="font-medium">{formatPrice(state.subtotal)}</span>
                     </div>
-                    
+
                     <div className="flex justify-between">
                         <span className="text-gray-600">Thuế & phí (15%)</span>
                         <span className="font-medium">{formatPrice(state.taxes + state.fees)}</span>
                     </div>
                 </div>
-                
+
                 <div className="border-t border-gray-200 mt-3 pt-3">
                     <div className="flex justify-between items-center">
                         <span className="text-lg font-bold text-gray-900">Tổng cộng</span>
@@ -181,7 +179,7 @@ export default function BookingSummary() {
                     </div>
                 </div>
             </div>
-            
+
             {/* Booking Progress */}
             {state.currentStep !== 'room-selection' && (
                 <div className="mt-6 pt-4 border-t border-gray-200">

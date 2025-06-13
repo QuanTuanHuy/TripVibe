@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, useRef, useEffect } from 'react';
-import { useParams } from 'next/navigation';
+import { useState, useRef, useEffect, Suspense } from 'react';
+import { useParams, useSearchParams } from 'next/navigation';
 import { ChevronRight, X } from 'lucide-react';
 import Header from '@/components/Header';
 
@@ -23,9 +23,11 @@ import { Accommodation } from '@/types/accommodation';
 import { Country, Province } from '@/types/location';
 import { RatingSummary } from '@/types/rating';
 
-export default function HotelDetailPage() {
+export function HotelDetailContent() {
     const params = useParams();
-    const hotelId = params.id as string; const [activeTab, setActiveTab] = useState('overview');
+    const searchParams = useSearchParams();
+    const hotelId = params.id as string;
+    const [activeTab, setActiveTab] = useState('overview');
     const [accommodation, setAccommodation] = useState<Accommodation | null>(null);
     const [country, setCountry] = useState<Country | null>(null);
     const [province, setProvince] = useState<Province | null>(null);
@@ -49,6 +51,23 @@ export default function HotelDetailPage() {
     const [childrenCount, setChildrenCount] = useState(0);
     const [rooms, setRooms] = useState(1);
     const [showGuestSelector, setShowGuestSelector] = useState(false);
+
+    useEffect(() => {
+        const checkIn = searchParams?.get('checkIn');
+        const checkOut = searchParams?.get('checkOut');
+        if (checkIn && checkOut) {
+            setDateRange({
+                from: new Date(checkIn),
+                to: new Date(checkOut)
+            });
+        } else {
+            const today = new Date();
+            const tomorrow = new Date(today);
+            tomorrow.setDate(tomorrow.getDate() + 1);
+            setDateRange({ from: today, to: tomorrow });
+        }
+
+    }, [searchParams])
 
     useEffect(() => {
         const fetchAccommodation = async () => {
@@ -283,6 +302,8 @@ export default function HotelDetailPage() {
                                     units={accommodation.units || []}
                                     hotelId={Array.isArray(params.id) ? params.id[0] : params.id}
                                     hotelName={accommodation.name}
+                                    checkIn={dateRange.from}
+                                    checkOut={dateRange.to}
                                 />
                             </div>
 
@@ -332,5 +353,22 @@ export default function HotelDetailPage() {
                 )}
             </div>
         </div>
+    );
+}
+
+export default function HotelDetailPage() {
+    return (
+        <>
+            <Suspense fallback={
+                <div className="min-h-screen flex items-center justify-center">
+                    <div className="text-center">
+                        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+                        <p className="text-gray-600">Loading booking page...</p>
+                    </div>
+                </div>
+            }>
+                <HotelDetailContent />
+            </Suspense>
+        </>
     );
 }

@@ -16,7 +16,7 @@ export default function GuestInformation() {
         firstName: state.guestInfo?.firstName || '',
         lastName: state.guestInfo?.lastName || '',
         email: state.guestInfo?.email || '',
-        phone: state.guestInfo?.phone || '',
+        phoneNumber: state.guestInfo?.phoneNumber || '',
         address: state.guestInfo?.address || '',
         dateOfBirth: state.guestInfo?.dateOfBirth || '',
         nationality: state.guestInfo?.nationality || 'VN',
@@ -43,13 +43,17 @@ export default function GuestInformation() {
     };
 
     const validateForm = (): boolean => {
-        const newErrors: FormErrors = {};
-
-        // Required fields
+        const newErrors: FormErrors = {};        // Required fields
         if (!formData.touristID.trim()) {
             newErrors.touristID = 'Vui lòng nhập CCCD/Passport';
         } else if (formData.touristID.length < 9) {
             newErrors.touristID = 'CCCD/Passport phải có ít nhất 9 ký tự';
+        } else {
+            // Validate that it can be converted to number for backend compatibility
+            const touristIDNumber = parseInt(formData.touristID);
+            if (isNaN(touristIDNumber) || touristIDNumber <= 0) {
+                newErrors.touristID = 'CCCD/Passport phải là số hợp lệ';
+            }
         }
 
         if (!formData.firstName.trim()) {
@@ -64,12 +68,10 @@ export default function GuestInformation() {
             newErrors.email = 'Vui lòng nhập email';
         } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
             newErrors.email = 'Email không hợp lệ';
-        }
-
-        if (!formData.phone.trim()) {
-            newErrors.phone = 'Vui lòng nhập số điện thoại';
-        } else if (!/^[0-9+\-\s()]{10,15}$/.test(formData.phone.replace(/\s/g, ''))) {
-            newErrors.phone = 'Số điện thoại không hợp lệ';
+        } if (!formData.phoneNumber.trim()) {
+            newErrors.phoneNumber = 'Vui lòng nhập số điện thoại';
+        } else if (!/^[0-9+\-\s()]{10,15}$/.test(formData.phoneNumber.replace(/\s/g, ''))) {
+            newErrors.phoneNumber = 'Số điện thoại không hợp lệ';
         }
 
         if (formData.dateOfBirth) {
@@ -241,26 +243,22 @@ export default function GuestInformation() {
                             {errors.email && (
                                 <p className="mt-1 text-sm text-red-600">{errors.email}</p>
                             )}
-                        </div>
-
-                        {/* Phone */}
+                        </div>                        {/* Phone */}
                         <div>
-                            <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-2">
+                            <label htmlFor="phoneNumber" className="block text-sm font-medium text-gray-700 mb-2">
                                 <Phone size={16} className="inline mr-2" />
                                 Số điện thoại *
                             </label>
                             <input
                                 type="tel"
-                                id="phone"
-                                name="phone"
-                                value={formData.phone}
+                                id="phoneNumber"
+                                name="phoneNumber"
+                                value={formData.phoneNumber}
                                 onChange={handleInputChange}
                                 placeholder="+84 123 456 789"
-                                className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${errors.phone ? 'border-red-500' : 'border-gray-300'
-                                    }`}
-                            />
-                            {errors.phone && (
-                                <p className="mt-1 text-sm text-red-600">{errors.phone}</p>
+                                className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${errors.phoneNumber ? 'border-red-500' : 'border-gray-300'}`}
+                            />                            {errors.phoneNumber && (
+                                <p className="mt-1 text-sm text-red-600">{errors.phoneNumber}</p>
                             )}
                         </div>
 

@@ -8,6 +8,8 @@ import { AccommodationThumbnail } from '@/types/accommodation/accommodation';
 interface SearchResultsListProps {
     onFilterClick?: () => void;
     accommodations?: AccommodationThumbnail[];
+    checkIn?: string;
+    checkOut?: string;
     loading?: boolean;
     totalResults?: number;
     onSortChange?: (sortBy: string) => void;
@@ -18,6 +20,8 @@ interface SearchResultsListProps {
 const SearchResultsList: React.FC<SearchResultsListProps> = ({
     onFilterClick,
     accommodations = [],
+    checkIn = new Date().toISOString().split('T')[0],
+    checkOut = new Date(new Date().setDate(new Date().getDate() + 1)).toISOString().split('T')[0],
     loading = false,
     totalResults = 0,
     onSortChange,
@@ -127,6 +131,8 @@ const SearchResultsList: React.FC<SearchResultsListProps> = ({
                                 key={transformedData.id}
                                 id={transformedData.id}
                                 name={transformedData.name}
+                                checkIn={checkIn}
+                                checkOut={checkOut}
                                 imageUrl={transformedData.imageUrl}
                                 rating={transformedData.rating}
                                 reviewCount={transformedData.reviewCount}

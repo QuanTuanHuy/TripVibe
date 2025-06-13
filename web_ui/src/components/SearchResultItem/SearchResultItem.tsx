@@ -13,6 +13,8 @@ interface Amenity {
 interface SearchResultItemProps {
   id: string;
   name: string;
+  checkIn?: string;
+  checkOut?: string;
   imageUrl: string;
   rating?: number;
   reviewCount?: number;
@@ -33,6 +35,8 @@ interface SearchResultItemProps {
 const SearchResultItem: React.FC<SearchResultItemProps> = ({
   id,
   name,
+  checkIn,
+  checkOut,
   imageUrl,
   rating,
   reviewCount,
@@ -66,7 +70,6 @@ const SearchResultItem: React.FC<SearchResultItemProps> = ({
   const renderRating = () => {
     if (!rating) return null;
     
-    // Màu sắc dựa trên điểm đánh giá - giống với Booking.com
     let bgColor = 'bg-red-600';
     let textColor = 'text-white';
     let ratingText = 'Kém';
@@ -104,7 +107,7 @@ const SearchResultItem: React.FC<SearchResultItemProps> = ({
   
   return (
     <div className="bg-white rounded-md shadow-md hover:shadow-lg transition-shadow duration-300 overflow-hidden border border-gray-200">
-      <Link href={`/hotel/${id}`}>
+      <Link href={`/hotel/${id}?checkIn=${checkIn || ''}&checkOut=${checkOut || ''}`} className="block">
         <div className="flex flex-col md:flex-row">
           {/* Phần ảnh */}
           <div className="relative md:w-1/3 h-48 md:h-64">

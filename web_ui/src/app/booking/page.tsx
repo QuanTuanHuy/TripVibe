@@ -12,7 +12,6 @@ import Payment from '@/components/BookingFlow/Steps/Payment';
 import Confirmation from '@/components/BookingFlow/Steps/Confirmation';
 import Header from '@/components/Header';
 
-// This component contains the booking flow logic
 function BookingFlowContent() {
     const { state, setHotelInfo, setBookingDates } = useBooking();
     const searchParams = useSearchParams();
@@ -20,7 +19,7 @@ function BookingFlowContent() {
     useEffect(() => {
         // Initialize booking with URL parameters
         const hotelId = searchParams?.get('hotelId') || '1';
-        const hotelName = searchParams?.get('hotelName') || 'La Passion Classic Hotel';
+        const hotelName = searchParams?.get('hotelName') || '';
         const checkIn = searchParams?.get('checkIn');
         const checkOut = searchParams?.get('checkOut');
 

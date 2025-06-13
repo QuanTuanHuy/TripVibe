@@ -113,7 +113,7 @@ function SearchContent() {
     const handleSearchParamsChange = (newFilters: any) => {
         console.log('Filter change:', newFilters);
         const updatedParams: Partial<any> = {
-            page: 0, // Reset to first page when filters change
+            page: 0, 
             name: newFilters.name || undefined,
             minBudget: newFilters.minBudget || undefined,
             maxBudget: newFilters.maxBudget || undefined,
@@ -224,6 +224,8 @@ function SearchContent() {
                         <SearchResultsList
                             onFilterClick={() => setShowMobileFilters(true)}
                             accommodations={accommodations}
+                            checkIn={searchParams.startDate?.toISOString().split('T')[0]}
+                            checkOut={searchParams.endDate?.toISOString().split('T')[0]}
                             loading={loading}
                             totalResults={totalResults}
                             onSortChange={handleSortChange}
@@ -251,7 +253,6 @@ function SearchContent() {
     );
 }
 
-// Loading component for Suspense fallback
 function SearchPageSkeleton() {
     return (
         <div className="min-h-screen bg-gray-50">

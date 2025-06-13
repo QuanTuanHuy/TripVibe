@@ -72,7 +72,7 @@ const SearchBar: React.FC<SearchBarProps> = ({
         setFilteredLocations(suggestions);
       } catch (error) {
         console.error('Error loading Vietnam provinces:', error);
-        // Fallback với data mặc định nếu API lỗi
+
         const fallbackSuggestions: LocationSuggestion[] = [
           { id: 1, name: 'Hà Nội', country: 'Việt Nam', type: 'province' },
           { id: 2, name: 'Hồ Chí Minh', country: 'Việt Nam', type: 'province' },
@@ -113,7 +113,6 @@ const SearchBar: React.FC<SearchBarProps> = ({
     };
   }, []);
 
-  // Lọc địa điểm khi người dùng nhập
   useEffect(() => {
     if (destination.trim() === '') {
       setFilteredLocations(locationSuggestions);
@@ -129,6 +128,13 @@ const SearchBar: React.FC<SearchBarProps> = ({
   const formatDateShort = (date: Date | null) => {
     if (!date) return '';
     return date.toLocaleDateString('vi-VN', { day: 'numeric', month: 'numeric', year: 'numeric' });
+  };
+
+  const formatDateForURL = (date: Date) => {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
   };
 
   const formatGuestsInfo = () => {
@@ -149,15 +155,15 @@ const SearchBar: React.FC<SearchBarProps> = ({
     if (!checkInDate || !checkOutDate) {
       alert('Vui lòng chọn ngày đến và ngày đi');
       return;
-    }
-
+    } 
+    
     const searchParams = new URLSearchParams();
     searchParams.set('destination', destination);
     if (selectedLocation?.provinceId) {
       searchParams.set('locationId', selectedLocation.provinceId.toString());
     }
-    searchParams.set('checkin', checkInDate.toISOString().split('T')[0]);
-    searchParams.set('checkout', checkOutDate.toISOString().split('T')[0]);
+    searchParams.set('checkin', formatDateForURL(checkInDate));
+    searchParams.set('checkout', formatDateForURL(checkOutDate));
     searchParams.set('adults', adultsCount.toString());
     searchParams.set('children', childrenCount.toString());
     searchParams.set('rooms', roomCount.toString());
