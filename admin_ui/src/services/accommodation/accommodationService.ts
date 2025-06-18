@@ -135,9 +135,9 @@ const accommodationService = {
   },
 
   // Xóa chỗ nghỉ
-  deleteAccommodation: async (id: number): Promise<void> => {
-    return apiClient.delete<void>(`${ACCOMMODATION_PATH}/accommodations/${id}`);
-  },
+  // deleteAccommodation: async (id: number): Promise<void> => {
+  //   return apiClient.delete<void>(`${ACCOMMODATION_PATH}/accommodations/${id}`);
+  // },
 
   // Tải lên hình ảnh cho chỗ nghỉ
   uploadImages: async (accommodationId: number, images: File[]): Promise<string[]> => {
