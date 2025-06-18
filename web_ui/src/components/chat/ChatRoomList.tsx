@@ -29,7 +29,7 @@ export const ChatRoomList: React.FC<ChatRoomListProps> = ({
   className
 }) => {
   const formatLastMessageTime = (timestamp: number) => {
-    const date = new Date(timestamp);
+    const date = new Date(timestamp * 1000);
     const now = new Date();
     const diffInHours = (now.getTime() - date.getTime()) / (1000 * 60 * 60);
 
