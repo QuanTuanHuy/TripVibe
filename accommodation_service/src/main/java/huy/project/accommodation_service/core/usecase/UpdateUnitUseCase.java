@@ -130,6 +130,10 @@ public class UpdateUnitUseCase {
         if (!newAmenities.isEmpty()) {
             unitAmenityPort.saveAll(newAmenities);
         }
+
+        cachePort.deleteFromCache(CacheUtils.buildCacheKeyGetAccommodationById(accId));
+
+        // need to sync with search service
     }
 
     @Transactional(rollbackFor = Exception.class)

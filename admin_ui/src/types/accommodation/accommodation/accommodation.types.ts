@@ -58,3 +58,21 @@ export interface CreateAccommodationDto {
     languageIds: number[];
     location: CreateLocationDto;
 }
+
+// DTO for updating accommodation amenities
+export interface UpdateAccAmenityDto {
+    amenityIds: number[];
+}
+
+// DTO for creating unit amenities
+export interface CreateUnitAmenityDto {
+    amenityId: number;
+    fee?: number;
+    needToReserve?: boolean;
+}
+
+// DTO for updating unit amenities
+export interface UpdateUnitAmenityDto {
+    newAmenities: CreateUnitAmenityDto[];
+    deletedAmenityIds: number[];
+}
