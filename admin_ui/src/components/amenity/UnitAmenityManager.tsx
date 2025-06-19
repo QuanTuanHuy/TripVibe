@@ -1,9 +1,9 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { AmenityList } from './AmenityList';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import accommodationService from '@/services/accommodation/accommodationService';
 import amenityService from '@/services/accommodation/amenityService';
 
 interface UnitAmenityManagerProps {
@@ -20,24 +20,70 @@ export function UnitAmenityManager({
     variant = 'plain'
 }: UnitAmenityManagerProps) {
     const [selectedAmenityIds, setSelectedAmenityIds] = useState<number[]>([]);
+    const [initialAmenityIds, setInitialAmenityIds] = useState<number[]>([]);
     const [isLoading, setIsLoading] = useState(false);
-    const [isSaved, setIsSaved] = useState(false); const handleSave = async () => {
+    const [isSaved, setIsSaved] = useState(false);
+    const [initialLoading, setInitialLoading] = useState(true);
+
+    // Load current amenities when component mounts
+    useEffect(() => {
+        const loadCurrentAmenities = async () => {
+            try {
+                setInitialLoading(true);
+                const currentAmenities = await amenityService.getUnitAmenities(accommodationId, unitId);
+                setSelectedAmenityIds(currentAmenities);
+                setInitialAmenityIds(currentAmenities); // Store initial state for comparison
+                console.log('Loaded current amenities:', currentAmenities);
+            } catch (error) {
+                console.error('Error loading current amenities:', error);
+            } finally {
+                setInitialLoading(false);
+            }
+        };
+
+        loadCurrentAmenities();
+    }, [accommodationId, unitId]);
+
+    const handleSave = async () => {
         try {
             setIsLoading(true);
-            await amenityService.updateUnitAmenities(accommodationId, unitId, selectedAmenityIds);
-            setIsSaved(true);
-            // Show success notification (you can replace this with your preferred notification system)
-            alert("Unit amenities updated successfully");
 
+            // Use the new updateUnitAmenities API method with current and new amenities
+            await accommodationService.updateUnitAmenities(
+                accommodationId,
+                unitId,
+                selectedAmenityIds,
+                initialAmenityIds
+            );
+            setIsSaved(true);
+
+            console.log('Amenities updated successfully:', {
+                initial: initialAmenityIds,
+                selected: selectedAmenityIds
+            });
+
+            // Update initial state to reflect saved state
+            setInitialAmenityIds(selectedAmenityIds);
+
+            // Call onClose callback to refresh data in parent component
             if (onClose) {
-                setTimeout(() => {
-                    onClose();
-                }, 1500);
+                // For card variant, call callback immediately to refresh data
+                if (variant === 'card') {
+                    await onClose();
+                    setTimeout(() => {
+                        setIsSaved(false); // Reset saved state after showing success
+                    }, 2000);
+                } else {
+                    // For dialog/modal variant, delay close
+                    setTimeout(() => {
+                        onClose();
+                    }, 1500);
+                }
             }
         } catch (error) {
             console.error('Error updating unit amenities:', error);
-            // Show error notification
-            alert("Failed to update amenities. Please try again.");
+            const errorMessage = error instanceof Error ? error.message : "Unknown error occurred";
+            alert(`Có lỗi xảy ra khi cập nhật tiện nghi: ${errorMessage}. Vui lòng thử lại.`);
         } finally {
             setIsLoading(false);
         }
@@ -48,35 +94,47 @@ export function UnitAmenityManager({
             <AmenityList
                 unitId={unitId}
                 accommodationId={accommodationId}
+                selectedAmenityIds={selectedAmenityIds}
                 onSelectionChange={setSelectedAmenityIds}
             />
 
-            <div className="flex justify-end space-x-4 pt-4">
-                {onClose && (
-                    <Button variant="outline" onClick={onClose}>
-                        Cancel
-                    </Button>
+            <div className={`flex ${variant === 'card' ? 'justify-between' : 'justify-end'} space-x-4 pt-6 border-t`}>
+                {isSaved && variant === 'card' && (
+                    <div className="flex items-center text-green-600 text-sm">
+                        <div className="w-2 h-2 bg-green-500 rounded-full mr-2 animate-pulse"></div>
+                        Đã lưu thành công!
+                    </div>
                 )}
-                <Button
-                    onClick={handleSave}
-                    disabled={isLoading || isSaved}
-                >                    {isLoading ? "Saving..." : isSaved ? "Saved!" : "Save Amenities"}
-                </Button>
+
+                <div className="flex space-x-3">
+                    {onClose && variant !== 'card' && (
+                        <Button variant="outline" onClick={onClose}>
+                            Hủy
+                        </Button>
+                    )}
+                    <Button
+                        onClick={handleSave}
+                        disabled={isLoading || isSaved || initialLoading}
+                        className={`${variant === 'card' ? 'px-8' : ''}`}
+                    >
+                        {initialLoading ? "Đang tải..." : isLoading ? "Đang lưu..." : isSaved ? "Đã lưu!" : "Lưu thay đổi"}
+                    </Button>
+                </div>
             </div>
         </>
     );
 
     if (variant === 'card') {
         return (
-            <Card>
-                <CardHeader>
-                    <CardTitle>Unit Amenities</CardTitle>
-                    <CardDescription>Select the amenities available in this accommodation unit</CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-6">
-                    {content}
-                </CardContent>
-            </Card>
+            <div className="space-y-6">
+                {initialLoading ? (
+                    <div className="flex justify-center p-8">
+                        <div className="text-gray-500">Đang tải tiện nghi hiện tại...</div>
+                    </div>
+                ) : (
+                    content
+                )}
+            </div>
         );
     }
 
@@ -91,7 +149,13 @@ export function UnitAmenityManager({
                 )}
             </div>
 
-            {content}
+            {initialLoading ? (
+                <div className="flex justify-center p-8">
+                    <div className="text-gray-500">Đang tải tiện nghi hiện tại...</div>
+                </div>
+            ) : (
+                content
+            )}
         </div>
     );
 }

@@ -17,3 +17,12 @@ export interface PaginationParams {
     sortBy?: string;
     sortDirection?: 'ASC' | 'DESC';
 }
+
+export interface ListDataResponseV2<T> {
+    data: T[];
+    totalPage: number;
+    totalRecord: number;
+    pageSize: number;
+    nextPage: number | null;
+    previousPage: number | null;
+}

@@ -5,7 +5,7 @@ import { useParams, useRouter } from "next/navigation";
 import { Save, Trash2, ArrowLeft, PlusCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { accommodationService, bedTypeService } from "@/services";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
@@ -22,7 +22,6 @@ import { Textarea } from "@/components/ui/textarea";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
-import { Checkbox } from "@/components/ui/checkbox";
 import {
     AlertDialog,
     AlertDialogAction,
@@ -44,7 +43,9 @@ import {
 } from "@/components/ui/breadcrumb";
 import { Accommodation, Unit } from "@/types/accommodation/accommodation";
 import { BedType } from "@/types/accommodation";
-import { AmenityDialog, AmenityQuickLink } from "@/components/amenity";
+import { UnitAmenityManager } from "@/components/amenity";
+import ImageUploadManager from "@/components/shared/ImageUploadManager";
+
 
 interface RoomFormValues {
     unitName: string;
@@ -116,14 +117,13 @@ const roomFormSchema = z.object({
 export default function RoomDetailPage() {
     const params = useParams();
     const router = useRouter();
-    const { hotelId, roomId } = params;
-
-    const [room, setRoom] = useState<Unit | null>(null);
+    const { hotelId, roomId } = params; const [room, setRoom] = useState<Unit | null>(null);
     const [hotel, setHotel] = useState<Accommodation | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [saving, setSaving] = useState(false);
     const [bedTypes, setBedTypes] = useState<BedType[]>([]);
+    const [imageLoading, setImageLoading] = useState(false);
 
     // Initialize the form with updated structure
     const form = useForm<RoomFormValues>({
@@ -276,6 +276,96 @@ export default function RoomDetailPage() {
                 };
                 form.setValue("bedrooms", updatedBedrooms);
             }
+        }
+    };
+
+    // Handle image upload
+    const handleImageUpload = async (files: File[]): Promise<void> => {
+        if (roomId === "new") {
+            setError("Vui lòng lưu phòng trước khi tải ảnh lên.");
+            return;
+        }
+
+        try {
+            setImageLoading(true);
+            setError(null);
+
+            await accommodationService.updateUnitImage(
+                Number(hotelId),
+                Number(roomId),
+                undefined, // không xóa ảnh nào
+                files
+            );
+
+            // Refresh room data to get updated images
+            const hotelResponse = await accommodationService.getAccommodationById(Number(hotelId));
+            const updatedRoom = hotelResponse?.units?.find(unit => unit.id === Number(roomId));
+            if (updatedRoom) {
+                setRoom(updatedRoom);
+            }
+        } catch (err) {
+            console.error("Error uploading images:", err);
+            setError("Có lỗi xảy ra khi tải ảnh lên. Vui lòng thử lại.");
+        } finally {
+            setImageLoading(false);
+        }
+    };
+
+    // Handle image deletion
+    const handleImageDelete = async (imageIds: number[]): Promise<void> => {
+        if (roomId === "new") {
+            setError("Không thể xóa ảnh của phòng chưa được lưu.");
+            return;
+        }
+
+        try {
+            setImageLoading(true);
+            setError(null);
+
+            await accommodationService.updateUnitImage(
+                Number(hotelId),
+                Number(roomId),
+                imageIds, // danh sách ID ảnh cần xóa
+                undefined // không thêm ảnh mới
+            );
+
+            // Refresh room data to get updated images
+            const hotelResponse = await accommodationService.getAccommodationById(Number(hotelId));
+            const updatedRoom = hotelResponse?.units?.find(unit => unit.id === Number(roomId));
+            if (updatedRoom) {
+                setRoom(updatedRoom);
+            }
+        } catch (err) {
+            console.error("Error deleting images:", err);
+            setError("Có lỗi xảy ra khi xóa ảnh. Vui lòng thử lại.");
+        } finally {
+            setImageLoading(false);
+        }
+    };
+
+    // Handle images update (this is for the ImageUploadManager component)
+    const handleImagesUpdate = (newImages: any[]) => {
+        // This will be handled by the refresh in upload/delete handlers
+        // The ImageUploadManager component expects this prop but we handle updates differently
+    };
+
+    // Handle amenities update
+    const handleAmenitiesUpdate = async () => {
+        try {
+            setError(null); // Clear any existing errors
+
+            // Refresh room data to get updated amenities
+            const hotelResponse = await accommodationService.getAccommodationById(Number(hotelId));
+            const updatedRoom = hotelResponse?.units?.find(unit => unit.id === Number(roomId));
+            if (updatedRoom) {
+                setRoom(updatedRoom);
+                console.log('Room amenities updated successfully:', updatedRoom.amenities);
+            } else {
+                throw new Error('Room not found after amenity update');
+            }
+        } catch (err) {
+            console.error("Error refreshing room data:", err);
+            setError("Có lỗi xảy ra khi cập nhật dữ liệu tiện nghi. Vui lòng thử lại.");
         }
     };
 
@@ -684,104 +774,110 @@ export default function RoomDetailPage() {
                                     </Card>
                                 </div>
                             </TabsContent>
-
                             {/* Amenities Tab */}
                             <TabsContent value="amenities">
-                                <AmenityQuickLink hotelId={Number(hotelId)} roomId={Number(roomId)} />
-                                <Card>
-                                    <CardHeader>
-                                        <CardTitle>Tiện nghi phòng</CardTitle>
-                                    </CardHeader>
-                                    <CardContent>
-                                        <FormField
-                                            control={form.control}
-                                            name="amenities"
-                                            render={() => (
-                                                <FormItem>
-                                                    <div className="mb-4">
-                                                        <FormDescription>
-                                                            Chọn các tiện nghi có sẵn trong phòng. Tiện nghi đầy đủ sẽ thu hút khách hàng hơn.
-                                                        </FormDescription>
+                                {roomId !== "new" ? (
+                                    <div className="space-y-6">
+                                        {/* Header with Summary Stats */}
+                                        <Card>
+                                            <CardHeader>
+                                                <div className="flex justify-between items-center">
+                                                    <div>
+                                                        <CardTitle className="text-xl">Quản lý tiện nghi phòng</CardTitle>
+                                                        <div className="text-sm text-gray-600 mt-1">
+                                                            {room?.amenities?.length || 0} tiện nghi đã được chọn
+                                                        </div>
                                                     </div>
+                                                    <div className="flex gap-4">
+                                                        <div className="text-center p-3 bg-blue-50 rounded-lg min-w-[80px]">
+                                                            <div className="text-lg font-bold text-blue-600">
+                                                                {room?.amenities?.length || 0}
+                                                            </div>
+                                                            <div className="text-xs text-blue-800">Tổng</div>
+                                                        </div>
+                                                        <div className="text-center p-3 bg-purple-50 rounded-lg min-w-[80px]">
+                                                            <div className="text-lg font-bold text-purple-600">
+                                                                {room?.amenities?.filter(a => a.fee && a.fee > 0).length || 0}
+                                                            </div>
+                                                            <div className="text-xs text-purple-800">Có phí</div>
+                                                        </div>
+                                                        <div className="text-center p-3 bg-orange-50 rounded-lg min-w-[80px]">
+                                                            <div className="text-lg font-bold text-orange-600">
+                                                                {room?.amenities?.filter(a => a.needToReserve).length || 0}
+                                                            </div>
+                                                            <div className="text-xs text-orange-800">Đặt trước</div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </CardHeader>
+                                        </Card>
 
-                                                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
-                                                        {room?.amenities?.map((amenity) => (
-                                                            <FormField
-                                                                key={amenity.id}
-                                                                control={form.control}
-                                                                name="amenities"
-                                                                render={({ field }) => {
-                                                                    return (
-                                                                        <FormItem
-                                                                            key={amenity.id}
-                                                                            className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-3"
-                                                                        >
-                                                                            <FormControl>
-                                                                                <Checkbox
-                                                                                    checked={field.value?.includes(amenity.amenityId.toString())}
-                                                                                    onCheckedChange={(checked) => {
-                                                                                        return checked
-                                                                                            ? field.onChange([...field.value, amenity.amenityId.toString()])
-                                                                                            : field.onChange(
-                                                                                                field.value?.filter(
-                                                                                                    (value) => value !== amenity.amenityId.toString()
-                                                                                                )
-                                                                                            )
-                                                                                    }}
-                                                                                />
-                                                                            </FormControl>
-                                                                            <FormLabel className="text-sm font-normal">
-                                                                                {amenity?.amenity?.name || "Tiện nghi không xác định"}
-                                                                            </FormLabel>
-                                                                        </FormItem>
-                                                                    )
-                                                                }}
-                                                            />
-                                                        ))}
-                                                    </div>
-                                                    <FormMessage />
-                                                </FormItem>
-                                            )}
-                                        />
-                                    </CardContent>
-                                </Card>
+                                        {/* Large Amenity Manager - Full Tab Integration */}
+                                        <Card className="min-h-[600px]">
+                                            <CardHeader>
+                                                <CardTitle>Chọn tiện nghi cho phòng</CardTitle>
+                                                <CardDescription>
+                                                    Chọn tất cả tiện nghi có sẵn trong phòng này. Thay đổi sẽ được lưu tự động.
+                                                </CardDescription>
+                                            </CardHeader>
+                                            <CardContent className="p-6">
+                                                <UnitAmenityManager
+                                                    unitId={Number(roomId)}
+                                                    accommodationId={Number(hotelId)}
+                                                    variant="card"
+                                                    onClose={handleAmenitiesUpdate}
+                                                />
+                                            </CardContent>
+                                        </Card>
+
+                                    </div>
+                                ) : (
+                                    /* New Room State */
+                                    <Card>
+                                        <CardHeader>
+                                            <CardTitle>Tiện nghi phòng</CardTitle>
+                                            <CardDescription>
+                                                Vui lòng lưu thông tin phòng trước khi quản lý tiện nghi
+                                            </CardDescription>
+                                        </CardHeader>
+                                        <CardContent>
+                                            <div className="text-center py-12">
+                                                <div className="text-gray-400 mb-4">
+                                                    <PlusCircle className="h-16 w-16 mx-auto" />
+                                                </div>
+                                                <p className="text-gray-500 mb-4 text-lg">Chưa thể quản lý tiện nghi</p>
+                                                <p className="text-sm text-gray-400 mb-6">
+                                                    Hãy điền thông tin cơ bản và lưu phòng trước để có thể thêm tiện nghi
+                                                </p>
+                                                <Button
+                                                    variant="outline"
+                                                    onClick={() => {
+                                                        // Switch to basic tab
+                                                        const basicTab = document.querySelector('[data-state="active"][value="basic"]');
+                                                        if (basicTab) {
+                                                            (basicTab as HTMLElement).click();
+                                                        }
+                                                    }}
+                                                >
+                                                    Quay lại thông tin cơ bản
+                                                </Button>
+                                            </div>
+                                        </CardContent>
+                                    </Card>
+                                )}
                             </TabsContent>
 
                             {/* Images Tab */}
                             <TabsContent value="images">
-                                <Card>
-                                    <CardHeader>
-                                        <CardTitle>Hình ảnh phòng</CardTitle>
-                                    </CardHeader>
-                                    <CardContent>
-                                        <div className="space-y-4">
-                                            <p className="text-sm text-gray-500">
-                                                Thêm hình ảnh phòng để giúp khách hàng có cái nhìn trực quan hơn về chỗ nghỉ của bạn.
-                                                Bạn nên thêm ít nhất 3 hình ảnh chất lượng cao cho mỗi loại phòng.
-                                            </p>
-
-                                            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                                                {room?.images?.map((image, index) => (
-                                                    <div key={index} className="relative h-40 rounded-md overflow-hidden border">
-                                                        <img
-                                                            src={image.url}
-                                                            alt={`Room image ${index + 1}`}
-                                                            className="w-full h-full object-cover"
-                                                        />
-                                                        <div className="absolute inset-0 bg-black/40 opacity-0 hover:opacity-100 transition-opacity flex items-center justify-center">
-                                                            <Button variant="destructive" size="sm">Xóa</Button>
-                                                        </div>
-                                                    </div>
-                                                ))}
-
-                                                <div className="h-40 border border-dashed rounded-md flex flex-col items-center justify-center text-gray-500 hover:bg-gray-50 cursor-pointer">
-                                                    <PlusCircle className="h-8 w-8 mb-2" />
-                                                    <p className="text-sm">Thêm ảnh mới</p>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </CardContent>
-                                </Card>
+                                <ImageUploadManager
+                                    images={room?.images || []}
+                                    onImagesUpdate={handleImagesUpdate}
+                                    onUpload={handleImageUpload}
+                                    onDelete={handleImageDelete}
+                                    loading={imageLoading}
+                                    maxImages={15}
+                                    maxFileSize={10}
+                                />
                             </TabsContent>
                         </Tabs>
                     </form>

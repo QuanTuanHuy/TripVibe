@@ -16,6 +16,8 @@ func ToGetChatRoomSpecification(params *request.ChatRoomQueryParams) (string, []
 		args = append(args, *params.UserID)
 	}
 
+	query += " ORDER BY c.last_message_id DESC"
+
 	if params.Page != nil && params.PageSize != nil {
 		offset := (*params.Page) * *params.PageSize
 		query += " LIMIT ? OFFSET ?"

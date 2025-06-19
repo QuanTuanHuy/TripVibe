@@ -22,4 +22,6 @@ const (
 	ErrInventoryNoLongerAvailable   = "inventory no longer available"
 	ErrQuickBookingNotFound         = "quick booking not found"
 	ErrUnitNotBelongToAccommodation = "unit not belong to accommodation"
+	ErrAccommodationIDRequired      = "accommodation ID is required"
+	ErrPermissionDenied             = "permission denied"
 )

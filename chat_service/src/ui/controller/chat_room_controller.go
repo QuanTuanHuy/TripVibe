@@ -19,7 +19,7 @@ import (
 
 type ChatController struct {
 	chatRoomService service.IChatRoomService
-	wsManager       *infrastructure.WebSocketManager // Add this field
+	wsManager       *infrastructure.WebSocketManager
 }
 
 func NewChatController(chatRoomService service.IChatRoomService, wsManager *infrastructure.WebSocketManager) *ChatController {

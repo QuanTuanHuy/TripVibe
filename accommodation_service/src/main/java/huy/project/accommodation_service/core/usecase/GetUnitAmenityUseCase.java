@@ -5,7 +5,9 @@ import huy.project.accommodation_service.core.domain.entity.UnitAmenityEntity;
 import huy.project.accommodation_service.core.port.IUnitAmenityPort;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -32,6 +34,18 @@ public class GetUnitAmenityUseCase {
     }
 
     public List<UnitAmenityEntity> getUnitAmenitiesByUnitId(Long unitId) {
-        return unitAmenityPort.getUnitAmenitiesByUnitId(unitId);
+        List<UnitAmenityEntity> unitAmenities = unitAmenityPort.getUnitAmenitiesByUnitId(unitId);
+        if (CollectionUtils.isEmpty(unitAmenities)) {
+            return Collections.emptyList();
+        }
+
+        var amenityIds = unitAmenities.stream()
+                .map(UnitAmenityEntity::getAmenityId).distinct().toList();
+
+        var amenityMap = getAmenityUseCase.getAmenitiesByIds(amenityIds).stream()
+                .collect(Collectors.toMap(AmenityEntity::getId, Function.identity()));
+        unitAmenities.forEach(ua -> ua.setAmenity(amenityMap.get(ua.getAmenityId())));
+
+        return unitAmenities;
     }
 }

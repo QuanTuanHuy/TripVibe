@@ -9,6 +9,7 @@ import huy.project.rating_service.core.domain.entity.RatingEntity;
 import huy.project.rating_service.core.domain.exception.AppException;
 import huy.project.rating_service.core.domain.mapper.RatingMapper;
 import huy.project.rating_service.core.port.*;
+import huy.project.rating_service.kernel.utils.CacheUtils;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -32,6 +33,7 @@ public class CreateRatingUseCase {
     IRatingPort ratingPort;
     IRatingDetailPort ratingDetailPort;
     IBookingPort bookingPort;
+    ICachePort cachePort;
     IRatingSummaryPort ratingSummaryPort;
     IRatingTrendPort ratingTrendPort;
     IMonthlyRatingPort monthlyRatingPort;
@@ -46,7 +48,7 @@ public class CreateRatingUseCase {
 
         updateRatingSummary(req);
 
-        updateRatingTrend(req);
+//        updateRatingTrend(req);
 
         return rating;
     }
@@ -106,6 +108,7 @@ public class CreateRatingUseCase {
         }
 
         ratingSummaryPort.save(ratingSummary);
+        cachePort.deleteFromCache(CacheUtils.buildCacheKeyGetRatingSummaryByAccId(req.getAccommodationId()));
     }
 
     private void updateRatingTrend(CreateRatingDto req) {

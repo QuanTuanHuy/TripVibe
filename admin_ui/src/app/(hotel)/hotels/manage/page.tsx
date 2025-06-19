@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Home, BedDouble, PlusCircle, Search, BadgeCheck, ChevronRight } from "lucide-react";
+import { BedDouble, PlusCircle, Search, BadgeCheck, ChevronRight } from "lucide-react";
 import Link from "next/link";
 import { accommodationService } from "@/services";
 import { useRouter } from "next/navigation";
@@ -28,7 +28,7 @@ export default function HotelRooms() {
     const [error, setError] = useState<string | null>(null);
     const [searchTerm, setSearchTerm] = useState("");
     const [activeTab, setActiveTab] = useState("all");
-    // const { userId } = useAuth();
+    const { user } = useAuth();
 
     const router = useRouter();
 
@@ -37,11 +37,10 @@ export default function HotelRooms() {
             try {
                 setLoading(true);
                 setError(null);
-
-
+                
                 try {
                     const response = await accommodationService.getAccommodations({
-                        hostId: 3
+                        hostId: user?.id,
                     })
 
                     setHotels(response || []);
@@ -58,10 +57,9 @@ export default function HotelRooms() {
         };
 
         fetchHotels();
-    }, [searchTerm]);
+    }, [searchTerm, user?.id]);
 
     const filteredHotels = hotels.filter(hotel => {
-        // Karena status tidak ada dalam type Accommodation, kita gunakan properti isVerified sebagai gantinya
         if (activeTab === "all") {
             return true;
         } else if (activeTab === "active") {

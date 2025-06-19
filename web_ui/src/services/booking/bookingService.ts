@@ -1,10 +1,8 @@
 import { ListDataResponseV2 } from '@/types/common';
-import { 
-    CreateBookingRequest, 
-    BookingResponse, 
-    ConfirmBookingResponse, 
-    BookingParams,
-    BookingStatus as BookingStatusType
+import {
+    CreateBookingRequest,
+    BookingResponse,
+    ConfirmBookingResponse,
 } from '@/types/booking';
 import { apiClient } from '../api.client';
 
@@ -41,12 +39,12 @@ export interface LegacyBooking {
     specialRequests?: string;
 }
 
-export type BookingStatus = 'UPCOMING' | 'COMPLETED' | 'CANCELLED';
+export type BookingStatus = 'PENDING' | 'CONFIRMED' | 'APPROVED' | 'CANCELLED' | 'REJECTED' | 'COMPLETED';
 
 export interface GetBookingsParams {
     status?: BookingStatus;
     page?: number;
-    size?: number;
+    pageSize?: number;
     sort?: string;
 }
 
@@ -71,11 +69,16 @@ class BookingService {
 
     // Get upcoming bookings (check-in date is in the future)
     async getUpcomingBookings(params?: Omit<GetBookingsParams, 'status'>): Promise<ListDataResponseV2<BookingResponse>> {
-        return this.getBookings({ ...params, status: 'UPCOMING' });
+        // Get all active bookings (not cancelled/rejected)
+        return this.getBookings({
+            ...params,
+            // Don't filter by status here - let the backend handle upcoming logic or filter client-side
+        });
     }
 
-    // Get past bookings (check-out date is in the past)
+    // Get past bookings (check-out date is in the past)  
     async getPastBookings(params?: Omit<GetBookingsParams, 'status'>): Promise<ListDataResponseV2<BookingResponse>> {
+        // Get completed bookings
         return this.getBookings({ ...params, status: 'COMPLETED' });
     }
 
@@ -89,15 +92,6 @@ class BookingService {
         return await apiClient.post<BookingResponse>(`${this.basePath}/bookings/${bookingId}/cancel`, {});
     }
 
-    // Approve booking (admin/host only)
-    async approveBooking(bookingId: number): Promise<ConfirmBookingResponse> {
-        return await apiClient.put<ConfirmBookingResponse>(`${this.basePath}/bookings/${bookingId}/approve`, {});
-    }
-
-    // Reject booking (admin/host only)
-    async rejectBooking(bookingId: number): Promise<ConfirmBookingResponse> {
-        return await apiClient.put<ConfirmBookingResponse>(`${this.basePath}/bookings/${bookingId}/reject`, {});
-    }
 
     // Check-in booking
     async checkInBooking(bookingId: number): Promise<ConfirmBookingResponse> {
@@ -110,5 +104,4 @@ class BookingService {
     }
 }
 
-// Create and export a singleton instance
 export const bookingService = new BookingService();

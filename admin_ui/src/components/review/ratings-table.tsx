@@ -192,8 +192,8 @@ export function RatingsTable({ ratings, isLoading, onRespondClick }: RatingsTabl
                                                         </>
                                                     ) : (
                                                         <>
-                                                            <Check className="h-4 w-4 mr-2" />
-                                                            Submit Response
+                                                            {/* <Check className="h-4 w-4 mr-2" /> */}
+                                                            Submit
                                                         </>
                                                     )}
                                                 </Button>

@@ -1,7 +1,8 @@
 package constant
 
 const (
-	ROLE_ADMIN   = "ADMIN"
-	ROLE_TOURIST = "TOURIST"
-	ROLE_OWNER   = "OWNER"
+	ROLE_SUPER_ADMIN = "SUPER_ADMIN"
+	ROLE_ADMIN       = "ADMIN"
+	ROLE_CUSTOMER    = "CUSTOMER"
+	ROLE_HOST        = "HOST"
 )

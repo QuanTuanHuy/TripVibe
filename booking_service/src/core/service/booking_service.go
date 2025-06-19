@@ -22,6 +22,7 @@ type IBookingService interface {
 	GetCompletedBookingByUserIdAndUnitId(ctx context.Context, userId int64, unitId int64) (*entity.BookingEntity, error)
 	CheckInBooking(ctx context.Context, userID int64, req *request.CheckInBookingRequest) (*response.CheckInResponse, error)
 	CheckOutBooking(ctx context.Context, userID int64, req *request.CheckOutBookingRequest) (*response.CheckOutResponse, error)
+	GetBookingStatisticsForHost(ctx context.Context, userID int64, req *request.BookingStatisticsRequest) (*response.BookingStatisticsResponse, error)
 }
 
 type BookingService struct {
@@ -88,6 +89,10 @@ func (b BookingService) CreateBooking(ctx context.Context, req *request.CreateBo
 
 func (b BookingService) GetCompletedBookingByUserIdAndUnitId(ctx context.Context, userId int64, unitId int64) (*entity.BookingEntity, error) {
 	return b.getBookingUseCase.GetCompletedBookingByUserIdAndUnitId(ctx, userId, unitId)
+}
+
+func (b BookingService) GetBookingStatisticsForHost(ctx context.Context, userID int64, req *request.BookingStatisticsRequest) (*response.BookingStatisticsResponse, error) {
+	return b.getBookingUseCase.GetBookingStatisticsForHost(ctx, userID, req)
 }
 
 func NewBookingService(

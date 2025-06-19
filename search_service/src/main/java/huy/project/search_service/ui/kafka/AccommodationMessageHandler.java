@@ -32,6 +32,7 @@ public class AccommodationMessageHandler {
                 case TopicConstant.AccommodationCommand.ADD_UNIT_TO_ACC:
                     handleAddUnitToAccommodation(kafkaBaseDto.getData());
                     break;
+                // need to add update accommodation, unit
                 default:
                     log.error("Unknown command: {}", kafkaBaseDto.getCmd());
             }

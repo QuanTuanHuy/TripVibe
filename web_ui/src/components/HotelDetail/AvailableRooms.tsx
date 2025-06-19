@@ -154,6 +154,30 @@ export default function AvailableRooms({ units, onShowRoomDetails, hotelId, hote
         };
     }, []);
 
+    useEffect(() => {
+        if (selectedRoomDetails !== null) {
+            document.body.style.overflow = 'hidden';
+        } else {
+            document.body.style.overflow = 'unset';
+        }
+        return () => {
+            document.body.style.overflow = 'unset';
+        }
+    }, [selectedRoomDetails])
+
+    useEffect(() => {
+        const handleEscapeKey = (event: KeyboardEvent) => {
+            if (event.key === 'Escape' && selectedRoomDetails !== null) {
+                handleCloseRoomDetails();
+            }
+        }
+
+        document.addEventListener('keydown', handleEscapeKey);
+        return () => {
+            document.removeEventListener('keydown', handleEscapeKey);
+        }
+    }, [selectedRoomDetails])
+
     // Get selected rooms for guest form
     const getSelectedRooms = (): SelectedRoom[] => {
         return Object.entries(roomQuantities)
@@ -610,43 +634,43 @@ export default function AvailableRooms({ units, onShowRoomDetails, hotelId, hote
                                         {/* Thông tin phòng */}
                                         <div className="rounded-xl p-6 border border-blue-100 shadow-sm">
                                             <div className="flex items-center gap-3 mb-6">
-                                                <div className="bg-amber-600 rounded-lg p-2">
-                                                    <Bed size={20} className="text-white" />
+                                                <div className=" rounded-lg p-2">
+                                                    <Bed size={20} className="text-green-600" />
                                                 </div>
                                                 <h3 className="text-xl font-bold text-gray-800">Thông tin phòng</h3>
                                             </div>
                                             <div className="space-y-4">
                                                 <div className="bg-white/70 rounded-lg p-4 flex justify-between items-center hover:bg-white/90 transition-colors duration-200">
                                                     <div className="flex items-center gap-3">
-                                                        <div className="bg-blue-100 rounded-full p-2">
-                                                            <Users size={16} className="text-blue-600" />
+                                                        <div className="rounded-full p-2">
+                                                            <Users size={16} className="text-green-600" />
                                                         </div>
                                                         <span className="text-gray-600 font-medium">Số lượng phòng:</span>
                                                     </div>
-                                                    <span className="font-bold text-lg text-blue-600">{unit.quantity}</span>
+                                                    <span className="font-bold text-lg ">{unit.quantity}</span>
                                                 </div>
 
                                                 <div className="bg-white/70 rounded-lg p-4 flex justify-between items-center hover:bg-white/90 transition-colors duration-200">
                                                     <div className="flex items-center gap-3">
-                                                        <div className="bg-green-100 rounded-full p-2">
+                                                        <div className="rounded-full p-2">
                                                             <Bath size={16} className="text-green-600" />
                                                         </div>
                                                         <span className="text-gray-600 font-medium">Phòng tắm:</span>
                                                     </div>
-                                                    <span className="font-bold text-green-600">
+                                                    <span className="font-bold">
                                                         {unit.useSharedBathroom ? 'Phòng tắm chung' : 'Phòng tắm riêng'}
                                                     </span>
                                                 </div>
 
                                                 <div className="bg-white/70 rounded-lg p-4 flex justify-between items-center hover:bg-white/90 transition-colors duration-200">
                                                     <div className="flex items-center gap-3">
-                                                        <div className="bg-amber-100 rounded-full p-2">
-                                                            <CreditCard size={16} className="text-amber-600" />
+                                                        <div className="rounded-full p-2">
+                                                            <CreditCard size={16} className="text-green-600" />
                                                         </div>
                                                         <span className="text-gray-600 font-medium">Giá/đêm:</span>
                                                     </div>
                                                     <div className="text-right">
-                                                        <div className="font-bold text-xl text-amber-600">
+                                                        <div className="font-bold text-xl ">
                                                             {formatPrice(unit.pricePerNight)}
                                                         </div>
                                                         <div className="text-xs text-gray-500">Đã bao gồm thuế</div>
@@ -656,26 +680,26 @@ export default function AvailableRooms({ units, onShowRoomDetails, hotelId, hote
                                                 {/* Thông tin giường */}
                                                 <div className="bg-white/70 rounded-lg p-4 hover:bg-white/90 transition-colors duration-200">
                                                     <div className="flex items-center gap-3 mb-2">
-                                                        <div className="bg-purple-100 rounded-full p-2">
-                                                            <Bed size={16} className="text-purple-600" />
+                                                        <div className="rounded-full p-2">
+                                                            <Bed size={16} className="text-green-600" />
                                                         </div>
                                                         <span className="text-gray-600 font-medium">Loại giường:</span>
                                                     </div>
                                                     <div className="ml-10">
-                                                        <span className="font-bold text-purple-600">{getBedInfo(unit)}</span>
+                                                        <span className="font-bold">{getBedInfo(unit)}</span>
                                                     </div>
                                                 </div>
 
                                                 {/* Sức chứa */}
                                                 <div className="bg-white/70 rounded-lg p-4 hover:bg-white/90 transition-colors duration-200">
                                                     <div className="flex items-center gap-3 mb-2">
-                                                        <div className="bg-indigo-100 rounded-full p-2">
-                                                            <Users size={16} className="text-indigo-600" />
+                                                        <div className="rounded-full p-2">
+                                                            <Users size={16} className="text-green-600" />
                                                         </div>
                                                         <span className="text-gray-600 font-medium">Sức chứa:</span>
                                                     </div>
                                                     <div className="ml-10">
-                                                        <span className="font-bold text-indigo-600">
+                                                        <span className="font-bold">
                                                             {unit.maxAdults} người lớn
                                                             {unit.maxChildren > 0 ? `, ${unit.maxChildren} trẻ em` : ''}
                                                         </span>

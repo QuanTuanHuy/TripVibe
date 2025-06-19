@@ -30,9 +30,15 @@ export function AmenityDialog({
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        {trigger || <Button variant="outline">{buttonLabel}</Button>}
+        {
+          trigger
+          ||
+          <Button variant="outline">
+            {buttonLabel}
+          </Button>
+        }
       </DialogTrigger>
-      <DialogContent className="max-w-3xl">
+      <DialogContent className="">
         <DialogHeader>
           <DialogTitle>Unit Amenities</DialogTitle>
           <DialogDescription>

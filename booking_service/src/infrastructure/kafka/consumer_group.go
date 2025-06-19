@@ -4,9 +4,10 @@ import (
 	consumer "booking_service/ui/kafka"
 	"context"
 	"fmt"
-	"github.com/IBM/sarama"
 	"log"
 	"sync"
+
+	"github.com/IBM/sarama"
 )
 
 type MyConsumerGroupHandler struct {
@@ -71,6 +72,7 @@ func ConsumerGroup(name *MyConsumerGroupHandler) {
 
 	config := sarama.NewConfig()
 	config.Consumer.Return.Errors = true
+	config.Consumer.Offsets.Initial = sarama.OffsetOldest
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 	cg, err := sarama.NewConsumerGroup([]string{bootstrapServers}, group, config)

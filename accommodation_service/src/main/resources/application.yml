@@ -84,27 +84,36 @@ app:
       protectedUrls:
         - urlPattern: /api/public/v1/amenity_groups
           roles:
+            - SUPER_ADMIN
             - ADMIN
         - urlPattern: /api/public/v1/amenities
           roles:
+            - SUPER_ADMIN
             - ADMIN
         - urlPattern: /api/public/v1/languages
           roles:
+            - SUPER_ADMIN
             - ADMIN
         - urlPattern: /api/public/v1/unit_names
           roles:
+            - SUPER_ADMIN
             - ADMIN
         - urlPattern: /api/public/v1/bed_types
           roles:
+            - SUPER_ADMIN
             - ADMIN
         - urlPattern: /api/public/v1/accommodation_types
           roles:
+            - SUPER_ADMIN
             - ADMIN
         - urlPattern: /api/public/v1/accommodations
           roles:
+            - SUPER_ADMIN
             - ADMIN
+            - HOST
         - urlPattern: /api/public/v1/currencies
           roles:
+            - SUPER_ADMIN
             - ADMIN
 
 server:

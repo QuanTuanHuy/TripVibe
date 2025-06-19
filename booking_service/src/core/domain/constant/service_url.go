@@ -4,12 +4,14 @@ const (
 	NOTIFICATION_SERVICE = "notification"
 	INVENTORY_SERVICE    = "inventory"
 	PROMOTION_SERVICE    = "promotion"
+	CHAT_SERVICE         = "chat"
 )
 
 const (
 	NOTIFICATION_SERVICE_URL = "http://localhost:8082/notification_service"
 	INVENTORY_SERVICE_URL    = "http://localhost:8093/inventory_service"
 	PROMOTION_SERVICE_URL    = "http://localhost:8087/promotion_service"
+	CHAT_SERVICE_URL         = "http://localhost:8090/chat_service"
 )
 
 const (
@@ -21,4 +23,5 @@ const (
 	CANCEL_BOOKING_INVENTORY  = "/api/v1/inventories/cancel_booking"
 	CHECK_IN_BOOKING          = "/api/v1/inventories/checkin"
 	CHECK_OUT_BOOKING         = "/api/v1/inventories/checkout"
+	CREATE_CHAT_ROOM          = "/api/public/v1/chats/rooms"
 )

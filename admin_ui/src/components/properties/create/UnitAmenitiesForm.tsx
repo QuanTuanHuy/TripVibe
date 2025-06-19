@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
 import { AmenityGroup, CreateAccommodationDto } from '@/types/accommodation';
-import { accommodationService } from '@/services';
+import { amenityService } from '@/services';
 import { AlertCircle } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -27,7 +27,7 @@ export default function UnitAmenitiesForm({ formData, updateFormData }: UnitAmen
         setError(null);
 
         // Fetch amenity groups from the API
-        const groups = await accommodationService.getAmenityGroups(
+        const groups = await amenityService.getAmenityGroups(
           {
             page: 0,
             pageSize: 5,

@@ -51,4 +51,6 @@ app:
           second: GET
         - first: /api/public/v1/rating_summaries/**
           second: GET
+        - first: /api/public/v1/statistics/**
+          second: GET
       protectedUrls:

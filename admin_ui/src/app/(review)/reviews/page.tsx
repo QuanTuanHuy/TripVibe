@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, FormEvent } from "react";
+import { useEffect, useState } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
@@ -27,18 +27,17 @@ import {
 import { RatingsTable } from "@/components/review/ratings-table";
 import { RatingSummaryCards } from "@/components/review/rating-summary-cards";
 import { RatingChart } from "@/components/review/rating-chart";
-import { toast } from "sonner"
+import { toast } from "sonner";
 import { Loader2, Star } from "lucide-react";
 import { type DateRange as CalendarDateRange } from "react-day-picker";
 
-// Define types for our data structures
-interface Accommodation {
-    id: number;
-    name: string;
-    location: string;
-    rating: number;
-}
+// Import services and types
+import { ratingService } from "@/services/rating/ratingService";
+import accommodationService from "@/services/accommodation/accommodationService";
+import { CreateRatingResponseDto } from "@/types/rating";
+import { Accommodation } from "@/types/accommodation";
 
+// Define types for our data structures
 interface User {
     userId: number;
     fullName: string;
@@ -64,11 +63,11 @@ interface RatingData {
     createdAt: number;
     user: User;
     unit: Unit;
-    response?: ResponseData | null; // Changed from ResponseData | null to ResponseData | null | undefined
+    response?: ResponseData | null;
 }
 
 interface RatingSummaryData {
-    accommodationId: number;  // Changed from number | null to just number
+    accommodationId: number;
     numberOfRatings: number;
     totalRating: number;
     averageRating: number;
@@ -91,11 +90,47 @@ interface PaginationButtonProps {
     onClick: () => void;
 }
 
-// Sample mock data for properties
+// Sample mock data for properties (fallback)
 const mockAccommodations: Accommodation[] = [
-    { id: 1, name: "Luxury Beach Resort & Spa", location: "Nha Trang", rating: 4.8 },
-    { id: 2, name: "Mountain View Hotel", location: "Da Lat", rating: 4.5 },
-    { id: 3, name: "City Center Boutique Hotel", location: "Ho Chi Minh City", rating: 4.7 }
+    {
+        id: 1,
+        name: "Luxury Beach Resort & Spa",
+        hostId: 1,
+        locationId: 1,
+        typeId: 1,
+        currencyId: 1,
+        description: "Beautiful beachfront resort",
+        checkInTimeFrom: 14,
+        checkInTimeTo: 22,
+        checkOutTimeFrom: 6,
+        checkOutTimeTo: 12
+    },
+    {
+        id: 2,
+        name: "Mountain View Hotel",
+        hostId: 1,
+        locationId: 2,
+        typeId: 1,
+        currencyId: 1,
+        description: "Scenic mountain hotel",
+        checkInTimeFrom: 15,
+        checkInTimeTo: 23,
+        checkOutTimeFrom: 7,
+        checkOutTimeTo: 11
+    },
+    {
+        id: 3,
+        name: "City Center Boutique Hotel",
+        hostId: 1,
+        locationId: 3,
+        typeId: 1,
+        currencyId: 1,
+        description: "Modern city center hotel",
+        checkInTimeFrom: 14,
+        checkInTimeTo: 24,
+        checkOutTimeFrom: 8,
+        checkOutTimeTo: 12
+    }
 ];
 
 // Component for pagination button
@@ -133,9 +168,8 @@ export default function ReviewsPage() {
     });
 
     useEffect(() => {
-        // Use mock data on first load
         fetchHostAccommodations();
-    }, []);
+    }, [user?.id]);
 
     useEffect(() => {
         if (selectedAccommodationId) {
@@ -145,107 +179,198 @@ export default function ReviewsPage() {
     }, [selectedAccommodationId, currentPage, pageSize, filterOptions]);
 
     const fetchHostAccommodations = async () => {
+        if (!user?.id) return;
+
         setIsLoading(true);
         try {
-            // Using mock data instead of API call
-            setTimeout(() => {
-                setAccommodations(mockAccommodations);
-                if (mockAccommodations.length > 0) {
-                    setSelectedAccommodationId(mockAccommodations[0].id);
-                }
-                setIsLoading(false);
-            }, 800); // Simulate loading delay
+            const accommodationList = await accommodationService.getMyAccommodations(user.id);
+            console.log("accommodationList", accommodationList);
+            setAccommodations(accommodationList);
+            if (accommodationList.length > 0) {
+                setSelectedAccommodationId(accommodationList[0].id);
+            }
         } catch (error) {
-            toast.error("Could not load your accommodations");
+            console.error('Error fetching accommodations:', error);
+            // Use mock data as fallback
+            setAccommodations(mockAccommodations);
+            if (mockAccommodations.length > 0) {
+                setSelectedAccommodationId(mockAccommodations[0].id);
+            }
+            toast.error("Could not load your accommodations, using sample data");
+        } finally {
             setIsLoading(false);
         }
     };
 
     const fetchRatings = async () => {
+        if (!selectedAccommodationId) return;
+
         setIsLoading(true);
         try {
-            // Generate mock ratings data
-            setTimeout(() => {
-                // Generate random review content for better visualization
-                const reviewComments = [
-                    "The room was very spacious and clean. Staff was friendly and helpful. I would definitely stay here again!",
-                    "Nice location, close to all attractions. The bed was comfortable but bathroom needs updating.",
-                    "Great experience overall! The breakfast was delicious and had many options. Pool was clean and well-maintained.",
-                    "Beautiful hotel with amazing views. Service was excellent but the WiFi connection was unstable.",
-                    "Loved the modern design and amenities. The only downside was noise from the nearby street.",
-                    "Perfect for a weekend getaway. The spa services were excellent and staff very professional.",
-                    "Room service was quick and the food was tasty. However, the room was smaller than it appeared in photos.",
-                    "Very clean and comfortable. Great location near restaurants and shopping areas.",
-                    "Outstanding service and beautiful property. Highly recommended for both business and leisure.",
-                    "The property exceeded my expectations. Staff remembered my preferences from my previous stay!"
-                ];
+            const params = {
+                accommodationId: selectedAccommodationId,
+                page: currentPage - 1,
+                pageSize: pageSize,
+                sortBy: filterOptions.sortBy,
+                sortType: filterOptions.sortOrder as 'asc' | 'desc',
+                ...(filterOptions.rating && {
+                    minValue: filterOptions.rating,
+                    maxValue: filterOptions.rating
+                }),
+                ...(filterOptions.dateRange?.from && {
+                    createdFrom: filterOptions.dateRange.from.getTime()
+                }),
+                ...(filterOptions.dateRange?.to && {
+                    createdTo: filterOptions.dateRange.to.getTime()
+                })
+            };
 
-                // Create mock responses for some ratings
-                const mockResponses = (i: number) => {
-                    if (i % 3 === 0) { // Every third review has a response
-                        return {
-                            id: i + 100,
-                            ownerId: 1, // Owner ID
-                            content: "Thank you for your feedback! We're delighted that you enjoyed your stay with us and appreciate your kind comments about our staff and facilities. We're constantly working to improve our services and hope to welcome you back soon!",
-                            createdAt: Date.now() - Math.random() * 5000000000
-                        };
-                    }
-                    return null;
-                };
+            const response = await ratingService.getAllRatings(params);
 
-                const mockData: RatingData[] = Array.from({ length: 10 }).map((_, i) => ({
-                    id: i + 1,
-                    value: Math.floor(Math.random() * 4) + 7, // Ratings between 7-10 for better visualization
-                    comment: reviewComments[i],
-                    createdAt: Date.now() - Math.random() * 10000000000,
-                    user: {
-                        userId: 100 + i,
-                        fullName: `User ${i + 1}`,
-                        avatarUrl: `https://ui-avatars.com/api/?name=User+${i + 1}&background=random`,
-                    },
-                    unit: {
-                        id: 200 + i,
-                        name: `Deluxe Room ${201 + i}`,
-                    },
-                    response: mockResponses(i)
-                }));
+            // Transform API response to local types
+            const ratingsData: RatingData[] = response.data.map(rating => ({
+                id: rating.id,
+                value: rating.value,
+                comment: rating.comment,
+                createdAt: rating.createdAt,
+                user: {
+                    userId: rating.user?.userId || 0,
+                    fullName: rating.user?.name || 'Anonymous',
+                    avatarUrl: rating.user?.avatarUrl || `https://ui-avatars.com/api/?name=${rating.user?.name || 'Anonymous'}&background=random`
+                },
+                unit: {
+                    id: rating.unit?.id || 0,
+                    name: rating.unit?.name || 'Unknown Unit'
+                },
+                response: rating.ratingResponse ? {
+                    id: rating.ratingResponse.id,
+                    ownerId: user?.id || 0,
+                    content: rating.ratingResponse.content,
+                    createdAt: rating.ratingResponse.createdAt
+                } : null
+            }));
 
-                setRatings(mockData);
-                setTotalPages(5);
-                setIsLoading(false);
-            }, 600);
+            setRatings(ratingsData);
+            setTotalPages(response.totalPage || 5);
         } catch (error) {
-            toast.error("Could not load ratings");
+            console.error('Error fetching ratings:', error);
+            // Generate mock ratings data as fallback
+            const reviewComments = [
+                "The room was very spacious and clean. Staff was friendly and helpful. I would definitely stay here again!",
+                "Nice location, close to all attractions. The bed was comfortable but bathroom needs updating.",
+                "Great experience overall! The breakfast was delicious and had many options. Pool was clean and well-maintained.",
+                "Beautiful hotel with amazing views. Service was excellent but the WiFi connection was unstable.",
+                "Loved the modern design and amenities. The only downside was noise from the nearby street."
+            ];
+
+            const mockData: RatingData[] = Array.from({ length: 5 }).map((_, i) => ({
+                id: i + 1,
+                value: Math.floor(Math.random() * 4) + 7,
+                comment: reviewComments[i],
+                createdAt: Date.now() - Math.random() * 10000000000,
+                user: {
+                    userId: 100 + i,
+                    fullName: `User ${i + 1}`,
+                    avatarUrl: `https://ui-avatars.com/api/?name=User+${i + 1}&background=random`,
+                },
+                unit: {
+                    id: 200 + i,
+                    name: `Deluxe Room ${201 + i}`,
+                },
+                response: i % 3 === 0 ? {
+                    id: i + 100,
+                    ownerId: 1,
+                    content: "Thank you for your feedback! We're delighted that you enjoyed your stay with us.",
+                    createdAt: Date.now() - Math.random() * 5000000000
+                } : null
+            }));
+
+            setRatings(mockData);
+            setTotalPages(5);
+            toast.error("Could not load ratings, using sample data");
+        } finally {
             setIsLoading(false);
         }
     };
 
     const fetchRatingSummary = async () => {
-        try {
-            // This would be replaced by your actual API call
-            // Mock response - replace with actual fetch
-            const mockSummary: RatingSummaryData = {
-                accommodationId: selectedAccommodationId!,
-                numberOfRatings: 50,
-                totalRating: 450,
-                averageRating: 9.0,
-                ratingDistribution: {
-                    "10": 20,
-                    "9": 15,
-                    "8": 8,
-                    "7": 4,
-                    "6": 1,
-                    "5": 1,
-                    "4": 0,
-                    "3": 1,
-                    "2": 0,
-                    "1": 0
-                }
-            };
+        if (!selectedAccommodationId) return;
 
-            setRatingSummary(mockSummary);
+        try {
+            const statisticResponse = await ratingService.getRatingStatistic(selectedAccommodationId);
+            console.log("Rating statistic:", statisticResponse);
+
+            setRatingSummary({
+                accommodationId: statisticResponse.accommodationId,
+                numberOfRatings: statisticResponse.totalRatings,
+                totalRating: Math.round(statisticResponse.overallAverage * statisticResponse.totalRatings),
+                averageRating: statisticResponse.overallAverage,
+                ratingDistribution: Object.fromEntries(
+                    Object.entries(statisticResponse.ratingDistribution).map(([key, value]) => [key, value])
+                )
+            });
         } catch (error) {
-            toast.error("Could not load rating summary");
+            console.error('Error fetching rating statistic:', error);
+
+            // Fallback to getRatingSummaries if statistics API fails
+            try {
+                const summaries = await ratingService.getRatingSummaries([selectedAccommodationId]);
+                console.log("Rating summaries fallback:", summaries);
+
+                if (summaries.length > 0) {
+                    const summary = summaries[0];
+                    const averageRating = summary.numberOfRatings > 0
+                        ? summary.totalRating / summary.numberOfRatings
+                        : 0;
+
+                    // Create distribution based on average rating (estimated)
+                    const mockDistribution = {
+                        "10": Math.floor(summary.numberOfRatings * 0.4),
+                        "9": Math.floor(summary.numberOfRatings * 0.3),
+                        "8": Math.floor(summary.numberOfRatings * 0.15),
+                        "7": Math.floor(summary.numberOfRatings * 0.08),
+                        "6": Math.floor(summary.numberOfRatings * 0.04),
+                        "5": Math.floor(summary.numberOfRatings * 0.02),
+                        "4": Math.floor(summary.numberOfRatings * 0.01),
+                        "3": 0,
+                        "2": 0,
+                        "1": 0
+                    };
+
+                    setRatingSummary({
+                        accommodationId: summary.accommodationId,
+                        numberOfRatings: summary.numberOfRatings,
+                        totalRating: summary.totalRating,
+                        averageRating,
+                        ratingDistribution: mockDistribution
+                    });
+                } else {
+                    throw new Error("No rating summary found");
+                }
+            } catch (fallbackError) {
+                console.error('Error with fallback rating summary:', fallbackError);
+                // Mock summary as final fallback
+                const mockSummary: RatingSummaryData = {
+                    accommodationId: selectedAccommodationId,
+                    numberOfRatings: 50,
+                    totalRating: 450,
+                    averageRating: 9.0,
+                    ratingDistribution: {
+                        "10": 20,
+                        "9": 15,
+                        "8": 8,
+                        "7": 4,
+                        "6": 1,
+                        "5": 1,
+                        "4": 0,
+                        "3": 1,
+                        "2": 0,
+                        "1": 0
+                    }
+                };
+                setRatingSummary(mockSummary);
+                toast.error("Could not load rating statistics, using sample data");
+            }
         }
     };
 
@@ -253,20 +378,24 @@ export default function ReviewsPage() {
         try {
             setIsLoading(true);
 
-            // Simulate API call with timeout
-            await new Promise(resolve => setTimeout(resolve, 800));
+            const responseData: CreateRatingResponseDto = {
+                ratingId,
+                content
+            };
 
-            // Update local state to show the response
+            const newResponse = await ratingService.createRatingResponse(responseData);
+
+            // Update local state
             setRatings(prevRatings =>
                 prevRatings.map(rating =>
                     rating.id === ratingId
                         ? {
                             ...rating,
                             response: {
-                                id: Math.floor(Math.random() * 1000) + 100,
-                                ownerId: 1,
-                                content: content,
-                                createdAt: Date.now()
+                                id: newResponse.id,
+                                ownerId: user?.id || 0,
+                                content: newResponse.content,
+                                createdAt: newResponse.createdAt
                             }
                         }
                         : rating
@@ -275,13 +404,13 @@ export default function ReviewsPage() {
 
             toast.success("Your response has been submitted");
         } catch (error) {
+            console.error('Error submitting response:', error);
             toast.error("Could not submit your response");
         } finally {
             setIsLoading(false);
         }
     };
 
-    // Rest of the component remains unchanged
     return (
         <div className="container mx-auto py-6 space-y-6">
             <div className="flex flex-col space-y-2">
@@ -326,7 +455,7 @@ export default function ReviewsPage() {
                         <TabsList className="grid grid-cols-3 w-[400px]">
                             <TabsTrigger value="overview">Overview</TabsTrigger>
                             <TabsTrigger value="all-reviews">All Reviews</TabsTrigger>
-                            <TabsTrigger value="responses">My Responses</TabsTrigger>
+                            {/* <TabsTrigger value="responses">My Responses</TabsTrigger> */}
                         </TabsList>
 
                         <TabsContent value="overview">
@@ -505,7 +634,7 @@ export default function ReviewsPage() {
                             </div>
                         </TabsContent>
 
-                        <TabsContent value="responses">
+                        {/* <TabsContent value="responses">
                             <Card>
                                 <CardHeader>
                                     <CardTitle>My Responses to Reviews</CardTitle>
@@ -554,7 +683,7 @@ export default function ReviewsPage() {
                                     </div>
                                 </CardContent>
                             </Card>
-                        </TabsContent>
+                        </TabsContent> */}
                     </Tabs>
                 ) : (
                     <Card className="mt-6">
