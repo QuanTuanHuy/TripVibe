@@ -48,3 +48,4 @@ app:
         - urlPattern: /api/public/v1/**
           roles:
             - ADMIN
+            - SUPER_ADMIN

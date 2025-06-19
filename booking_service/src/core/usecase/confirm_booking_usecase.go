@@ -4,10 +4,12 @@ import (
 	"booking_service/core/domain/constant"
 	"booking_service/core/domain/dto/request"
 	"booking_service/core/domain/dto/response"
+	"booking_service/core/domain/entity"
 	"booking_service/core/port"
 	"booking_service/kernel/utils"
 	"context"
 	"errors"
+
 	"github.com/golibs-starter/golib/log"
 )
 
@@ -16,10 +18,13 @@ type IConfirmBookingUseCase interface {
 }
 
 type ConfirmBookingUseCase struct {
-	bookingPort          port.IBookingPort
-	inventoryPort        port.IInventoryPort
-	dbTransactionUseCase IDatabaseTransactionUseCase
-	cachePort            port.ICachePort
+	bookingPort             port.IBookingPort
+	inventoryPort           port.IInventoryPort
+	chatRoomPort            port.IChatRoomPort
+	getUserUseCase          IGetUserUseCase
+	getAccommodationUseCase IGetAccommodationUseCase
+	dbTransactionUseCase    IDatabaseTransactionUseCase
+	cachePort               port.ICachePort
 }
 
 func (c ConfirmBookingUseCase) ConfirmBooking(ctx context.Context, bookingID int64) (*response.ConfirmBookingResponse, error) {
@@ -73,21 +78,66 @@ func (c ConfirmBookingUseCase) ConfirmBooking(ctx context.Context, bookingID int
 		if err != nil {
 			log.Error(ctx, "DeleteFromCache error", err)
 		}
+
+		err = c.createChatRoom(ctx, booking)
+		if err != nil {
+			log.Error(ctx, "CreateChatRoom error", err)
+			return
+		}
 	}()
 
 	return confirmResponse, nil
 }
 
+func (c ConfirmBookingUseCase) createChatRoom(ctx context.Context, booking *entity.BookingEntity) error {
+	tourist, err := c.getUserUseCase.GetUserByID(ctx, booking.TouristID)
+	if err != nil {
+		return err
+	}
+
+	accommodation, err := c.getAccommodationUseCase.GetAccommodationByID(ctx, booking.AccommodationID)
+	if err != nil {
+		return err
+	}
+
+	createChatRoom := &request.CreateChatRoomDto{
+		BookingID: booking.ID,
+		Tourist: &request.ParticipantDto{
+			UserID:   tourist.ID,
+			UserName: tourist.FirstName + " " + tourist.LastName,
+			Role:     "tourist",
+		},
+		Owner: &request.ParticipantDto{
+			UserID:   accommodation.OwnerID,
+			UserName: accommodation.Name,
+			Role:     "owner",
+		},
+	}
+	result, err := c.chatRoomPort.CreateChatRoom(ctx, createChatRoom)
+	if err != nil {
+		log.Error(ctx, "CreateChatRoom error", err)
+		return err
+	}
+	log.Info(ctx, "Chat room created successfully ", result)
+	return nil
+}
+
 func NewConfirmBookingUseCase(
 	bookingPort port.IBookingPort,
 	inventoryPort port.IInventoryPort,
+	chatRoomPort port.IChatRoomPort,
+	getUserUseCase IGetUserUseCase,
+	getAccommodationUseCase IGetAccommodationUseCase,
 	dbTransactionUseCase IDatabaseTransactionUseCase,
 	cachePort port.ICachePort,
 ) IConfirmBookingUseCase {
 	return &ConfirmBookingUseCase{
-		bookingPort:          bookingPort,
-		inventoryPort:        inventoryPort,
-		dbTransactionUseCase: dbTransactionUseCase,
-		cachePort:            cachePort,
+		bookingPort:             bookingPort,
+		inventoryPort:           inventoryPort,
+		chatRoomPort:            chatRoomPort,
+		getUserUseCase:          getUserUseCase,
+		getAccommodationUseCase: getAccommodationUseCase,
+		dbTransactionUseCase:    dbTransactionUseCase,
+		cachePort:               cachePort,
 	}
 }

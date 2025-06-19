@@ -46,6 +46,7 @@ func All() fx.Option {
 		fx.Provide(client.NewInventoryClientAdapter),
 		fx.Provide(client.NewNotificationClientAdapter),
 		fx.Provide(adapter.NewQuickBookingAdapter),
+		fx.Provide(client.NewChatRoomClientAdapter),
 
 		//Provide usecase
 		fx.Provide(usecase.NewDatabaseTransactionUseCase),

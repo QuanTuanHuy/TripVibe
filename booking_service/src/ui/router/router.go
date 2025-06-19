@@ -28,7 +28,7 @@ func RegisterGinRouters(p RegisterRoutersIn) {
 	{
 		accommodationV1.GET("/:id", p.AccommodationController.GetAccommodationDetail)
 	}
-	accommodationV1.Use(middleware.JWTAuthMiddleware(p.JWTConfig), middleware.RoleAuthorization(constant.ROLE_ADMIN))
+	accommodationV1.Use(middleware.JWTAuthMiddleware(p.JWTConfig), middleware.RoleAuthorization(constant.ROLE_ADMIN, constant.ROLE_ADMIN))
 	{
 		accommodationV1.POST("", p.AccommodationController.CreateAccommodation)
 		accommodationV1.DELETE("/:id", p.AccommodationController.DeleteAccommodationByID)
@@ -44,10 +44,11 @@ func RegisterGinRouters(p RegisterRoutersIn) {
 		bookingV1.PUT("/:id/checkout", p.BookingController.CheckOutBooking)
 		bookingV1.GET("", p.BookingController.GetAllBookings)
 	}
-	bookingV1.Use(middleware.RoleAuthorization(constant.ROLE_OWNER, constant.ROLE_ADMIN))
+	bookingV1.Use(middleware.RoleAuthorization(constant.ROLE_HOST, constant.ROLE_SUPER_ADMIN, constant.ROLE_ADMIN))
 	{
 		bookingV1.PUT("/:id/approve", p.BookingController.ApproveBooking)
 		bookingV1.PUT("/:id/reject", p.BookingController.RejectBooking)
+		bookingV1.GET("/statistics", p.BookingController.GetBookingStatisticsForHost)
 	}
 
 	internalV1 := router.Group("/internal/v1")

@@ -3,12 +3,14 @@ package usecase
 import (
 	"booking_service/core/domain/constant"
 	"booking_service/core/domain/dto/request"
+	"booking_service/core/domain/dto/response"
 	"booking_service/core/domain/entity"
 	"booking_service/core/port"
 	"booking_service/kernel/utils"
 	"context"
 	"encoding/json"
 	"errors"
+
 	"github.com/golibs-starter/golib/log"
 )
 
@@ -17,6 +19,7 @@ type IGetBookingUseCase interface {
 	GetAllBookings(ctx context.Context, params *request.BookingParams) ([]*entity.BookingEntity, error)
 	CountAllBookings(ctx context.Context, params *request.BookingParams) (int64, error)
 	GetCompletedBookingByUserIdAndUnitId(ctx context.Context, userId, unitId int64) (*entity.BookingEntity, error)
+	GetBookingStatisticsForHost(ctx context.Context, userID int64, req *request.BookingStatisticsRequest) (*response.BookingStatisticsResponse, error)
 }
 
 type GetBookingUseCase struct {
@@ -24,7 +27,50 @@ type GetBookingUseCase struct {
 	getBookingUnitUseCase      IGetBookingUnitUseCase
 	getBookingPromotionUseCase IGetBookingPromotionUseCase
 	getUserUseCase             IGetUserUseCase
+	getAccUseCase              IGetAccommodationUseCase
 	cachePort                  port.ICachePort
+}
+
+func (g *GetBookingUseCase) GetBookingStatisticsForHost(ctx context.Context, userID int64, req *request.BookingStatisticsRequest) (*response.BookingStatisticsResponse, error) {
+	if req.AccommodationID == 0 {
+		return nil, errors.New(constant.ErrAccommodationIDRequired)
+	}
+
+	accommodation, err := g.getAccUseCase.GetAccommodationByID(ctx, req.AccommodationID)
+	if err != nil {
+		return nil, err
+	}
+	if accommodation.OwnerID != userID {
+		return nil, errors.New(constant.ErrPermissionDenied)
+	}
+
+	params := &request.BookingParams{
+		AccommodationID: &req.AccommodationID,
+		DateType:        req.DateType,
+		StartTime:       req.StartDate,
+		EndTime:         req.EndDate,
+		UnitID:          req.UnitID,
+	}
+	bookings, err := g.bookingPort.GetAllBookings(ctx, params)
+	if err != nil {
+		return nil, err
+	}
+
+	var result response.BookingStatisticsResponse
+	result.TotalBookings = int64(len(bookings))
+	result.TotalRevenue = 0
+	result.StatusCounts = make(map[string]int64)
+
+	for _, booking := range bookings {
+		result.TotalRevenue += float64(booking.FinalAmount)
+		_, ok := result.StatusCounts[booking.Status]
+		if !ok {
+			result.StatusCounts[booking.Status] = 0
+		}
+		result.StatusCounts[booking.Status]++
+	}
+
+	return &result, nil
 }
 
 func (g GetBookingUseCase) GetAllBookings(ctx context.Context, params *request.BookingParams) ([]*entity.BookingEntity, error) {
@@ -169,12 +215,14 @@ func NewGetBookingUseCase(bookingPort port.IBookingPort,
 	getBookingUnitUseCase IGetBookingUnitUseCase,
 	getBookingPromotionUseCase IGetBookingPromotionUseCase,
 	getUserUseCase IGetUserUseCase,
+	getAccUseCase IGetAccommodationUseCase,
 	cachePort port.ICachePort) IGetBookingUseCase {
 	return &GetBookingUseCase{
 		bookingPort:                bookingPort,
 		getBookingUnitUseCase:      getBookingUnitUseCase,
 		getBookingPromotionUseCase: getBookingPromotionUseCase,
 		getUserUseCase:             getUserUseCase,
+		getAccUseCase:              getAccUseCase,
 		cachePort:                  cachePort,
 	}
 }

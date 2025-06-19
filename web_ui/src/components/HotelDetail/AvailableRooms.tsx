@@ -154,6 +154,30 @@ export default function AvailableRooms({ units, onShowRoomDetails, hotelId, hote
         };
     }, []);
 
+    useEffect(() => {
+        if (selectedRoomDetails !== null) {
+            document.body.style.overflow = 'hidden';
+        } else {
+            document.body.style.overflow = 'unset';
+        }
+        return () => {
+            document.body.style.overflow = 'unset';
+        }
+    }, [selectedRoomDetails])
+
+    useEffect(() => {
+        const handleEscapeKey = (event: KeyboardEvent) => {
+            if (event.key === 'Escape' && selectedRoomDetails !== null) {
+                handleCloseRoomDetails();
+            }
+        }
+
+        document.addEventListener('keydown', handleEscapeKey);
+        return () => {
+            document.removeEventListener('keydown', handleEscapeKey);
+        }
+    }, [selectedRoomDetails])
+
     // Get selected rooms for guest form
     const getSelectedRooms = (): SelectedRoom[] => {
         return Object.entries(roomQuantities)

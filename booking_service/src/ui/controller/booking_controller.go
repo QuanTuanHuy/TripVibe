@@ -284,6 +284,40 @@ func (b *BookingController) CheckOutBooking(c *gin.Context) {
 	apihelper.SuccessfulHandle(c, checkOutResponse)
 }
 
+func (b *BookingController) GetBookingStatisticsForHost(c *gin.Context) {
+	userID, ok := c.Get("userID")
+	if !ok {
+		log.Error(c, "error getting user id from context")
+		apihelper.AbortErrorHandle(c, common.GeneralUnauthorized)
+		return
+	}
+
+	var req request.BookingStatisticsRequest
+	if err := c.ShouldBindQuery(&req); err != nil {
+		log.Error(c, "error binding request ", err)
+		apihelper.AbortErrorHandle(c, common.GeneralBadRequest)
+		return
+	}
+
+	if req.AccommodationID == 0 {
+		apihelper.AbortErrorHandle(c, common.ErrAccommodationIDRequired)
+		return
+	}
+
+	response, err := b.bookingService.GetBookingStatisticsForHost(c, userID.(int64), &req)
+	if err != nil {
+		if err.Error() == constant.ErrPermissionDenied {
+			apihelper.AbortErrorHandle(c, common.GeneralForbidden)
+			return
+		}
+		log.Error(c, "error getting booking statistics ", err)
+		apihelper.AbortErrorHandle(c, common.GeneralServiceUnavailable)
+		return
+	}
+
+	apihelper.SuccessfulHandle(c, response)
+}
+
 func NewBookingController(bookingService service.IBookingService) *BookingController {
 	return &BookingController{
 		bookingService: bookingService,

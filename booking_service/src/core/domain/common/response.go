@@ -21,11 +21,14 @@ const (
 	ErrInventoryNoLongerAvailable = 1002
 
 	ErrUnitQuantityExceedsAvailable = 1003
+
+	ErrAccommodationIDRequired = 1004
 )
 
 const (
 	InventoryNoLongerAvailableMessage   = "Inventory no longer available. Please try again later."
 	UnitQuantityExceedsAvailableMessage = "Unit quantity exceeds available"
+	AccommodationIDRequiredMessage      = "Accommodation ID is required"
 )
 
 // ErrorResponse error response struct
@@ -67,6 +70,11 @@ var errorResponseMap = map[int]ErrorResponse{
 		HTTPCode:    http.StatusBadRequest,
 		ServiceCode: ErrUnitQuantityExceedsAvailable,
 		Message:     UnitQuantityExceedsAvailableMessage,
+	},
+	ErrAccommodationIDRequired: {
+		HTTPCode:    http.StatusBadRequest,
+		ServiceCode: ErrAccommodationIDRequired,
+		Message:     AccommodationIDRequiredMessage,
 	},
 }
 

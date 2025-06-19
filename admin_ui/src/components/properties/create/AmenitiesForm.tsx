@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
 import { CreateAccommodationDto, AmenityGroup } from '@/types/accommodation';
-import { accommodationService } from '@/services';
+import { amenityService } from '@/services';
 import { AlertCircle } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 
@@ -25,7 +25,7 @@ export default function AmenitiesForm({ formData, updateFormData }: AmenitiesFor
         setError(null);
 
         // Group tiện nghi theo groupId
-        const amenityGroups = await accommodationService.getAmenityGroups({
+        const amenityGroups = await amenityService.getAmenityGroups({
           isPopular: true,
         });
         const finalAmenityGroups = amenityGroups.data.filter(group => group.amenities && group.amenities.length > 0);
