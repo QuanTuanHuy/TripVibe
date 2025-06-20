@@ -7,6 +7,7 @@ import org.springframework.http.HttpStatusCode;
 @Getter
 public enum ErrorCode {
     UNCATEGORIZED_EXCEPTION(100001, "Uncategorized error", HttpStatus.INTERNAL_SERVER_ERROR),
+    UNAUTHORIZED(10002, "Unauthorized", HttpStatus.UNAUTHORIZED),
     SUCCESS(0, "Success", HttpStatus.OK),
     RATING_ALREADY_EXIST(100002, "Rating already exist", HttpStatus.BAD_REQUEST),
     INVALID_RATING_VALUE(100003, "Invalid rating value", HttpStatus.BAD_REQUEST),

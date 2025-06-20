@@ -9,6 +9,7 @@ require (
 	github.com/golibs-starter/golib v1.0.1
 	github.com/golibs-starter/golib-data v1.0.0
 	github.com/golibs-starter/golib-gin v1.0.0
+	github.com/google/uuid v1.3.0
 	github.com/redis/go-redis/v9 v9.0.4
 	go.uber.org/fx v1.20.0
 	gorm.io/driver/postgres v1.5.0
@@ -34,7 +35,6 @@ require (
 	github.com/go-sql-driver/mysql v1.7.0 // indirect
 	github.com/goccy/go-json v0.10.2 // indirect
 	github.com/golang/snappy v0.0.4 // indirect
-	github.com/google/uuid v1.3.0 // indirect
 	github.com/hashicorp/errwrap v1.0.0 // indirect
 	github.com/hashicorp/go-multierror v1.1.1 // indirect
 	github.com/hashicorp/go-uuid v1.0.3 // indirect

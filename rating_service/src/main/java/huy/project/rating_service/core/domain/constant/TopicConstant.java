@@ -15,4 +15,9 @@ public class TopicConstant {
         public static final String TOPIC = "search_service.rating_summary";
         public static final String SYNC_RATING_SUMMARY = "sync_rating_summary";
     }
+
+    public class BookingEvent {
+        public static final String TOPIC = "booking_service.booking_event";
+        public static final String BOOKING_COMPLETED = "booking_completed";
+    }
 }

@@ -47,6 +47,7 @@ func All() fx.Option {
 		fx.Provide(client.NewNotificationClientAdapter),
 		fx.Provide(adapter.NewQuickBookingAdapter),
 		fx.Provide(client.NewChatRoomClientAdapter),
+		fx.Provide(kafka.NewKafkaPublisherAdapter),
 
 		//Provide usecase
 		fx.Provide(usecase.NewDatabaseTransactionUseCase),

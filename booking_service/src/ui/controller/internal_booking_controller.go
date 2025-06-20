@@ -43,6 +43,23 @@ func (b *InternalBookingController) GetCompletedBookingByUserIdAndUnitId(c *gin.
 	apihelper.SuccessfulHandle(c, response.ToBookingInfoResponse(booking))
 }
 
+func (b *InternalBookingController) GetBookingByID(c *gin.Context) {
+	bookingID, err := strconv.ParseInt(c.Param("id"), 10, 64)
+	if err != nil {
+		apihelper.AbortErrorHandle(c, common.GeneralBadRequest)
+		return
+	}
+
+	booking, err := b.bookingService.GetBookingByID(c, bookingID)
+	if err != nil {
+		log.Error(c, "Error getting booking by ID: ", err)
+		apihelper.AbortErrorHandle(c, common.GeneralBadRequest)
+		return
+	}
+
+	apihelper.SuccessfulHandle(c, response.ToBookingResponse(booking))
+}
+
 func NewInternalBookingController(bookingService service.IBookingService) *InternalBookingController {
 	return &InternalBookingController{
 		bookingService: bookingService,

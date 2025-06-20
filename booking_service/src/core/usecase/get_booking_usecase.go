@@ -16,6 +16,7 @@ import (
 
 type IGetBookingUseCase interface {
 	GetDetailBooking(ctx context.Context, userID int64, bookingID int64) (*entity.BookingEntity, error)
+	GetBookingByID(ctx context.Context, bookingID int64) (*entity.BookingEntity, error)
 	GetAllBookings(ctx context.Context, params *request.BookingParams) ([]*entity.BookingEntity, error)
 	CountAllBookings(ctx context.Context, params *request.BookingParams) (int64, error)
 	GetCompletedBookingByUserIdAndUnitId(ctx context.Context, userId, unitId int64) (*entity.BookingEntity, error)
@@ -29,6 +30,15 @@ type GetBookingUseCase struct {
 	getUserUseCase             IGetUserUseCase
 	getAccUseCase              IGetAccommodationUseCase
 	cachePort                  port.ICachePort
+}
+
+func (g *GetBookingUseCase) GetBookingByID(ctx context.Context, bookingID int64) (*entity.BookingEntity, error) {
+	booking, err := g.bookingPort.GetBookingByID(ctx, bookingID)
+	if err != nil {
+		return nil, err
+	}
+
+	return g.GetDetailBooking(ctx, booking.TouristID, bookingID)
 }
 
 func (g *GetBookingUseCase) GetBookingStatisticsForHost(ctx context.Context, userID int64, req *request.BookingStatisticsRequest) (*response.BookingStatisticsResponse, error) {

@@ -14,6 +14,7 @@ import (
 type IBookingService interface {
 	CreateBooking(ctx context.Context, req *request.CreateBookingDto) (*entity.BookingEntity, error)
 	GetDetailBooking(ctx context.Context, userID int64, bookingID int64) (*entity.BookingEntity, error)
+	GetBookingByID(ctx context.Context, bookingID int64) (*entity.BookingEntity, error)
 	GetAllBookings(ctx context.Context, params *request.BookingParams) (*response.GetBookingResponse, error)
 	ConfirmBooking(ctx context.Context, bookingID int64) (*response.ConfirmBookingResponse, error)
 	ApproveBooking(ctx context.Context, userID, bookingID int64) error
@@ -34,6 +35,10 @@ type BookingService struct {
 	cancelBookingUseCase   usecase.ICancelBookingUseCase
 	checkInBookingUseCase  usecase.ICheckInBookingUseCase
 	checkOutBookingUseCase usecase.ICheckOutBookingUseCase
+}
+
+func (b *BookingService) GetBookingByID(ctx context.Context, bookingID int64) (*entity.BookingEntity, error) {
+	return b.getBookingUseCase.GetBookingByID(ctx, bookingID)
 }
 
 func (b *BookingService) CheckOutBooking(ctx context.Context, userID int64, req *request.CheckOutBookingRequest) (*response.CheckOutResponse, error) {

@@ -57,6 +57,7 @@ func RegisterGinRouters(p RegisterRoutersIn) {
 		internalBookings := internalV1.Group("/bookings")
 		{
 			internalBookings.GET("/find", p.InternalBookingController.GetCompletedBookingByUserIdAndUnitId)
+			internalBookings.GET("/:id", p.InternalBookingController.GetBookingByID)
 		}
 	}
 
