@@ -4,13 +4,11 @@ import {
     Dialog,
     DialogContent,
     DialogDescription,
-    DialogFooter,
     DialogHeader,
     DialogTitle,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Separator } from "@/components/ui/separator";
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -21,7 +19,6 @@ import {
     Calendar,
     ChevronDown,
     Clock,
-    MapPin,
     Phone,
     Mail,
     User,
@@ -35,7 +32,14 @@ import {
     AlertCircle,
     Users,
 } from "lucide-react";
-import { format, parseISO, differenceInDays } from "date-fns";
+import { format, parseISO, differenceInDays, parse } from "date-fns";
+import {
+    UIBookingStatus,
+    getStatusIconName,
+    getStatusBadgeVariant,
+    getAvailableStatusTransitions,
+    getStatusBadgeStyle
+} from "@/types/booking/status";
 
 interface Guest {
     id: number;
@@ -55,7 +59,7 @@ interface Room {
 interface BookingDetails {
     id: number;
     bookingId: string;
-    status: BookingStatus;
+    status: UIBookingStatus; // Use UIBookingStatus from status module
     checkIn: string;
     checkOut: string;
     guests: number;
@@ -69,21 +73,13 @@ interface BookingDetails {
     paymentMethod?: string;
 }
 
-type BookingStatus =
-    | "pending"
-    | "confirmed"
-    | "checked_in"
-    | "checked_out"
-    | "cancelled"
-    | "no_show";
-
 interface BookingDetailDialogProps {
     open: boolean;
     onOpenChange: (open: boolean) => void;
     booking: BookingDetails;
-    onStatusChange: (bookingId: number, newStatus: BookingStatus) => void;
+    onStatusChange: (bookingId: number, newStatus: UIBookingStatus) => void;
     formatCurrency: (amount: number, currency: string) => string;
-    getStatusDisplayName: (status: BookingStatus) => string;
+    getStatusDisplayName: (status: UIBookingStatus) => string;
 }
 
 export function BookingDetailDialog({
@@ -102,304 +98,300 @@ export function BookingDetailDialog({
         }
     };
 
-    const getStatusBadgeVariant = (status: BookingStatus): "default" | "destructive" | "outline" | "secondary" => {
-        switch (status) {
-            case "pending":
-                return "outline";
-            case "confirmed":
-                return "default";
-            case "checked_in":
-                return "default";
-            case "checked_out":
-                return "secondary";
-            case "cancelled":
-                return "destructive";
-            case "no_show":
-                return "outline";
-            default:
-                return "outline";
-        }
-    };
-
-    const getAvailableStatuses = (currentStatus: BookingStatus): BookingStatus[] => {
-        switch (currentStatus) {
-            case "pending":
-                return ["confirmed", "cancelled"];
-            case "confirmed":
-                return ["checked_in", "cancelled", "no_show"];
-            case "checked_in":
-                return ["checked_out"];
-            case "checked_out":
-                return [];
-            case "cancelled":
-                return ["pending"];
-            case "no_show":
-                return ["pending", "confirmed"];
-            default:
-                return [];
-        }
-    };
-
-    const getStatusIcon = (status: BookingStatus) => {
-        switch (status) {
-            case "pending":
+    const getStatusIcon = (status: UIBookingStatus) => {
+        const iconName = getStatusIconName(status);
+        switch (iconName) {
+            case 'Clock':
                 return <Clock className="w-4 h-4 text-amber-500" />;
-            case "confirmed":
+            case 'CheckCircle2':
                 return <CheckCircle2 className="w-4 h-4 text-green-500" />;
-            case "checked_in":
+            case 'UserCheck':
+                return <CheckCircle2 className="w-4 h-4 text-blue-500" />;
+            case 'LogIn':
                 return <LogIn className="w-4 h-4 text-blue-500" />;
-            case "checked_out":
+            case 'LogOut':
                 return <LogOut className="w-4 h-4 text-gray-500" />;
-            case "cancelled":
+            case 'XCircle':
                 return <XCircle className="w-4 h-4 text-red-500" />;
-            case "no_show":
+            case 'AlertCircle':
                 return <AlertCircle className="w-4 h-4 text-orange-500" />;
             default:
-                return null;
+                return <Clock className="w-4 h-4 text-gray-500" />;
         }
     };
 
-    // Calculate the number of nights
     const calculateNights = () => {
         try {
-            const checkInDate = parseISO(booking.checkIn);
-            const checkOutDate = parseISO(booking.checkOut);
+            const checkInDate = parse(booking.checkIn, 'dd/MM/yyyy', new Date());
+            const checkOutDate = parse(booking.checkOut, 'dd/MM/yyyy', new Date());
             return differenceInDays(checkOutDate, checkInDate);
         } catch (error) {
+            console.error("Date parsing error:", error);
             return 0;
         }
     };
 
     const nights = calculateNights();
-
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
-                <DialogHeader>
-                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-                        <div>
-                            <DialogTitle className="text-2xl">Chi tiết đặt phòng</DialogTitle>
-                            <DialogDescription className="text-muted-foreground">
-                                Mã đặt phòng: {booking.bookingId}
-                            </DialogDescription>
-                        </div>
+            <DialogContent
+                className="max-h-[80vh] overflow-y-auto p-0 gap-0"
+                style={{
+                    maxWidth: '80vw',
+                    minWidth: '800px'
+                }}
+            >
+                {/* Header - simple white background */}
+                <div className="bg-white border-b p-6">
+                    <DialogHeader className="space-y-0">
+                        <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+                            <div className="space-y-2">
+                                <DialogTitle className="text-xl font-semibold">Chi tiết đặt phòng</DialogTitle>
+                                <DialogDescription className="text-muted-foreground">
+                                    Mã đặt phòng: <span className="font-medium text-foreground">{booking.bookingId}</span>
+                                </DialogDescription>
+                            </div>
+                            <div className="flex items-center gap-3">
+                                <Badge
+                                    variant={getStatusBadgeVariant(booking.status)}
+                                    className="flex items-center gap-2 px-3 py-1 text-sm font-medium"
+                                    style={getStatusBadgeStyle(booking.status)}
+                                >
+                                    {getStatusIcon(booking.status)}
+                                    {getStatusDisplayName(booking.status)}
+                                </Badge>
 
-                        <div className="flex items-center gap-2">
-                            <Badge
-                                variant={getStatusBadgeVariant(booking.status)}
-                                className="flex items-center gap-1"
-                            >
-                                {getStatusIcon(booking.status)}
-                                {getStatusDisplayName(booking.status)}
-                            </Badge>
-
-                            {getAvailableStatuses(booking.status).length > 0 && (
-                                <DropdownMenu>
-                                    <DropdownMenuTrigger asChild>
-                                        <Button variant="outline" size="sm" className="gap-1">
-                                            Đổi trạng thái
-                                            <ChevronDown className="h-4 w-4" />
-                                        </Button>
-                                    </DropdownMenuTrigger>
-                                    <DropdownMenuContent align="end">
-                                        {getAvailableStatuses(booking.status).map((status) => (
-                                            <DropdownMenuItem
-                                                key={status}
-                                                onClick={() => onStatusChange(booking.id, status)}
-                                                className="gap-2"
-                                            >
-                                                {getStatusIcon(status)}
-                                                {getStatusDisplayName(status)}
-                                            </DropdownMenuItem>
-                                        ))}
-                                    </DropdownMenuContent>
-                                </DropdownMenu>
-                            )}
-                        </div>
-                    </div>
-                </DialogHeader>
-
-                {/* Main content */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
-                    {/* Left column */}
-                    <div className="space-y-6">
-                        <div>
-                            <h3 className="text-lg font-semibold mb-3">Chi tiết đặt phòng</h3>
-                            <div className="space-y-4">
-                                <div className="flex items-center gap-3">
-                                    <div className="p-2 bg-primary/10 rounded-full">
-                                        <Calendar className="h-5 w-5 text-primary" />
-                                    </div>
-                                    <div>
-                                        <p className="text-sm text-muted-foreground">Ngày đặt phòng</p>
-                                        <p className="font-medium">{formatDate(booking.createdAt)}</p>
-                                    </div>
-                                </div>
-
-                                <div className="flex items-center gap-3">
-                                    <div className="p-2 bg-green-50 rounded-full">
-                                        <LogIn className="h-5 w-5 text-green-600" />
-                                    </div>
-                                    <div>
-                                        <p className="text-sm text-muted-foreground">Check-in</p>
-                                        <p className="font-medium">{formatDate(booking.checkIn)}</p>
-                                    </div>
-                                </div>
-
-                                <div className="flex items-center gap-3">
-                                    <div className="p-2 bg-blue-50 rounded-full">
-                                        <LogOut className="h-5 w-5 text-blue-600" />
-                                    </div>
-                                    <div>
-                                        <p className="text-sm text-muted-foreground">Check-out</p>
-                                        <p className="font-medium">{formatDate(booking.checkOut)}</p>
-                                    </div>
-                                </div>
-
-                                <div className="flex items-center gap-3">
-                                    <div className="p-2 bg-purple-50 rounded-full">
-                                        <Clock className="h-5 w-5 text-purple-600" />
-                                    </div>
-                                    <div>
-                                        <p className="text-sm text-muted-foreground">Thời gian lưu trú</p>
-                                        <p className="font-medium">{nights} đêm</p>
-                                    </div>
-                                </div>
-
-                                <div className="flex items-center gap-3">
-                                    <div className="p-2 bg-amber-50 rounded-full">
-                                        <Users className="h-5 w-5 text-amber-600" />
-                                    </div>
-                                    <div>
-                                        <p className="text-sm text-muted-foreground">Số khách</p>
-                                        <p className="font-medium">{booking.guests} người</p>
-                                    </div>
-                                </div>
+                                {getAvailableStatusTransitions(booking.status).length > 0 && (
+                                    <DropdownMenu>
+                                        <DropdownMenuTrigger asChild>
+                                            <Button variant="outline" size="sm" className="gap-2">
+                                                Đổi trạng thái
+                                                <ChevronDown className="h-4 w-4" />
+                                            </Button>
+                                        </DropdownMenuTrigger>
+                                        <DropdownMenuContent align="end" className="w-48">
+                                            {getAvailableStatusTransitions(booking.status).map((status: UIBookingStatus) => (
+                                                <DropdownMenuItem
+                                                    key={status}
+                                                    onClick={() => onStatusChange(booking.id, status)}
+                                                    className="gap-2 py-2 text-sm"
+                                                >
+                                                    {getStatusIcon(status)}
+                                                    {getStatusDisplayName(status)}
+                                                </DropdownMenuItem>
+                                            ))}
+                                        </DropdownMenuContent>
+                                    </DropdownMenu>
+                                )}
                             </div>
                         </div>
-
-                        <Separator />
-
-                        <div>
-                            <h3 className="text-lg font-semibold mb-3">Chi tiết phòng</h3>
-                            <div className="p-4 border rounded-md">
-                                <div className="flex items-center gap-3 mb-3">
-                                    <div className="p-2 bg-indigo-50 rounded-full">
-                                        <Building className="h-5 w-5 text-indigo-600" />
-                                    </div>
-                                    <div>
-                                        <p className="font-medium">{booking.room.name}</p>
-                                        <p className="text-sm text-muted-foreground">
-                                            {booking.room.roomNumber && `Phòng ${booking.room.roomNumber}`}
-                                        </p>
-                                    </div>
+                    </DialogHeader>
+                </div>
+                {/* Main content with reduced padding */}
+                <div className="p-6">
+                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                        {/* Left column - Booking Details */}
+                        <div className="lg:col-span-2 space-y-6">
+                            {/* Booking Information Card */}
+                            <div className="bg-white border border-gray-200 rounded-lg shadow-sm overflow-hidden">
+                                <div className="bg-gray-50 px-4 py-3 border-b border-gray-200">
+                                    <h3 className="text-lg font-medium text-gray-900 flex items-center gap-2">
+                                        <Calendar className="h-4 w-4 text-indigo-600" />
+                                        Thông tin đặt phòng
+                                    </h3>
                                 </div>
-                                <p className="text-sm text-muted-foreground ml-10">
-                                    Loại phòng: {booking.room.unitType}
-                                </p>
-                            </div>
-                        </div>
-
-                        {booking.specialRequests && (
-                            <>
-                                <Separator />
-
-                                <div>
-                                    <h3 className="text-lg font-semibold mb-3">Yêu cầu đặc biệt</h3>
-                                    <div className="p-4 border rounded-md">
+                                <div className="p-4 space-y-4">
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                         <div className="flex items-start gap-3">
-                                            <MessageSquare className="h-5 w-5 text-primary mt-0.5" />
-                                            <p className="text-sm">{booking.specialRequests}</p>
+                                            <div className="p-2 bg-indigo-50 rounded-md">
+                                                <Calendar className="h-4 w-4 text-indigo-600" />
+                                            </div>
+                                            <div className="flex-1 min-w-0">
+                                                <p className="text-xs font-medium text-gray-500 mb-1">Ngày đặt phòng</p>
+                                                <p className="text-sm font-semibold text-gray-900">{formatDate(booking.createdAt)}</p>
+                                            </div>
+                                        </div>
+
+                                        <div className="flex items-start gap-3">
+                                            <div className="p-2 bg-green-50 rounded-md">
+                                                <LogIn className="h-4 w-4 text-green-600" />
+                                            </div>                                            <div className="flex-1 min-w-0">
+                                                <p className="text-xs font-medium text-gray-500 mb-1">Check-in</p>
+                                                <p className="text-sm font-semibold text-gray-900">{formatDate(booking.checkIn)}</p>
+                                            </div>
+                                        </div>
+
+                                        <div className="flex items-start gap-3">
+                                            <div className="p-2 bg-blue-50 rounded-md">
+                                                <LogOut className="h-4 w-4 text-blue-600" />
+                                            </div>
+                                            <div className="flex-1 min-w-0">
+                                                <p className="text-xs font-medium text-gray-500 mb-1">Check-out</p>
+                                                <p className="text-sm font-semibold text-gray-900">{formatDate(booking.checkOut)}</p>
+                                            </div>
+                                        </div>
+
+                                        <div className="flex items-start gap-3">
+                                            <div className="p-2 bg-purple-50 rounded-md">
+                                                <Clock className="h-4 w-4 text-purple-600" />
+                                            </div>
+                                            <div className="flex-1 min-w-0">
+                                                <p className="text-xs font-medium text-gray-500 mb-1">Thời gian lưu trú</p>
+                                                <p className="text-sm font-semibold text-gray-900">{nights} đêm</p>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div className="flex items-start gap-3">
+                                        <div className="p-2 bg-amber-50 rounded-md">
+                                            <Users className="h-4 w-4 text-amber-600" />
+                                        </div>                                        <div className="flex-1 min-w-0">
+                                            <p className="text-xs font-medium text-gray-500 mb-1">Số khách</p>
+                                            <p className="text-sm font-semibold text-gray-900">{booking.guests} người</p>
                                         </div>
                                     </div>
                                 </div>
-                            </>
-                        )}
-                    </div>
+                            </div>
 
-                    {/* Right column */}
-                    <div className="space-y-6">
-                        <div>
-                            <h3 className="text-lg font-semibold mb-3">Thông tin khách hàng</h3>
-                            <div className="p-4 border rounded-md space-y-3">
-                                <div className="flex items-center gap-3">
-                                    <div className="p-2 bg-gray-100 rounded-full">
-                                        <User className="h-5 w-5 text-gray-600" />
-                                    </div>
-                                    <div>
-                                        <p className="text-sm text-muted-foreground">Họ tên</p>
-                                        <p className="font-medium">{booking.guest.name}</p>
-                                    </div>
+                            {/* Room Details Card */}
+                            <div className="bg-white border border-gray-200 rounded-lg shadow-sm overflow-hidden">
+                                <div className="bg-gray-50 px-4 py-3 border-b border-gray-200">
+                                    <h3 className="text-lg font-medium text-gray-900 flex items-center gap-2">
+                                        <Building className="h-4 w-4 text-indigo-600" />
+                                        Chi tiết phòng
+                                    </h3>
                                 </div>
-
-                                <div className="flex items-center gap-3">
-                                    <div className="p-2 bg-gray-100 rounded-full">
-                                        <Mail className="h-5 w-5 text-gray-600" />
-                                    </div>
-                                    <div>
-                                        <p className="text-sm text-muted-foreground">Email</p>
-                                        <p className="font-medium">{booking.guest.email}</p>
-                                    </div>
-                                </div>
-
-                                <div className="flex items-center gap-3">
-                                    <div className="p-2 bg-gray-100 rounded-full">
-                                        <Phone className="h-5 w-5 text-gray-600" />
-                                    </div>
-                                    <div>
-                                        <p className="text-sm text-muted-foreground">Số điện thoại</p>
-                                        <p className="font-medium">{booking.guest.phone}</p>
+                                <div className="p-4">
+                                    <div className="flex items-start gap-3">
+                                        <div className="p-2 bg-indigo-50 rounded-md">
+                                            <Building className="h-4 w-4 text-indigo-600" />
+                                        </div>
+                                        <div className="flex-1 min-w-0">
+                                            <h4 className="text-base font-medium text-gray-900 mb-1">{booking.room.name}</h4>
+                                            <div className="space-y-1">
+                                                {booking.room.roomNumber && (
+                                                    <p className="text-xs text-gray-600">
+                                                        Phòng số: <span className="font-medium">{booking.room.roomNumber}</span>
+                                                    </p>
+                                                )}
+                                                <p className="text-xs text-gray-600">
+                                                    Loại phòng: <span className="font-medium">{booking.room.unitType}</span>
+                                                </p>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
+                            {/* Special Requests Card */}
+                            {booking.specialRequests && (
+                                <div className="bg-white border border-gray-200 rounded-lg shadow-sm overflow-hidden">
+                                    <div className="bg-gray-50 px-4 py-3 border-b border-gray-200">
+                                        <h3 className="text-lg font-medium text-gray-900 flex items-center gap-2">
+                                            <MessageSquare className="h-4 w-4 text-indigo-600" />
+                                            Yêu cầu đặc biệt
+                                        </h3>
+                                    </div>
+                                    <div className="p-4">
+                                        <div className="flex items-start gap-3">
+                                            <div className="p-2 bg-blue-50 rounded-md">
+                                                <MessageSquare className="h-4 w-4 text-blue-600" />
+                                            </div>
+                                            <div className="flex-1 min-w-0">
+                                                <p className="text-sm text-gray-700 leading-relaxed">{booking.specialRequests}</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
                         </div>
 
-                        <Separator />
-
-                        <div>
-                            <h3 className="text-lg font-semibold mb-3">Chi tiết thanh toán</h3>
-                            <div className="p-4 border rounded-md">
-                                <div className="flex justify-between items-center mb-2">
-                                    <p className="text-sm text-muted-foreground">Giá phòng x {nights} đêm</p>
-                                    <p className="font-medium">{formatCurrency(booking.totalAmount, booking.currency)}</p>
+                        {/* Right column - Guest & Payment Info */}
+                        <div className="space-y-6">
+                            {/* Guest Information Card */}
+                            <div className="bg-white border border-gray-200 rounded-lg shadow-sm overflow-hidden">
+                                <div className="bg-gray-50 px-4 py-3 border-b border-gray-200">
+                                    <h3 className="text-lg font-medium text-gray-900 flex items-center gap-2">
+                                        <User className="h-4 w-4 text-indigo-600" />
+                                        Thông tin khách hàng
+                                    </h3>
                                 </div>
-
-                                <Separator className="my-3" />
-
-                                <div className="flex justify-between items-center">
-                                    <p className="font-medium">Tổng cộng</p>
-                                    <p className="font-semibold">{formatCurrency(booking.totalAmount, booking.currency)}</p>
-                                </div>
-
-                                <div className="flex items-center gap-2 mt-3">
-                                    <div className="p-1.5 rounded-full">
-                                        <CreditCard className="h-4 w-4" />
+                                <div className="p-4 space-y-4">
+                                    <div className="flex items-start gap-3">
+                                        <div className="p-2 bg-gray-50 rounded-md">
+                                            <User className="h-4 w-4 text-gray-600" />
+                                        </div>
+                                        <div className="flex-1 min-w-0">
+                                            <p className="text-xs font-medium text-gray-500 mb-1">Họ tên</p>
+                                            <p className="text-sm font-semibold text-gray-900">{booking.guest.name}</p>
+                                        </div>
                                     </div>
-                                    <div className="flex-1">
-                                        <p className="text-sm font-medium">
-                                            {booking.isPaid ? (
-                                                <span className="text-green-600">Đã thanh toán</span>
-                                            ) : (
-                                                <span className="text-amber-600">Chưa thanh toán</span>
-                                            )}
-                                        </p>
-                                        {booking.paymentMethod && (
-                                            <p className="text-xs text-muted-foreground">
-                                                Phương thức: {booking.paymentMethod}
-                                            </p>
-                                        )}
+
+                                    <div className="flex items-start gap-3">
+                                        <div className="p-2 bg-blue-50 rounded-md">
+                                            <Mail className="h-4 w-4 text-blue-600" />
+                                        </div>
+                                        <div className="flex-1 min-w-0">
+                                            <p className="text-xs font-medium text-gray-500 mb-1">Email</p>
+                                            <p className="text-sm font-medium text-gray-900 break-all">{booking.guest.email}</p>
+                                        </div>
+                                    </div>
+
+                                    <div className="flex items-start gap-3">
+                                        <div className="p-2 bg-green-50 rounded-md">
+                                            <Phone className="h-4 w-4 text-green-600" />
+                                        </div>
+                                        <div className="flex-1 min-w-0">
+                                            <p className="text-xs font-medium text-gray-500 mb-1">Số điện thoại</p>
+                                            <p className="text-sm font-medium text-gray-900">{booking.guest.phone}</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Payment Information Card */}
+                            <div className="bg-white border border-gray-200 rounded-lg shadow-sm overflow-hidden">
+                                <div className="bg-gray-50 px-4 py-3 border-b border-gray-200">
+                                    <h3 className="text-lg font-medium text-gray-900 flex items-center gap-2">
+                                        <CreditCard className="h-4 w-4 text-indigo-600" />
+                                        Chi tiết thanh toán
+                                    </h3>
+                                </div>
+                                <div className="p-4">
+                                    <div className="space-y-3">
+                                        <div className="flex justify-between items-center py-2 border-b border-gray-100">
+                                            <p className="text-sm text-gray-600">Giá phòng × {nights} đêm</p>
+                                            <p className="text-sm font-semibold text-gray-900">{formatCurrency(booking.totalAmount, booking.currency)}</p>
+                                        </div>
+
+                                        <div className="flex justify-between items-center py-2 border-b border-gray-200">
+                                            <p className="text-base font-semibold text-gray-900">Tổng cộng</p>
+                                            <p className="text-base font-bold text-indigo-600">{formatCurrency(booking.totalAmount, booking.currency)}</p>
+                                        </div>
+
+                                        <div className="mt-4 p-3 bg-gray-50 rounded-md">
+                                            <div className="flex items-start gap-3">
+                                                <div className={`p-2 rounded-md ${booking.isPaid ? 'bg-green-50' : 'bg-amber-50'}`}>
+                                                    <CreditCard className={`h-4 w-4 ${booking.isPaid ? 'text-green-600' : 'text-amber-600'}`} />
+                                                </div>
+                                                <div className="flex-1 min-w-0">
+                                                    <p className="text-xs font-medium text-gray-500 mb-1">Trạng thái thanh toán</p>
+                                                    <p className={`text-sm font-semibold ${booking.isPaid ? 'text-green-600' : 'text-amber-600'}`}>
+                                                        {booking.isPaid ? 'Đã thanh toán' : 'Chưa thanh toán'}
+                                                    </p>
+                                                    {booking.paymentMethod && (
+                                                        <p className="text-xs text-gray-600 mt-1">
+                                                            Phương thức: <span className="font-medium">{booking.paymentMethod}</span>
+                                                        </p>
+                                                    )}
+                                                </div>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
-
-                <DialogFooter className="mt-6">
-                    <Button variant="outline" onClick={() => onOpenChange(false)}>
-                        Đóng
-                    </Button>
-                </DialogFooter>
             </DialogContent>
         </Dialog>
     );

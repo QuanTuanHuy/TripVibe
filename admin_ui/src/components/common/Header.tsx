@@ -3,10 +3,8 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import {
-    Bell,
     Menu,
     X,
-    ChevronDown,
     MessageCircle,
     Moon,
     Sun,

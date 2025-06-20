@@ -1,13 +1,6 @@
 "use client";
 
 import { useState, useEffect, Suspense } from "react";
-import { useSearchParams } from "next/navigation";
-import {
-    Tabs,
-    TabsContent,
-    TabsList,
-    TabsTrigger
-} from "@/components/ui/tabs";
 import {
     Card,
     CardContent,
@@ -45,9 +38,26 @@ import {
 } from "lucide-react";
 import { type DateRange } from "react-day-picker";
 import { toast } from "sonner";
-import { format } from "date-fns";
+import { useAuth } from "@/context/AuthContext";
 
-// Types for booking data
+// Import API types and services
+import {
+    Booking,
+    BookingParams
+} from "@/types/booking";
+import {
+    APIBookingStatus,
+    UIBookingStatus,
+    mapApiStatusToUI,
+    mapUIStatusToAPI,
+    getStatusDisplayName,
+    getCurrentUIStatusForFilter,
+    getStatusFilterOptions
+} from "@/types/booking/status";
+import { bookingService, accommodationService, bookingActions } from "@/services";
+import { Accommodation } from "@/types/accommodation";
+
+// UI-specific types for compatibility with existing components
 interface Guest {
     id: number;
     name: string;
@@ -66,7 +76,7 @@ interface Room {
 interface BookingDetails {
     id: number;
     bookingId: string;
-    status: BookingStatus;
+    status: UIBookingStatus;
     checkIn: string;
     checkOut: string;
     guests: number;
@@ -80,17 +90,11 @@ interface BookingDetails {
     paymentMethod?: string;
 }
 
-type BookingStatus =
-    | "pending"
-    | "confirmed"
-    | "checked_in"
-    | "checked_out"
-    | "cancelled"
-    | "no_show";
 
 interface FilterOptions {
     dateRange: DateRange | null;
-    status: BookingStatus | null;
+    status: APIBookingStatus | null;
+    accommodationId: number | null;
     search: string;
     sortBy: string;
     sortOrder: "asc" | "desc";
@@ -107,64 +111,55 @@ interface BookingSummary {
     };
 }
 
-// Mock data for demonstration
-const MOCK_SUMMARY: BookingSummary = {
-    total: 148,
-    pending: 12,
-    confirmed: 95,
-    checkedIn: 34,
+const DEFAULT_SUMMARY: BookingSummary = {
+    total: 0,
+    pending: 0,
+    confirmed: 0,
+    checkedIn: 0,
     today: {
-        checkIn: 8,
-        checkOut: 5,
+        checkIn: 0,
+        checkOut: 0,
     }
 };
 
-// Mock bookings data
-const MOCK_BOOKINGS: BookingDetails[] = Array.from({ length: 50 }, (_, i) => {
-    const id = i + 1;
-    const checkIn = new Date();
-    checkIn.setDate(checkIn.getDate() + Math.floor(Math.random() * 30) - 15);
 
-    const checkOut = new Date(checkIn);
-    checkOut.setDate(checkOut.getDate() + Math.floor(Math.random() * 7) + 1);
+// Convert API Booking to UI BookingDetails
+const transformBookingToBookingDetails = (booking: Booking): BookingDetails => {
+    const guest: Guest = {
+        id: booking.tourist?.id || 0,
+        name: booking.tourist ? `${booking.tourist.firstName} ${booking.tourist.lastName}` : 'Unknown',
+        email: booking.tourist?.email || '',
+        phone: booking.tourist?.phoneNumber || '',
+    };
 
-    const statuses: BookingStatus[] = ["pending", "confirmed", "checked_in", "checked_out", "cancelled", "no_show"];
-    const status = statuses[Math.floor(Math.random() * (i > 45 ? 6 : 4))]; // More chances for active statuses
-
-    const firstName = ["Nguyễn", "Trần", "Lê", "Phạm", "Hoàng", "Huỳnh", "Phan", "Vũ", "Đặng", "Bùi"][Math.floor(Math.random() * 10)];
-    const lastName = ["An", "Bình", "Cường", "Dũng", "Em", "Phúc", "Giang", "Huy", "Khang", "Linh"][Math.floor(Math.random() * 10)];
-
-    const roomTypes = ["Standard", "Deluxe", "Suite", "Family", "Executive"];
-    const roomType = roomTypes[Math.floor(Math.random() * roomTypes.length)];
-    const roomNumber = Math.floor(Math.random() * 500) + 100;
+    // Get the first unit for room info (simplified)
+    const firstUnit = booking.units?.[0];
+    const room: Room = {
+        id: firstUnit?.unitId || 0,
+        name: firstUnit?.fullName || 'Unknown Room',
+        roomNumber: firstUnit?.unitId?.toString() || '',
+        unitType: 'Standard' // Default type
+    };
 
     return {
-        id,
-        bookingId: `BK-${100000 + id}`,
-        status,
-        checkIn: format(checkIn, "yyyy-MM-dd"),
-        checkOut: format(checkOut, "yyyy-MM-dd"),
-        guests: Math.floor(Math.random() * 4) + 1,
-        totalAmount: Math.floor(Math.random() * 5000000) + 500000,
-        currency: "VND",
-        createdAt: format(new Date(Date.now() - Math.floor(Math.random() * 30 * 24 * 60 * 60 * 1000)), "yyyy-MM-dd"),
-        specialRequests: Math.random() > 0.7 ? "Phòng ở tầng cao, xa thang máy" : undefined,
-        guest: {
-            id: id * 10,
-            name: `${firstName} ${lastName}`,
-            email: `guest${id}@example.com`.toLowerCase(),
-            phone: `+84${Math.floor(Math.random() * 900000000) + 100000000}`,
-        },
-        room: {
-            id: id * 5,
-            name: `${roomType} Room`,
-            roomNumber: `${roomNumber}`,
-            unitType: roomType
-        },
-        isPaid: Math.random() > 0.3,
-        paymentMethod: Math.random() > 0.3 ? (Math.random() > 0.5 ? "Credit Card" : "Bank Transfer") : undefined,
+        id: booking.id,
+        bookingId: `BK-${booking.id}`,
+        status: mapApiStatusToUI(booking.status),
+        checkIn: bookingService.formatDate(booking.stayFrom),
+        checkOut: bookingService.formatDate(booking.stayTo),
+        guests: booking.numberOfAdult + booking.numberOfChild,
+        totalAmount: booking.finalAmount,
+        currency: 'VND', // Default currency
+        createdAt: bookingService.formatDate(booking.stayFrom), // Using stayFrom as proxy for createdAt
+        specialRequests: booking.note || undefined,
+        guest,
+        room,
+        // isPaid: booking.paymentId ? true : false,
+        isPaid: booking.status !== 'PENDING',
+        paymentMethod: booking.paymentId ? 'Unknown' : undefined
     };
-});
+};
+
 
 // Helper function for pagination button
 function PaginationButton({
@@ -189,145 +184,167 @@ function PaginationButton({
     );
 }
 
-// Component chứa logic chính với useSearchParams
+// Component chứa logic chính
 function BookingsContent() {
-    const searchParams = useSearchParams();
-    const [activeTab, setActiveTab] = useState("all");
+    const { user } = useAuth();
     const [currentPage, setCurrentPage] = useState(1);
     const [pageSize] = useState(10);
     const [totalPages, setTotalPages] = useState(5);
     const [isLoading, setIsLoading] = useState(true);
     const [bookings, setBookings] = useState<BookingDetails[]>([]);
-    const [summary, setSummary] = useState<BookingSummary>(MOCK_SUMMARY);
+    const [accommodations, setAccommodations] = useState<Accommodation[]>([]);
+    const [isLoadingAccommodations, setIsLoadingAccommodations] = useState(true);
+    const [summary, setSummary] = useState<BookingSummary>(DEFAULT_SUMMARY);
     const [selectedBooking, setSelectedBooking] = useState<BookingDetails | null>(null);
-    const [detailDialogOpen, setDetailDialogOpen] = useState(false);
-    const [filterOptions, setFilterOptions] = useState<FilterOptions>({
+    const [detailDialogOpen, setDetailDialogOpen] = useState(false); const [filterOptions, setFilterOptions] = useState<FilterOptions>({
         dateRange: null,
         status: null,
+        accommodationId: null,
         search: "",
-        sortBy: "checkIn",
+        sortBy: "stay_from",
         sortOrder: "desc"
     });
-
-    // Set initial tab based on URL param if present
+    // Load accommodations for current user
     useEffect(() => {
-        const tab = searchParams.get('tab');
-        if (tab && ['all', 'pending', 'confirmed', 'checked_in', 'checked_out', 'cancelled'].includes(tab)) {
-            setActiveTab(tab);
-        }
-    }, [searchParams]);
+        const loadAccommodations = async () => {
+            if (!user?.id) {
+                setIsLoadingAccommodations(false);
+                return;
+            }
+
+            try {
+                setIsLoadingAccommodations(true);
+                const userAccommodations = await accommodationService.getMyAccommodations(user.id);
+                setAccommodations(userAccommodations);
+
+                // Mặc định chọn accommodation đầu tiên nếu có
+                if (userAccommodations.length > 0 && !filterOptions.accommodationId) {
+                    setFilterOptions(prev => ({
+                        ...prev,
+                        accommodationId: userAccommodations[0].id
+                    }));
+                }
+            } catch (error) {
+                console.error('Error loading accommodations:', error);
+                toast.error('Không thể tải danh sách chỗ nghỉ.');
+                setAccommodations([]);
+            } finally {
+                setIsLoadingAccommodations(false);
+            }
+        };
+
+        loadAccommodations();
+    }, [user?.id]);
 
     // Load bookings with filtering
     useEffect(() => {
         const loadBookings = async () => {
+            // Chỉ load bookings khi có accommodationId
+            if (!filterOptions.accommodationId) {
+                setBookings([]);
+                setTotalPages(1);
+                setIsLoading(false);
+                return;
+            }
+
             setIsLoading(true);
             try {
-                // In a real app, you would call your API here
-                // const response = await bookingService.getBookings({
-                //   page: currentPage - 1,
-                //   size: pageSize,
-                //   status: activeTab !== 'all' ? activeTab : undefined,
-                //   ...other filters
-                // });
-
-                // Simulate API delay
-                await new Promise(resolve => setTimeout(resolve, 800));
-
-                // Filter mock data based on active tab and filter options
-                let filteredBookings = [...MOCK_BOOKINGS];
-
-                // Filter by tab/status
-                if (activeTab !== 'all') {
-                    filteredBookings = filteredBookings.filter(booking =>
-                        booking.status === activeTab
-                    );
-                }
-
-                // Apply additional filters
+                // Prepare API parameters
+                const params: BookingParams = {
+                    page: currentPage - 1,
+                    pageSize: pageSize,
+                    orderBy: filterOptions.sortBy === 'checkIn' ? 'stay_from' :
+                        filterOptions.sortBy === 'checkOut' ? 'stay_to' :
+                            filterOptions.sortBy === 'createdAt' ? 'id' :
+                                filterOptions.sortBy,
+                    direct: filterOptions.sortOrder,
+                };
                 if (filterOptions.status) {
-                    filteredBookings = filteredBookings.filter(booking =>
-                        booking.status === filterOptions.status
-                    );
+                    params.status = filterOptions.status;
                 }
 
+                params.accommodationId = filterOptions.accommodationId;
+
+                if (filterOptions.dateRange?.from && filterOptions.dateRange?.to) {
+                    params.startTime = Math.floor(filterOptions.dateRange.from.getTime() / 1000);
+                    params.endTime = Math.floor(filterOptions.dateRange.to.getTime() / 1000);
+                    params.dateType = 'stay_from';
+                }
+
+                const response = await bookingService.getAllBookings(params);
+
+                // Filter by search if needed (API might not support text search)
+                let filteredBookings = response.data || [];
                 if (filterOptions.search) {
                     const search = filterOptions.search.toLowerCase();
                     filteredBookings = filteredBookings.filter(booking =>
-                        booking.bookingId.toLowerCase().includes(search) ||
-                        booking.guest.name.toLowerCase().includes(search) ||
-                        booking.guest.email.toLowerCase().includes(search) ||
-                        booking.room.name.toLowerCase().includes(search)
+                        booking.id.toString().includes(search) ||
+                        booking.tourist?.firstName?.toLowerCase().includes(search) ||
+                        booking.tourist?.lastName?.toLowerCase().includes(search) ||
+                        booking.tourist?.email?.toLowerCase().includes(search)
                     );
                 }
+                // Transform API bookings to UI format
+                const transformedBookings = filteredBookings.map(transformBookingToBookingDetails);
+                setBookings(transformedBookings);
+                setTotalPages(response.totalPage || 1);
 
-                if (filterOptions.dateRange?.from) {
-                    const fromDate = new Date(filterOptions.dateRange.from);
-                    filteredBookings = filteredBookings.filter(booking =>
-                        new Date(booking.checkIn) >= fromDate
-                    );
-                }
-
-                if (filterOptions.dateRange?.to) {
-                    const toDate = new Date(filterOptions.dateRange.to);
-                    filteredBookings = filteredBookings.filter(booking =>
-                        new Date(booking.checkIn) <= toDate
-                    );
-                }
-
-                // Sort bookings
-                filteredBookings.sort((a, b) => {
-                    let valA: string | number | Date = a[filterOptions.sortBy as keyof BookingDetails] as string;
-                    let valB: string | number | Date = b[filterOptions.sortBy as keyof BookingDetails] as string;
-
-                    if (filterOptions.sortBy === 'checkIn' || filterOptions.sortBy === 'checkOut' || filterOptions.sortBy === 'createdAt') {
-                        valA = new Date(valA);
-                        valB = new Date(valB);
-                    }
-
-                    if (valA < valB) return filterOptions.sortOrder === 'asc' ? -1 : 1;
-                    if (valA > valB) return filterOptions.sortOrder === 'asc' ? 1 : -1;
-                    return 0;
-                });
-
-                // Calculate pagination
-                const total = filteredBookings.length;
-                setTotalPages(Math.ceil(total / pageSize));
-
-                // Get current page of data
-                const start = (currentPage - 1) * pageSize;
-                const end = start + pageSize;
-                const paginatedBookings = filteredBookings.slice(start, end);
-
-                setBookings(paginatedBookings);
-
-                // Update summary with filtered totals
-                setSummary({
-                    total: MOCK_BOOKINGS.length,
-                    pending: MOCK_BOOKINGS.filter(b => b.status === 'pending').length,
-                    confirmed: MOCK_BOOKINGS.filter(b => b.status === 'confirmed').length,
-                    checkedIn: MOCK_BOOKINGS.filter(b => b.status === 'checked_in').length,
-                    today: {
-                        checkIn: MOCK_BOOKINGS.filter(b => b.checkIn === format(new Date(), 'yyyy-MM-dd')).length,
-                        checkOut: MOCK_BOOKINGS.filter(b => b.checkOut === format(new Date(), 'yyyy-MM-dd')).length
-                    }
-                });
 
             } catch (error) {
                 console.error('Error loading bookings:', error);
                 toast.error('Không thể tải danh sách đặt phòng. Vui lòng thử lại sau.');
+                setBookings([]);
+                setSummary(DEFAULT_SUMMARY);
             } finally {
                 setIsLoading(false);
             }
         };
 
         loadBookings();
-    }, [activeTab, currentPage, pageSize, filterOptions]);
+    }, [currentPage, pageSize, filterOptions]);
+
+    useEffect(() => {
+        const loadStatistics = async () => {
+            if (!filterOptions.accommodationId) {
+                setSummary(DEFAULT_SUMMARY);
+                return;
+            }
+
+            try {
+                const statisticsResponse = await bookingService.getBookingStatistics({
+                    accommodationId: filterOptions.accommodationId,
+                    ...(filterOptions.dateRange?.from && filterOptions.dateRange?.to && {
+                        startTime: Math.floor(filterOptions.dateRange.from.getTime() / 1000),
+                        endTime: Math.floor(filterOptions.dateRange.to.getTime() / 1000)
+                    })
+                });
+                setSummary({
+                    total: statisticsResponse.totalBookings || 0,
+                    pending: statisticsResponse.statusCounts?.['PENDING'] || 0,
+                    confirmed: statisticsResponse.statusCounts?.['CONFIRMED'] || 0,
+                    checkedIn: statisticsResponse.statusCounts?.['CHECKED_IN'] || 0,
+                    today: {
+                        checkIn: statisticsResponse.statusCounts?.['TODAY_CHECK_IN'] || 0,
+                        checkOut: statisticsResponse.statusCounts?.['TODAY_CHECK_OUT'] || 0
+                    }
+                });
+            } catch (error) {
+                console.error('Error loading booking statistics:', error);
+                setSummary(DEFAULT_SUMMARY);
+            }
+        };
+
+        loadStatistics();
+    }, [filterOptions.accommodationId, filterOptions.dateRange]);
 
     // Handle booking status change
-    const handleStatusChange = async (bookingId: number, newStatus: BookingStatus) => {
+    const handleStatusChange = async (bookingId: number, newStatus: UIBookingStatus) => {
         try {
-            // In a real app, call API to update status
-            // await bookingService.updateStatus(bookingId, newStatus);
+            const currentBooking = bookings.find(b => b.id === bookingId);
+            const currentStatus = currentBooking?.status;
+
+            // Use the new booking actions service
+            await bookingActions.executeBookingStatusChange(bookingId, newStatus, currentStatus);
 
             // Update local state
             setBookings(prev => prev.map(booking =>
@@ -339,7 +356,8 @@ function BookingsContent() {
                 setSelectedBooking(prev => prev ? { ...prev, status: newStatus } : null);
             }
 
-            toast.success(`Đã cập nhật trạng thái đặt phòng thành ${getStatusDisplayName(newStatus)}`);
+            const actionName = bookingActions.getStatusActionName(newStatus, currentStatus);
+            toast.success(`Đã ${actionName} đặt phòng thành công`);
         } catch (error) {
             console.error('Error updating booking status:', error);
             toast.error('Không thể cập nhật trạng thái. Vui lòng thử lại sau.');
@@ -352,36 +370,9 @@ function BookingsContent() {
         setDetailDialogOpen(true);
     };
 
-    // Update URL when tab changes
-    const handleTabChange = (tab: string) => {
-        setActiveTab(tab);
-        setCurrentPage(1);
-
-        // Update URL
-        const url = new URL(window.location.href);
-        url.searchParams.set('tab', tab);
-        window.history.pushState({}, '', url.toString());
-    };
-
-    // Helper function to format currency
-    const formatCurrency = (amount: number, currency: string) => {
-        return new Intl.NumberFormat('vi-VN', {
-            style: 'currency',
-            currency: currency || 'VND'
-        }).format(amount);
-    };
-
-    // Helper function to get display name for status
-    const getStatusDisplayName = (status: BookingStatus) => {
-        switch (status) {
-            case 'pending': return 'Chờ xác nhận';
-            case 'confirmed': return 'Đã xác nhận';
-            case 'checked_in': return 'Đã nhận phòng';
-            case 'checked_out': return 'Đã trả phòng';
-            case 'cancelled': return 'Đã hủy';
-            case 'no_show': return 'Không đến';
-            default: return status;
-        }
+    // Helper function to format currency using bookingService
+    const formatCurrency = (amount: number, currency: string = 'VND') => {
+        return bookingService.formatCurrency(amount, currency);
     };
 
     return (
@@ -394,6 +385,51 @@ function BookingsContent() {
                     </p>
                 </div>
 
+                {/* Accommodation Selector */}
+                <Card>
+                    <CardContent className="p-4">
+                        <div className="flex flex-col sm:flex-row sm:items-center gap-4">
+                            <div className="flex-1">
+                                <label className="text-sm font-medium mb-2 block">
+                                    Chọn chỗ nghỉ để quản lý
+                                </label>
+                                <Select
+                                    value={filterOptions.accommodationId?.toString() || ""}
+                                    onValueChange={(value) => {
+                                        setFilterOptions({
+                                            ...filterOptions,
+                                            accommodationId: parseInt(value)
+                                        });
+                                    }}
+                                    disabled={isLoadingAccommodations}
+                                >
+                                    <SelectTrigger className="w-full sm:w-[300px]">
+                                        <SelectValue placeholder={
+                                            isLoadingAccommodations ? "Đang tải..." : "Chọn chỗ nghỉ"
+                                        } />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        {accommodations.map((accommodation) => (
+                                            <SelectItem
+                                                key={accommodation.id}
+                                                value={accommodation.id.toString()}
+                                            >
+                                                <div className="flex items-center">
+                                                    <span>{accommodation.name}</span>
+                                                    <span className="ml-2 text-xs text-muted-foreground">
+                                                        ID #{accommodation.id}
+                                                    </span>
+                                                </div>
+                                            </SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
+                            </div>
+
+                        </div>
+                    </CardContent>
+                </Card>
+
                 {/* Summary cards */}
                 <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4">
                     <BookingSummaryCards summary={summary} />
@@ -401,225 +437,223 @@ function BookingsContent() {
 
                 {/* Main content */}
                 <div className="space-y-4">
-                    <Tabs value={activeTab} onValueChange={handleTabChange}>
-                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                            <TabsList>
-                                <TabsTrigger value="all">Tất cả</TabsTrigger>
-                                <TabsTrigger value="pending">Chờ xác nhận</TabsTrigger>
-                                <TabsTrigger value="confirmed">Đã xác nhận</TabsTrigger>
-                                <TabsTrigger value="checked_in">Đang lưu trú</TabsTrigger>
-                                <TabsTrigger value="cancelled">Đã hủy</TabsTrigger>
-                            </TabsList>
-
-                            <div className="flex items-center gap-2">
-                                <Button variant="outline" className="gap-2">
-                                    <CalendarDays className="h-4 w-4" />
-                                    <span className="hidden sm:inline">Lịch đặt phòng</span>
-                                </Button>
-
-                                <Button className="gap-2">
-                                    <Plus className="h-4 w-4" />
-                                    <span className="hidden sm:inline">Đặt phòng mới</span>
-                                </Button>
-                            </div>
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                        <div>
+                            <h2 className="text-xl font-semibold">Danh sách đặt phòng</h2>
+                            <p className="text-sm text-muted-foreground">
+                                Quản lý và theo dõi tất cả các đặt phòng
+                            </p>
                         </div>
 
-                        {/* Filters */}
-                        <Card className="mt-4">
-                            <CardContent className="p-4">
-                                <div className="grid grid-cols-1 md:grid-cols-12 gap-4">
-                                    <div className="md:col-span-4 lg:col-span-3">
-                                        <DatePickerWithRange
-                                            onDateChange={(date) => setFilterOptions({
-                                                ...filterOptions,
-                                                dateRange: date || null
-                                            })}
-                                            className="w-full"
-                                        />
-                                    </div>
+                        <div className="flex items-center gap-2">
+                            <Button variant="outline" className="gap-2">
+                                <CalendarDays className="h-4 w-4" />
+                                <span className="hidden sm:inline">Lịch đặt phòng</span>
+                            </Button>
 
-                                    <div className="relative md:col-span-4 lg:col-span-3">
-                                        <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-                                        <Input
-                                            placeholder="Tìm kiếm mã, tên khách..."
-                                            className="pl-8"
-                                            value={filterOptions.search}
-                                            onChange={(e) => setFilterOptions({
-                                                ...filterOptions,
-                                                search: e.target.value
-                                            })}
-                                        />
-                                    </div>
+                            <Button className="gap-2">
+                                <Plus className="h-4 w-4" />
+                                <span className="hidden sm:inline">Đặt phòng mới</span>
+                            </Button>
+                        </div>
+                    </div>
 
-                                    <div className="md:col-span-2 lg:col-span-2">
-                                        <Select
-                                            value={filterOptions.status || "all"}
-                                            onValueChange={(value) => setFilterOptions({
-                                                ...filterOptions,
-                                                status: value === "all" ? null : value as BookingStatus
-                                            })}
-                                        >
-                                            <SelectTrigger>
-                                                <SelectValue placeholder="Trạng thái" />
-                                            </SelectTrigger>
-                                            <SelectContent>
-                                                <SelectItem value="all">Tất cả trạng thái</SelectItem>
-                                                <SelectItem value="pending">Chờ xác nhận</SelectItem>
-                                                <SelectItem value="confirmed">Đã xác nhận</SelectItem>
-                                                <SelectItem value="checked_in">Đang lưu trú</SelectItem>
-                                                <SelectItem value="checked_out">Đã trả phòng</SelectItem>
-                                                <SelectItem value="cancelled">Đã hủy</SelectItem>
-                                                <SelectItem value="no_show">Không đến</SelectItem>
-                                            </SelectContent>
-                                        </Select>
-                                    </div>
-
-                                    <div className="md:col-span-2 lg:col-span-2">
-                                        <Select
-                                            value={`${filterOptions.sortBy}-${filterOptions.sortOrder}`}
-                                            onValueChange={(value) => {
-                                                const [sortBy, sortOrder] = value.split('-');
-                                                setFilterOptions({
-                                                    ...filterOptions,
-                                                    sortBy,
-                                                    sortOrder: sortOrder as 'asc' | 'desc'
-                                                });
-                                            }}
-                                        >
-                                            <SelectTrigger>
-                                                <SelectValue placeholder="Sắp xếp theo" />
-                                            </SelectTrigger>
-                                            <SelectContent>
-                                                <SelectItem value="checkIn-desc">Check-in (Mới nhất)</SelectItem>
-                                                <SelectItem value="checkIn-asc">Check-in (Cũ nhất)</SelectItem>
-                                                <SelectItem value="createdAt-desc">Ngày đặt (Mới nhất)</SelectItem>
-                                                <SelectItem value="createdAt-asc">Ngày đặt (Cũ nhất)</SelectItem>
-                                                <SelectItem value="totalAmount-desc">Giá (Cao đến thấp)</SelectItem>
-                                                <SelectItem value="totalAmount-asc">Giá (Thấp đến cao)</SelectItem>
-                                            </SelectContent>
-                                        </Select>
-                                    </div>
-
-                                    <div className="md:col-span-12 lg:col-span-2 flex justify-end">
-                                        <Button
-                                            variant="outline"
-                                            onClick={() => setFilterOptions({
-                                                dateRange: null,
-                                                status: null,
-                                                search: "",
-                                                sortBy: "checkIn",
-                                                sortOrder: "desc"
-                                            })}
-                                            className="w-full md:w-auto"
-                                        >
-                                            Đặt lại bộ lọc
-                                        </Button>
-                                    </div>
+                    {/* Filters */}
+                    <Card>
+                        <CardContent className="p-4">
+                            <div className="grid grid-cols-1 md:grid-cols-12 gap-4">
+                                <div className="md:col-span-4 lg:col-span-3">
+                                    <DatePickerWithRange
+                                        onDateChange={(date) => setFilterOptions({
+                                            ...filterOptions,
+                                            dateRange: date || null
+                                        })}
+                                        className="w-full"
+                                    />
                                 </div>
-                            </CardContent>
-                        </Card>
 
-                        {/* Tab content - Bookings list */}
-                        <TabsContent value={activeTab} className="mt-0">
-                            <Card>
-                                <CardHeader>
-                                    <CardTitle>Danh sách đặt phòng</CardTitle>
-                                    <CardDescription>
-                                        {isLoading ? (
-                                            "Đang tải dữ liệu..."
-                                        ) : (
-                                            `Hiển thị ${bookings.length} trên tổng số ${summary.total} đặt phòng`
-                                        )}
-                                    </CardDescription>
-                                </CardHeader>
-                                <CardContent>
-                                    {isLoading ? (
-                                        <div className="flex justify-center items-center py-12">
-                                            <Loader2 className="h-8 w-8 animate-spin text-primary" />
-                                            <span className="ml-2">Đang tải danh sách đặt phòng...</span>
-                                        </div>
-                                    ) : bookings.length === 0 ? (
-                                        <div className="flex flex-col items-center justify-center py-12 text-center">
-                                            <div className="rounded-full bg-muted p-3 mb-3">
-                                                <CalendarDays className="h-10 w-10 text-muted-foreground" />
-                                            </div>
-                                            <h3 className="mt-2 text-lg font-semibold">Không tìm thấy đặt phòng nào</h3>
-                                            <p className="text-muted-foreground mt-1">
-                                                Không có đặt phòng nào khớp với điều kiện tìm kiếm của bạn.
-                                            </p>
-                                            <Button
-                                                variant="outline"
-                                                className="mt-4"
-                                                onClick={() => setFilterOptions({
-                                                    dateRange: null,
-                                                    status: null,
-                                                    search: "",
-                                                    sortBy: "checkIn",
-                                                    sortOrder: "desc"
+                                <div className="relative md:col-span-4 lg:col-span-3">
+                                    <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+                                    <Input
+                                        placeholder="Tìm kiếm mã, tên khách..."
+                                        className="pl-8"
+                                        value={filterOptions.search}
+                                        onChange={(e) => setFilterOptions({
+                                            ...filterOptions,
+                                            search: e.target.value
+                                        })}
+                                    />
+                                </div>
+                                <div className="md:col-span-2 lg:col-span-2">
+                                    <Select
+                                        value={getCurrentUIStatusForFilter(filterOptions.status)}
+                                        onValueChange={(value) => {
+                                            // Convert UI status to API status for filtering
+                                            let apiStatus: APIBookingStatus | null = null;
+                                            if (value !== "all") {
+                                                apiStatus = mapUIStatusToAPI(value as UIBookingStatus);
+                                            }
+                                            setFilterOptions({
+                                                ...filterOptions,
+                                                status: apiStatus
+                                            });
+                                        }}
+                                    >
+                                        <SelectTrigger>
+                                            <SelectValue placeholder="Trạng thái" />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            {getStatusFilterOptions().map(option => (
+                                                <SelectItem key={option.value} value={option.value}>
+                                                    {option.label}
+                                                </SelectItem>))}
+                                        </SelectContent>
+                                    </Select>
+                                </div>
+
+                                <div className="md:col-span-2 lg:col-span-3">
+                                    <Select
+                                        value={`${filterOptions.sortBy}-${filterOptions.sortOrder}`}
+                                        onValueChange={(value) => {
+                                            const [sortBy, sortOrder] = value.split('-');
+                                            setFilterOptions({
+                                                ...filterOptions,
+                                                sortBy,
+                                                sortOrder: sortOrder as 'asc' | 'desc'
+                                            });
+                                        }}
+                                    >
+                                        <SelectTrigger>
+                                            <SelectValue placeholder="Sắp xếp theo" />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            <SelectItem value="stay_from-desc">Check-in (Mới nhất)</SelectItem>
+                                            <SelectItem value="stay_from-asc">Check-in (Cũ nhất)</SelectItem>
+                                            <SelectItem value="id-desc">Ngày đặt (Mới nhất)</SelectItem>
+                                            <SelectItem value="id-asc">Ngày đặt (Cũ nhất)</SelectItem>
+                                            <SelectItem value="final_amount-desc">Giá (Cao đến thấp)</SelectItem>
+                                            <SelectItem value="final_amount-asc">Giá (Thấp đến cao)</SelectItem>
+                                        </SelectContent>
+                                    </Select>
+                                </div>
+
+                                <div className="col-span-1 flex justify-end">
+                                    <Button
+                                        variant="outline"
+                                        onClick={() => setFilterOptions({
+                                            dateRange: null,
+                                            status: null,
+                                            accommodationId: accommodations.length > 0 ? accommodations[0].id : null,
+                                            search: "",
+                                            sortBy: "stay_from",
+                                            sortOrder: "desc"
+                                        })}
+                                        className="w-full md:w-auto"
+                                    >
+                                        Đặt lại bộ lọc
+                                    </Button>
+                                </div>
+                            </div>
+                        </CardContent>
+                    </Card>
+
+                    {/* Bookings list */}
+                    <Card>
+                        <CardHeader>
+                            <CardTitle>Danh sách đặt phòng</CardTitle>
+                            <CardDescription>
+                                {isLoading ? (
+                                    "Đang tải dữ liệu..."
+                                ) : (
+                                    `Hiển thị ${bookings.length} trên tổng số ${summary.total} đặt phòng`
+                                )}
+                            </CardDescription>
+                        </CardHeader>
+                        <CardContent>
+                            {isLoading ? (
+                                <div className="flex justify-center items-center py-12">
+                                    <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                                    <span className="ml-2">Đang tải danh sách đặt phòng...</span>
+                                </div>
+                            ) : bookings.length === 0 ? (
+                                <div className="flex flex-col items-center justify-center py-12 text-center">
+                                    <div className="rounded-full bg-muted p-3 mb-3">
+                                        <CalendarDays className="h-10 w-10 text-muted-foreground" />
+                                    </div>
+                                    <h3 className="mt-2 text-lg font-semibold">Không tìm thấy đặt phòng nào</h3>
+                                    <p className="text-muted-foreground mt-1">
+                                        Không có đặt phòng nào khớp với điều kiện tìm kiếm của bạn.
+                                    </p>
+                                    <Button
+                                        variant="outline"
+                                        className="mt-4" onClick={() => setFilterOptions({
+                                            dateRange: null,
+                                            status: null,
+                                            accommodationId: accommodations.length > 0 ? accommodations[0].id : null,
+                                            search: "",
+                                            sortBy: "stay_from",
+                                            sortOrder: "desc"
+                                        })}
+                                    >
+                                        Xóa bộ lọc
+                                    </Button>
+                                </div>
+                            ) : (
+                                <>
+                                    <BookingList
+                                        bookings={bookings}
+                                        onViewBooking={handleViewBooking}
+                                        onStatusChange={handleStatusChange}
+                                        formatCurrency={formatCurrency}
+                                        getStatusDisplayName={getStatusDisplayName}
+                                    />
+
+                                    <div className="mt-6 flex justify-center">
+                                        <Pagination>
+                                            <PaginationContent>
+                                                <PaginationPrevious
+                                                    onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+                                                    className={currentPage === 1 ? "opacity-50 cursor-not-allowed" : ""}
+                                                    aria-disabled={currentPage === 1}
+                                                />
+
+                                                {Array.from({ length: totalPages }).map((_, i) => {
+                                                    const page = i + 1;
+
+                                                    if (
+                                                        page === 1 ||
+                                                        page === totalPages ||
+                                                        (page >= currentPage - 1 && page <= currentPage + 1)
+                                                    ) {
+                                                        return (
+                                                            <PaginationButton
+                                                                key={page}
+                                                                onClick={() => setCurrentPage(page)}
+                                                                isActive={page === currentPage}
+                                                            >
+                                                                {page}
+                                                            </PaginationButton>
+                                                        );
+                                                    } else if (
+                                                        page === currentPage - 2 ||
+                                                        page === currentPage + 2
+                                                    ) {
+                                                        return <PaginationEllipsis key={`ellipsis-${page}`} />;
+                                                    }
+                                                    return null;
                                                 })}
-                                            >
-                                                Xóa bộ lọc
-                                            </Button>
-                                        </div>
-                                    ) : (
-                                        <>
-                                            <BookingList
-                                                bookings={bookings}
-                                                onViewBooking={handleViewBooking}
-                                                onStatusChange={handleStatusChange}
-                                                formatCurrency={formatCurrency}
-                                                getStatusDisplayName={getStatusDisplayName}
-                                            />
 
-                                            <div className="mt-6 flex justify-center">
-                                                <Pagination>
-                                                    <PaginationContent>
-                                                        <PaginationPrevious
-                                                            onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
-                                                            className={currentPage === 1 ? "opacity-50 cursor-not-allowed" : ""}
-                                                            aria-disabled={currentPage === 1}
-                                                        />
-
-                                                        {Array.from({ length: totalPages }).map((_, i) => {
-                                                            const page = i + 1;
-
-                                                            if (
-                                                                page === 1 ||
-                                                                page === totalPages ||
-                                                                (page >= currentPage - 1 && page <= currentPage + 1)
-                                                            ) {
-                                                                return (
-                                                                    <PaginationButton
-                                                                        key={page}
-                                                                        onClick={() => setCurrentPage(page)}
-                                                                        isActive={page === currentPage}
-                                                                    >
-                                                                        {page}
-                                                                    </PaginationButton>
-                                                                );
-                                                            } else if (
-                                                                page === currentPage - 2 ||
-                                                                page === currentPage + 2
-                                                            ) {
-                                                                return <PaginationEllipsis key={`ellipsis-${page}`} />;
-                                                            }
-                                                            return null;
-                                                        })}
-
-                                                        <PaginationNext
-                                                            onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
-                                                            className={currentPage === totalPages ? "opacity-50 cursor-not-allowed" : ""}
-                                                            aria-disabled={currentPage === totalPages}
-                                                        />
-                                                    </PaginationContent>
-                                                </Pagination>
-                                            </div>
-                                        </>
-                                    )}
-                                </CardContent>
-                            </Card>
-                        </TabsContent>
-                    </Tabs>
+                                                <PaginationNext
+                                                    onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+                                                    className={currentPage === totalPages ? "opacity-50 cursor-not-allowed" : ""}
+                                                    aria-disabled={currentPage === totalPages}
+                                                />
+                                            </PaginationContent>
+                                        </Pagination>
+                                    </div>
+                                </>)}
+                        </CardContent>
+                    </Card>
                 </div>
             </div>
 
@@ -627,8 +661,7 @@ function BookingsContent() {
             {selectedBooking && (<BookingDetailDialog
                 open={detailDialogOpen}
                 onOpenChange={setDetailDialogOpen}
-                booking={selectedBooking}
-                onStatusChange={handleStatusChange}
+                booking={selectedBooking} onStatusChange={handleStatusChange}
                 formatCurrency={formatCurrency}
                 getStatusDisplayName={getStatusDisplayName}
             />

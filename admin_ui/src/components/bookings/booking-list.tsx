@@ -32,6 +32,13 @@ import {
     Clock
 } from "lucide-react";
 import { format, parseISO } from "date-fns";
+import {
+    UIBookingStatus,
+    getStatusIconName,
+    getStatusBadgeVariant,
+    getAvailableStatusTransitions,
+    getStatusBadgeStyle
+} from "@/types/booking/status";
 
 interface Guest {
     id: number;
@@ -51,7 +58,7 @@ interface Room {
 interface BookingDetails {
     id: number;
     bookingId: string;
-    status: BookingStatus;
+    status: UIBookingStatus; // Use UIBookingStatus from status module
     checkIn: string;
     checkOut: string;
     guests: number;
@@ -65,20 +72,12 @@ interface BookingDetails {
     paymentMethod?: string;
 }
 
-type BookingStatus =
-    | "pending"
-    | "confirmed"
-    | "checked_in"
-    | "checked_out"
-    | "cancelled"
-    | "no_show";
-
 interface BookingListProps {
     bookings: BookingDetails[];
     onViewBooking: (booking: BookingDetails) => void;
-    onStatusChange: (bookingId: number, newStatus: BookingStatus) => void;
+    onStatusChange: (bookingId: number, newStatus: UIBookingStatus) => void;
     formatCurrency: (amount: number, currency: string) => string;
-    getStatusDisplayName: (status: BookingStatus) => string;
+    getStatusDisplayName: (status: UIBookingStatus) => string;
 }
 
 export function BookingList({
@@ -89,44 +88,6 @@ export function BookingList({
     getStatusDisplayName
 }: BookingListProps) {
 
-    const getStatusBadgeVariant = (status: BookingStatus): "default" | "destructive" | "outline" | "secondary" => {
-        switch (status) {
-            case 'pending':
-                return "outline";
-            case 'confirmed':
-                return "default"; // Changed from "success"
-            case 'checked_in':
-                return "default";
-            case 'checked_out':
-                return "secondary";
-            case 'cancelled':
-                return "destructive";
-            case 'no_show':
-                return "outline"; // Changed from "warning"
-            default:
-                return "outline";
-        }
-    };
-
-    const getAvailableStatuses = (currentStatus: BookingStatus): BookingStatus[] => {
-        switch (currentStatus) {
-            case 'pending':
-                return ['confirmed', 'cancelled'];
-            case 'confirmed':
-                return ['checked_in', 'cancelled', 'no_show'];
-            case 'checked_in':
-                return ['checked_out'];
-            case 'checked_out':
-                return [];
-            case 'cancelled':
-                return ['pending'];
-            case 'no_show':
-                return ['pending', 'confirmed'];
-            default:
-                return [];
-        }
-    };
-
     const formatDate = (dateString: string) => {
         try {
             return format(parseISO(dateString), "dd/MM/yyyy");
@@ -135,22 +96,25 @@ export function BookingList({
         }
     };
 
-    const getStatusIcon = (status: BookingStatus) => {
-        switch (status) {
-            case 'pending':
+    const getStatusIcon = (status: UIBookingStatus) => {
+        const iconName = getStatusIconName(status);
+        switch (iconName) {
+            case 'Clock':
                 return <Clock className="w-4 h-4 text-amber-500" />;
-            case 'confirmed':
+            case 'CheckCircle2':
                 return <CheckCircle2 className="w-4 h-4 text-green-500" />;
-            case 'checked_in':
+            case 'UserCheck':
+                return <CheckCircle2 className="w-4 h-4 text-blue-500" />; // Use CheckCircle2 as fallback
+            case 'LogIn':
                 return <LogIn className="w-4 h-4 text-blue-500" />;
-            case 'checked_out':
+            case 'LogOut':
                 return <LogOut className="w-4 h-4 text-gray-500" />;
-            case 'cancelled':
+            case 'XCircle':
                 return <XCircle className="w-4 h-4 text-red-500" />;
-            case 'no_show':
+            case 'AlertCircle':
                 return <AlertCircle className="w-4 h-4 text-orange-500" />;
             default:
-                return null;
+                return <Clock className="w-4 h-4 text-gray-500" />;
         }
     };
 
@@ -220,9 +184,13 @@ export function BookingList({
                             </TableCell>
                             <TableCell>
                                 <div className="flex items-center">
-                                    <Badge variant={getStatusBadgeVariant(booking.status)} className="flex gap-1">
+                                    <Badge
+                                        variant={getStatusBadgeVariant(booking.status)}
+                                        className="flex gap-1"
+                                        style={getStatusBadgeStyle(booking.status)}
+                                    >
                                         {getStatusIcon(booking.status)}
-                                        {getStatusDisplayName(booking.status)}
+                                        <span className="ml-1">{getStatusDisplayName(booking.status)}</span>
                                     </Badge>
                                 </div>
                             </TableCell>
@@ -253,11 +221,11 @@ export function BookingList({
                                             Xem chi tiết
                                         </DropdownMenuItem>
 
-                                        {getAvailableStatuses(booking.status).length > 0 && (
+                                        {getAvailableStatusTransitions(booking.status).length > 0 && (
                                             <>
                                                 <DropdownMenuSeparator />
                                                 <DropdownMenuLabel>Đổi trạng thái</DropdownMenuLabel>
-                                                {getAvailableStatuses(booking.status).map((status) => (
+                                                {getAvailableStatusTransitions(booking.status).map((status: UIBookingStatus) => (
                                                     <DropdownMenuItem
                                                         key={status}
                                                         onClick={() => onStatusChange(booking.id, status)}

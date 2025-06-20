@@ -18,7 +18,6 @@ import {
     ChevronDown,
     PlusCircle,
     Settings,
-    List,
     Calendar1
 } from "lucide-react";
 
@@ -60,11 +59,11 @@ const navigationItems = [
         href: "/hotels",
         icon: <Hotel className="h-5 w-5" />,
         subMenu: [
-            {
-                name: "Tổng quan",
-                href: "/hotels",
-                icon: <List className="h-4 w-4" />
-            },
+            // {
+            //     name: "Tổng quan",
+            //     href: "/hotels",
+            //     icon: <List className="h-4 w-4" />
+            // },
             {
                 name: "Quản lý chỗ nghỉ",
                 href: "/hotels/manage",
