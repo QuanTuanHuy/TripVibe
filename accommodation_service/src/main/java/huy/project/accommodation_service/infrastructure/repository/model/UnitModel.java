@@ -21,7 +21,7 @@ public class UnitModel extends AuditTable {
     @Column(name = "unit_name_id")
     private Long unitNameId;
 
-    @Column(name = "description")
+    @Column(name = "description", columnDefinition = "TEXT")
     private String description;
 
     @Column(name = "price_per_night")
