@@ -1,4 +1,4 @@
-package huy.project.ai_service.core.dto.request;
+package huy.project.ai_service.core.domain.dto.request;
 
 import lombok.Data;
 

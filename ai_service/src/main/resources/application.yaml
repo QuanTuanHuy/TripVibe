@@ -10,5 +10,26 @@ spring:
         options:
           model: gemini-2.0-flash
 
+    model:
+      embedding: transformers
+
+    vectorstore:
+      qdrant:
+        host: localhost
+        port: 6334
+        collection-name: booking_docs
+        use-tls: false
+        initialize-schema: true
+
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 10MB
+
+rag:
+  chunk-size: 1000
+  chunk-overlap: 200
+  max-results: 5
+
 server:
   port: 8094

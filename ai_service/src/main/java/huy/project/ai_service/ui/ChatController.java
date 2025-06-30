@@ -1,6 +1,6 @@
 package huy.project.ai_service.ui;
 
-import huy.project.ai_service.core.dto.request.ChatRequest;
+import huy.project.ai_service.core.domain.dto.request.ChatRequest;
 import huy.project.ai_service.core.service.IChatService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
