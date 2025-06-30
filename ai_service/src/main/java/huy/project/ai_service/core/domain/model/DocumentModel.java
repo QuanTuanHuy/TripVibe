@@ -1,5 +1,6 @@
 package huy.project.ai_service.core.domain.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -21,4 +22,6 @@ public class DocumentModel {
     private Instant uploadedAt;
     private Map<String, Object> metadata;
     private String status;
+    @JsonIgnore
+    private byte[] fileBytes;
 }

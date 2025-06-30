@@ -32,8 +32,30 @@ public class RAGChatService implements IRAGChatService {
     @Value("${rag.similarity-threshold}")
     private double similarityThreshold;
 
-    private static final String RAG_PROMPT_TEMPLATE = """
-            Bạn là một AI assistant thông minh và hữu ích cho hệ thống đặt phòng khách sạn.
+//    private static final String RAG_PROMPT_TEMPLATE = """
+//            Bạn là một AI assistant thông minh và hữu ích cho hệ thống đặt phòng khách sạn.
+//
+//            Hãy trả lời câu hỏi của người dùng dựa trên thông tin được cung cấp dưới đây.
+//            Nếu thông tin không đủ để trả lời, hãy nói rõ và đề xuất cách tìm thêm thông tin.
+//
+//            NGUYÊN TẮC:
+//            1. Chỉ sử dụng thông tin từ context được cung cấp
+//            2. Trả lời chính xác, ngắn gọn và hữu ích
+//            3. Nếu không chắc chắn, hãy thừa nhận và gợi ý
+//            4. Luôn thân thiện và chuyên nghiệp
+//
+//            CONTEXT:
+//            {context}
+//
+//            LỊCH SỬ TRƯỚC ĐÓ:
+//            {history}
+//
+//            CÂU HỎI: {question}
+//
+//            TRẢ LỜI:
+//            """;
+private static final String RAG_PROMPT_TEMPLATE = """
+            Bạn là một AI assistant thông minh và hữu ích cho nhiệm vụ tìm kiếm thông tin từ tài liệu công nghệ.
             
             Hãy trả lời câu hỏi của người dùng dựa trên thông tin được cung cấp dưới đây.
             Nếu thông tin không đủ để trả lời, hãy nói rõ và đề xuất cách tìm thêm thông tin.
@@ -148,6 +170,7 @@ public class RAGChatService implements IRAGChatService {
     private List<Document> searchRelevantDocuments(RAGChatRequest request) {
         try {
             SearchRequest.Builder searchRequestBuilder = SearchRequest.builder()
+                    .query(request.getMessage())
                     .topK(request.getMaxResults() > 0 ? request.getMaxResults() : maxResults)
                     .similarityThreshold(request.getSimilarityThreshold() > 0 ? request.getSimilarityThreshold() : similarityThreshold);
 
@@ -183,8 +206,8 @@ public class RAGChatService implements IRAGChatService {
                 expression = current;
             } else {
                 expression = builder.and(
-                        new FilterExpressionBuilder.Op(expression),
-                        new FilterExpressionBuilder.Op(current))
+                                new FilterExpressionBuilder.Op(expression),
+                                new FilterExpressionBuilder.Op(current))
                         .build();
             }
         }
@@ -237,6 +260,7 @@ public class RAGChatService implements IRAGChatService {
 
             List<Document> documents = vectorStore.similaritySearch(searchRequest);
             if (CollectionUtils.isEmpty(documents)) {
+                log.info("No similar documents found for query: {}", query);
                 return Collections.emptyList();
             }
             return buildSourceDocuments(documents, true);

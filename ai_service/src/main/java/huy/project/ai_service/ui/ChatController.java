@@ -31,8 +31,8 @@ public class ChatController {
     }
 
     @PostMapping("/simple")
-    public ResponseEntity<String> simpleChat(@RequestParam String message) {
-        String response = ragChatService.simpleChat(message);
+    public ResponseEntity<String> simpleChat(@RequestBody ChatRequest request) {
+        String response = ragChatService.simpleChat(request.getMessage());
         return ResponseEntity.ok(response);
     }
 

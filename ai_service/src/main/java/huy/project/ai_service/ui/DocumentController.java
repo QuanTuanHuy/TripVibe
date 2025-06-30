@@ -21,7 +21,6 @@ public class DocumentController {
             @RequestParam("file") MultipartFile file,
             @RequestParam(value = "title", required = false) String title
     ) {
-
         DocumentUploadRequest request = new DocumentUploadRequest();
         request.setFile(file);
         request.setTitle(title);

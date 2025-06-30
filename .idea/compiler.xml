@@ -64,7 +64,6 @@
         <outputRelativeToContentRoot value="true" />
         <processorPath useClasspath="false">
           <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok/1.18.38/lombok-1.18.38.jar" />
-          <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok/1.18.38/lombok-1.18.38.jar" />
         </processorPath>
         <module name="ai_service" />
       </profile>
@@ -85,7 +84,7 @@
       <module name="payment_service" options="-parameters" />
       <module name="profile_service" options="-parameters" />
       <module name="rating_service" options="-parameters" />
-      <module name="search_service" options="" />
+      <module name="search_service" options="-parameters" />
     </option>
   </component>
 </project>

@@ -40,6 +40,10 @@ public class DocumentIngestionService implements IDocumentIngestionService {
 
     @Override
     public DocumentModel uploadDocument(DocumentUploadRequest request) {
+        if (request.getFile() == null || request.getFile().isEmpty()) {
+            throw new IllegalArgumentException("File must not be empty");
+        }
+
         try {
             MultipartFile file = request.getFile();
             String documentId = UUID.randomUUID().toString();
@@ -70,15 +74,17 @@ public class DocumentIngestionService implements IDocumentIngestionService {
     private void processDocumentAsync(String documentId, MultipartFile file) {
         executorService.submit(() -> {
             try {
-                String content = new String(file.getBytes());
                 DocumentModel document = documentStorage.get(documentId);
-                document.setContent(content);
+                
+                document.setFileBytes(file.getBytes());
 
                 processDocument(documentId);
             } catch (Exception e) {
                 log.error("Error processing document: {}", documentId, e);
                 DocumentModel document = documentStorage.get(documentId);
-                document.setStatus("FAILED");
+                if (document != null) {
+                    document.setStatus("FAILED");
+                }
             }
         });
     }
@@ -86,13 +92,25 @@ public class DocumentIngestionService implements IDocumentIngestionService {
     private List<Document> processDocument(String documentId) {
         DocumentModel document = documentStorage.get(documentId);
         if (document == null) {
-            throw new RuntimeException("Document not found {}");
+            throw new RuntimeException("Document not found: " + documentId);
         }
 
         try {
             List<Document> documents = readDocument(document);
 
+            if (documents == null || documents.isEmpty()) {
+                log.warn("No content extracted from document: {}", documentId);
+                document.setStatus("FAILED");
+                throw new RuntimeException("No content extracted from document");
+            }
+
             List<Document> chunks = splitDocuments(documents);
+
+            if (chunks == null || chunks.isEmpty()) {
+                log.warn("No chunks created from document: {}", documentId);
+                document.setStatus("FAILED");
+                throw new RuntimeException("No chunks created from document");
+            }
 
             addMetadataToChunks(chunks, document);
 
@@ -105,7 +123,8 @@ public class DocumentIngestionService implements IDocumentIngestionService {
             return chunks;
         } catch (Exception e) {
             log.error("Error processing document: {}", documentId, e);
-            throw new RuntimeException("Document processing failed: ", e);
+            document.setStatus("FAILED");
+            throw new RuntimeException("Document processing failed: " + documentId, e);
         }
 
     }
@@ -117,6 +136,10 @@ public class DocumentIngestionService implements IDocumentIngestionService {
             metadata.put("filename", document.getFileName());
             metadata.put("uploaded_at", document.getUploadedAt().toString());
             metadata.put("content_type", document.getContentType());
+
+            if (document.getMetadata() != null) {
+                metadata.putAll(document.getMetadata());
+            }
         }
     }
 
@@ -127,7 +150,7 @@ public class DocumentIngestionService implements IDocumentIngestionService {
     private List<Document> readDocument(DocumentModel document) {
         String contentType = document.getContentType();
 
-        ByteArrayResource resource = new ByteArrayResource(document.getContent().getBytes());
+        ByteArrayResource resource = new ByteArrayResource(document.getFileBytes());
 
         if (contentType != null && contentType.equals("application/pdf")) {
             PagePdfDocumentReader pdfReader = new PagePdfDocumentReader(
