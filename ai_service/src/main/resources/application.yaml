@@ -30,6 +30,7 @@ rag:
   chunk-size: 1000
   chunk-overlap: 200
   max-results: 5
+  similarity-threshold: 0.7
 
 server:
   port: 8094
