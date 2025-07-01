@@ -2,6 +2,7 @@ package huy.project.ai_service.core.service;
 
 import huy.project.ai_service.core.domain.dto.request.RAGChatRequest;
 import huy.project.ai_service.core.domain.dto.response.RAGChatResponse;
+import huy.project.ai_service.core.tool.ToolManager;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.chat.client.ChatClient;
@@ -26,35 +27,39 @@ public class RAGChatService implements IRAGChatService {
     private final VectorStore vectorStore;
     private final Map<String, List<String>> conversationHistory = new ConcurrentHashMap<>();
 
+    private final ToolManager toolManager;
+
     @Value("${rag.max-results}")
     private int maxResults;
 
     @Value("${rag.similarity-threshold}")
     private double similarityThreshold;
 
-//    private static final String RAG_PROMPT_TEMPLATE = """
-//            Bạn là một AI assistant thông minh và hữu ích cho hệ thống đặt phòng khách sạn.
-//
-//            Hãy trả lời câu hỏi của người dùng dựa trên thông tin được cung cấp dưới đây.
-//            Nếu thông tin không đủ để trả lời, hãy nói rõ và đề xuất cách tìm thêm thông tin.
-//
-//            NGUYÊN TẮC:
-//            1. Chỉ sử dụng thông tin từ context được cung cấp
-//            2. Trả lời chính xác, ngắn gọn và hữu ích
-//            3. Nếu không chắc chắn, hãy thừa nhận và gợi ý
-//            4. Luôn thân thiện và chuyên nghiệp
-//
-//            CONTEXT:
-//            {context}
-//
-//            LỊCH SỬ TRƯỚC ĐÓ:
-//            {history}
-//
-//            CÂU HỎI: {question}
-//
-//            TRẢ LỜI:
-//            """;
-private static final String RAG_PROMPT_TEMPLATE = """
+    // private static final String RAG_PROMPT_TEMPLATE = """
+    // Bạn là một AI assistant thông minh và hữu ích cho hệ thống đặt phòng khách
+    // sạn.
+    //
+    // Hãy trả lời câu hỏi của người dùng dựa trên thông tin được cung cấp dưới đây.
+    // Nếu thông tin không đủ để trả lời, hãy nói rõ và đề xuất cách tìm thêm thông
+    // tin.
+    //
+    // NGUYÊN TẮC:
+    // 1. Chỉ sử dụng thông tin từ context được cung cấp
+    // 2. Trả lời chính xác, ngắn gọn và hữu ích
+    // 3. Nếu không chắc chắn, hãy thừa nhận và gợi ý
+    // 4. Luôn thân thiện và chuyên nghiệp
+    //
+    // CONTEXT:
+    // {context}
+    //
+    // LỊCH SỬ TRƯỚC ĐÓ:
+    // {history}
+    //
+    // CÂU HỎI: {question}
+    //
+    // TRẢ LỜI:
+    // """;
+    private static final String RAG_PROMPT_TEMPLATE = """
             Bạn là một AI assistant thông minh và hữu ích cho nhiệm vụ tìm kiếm thông tin từ tài liệu công nghệ.
             
             Hãy trả lời câu hỏi của người dùng dựa trên thông tin được cung cấp dưới đây.
@@ -100,7 +105,8 @@ private static final String RAG_PROMPT_TEMPLATE = """
 
             saveConversationHistory(request.getConversationId(), request.getMessage(), response);
 
-            List<RAGChatResponse.SourceDocument> sources = buildSourceDocuments(relevantDocs, request.isIncludeSources());
+            List<RAGChatResponse.SourceDocument> sources = buildSourceDocuments(relevantDocs,
+                    request.isIncludeSources());
 
             long processingTime = System.currentTimeMillis() - startTime;
 
@@ -158,11 +164,11 @@ private static final String RAG_PROMPT_TEMPLATE = """
         Map<String, Object> promptVariables = Map.of(
                 "question", question,
                 "context", context,
-                "history", history
-        );
+                "history", history);
 
         return chatClient.prompt()
                 .user(promptTemplate.render(promptVariables))
+                .toolCallbacks(toolManager.getAllTools())
                 .call()
                 .content();
     }
@@ -172,7 +178,8 @@ private static final String RAG_PROMPT_TEMPLATE = """
             SearchRequest.Builder searchRequestBuilder = SearchRequest.builder()
                     .query(request.getMessage())
                     .topK(request.getMaxResults() > 0 ? request.getMaxResults() : maxResults)
-                    .similarityThreshold(request.getSimilarityThreshold() > 0 ? request.getSimilarityThreshold() : similarityThreshold);
+                    .similarityThreshold(request.getSimilarityThreshold() > 0 ? request.getSimilarityThreshold()
+                            : similarityThreshold);
 
             if (request.getFilters() != null && !request.getFilters().isEmpty()) {
                 Filter.Expression filterExpression = buildFilterExpression(request.getFilters());
@@ -242,6 +249,7 @@ private static final String RAG_PROMPT_TEMPLATE = """
 
             return chatClient.prompt()
                     .user(promptTemplate.render(variables))
+                    .toolCallbacks(toolManager.getAllTools())
                     .call()
                     .content();
         } catch (Exception e) {
