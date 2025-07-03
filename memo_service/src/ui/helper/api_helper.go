@@ -1,0 +1,71 @@
+package helper
+
+import (
+	"memo_service/src/core/common"
+	"net/http"
+
+	"github.com/gin-gonic/gin"
+)
+
+func AbortErrorHandle(c *gin.Context, code int) {
+	errorResponse := common.GetErrorResponse(code)
+	c.JSON(errorResponse.HTTPCode, gin.H{
+		"meta": gin.H{
+			"code":    errorResponse.ServiceCode,
+			"message": errorResponse.Message,
+		},
+		"data": nil,
+	})
+}
+
+func AbortErrorHandleCustomMessage(c *gin.Context, code int, message string) {
+	errorResponse := common.GetErrorResponse(code)
+	c.JSON(errorResponse.HTTPCode, gin.H{
+		"code":    errorResponse.ServiceCode,
+		"message": message,
+		"data":    nil,
+	})
+}
+
+func AbortErrorResponseHandle(c *gin.Context, errorResponse *common.ErrorResponse) {
+	c.JSON(errorResponse.HTTPCode, gin.H{
+		"meta": gin.H{
+			"code":    errorResponse.ServiceCode,
+			"message": errorResponse.Message,
+		},
+		"data": nil,
+	})
+}
+
+func SuccessfulHandle(c *gin.Context, data interface{}) {
+	c.JSON(http.StatusOK, gin.H{
+		"meta": gin.H{
+			"code":    http.StatusOK,
+			"message": "Success",
+		},
+		"data": data,
+	})
+}
+
+func MakeDataResponseWithPagination(limit int64, offset int64, data interface{}, total int64) (response gin.H) {
+	return gin.H{
+		"limit":  limit,
+		"offset": offset,
+		"total":  total,
+		"data":   data,
+	}
+}
+
+func BuildResponseListRequestForApp(limit, offset, total int64, objects map[string]interface{}) gin.H {
+	response := gin.H{
+		"limit":  limit,
+		"offset": offset,
+		"total":  total,
+	}
+
+	for key := range objects {
+		response[key] = objects[key]
+	}
+
+	return response
+}
