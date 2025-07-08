@@ -22,6 +22,7 @@ func main() {
 		fx.Provide(config.NewPostgresDB),
 		fx.Provide(config.NewRedisClient),
 		fx.Provide(config.NewGinEngine),
+		fx.Provide(config.NewMarkdown),
 
 		fx.Provide(adapter.NewMemoAdapter),
 		fx.Provide(adapter.NewUserAdapter),
@@ -32,8 +33,10 @@ func main() {
 		fx.Provide(usecase.NewGetMemoUsecase),
 
 		fx.Provide(service.NewMemoService),
+		fx.Provide(service.NewMarkdownService),
 
 		fx.Provide(controller.NewMemoController),
+		fx.Provide(controller.NewMarkdownController),
 
 		fx.Invoke(router.RegisterGinRouters),
 		fx.Invoke(startServer),
