@@ -7,6 +7,7 @@ import (
 	"memo_service/src/core/usecase"
 	"memo_service/src/infrastructure/repository/adapter"
 	"memo_service/src/ui/controller"
+	grpcserver "memo_service/src/ui/grpc"
 	"memo_service/src/ui/router"
 
 	"github.com/gin-gonic/gin"
@@ -35,9 +36,14 @@ func main() {
 
 		fx.Provide(controller.NewMemoController),
 
+		fx.Provide(grpcserver.NewMemoGRPCServer),
+		fx.Provide(grpcserver.NewGRPCServer),
+
 		fx.Invoke(router.RegisterGinRouters),
 		fx.Invoke(startServer),
 		fx.Invoke(func(redis *redis.Client) {}),
+
+		fx.Invoke(startGRPCServer),
 	)
 
 	app.Run()
@@ -56,6 +62,25 @@ func startServer(lc fx.Lifecycle, engine *gin.Engine, cfg *config.AppConfig, log
 		},
 		OnStop: func(ctx context.Context) error {
 			logger.Info("Server stopped")
+			return nil
+		},
+	})
+}
+
+func startGRPCServer(lc fx.Lifecycle, grpcServer *grpcserver.GRPCServer, logger *zap.Logger) {
+	lc.Append(fx.Hook{
+		OnStart: func(ctx context.Context) error {
+			go func() {
+				if err := grpcServer.Start(); err != nil {
+					logger.Fatal("Failed to start gRPC server", zap.Error(err))
+				}
+				logger.Info("gRPC server started", zap.Int("port", grpcServer.Port))
+			}()
+			return nil
+		},
+		OnStop: func(ctx context.Context) error {
+			grpcServer.Stop()
+			logger.Info("gRPC server stopped")
 			return nil
 		},
 	})
