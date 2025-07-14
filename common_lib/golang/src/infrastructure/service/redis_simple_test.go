@@ -220,7 +220,7 @@ func TestRedisServiceConcurrency(t *testing.T) {
 		for i := 0; i < numGoroutines; i++ {
 			go func(workerID int) {
 				defer func() { done <- true }()
-				
+
 				for j := 0; j < numOperations; j++ {
 					key := fmt.Sprintf("concurrent:worker%d:item%d", workerID, j)
 					user := SimpleTestUser{

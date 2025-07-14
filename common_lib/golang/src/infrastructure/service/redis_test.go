@@ -130,7 +130,7 @@ func (suite *RedisServiceTestSuite) TestGetFromRedis_Success() {
 func (suite *RedisServiceTestSuite) TestGetFromRedis_KeyNotFound() {
 	var user TestUser
 	err := suite.redisService.GetFromRedis(suite.ctx, "nonexistent", &user)
-	suite.NoError(err) // Should return nil for non-existent keys
+	suite.NoError(err)            // Should return nil for non-existent keys
 	suite.Equal(TestUser{}, user) // Should remain zero value
 }
 
@@ -177,7 +177,7 @@ func (suite *RedisServiceTestSuite) TestSetHSetToRedis_Success() {
 
 	// Verify the hash was stored
 	storedName := suite.miniRedis.HGet("user:hash:123", "name")
-	storedAge := suite.miniRedis.HGet("user:hash:123", "age") 
+	storedAge := suite.miniRedis.HGet("user:hash:123", "age")
 	storedEmail := suite.miniRedis.HGet("user:hash:123", "email")
 	suite.Equal("John Doe", storedName)
 	suite.Equal("30", storedAge)

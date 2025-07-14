@@ -49,9 +49,9 @@ func TestRedisServiceIntegration(t *testing.T) {
 
 		// Update user profile as hash
 		profile := map[string]interface{}{
-			"last_login": time.Now().Format(time.RFC3339),
+			"last_login":  time.Now().Format(time.RFC3339),
 			"login_count": 5,
-			"status": "active",
+			"status":      "active",
 		}
 		err = service.SetHSetToRedis(ctx, "user:100:profile", profile, 60)
 		assert.NoError(t, err)
@@ -105,7 +105,7 @@ func TestRedisServiceIntegration(t *testing.T) {
 		// so we'll test the expiration is set correctly
 		tempData := map[string]interface{}{
 			"session_id": "abc123",
-			"user_id": "user456",
+			"user_id":    "user456",
 		}
 
 		err := service.SetHSetToRedis(ctx, "session:abc123", tempData, 1)
@@ -213,13 +213,13 @@ func TestConcurrentOperations(t *testing.T) {
 			go func(workerID int) {
 				defer wg.Done()
 				workerIDStr := fmt.Sprintf("worker-%d", workerID)
-				
+
 				acquired, err := service.SetLock(ctx, lockKey, workerIDStr, 5)
 				if err != nil {
 					failures <- fmt.Sprintf("worker-%d: error - %v", workerID, err)
 					return
 				}
-				
+
 				if acquired {
 					successfulLocks <- workerIDStr
 					// Simulate some work
@@ -250,7 +250,7 @@ func TestConcurrentOperations(t *testing.T) {
 		// At least one should succeed, others should fail
 		assert.True(t, successCount >= 1, "At least one worker should acquire the lock")
 		assert.Equal(t, numGoroutines, successCount+failureCount, "All workers should either succeed or fail")
-		
+
 		t.Logf("Successful locks: %d, Failed attempts: %d", successCount, failureCount)
 	})
 }
@@ -275,7 +275,7 @@ func TestErrorScenarios(t *testing.T) {
 		client.Close()
 
 		user := TestUser{ID: 1, Name: "Test", Email: "test@example.com"}
-		
+
 		// Operations should fail gracefully
 		err := service.SetToRedis(ctx, "test:key", user, 300)
 		assert.Error(t, err)
@@ -306,7 +306,7 @@ func TestErrorScenarios(t *testing.T) {
 		cancel()
 
 		user := TestUser{ID: 1, Name: "Test", Email: "test@example.com"}
-		
+
 		// Operations should respect context cancellation
 		err = service2.SetToRedis(cancelledCtx, "test:key", user, 300)
 		assert.Error(t, err)
@@ -331,7 +331,7 @@ func TestErrorScenarios(t *testing.T) {
 		defer cancel()
 
 		user := TestUser{ID: 1, Name: "Test", Email: "test@example.com"}
-		
+
 		// Operations might fail due to timeout (depending on timing)
 		err = service3.SetToRedis(timeoutCtx, "test:key", user, 300)
 		// This might or might not error depending on timing, so we don't assert
@@ -398,8 +398,8 @@ func TestDataConsistency(t *testing.T) {
 		// Retrieve and verify
 		retrievedHash, err := service.GetHGetToRedis(ctx, hashKey)
 		assert.NoError(t, err)
-		assert.Equal(t, "value1", retrievedHash["field1"])          // Original field
-		assert.Equal(t, "updated_value2", retrievedHash["field2"])  // Updated field
-		assert.Equal(t, "value3", retrievedHash["field3"])          // New field
+		assert.Equal(t, "value1", retrievedHash["field1"])         // Original field
+		assert.Equal(t, "updated_value2", retrievedHash["field2"]) // Updated field
+		assert.Equal(t, "value3", retrievedHash["field3"])         // New field
 	})
 }

@@ -31,10 +31,11 @@ type RedisService struct {
 //   - error: nil if successful, otherwise the error that occurred
 //
 // Example:
-//   err := redisService.DeleteKeyFromRedis(ctx, "user:123")
-//   if err != nil {
-//       log.Printf("Failed to delete key: %v", err)
-//   }
+//
+//	err := redisService.DeleteKeyFromRedis(ctx, "user:123")
+//	if err != nil {
+//	    log.Printf("Failed to delete key: %v", err)
+//	}
 func (r *RedisService) DeleteKeyFromRedis(ctx context.Context, key string) error {
 	err := r.redisClient.Del(ctx, key).Err()
 	if err != nil {
@@ -61,11 +62,12 @@ func (r *RedisService) DeleteKeyFromRedis(ctx context.Context, key string) error
 //   - The destination must be a pointer to the expected data type
 //
 // Example:
-//   var user User
-//   err := redisService.GetFromRedis(ctx, "user:123", &user)
-//   if err != nil {
-//       log.Printf("Failed to get user: %v", err)
-//   }
+//
+//	var user User
+//	err := redisService.GetFromRedis(ctx, "user:123", &user)
+//	if err != nil {
+//	    log.Printf("Failed to get user: %v", err)
+//	}
 func (r *RedisService) GetFromRedis(ctx context.Context, key string, destination interface{}) error {
 	data, err := r.redisClient.Get(ctx, key).Result()
 	if err != nil {
@@ -100,14 +102,15 @@ func (r *RedisService) GetFromRedis(ctx context.Context, key string, destination
 //   - All values are returned as strings as per Redis hash behavior
 //
 // Example:
-//   fields, err := redisService.GetHGetToRedis(ctx, "user:123:profile")
-//   if err != nil {
-//       log.Printf("Failed to get hash: %v", err)
-//   }
-//   if fields != nil {
-//       name := fields["name"]
-//       email := fields["email"]
-//   }
+//
+//	fields, err := redisService.GetHGetToRedis(ctx, "user:123:profile")
+//	if err != nil {
+//	    log.Printf("Failed to get hash: %v", err)
+//	}
+//	if fields != nil {
+//	    name := fields["name"]
+//	    email := fields["email"]
+//	}
 func (r *RedisService) GetHGetToRedis(ctx context.Context, key string) (map[string]string, error) {
 	data, err := r.redisClient.HGetAll(ctx, key).Result()
 	if err != nil {
@@ -139,19 +142,20 @@ func (r *RedisService) GetHGetToRedis(ctx context.Context, key string) (map[stri
 //   - Values can be of any type that's compatible with Redis hash fields
 //
 // Example:
-//   profile := map[string]interface{}{
-//       "name": "John Doe",
-//       "age": 30,
-//       "email": "john@example.com",
-//   }
-//   err := redisService.SetHSetToRedis(ctx, "user:123:profile", profile, 3600)
+//
+//	profile := map[string]interface{}{
+//	    "name": "John Doe",
+//	    "age": 30,
+//	    "email": "john@example.com",
+//	}
+//	err := redisService.SetHSetToRedis(ctx, "user:123:profile", profile, 3600)
 func (r *RedisService) SetHSetToRedis(ctx context.Context, key string, mapFieldValue map[string]interface{}, expiration int64) error {
 	err := r.redisClient.HSet(ctx, key, mapFieldValue).Err()
 	if err != nil {
 		r.logger.Error("Failed to set hash in Redis", zap.String("key", key), zap.Error(err))
 		return err
 	}
-	
+
 	// Set expiration if specified
 	if expiration > 0 {
 		err = r.redisClient.Expire(ctx, key, time.Duration(expiration)*time.Second).Err()
@@ -160,7 +164,7 @@ func (r *RedisService) SetHSetToRedis(ctx context.Context, key string, mapFieldV
 			return err
 		}
 	}
-	
+
 	r.logger.Info("Hash set in Redis", zap.String("key", key), zap.Any("fields", mapFieldValue))
 	return nil
 }
@@ -184,18 +188,19 @@ func (r *RedisService) SetHSetToRedis(ctx context.Context, key string, mapFieldV
 //   - The value should be unique to identify the lock holder
 //
 // Example:
-//   lockID := uuid.New().String()
-//   acquired, err := redisService.SetLock(ctx, "process:lock", lockID, 300)
-//   if err != nil {
-//       log.Printf("Lock operation failed: %v", err)
-//       return
-//   }
-//   if !acquired {
-//       log.Println("Could not acquire lock, another process is running")
-//       return
-//   }
-//   // Process with lock acquired
-//   defer redisService.DeleteKeyFromRedis(ctx, "process:lock")
+//
+//	lockID := uuid.New().String()
+//	acquired, err := redisService.SetLock(ctx, "process:lock", lockID, 300)
+//	if err != nil {
+//	    log.Printf("Lock operation failed: %v", err)
+//	    return
+//	}
+//	if !acquired {
+//	    log.Println("Could not acquire lock, another process is running")
+//	    return
+//	}
+//	// Process with lock acquired
+//	defer redisService.DeleteKeyFromRedis(ctx, "process:lock")
 func (r *RedisService) SetLock(ctx context.Context, key string, value string, expiration int64) (bool, error) {
 	ok, err := r.redisClient.SetNX(ctx, key, value, time.Duration(expiration)*time.Second).Result()
 	if err != nil {
@@ -228,11 +233,12 @@ func (r *RedisService) SetLock(ctx context.Context, key string, value string, ex
 //   - Any type that can be JSON marshaled is supported
 //
 // Example:
-//   user := User{ID: 123, Name: "John Doe", Email: "john@example.com"}
-//   err := redisService.SetToRedis(ctx, "user:123", user, 3600)
-//   if err != nil {
-//       log.Printf("Failed to store user: %v", err)
-//   }
+//
+//	user := User{ID: 123, Name: "John Doe", Email: "john@example.com"}
+//	err := redisService.SetToRedis(ctx, "user:123", user, 3600)
+//	if err != nil {
+//	    log.Printf("Failed to store user: %v", err)
+//	}
 func (r *RedisService) SetToRedis(ctx context.Context, key string, value interface{}, expiration int64) error {
 	data, err := json.Marshal(value)
 	if err != nil {
@@ -258,11 +264,12 @@ func (r *RedisService) SetToRedis(ctx context.Context, key string, value interfa
 //   - port.IRedisPort: Interface implementation for Redis operations
 //
 // Example:
-//   client := redis.NewClient(&redis.Options{
-//       Addr: "localhost:6379",
-//   })
-//   logger := zap.NewProduction()
-//   redisService := NewRedisService(client, logger)
+//
+//	client := redis.NewClient(&redis.Options{
+//	    Addr: "localhost:6379",
+//	})
+//	logger := zap.NewProduction()
+//	redisService := NewRedisService(client, logger)
 func NewRedisService(redisClient *redis.Client, logger *zap.Logger) port.IRedisPort {
 	return &RedisService{
 		redisClient: redisClient,
