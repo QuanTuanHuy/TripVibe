@@ -98,7 +98,7 @@ func TestTaskWorker_ProcessTask(t *testing.T) {
 
 	ctx := context.Background()
 
-	// Create and enqueue a task
+	// Create and save task to repository first
 	testTask := &taskEntity.Task{
 		ID:         "test-task-1",
 		Name:       "Test Task",
@@ -109,6 +109,9 @@ func TestTaskWorker_ProcessTask(t *testing.T) {
 		CreatedAt:  time.Now(),
 		UpdatedAt:  time.Now(),
 	}
+
+	err = repo.Save(ctx, testTask)
+	require.NoError(t, err)
 
 	err = queue.Enqueue(ctx, testTask)
 	require.NoError(t, err)
@@ -159,7 +162,7 @@ func TestTaskWorker_ProcessTaskWithError(t *testing.T) {
 
 	ctx := context.Background()
 
-	// Create and enqueue a task
+	// Create and save task to repository first
 	testTask := &taskEntity.Task{
 		ID:         "test-task-1",
 		Name:       "Test Task",
@@ -170,6 +173,9 @@ func TestTaskWorker_ProcessTaskWithError(t *testing.T) {
 		CreatedAt:  time.Now(),
 		UpdatedAt:  time.Now(),
 	}
+
+	err = repo.Save(ctx, testTask)
+	require.NoError(t, err)
 
 	err = queue.Enqueue(ctx, testTask)
 	require.NoError(t, err)
@@ -232,7 +238,7 @@ func TestTaskWorker_GetStats(t *testing.T) {
 	err = worker.Start(ctx)
 	require.NoError(t, err)
 
-	// Create and enqueue multiple tasks
+	// Create and save multiple tasks to repository first
 	for i := 0; i < 3; i++ {
 		testTask := &taskEntity.Task{
 			ID:         fmt.Sprintf("test-task-%d", i),
@@ -244,6 +250,9 @@ func TestTaskWorker_GetStats(t *testing.T) {
 			CreatedAt:  time.Now(),
 			UpdatedAt:  time.Now(),
 		}
+
+		err = repo.Save(ctx, testTask)
+		require.NoError(t, err)
 
 		err = queue.Enqueue(ctx, testTask)
 		require.NoError(t, err)
