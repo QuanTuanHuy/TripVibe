@@ -20,6 +20,9 @@ func All() fx.Option {
 
 		fx.Provide(service.NewRedisService),
 
+		// Add scheduler module
+		SchedulerModule,
+
 		fx.Invoke(startServer),
 	)
 }
