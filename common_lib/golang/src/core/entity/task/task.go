@@ -1,7 +1,6 @@
 package entity
 
 import (
-	"context"
 	"time"
 )
 
@@ -44,12 +43,6 @@ type Task struct {
 	Error       string                 `json:"error,omitempty"`
 }
 
-// TaskHandler defines the interface for task handlers
-type TaskHandler interface {
-	Handle(ctx context.Context, task *Task) error
-	GetType() string
-}
-
 // TaskResult represents the result of a task execution
 type TaskResult struct {
 	TaskID    string        `json:"task_id"`
@@ -59,4 +52,13 @@ type TaskResult struct {
 	Duration  time.Duration `json:"duration"`
 	StartTime time.Time     `json:"start_time"`
 	EndTime   time.Time     `json:"end_time"`
+}
+
+// WorkerStats represents worker statistics
+type WorkerStats struct {
+	TotalProcessed int           `json:"total_processed"`
+	TotalFailed    int           `json:"total_failed"`
+	ActiveTasks    int           `json:"active_tasks"`
+	Uptime         time.Duration `json:"uptime"`
+	LastActivity   time.Time     `json:"last_activity"`
 }

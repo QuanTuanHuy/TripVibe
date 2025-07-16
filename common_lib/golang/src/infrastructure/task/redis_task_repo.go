@@ -34,16 +34,26 @@ func (r *RedisTaskRepo) Save(ctx context.Context, task *entity.Task) error {
 		return err
 	}
 
-	if err := r.client.Set(ctx, key, data, 0).Err(); err != nil {
-		r.logger.Error("failed to save task to Redis",
-			zap.Error(err), zap.String("task_id", task.ID))
-		return err
-	}
+	// Use pipeline for atomic operations
+	pipe := r.client.Pipeline()
+
+	pipe.Set(ctx, key, data, 0)
 
 	typeKey := fmt.Sprintf(TaskTypePrefix, task.Type)
-	if err := r.client.SAdd(ctx, typeKey, task.ID).Err(); err != nil {
-		r.logger.Error("failed to add task ID to type set in Redis",
-			zap.Error(err), zap.String("task_id", task.ID), zap.String("task_type", task.Type))
+	pipe.SAdd(ctx, typeKey, task.ID)
+
+	statusKey := fmt.Sprintf(TaskStatusPrefix, task.Status)
+	pipe.SAdd(ctx, statusKey, task.ID)
+
+	priorityKey := fmt.Sprintf(TaskPriorityPrefix, int(task.Priority))
+	pipe.SAdd(ctx, priorityKey, task.ID)
+
+	// Execute all commands atomically
+	_, err = pipe.Exec(ctx)
+	if err != nil {
+		r.logger.Error("failed to save task to Redis",
+			zap.Error(err), zap.String("task_id", task.ID))
+		return fmt.Errorf("failed to save task to Redis: %w", err)
 	}
 
 	r.logger.Debug("Task saved",
@@ -95,33 +105,39 @@ func (r *RedisTaskRepo) Update(ctx context.Context, task *entity.Task) error {
 		return fmt.Errorf("failed to marshal updated task: %w", err)
 	}
 
-	err = r.client.Set(ctx, key, data, 0).Err()
+	// Use pipeline for atomic operations
+	pipe := r.client.Pipeline()
+
+	pipe.Set(ctx, key, data, 0)
+
+	if oldTask.Status != task.Status {
+		oldStatusKey := fmt.Sprintf(TaskStatusPrefix, oldTask.Status)
+		pipe.SRem(ctx, oldStatusKey, task.ID)
+
+		newStatusKey := fmt.Sprintf(TaskStatusPrefix, task.Status)
+		pipe.SAdd(ctx, newStatusKey, task.ID)
+	}
+	if oldTask.Priority != task.Priority {
+		oldPriorityKey := fmt.Sprintf(TaskPriorityPrefix, int(oldTask.Priority))
+		pipe.SRem(ctx, oldPriorityKey, task.ID)
+
+		newPriorityKey := fmt.Sprintf(TaskPriorityPrefix, int(task.Priority))
+		pipe.SAdd(ctx, newPriorityKey, task.ID)
+	}
+	if oldTask.Type != task.Type {
+		oldTypeKey := fmt.Sprintf(TaskTypePrefix, oldTask.Type)
+		pipe.SRem(ctx, oldTypeKey, task.ID)
+
+		newTypeKey := fmt.Sprintf(TaskTypePrefix, task.Type)
+		pipe.SAdd(ctx, newTypeKey, task.ID)
+	}
+
+	// Execute all commands atomically
+	_, err = pipe.Exec(ctx)
 	if err != nil {
 		r.logger.Error("failed to update task in Redis",
 			zap.Error(err), zap.String("task_id", task.ID))
 		return fmt.Errorf("failed to update task in Redis: %w", err)
-	}
-
-	if oldTask.Status != task.Status {
-		oldStatusKey := fmt.Sprintf(TaskStatusPrefix, oldTask.Status)
-		r.client.SRem(ctx, oldStatusKey, task.ID)
-
-		newStatusKey := fmt.Sprintf(TaskStatusPrefix, task.Status)
-		r.client.SAdd(ctx, newStatusKey, task.ID)
-	}
-	if oldTask.Priority != task.Priority {
-		oldPriorityKey := fmt.Sprintf(TaskPriorityPrefix, int(oldTask.Priority))
-		r.client.SRem(ctx, oldPriorityKey, task.ID)
-
-		newPriorityKey := fmt.Sprintf(TaskPriorityPrefix, int(task.Priority))
-		r.client.SAdd(ctx, newPriorityKey, task.ID)
-	}
-	if oldTask.Type != task.Type {
-		oldTypeKey := fmt.Sprintf(TaskTypePrefix, oldTask.Type)
-		r.client.SRem(ctx, oldTypeKey, task.ID)
-
-		newTypeKey := fmt.Sprintf(TaskTypePrefix, task.Type)
-		r.client.SAdd(ctx, newTypeKey, task.ID)
 	}
 
 	r.logger.Debug("Task updated",
@@ -137,17 +153,24 @@ func (r *RedisTaskRepo) Delete(ctx context.Context, ID string) error {
 		return fmt.Errorf("failed to get task for deletion: %w", err)
 	}
 
+	// Use pipeline for atomic operations
+	pipe := r.client.Pipeline()
+
 	typeKey := fmt.Sprintf(TaskTypePrefix, task.Type)
-	r.client.SRem(ctx, typeKey, ID)
+	pipe.SRem(ctx, typeKey, ID)
 
 	statusKey := fmt.Sprintf(TaskStatusPrefix, task.Status)
-	r.client.SRem(ctx, statusKey, ID)
+	pipe.SRem(ctx, statusKey, ID)
 
 	priorityKey := fmt.Sprintf(TaskPriorityPrefix, int(task.Priority))
-	r.client.SRem(ctx, priorityKey, ID)
+	pipe.SRem(ctx, priorityKey, ID)
 
 	key := fmt.Sprintf(TaskKeyPrefix, ID)
-	if err := r.client.Del(ctx, key).Err(); err != nil {
+	pipe.Del(ctx, key)
+
+	// Execute all commands atomically
+	_, err = pipe.Exec(ctx)
+	if err != nil {
 		r.logger.Error("failed to delete task from Redis",
 			zap.Error(err), zap.String("task_id", ID))
 		return fmt.Errorf("failed to delete task: %w", err)
