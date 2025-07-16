@@ -1,11 +1,31 @@
-# Redis Service
+# Common Library - Go Implementation
 
-## Overview
+A comprehensive Go library for microservices communication patterns and infrastructure components.
 
-Đây là một Redis service implementation trong Go, được thiết kế theo clean architecture pattern. Service này cung cấp các operations cơ bản cho Redis như key-value storage, hash operations, và distributed locking.
+## 🚀 Quick Start
 
-## Features
+### Async Request-Reply Pattern
+```go
+// Complete working example
+factory := async.NewAsyncFactory(logger, asyncConfig, redisClient, kafkaProducer)
+asyncManager := factory.CreateAsyncRequestManager()
 
+correlationID, err := asyncManager.SendRequest(ctx, "process-order", payload, 30*time.Second)
+reply, err := asyncManager.WaitForReply(ctx, correlationID, 30*time.Second)
+```
+
+**📖 Full Documentation**: [`ASYNC_REQUEST_REPLY_GUIDE.md`](ASYNC_REQUEST_REPLY_GUIDE.md)
+
+## 📦 Core Components
+
+### 1. **Async Request-Reply Pattern** (`src/infrastructure/async/`)
+- ✅ **Complete Implementation**: Redis correlation + Kafka transport
+- ✅ **Factory Pattern**: Easy component creation and management
+- ✅ **Callback Support**: Asynchronous result handling
+- ✅ **Automatic Cleanup**: Background correlation cleanup
+- ✅ **Comprehensive Testing**: Unit tests and integration examples
+
+### 2. **Redis Service** (`src/infrastructure/service/`)
 - ✅ **Key-Value Operations**: Set, Get, Delete với JSON serialization
 - ✅ **Hash Operations**: HSet, HGetAll cho Redis hashes  
 - ✅ **Distributed Locking**: SetNX based locking mechanism
@@ -14,7 +34,10 @@
 - ✅ **Error Handling**: Graceful error handling và fallback
 - ✅ **Testing**: Unit tests, integration tests, và benchmarks
 
-## Files
+### 3. **Configuration** (`src/config/`)
+- ✅ **AsyncConfig**: Complete async pattern configuration
+- ✅ **Default Values**: Production-ready defaults
+- ✅ **Flexible Settings**: Timeouts, concurrency, cleanup intervals
 
 ```
 ├── src/infrastructure/service/
