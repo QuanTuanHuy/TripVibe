@@ -14,66 +14,124 @@ import (
 )
 
 type RedisCorrelationManager struct {
-	client          *redis.Client
-	callbackManager *CallbackManager
-	logger          *zap.Logger
-	prefix          string
-	ttl             time.Duration
+	client *redis.Client
+	logger *zap.Logger
+	prefix string
+	ttl    time.Duration
 }
 
-func (r *RedisCorrelationManager) StoreCorrelation(ctx context.Context, correlationID string, request *entity.AsyncRequest, callback entity.AsyncCallback) error {
+func NewRedisCorrelationManager(client *redis.Client, logger *zap.Logger, prefix string, ttl time.Duration) port.ICorrelationPort {
+	return &RedisCorrelationManager{
+		client: client,
+		logger: logger,
+		prefix: prefix,
+		ttl:    ttl,
+	}
+}
+
+func (r *RedisCorrelationManager) StoreCorrelation(ctx context.Context, correlationID string, data *entity.CorrelationData) error {
 	key := r.GetCorrelationKey(correlationID)
 
-	requestData, err := json.Marshal(request)
+	dataBytes, err := json.Marshal(data)
 	if err != nil {
-		return fmt.Errorf("failed to marshal request: %w", err)
+		return fmt.Errorf("failed to marshal correlation data: %w", err)
 	}
 
 	pipe := r.client.Pipeline()
-	pipe.HSet(ctx, key, "request", requestData)
-	r.callbackManager.StoreCallback(correlationID, callback)
-	pipe.Expire(ctx, key, r.ttl)
-
-	_, err = pipe.Exec(ctx)
-	if err != nil {
-		r.logger.Error("failed to store correlation", zap.String("correlationID", correlationID), zap.Error(err))
+	pipe.Set(ctx, key, dataBytes, r.ttl)
+	
+	if _, err := pipe.Exec(ctx); err != nil {
+		r.logger.Error("failed to store correlation", 
+			zap.String("correlationID", correlationID), 
+			zap.Error(err))
 		return fmt.Errorf("failed to store correlation: %w", err)
 	}
 
-	r.logger.Info("stored correlation", zap.String("correlationID", correlationID))
+	r.logger.Debug("stored correlation", 
+		zap.String("correlationID", correlationID),
+		zap.String("requestType", data.RequestType))
 	return nil
 }
 
-func (r *RedisCorrelationManager) GetCorrelation(ctx context.Context, correlationID string) (*entity.AsyncRequest, entity.AsyncCallback, error) {
+func (r *RedisCorrelationManager) GetCorrelation(ctx context.Context, correlationID string) (*entity.CorrelationData, error) {
 	key := r.GetCorrelationKey(correlationID)
 
-	result, err := r.client.HGetAll(ctx, key).Result()
+	result, err := r.client.Get(ctx, key).Result()
 	if err != nil {
 		if err == redis.Nil {
-			return nil, nil, fmt.Errorf("correlation not found: %s", correlationID)
+			return nil, fmt.Errorf("correlation not found: %s", correlationID)
 		}
-		return nil, nil, fmt.Errorf("failed to get correlation: %w", err)
+		return nil, fmt.Errorf("failed to get correlation: %w", err)
 	}
 
-	if len(result) == 0 {
-		return nil, nil, fmt.Errorf("correlation not found: %s", correlationID)
+	var data entity.CorrelationData
+	if err := json.Unmarshal([]byte(result), &data); err != nil {
+		return nil, fmt.Errorf("failed to unmarshal correlation data: %w", err)
 	}
 
-	requestData, ok := result["request"]
-	if !ok {
-		return nil, nil, fmt.Errorf("request data not found for correlation: %s", correlationID)
+	return &data, nil
+}
+
+func (r *RedisCorrelationManager) UpdateCorrelation(ctx context.Context, correlationID string, data *entity.CorrelationData) error {
+	key := r.GetCorrelationKey(correlationID)
+
+	// Check if correlation exists
+	exists, err := r.client.Exists(ctx, key).Result()
+	if err != nil {
+		return fmt.Errorf("failed to check correlation existence: %w", err)
 	}
-	var request entity.AsyncRequest
-	if err := json.Unmarshal([]byte(requestData), &request); err != nil {
-		return nil, nil, fmt.Errorf("failed to unmarshal request: %w", err)
+	if exists == 0 {
+		return fmt.Errorf("correlation not found: %s", correlationID)
 	}
 
-	callback, ok := r.callbackManager.GetCallback(correlationID)
-	if !ok {
-		return nil, nil, fmt.Errorf("callback not found for correlation: %s", correlationID)
+	dataBytes, err := json.Marshal(data)
+	if err != nil {
+		return fmt.Errorf("failed to marshal correlation data: %w", err)
 	}
 
-	return &request, callback, nil
+	// Update with remaining TTL
+	ttl, err := r.client.TTL(ctx, key).Result()
+	if err != nil {
+		return fmt.Errorf("failed to get TTL: %w", err)
+	}
+
+	if err := r.client.Set(ctx, key, dataBytes, ttl).Err(); err != nil {
+		return fmt.Errorf("failed to update correlation: %w", err)
+	}
+
+	r.logger.Debug("updated correlation", 
+		zap.String("correlationID", correlationID),
+		zap.String("status", string(data.Status)))
+	return nil
+}
+
+func (r *RedisCorrelationManager) RemoveCorrelation(ctx context.Context, correlationID string) error {
+	key := r.GetCorrelationKey(correlationID)
+	
+	if err := r.client.Del(ctx, key).Err(); err != nil {
+		return fmt.Errorf("failed to remove correlation: %w", err)
+	}
+
+	r.logger.Debug("removed correlation", zap.String("correlationID", correlationID))
+	return nil
+}
+
+func (r *RedisCorrelationManager) SetTimeout(ctx context.Context, correlationID string, timeout time.Duration) error {
+	key := r.GetCorrelationKey(correlationID)
+	
+	exists, err := r.client.Exists(ctx, key).Result()
+	if err != nil {
+		return fmt.Errorf("failed to check correlation existence: %w", err)
+	}
+	if exists == 0 {
+		return fmt.Errorf("correlation not found: %s", correlationID)
+	}
+
+	if err := r.client.Expire(ctx, key, timeout).Err(); err != nil {
+		return fmt.Errorf("failed to set timeout: %w", err)
+	}
+
+	return nil
 }
 
 func (r *RedisCorrelationManager) GetPendingCount(ctx context.Context) (int, error) {
@@ -86,30 +144,53 @@ func (r *RedisCorrelationManager) GetPendingCount(ctx context.Context) (int, err
 	return len(keys), nil
 }
 
-func (r *RedisCorrelationManager) RemoveCorrelation(ctx context.Context, correlationID string) error {
-	key := r.GetCorrelationKey(correlationID)
-	if err := r.client.Del(ctx, key).Err(); err != nil {
-		return fmt.Errorf("failed to remove correlation: %w", err)
+func (r *RedisCorrelationManager) GetAllPending(ctx context.Context) (map[string]*entity.CorrelationData, error) {
+	pattern := fmt.Sprintf("%s:correlation:*", r.prefix)
+	keys, err := r.client.Keys(ctx, pattern).Result()
+	if err != nil {
+		r.logger.Error("failed to get all pending correlations", zap.Error(err))
+		return nil, fmt.Errorf("failed to get all pending correlations: %w", err)
 	}
 
-	r.callbackManager.RemoveCallback(correlationID)
-	return nil
-}
+	if len(keys) == 0 {
+		return make(map[string]*entity.CorrelationData), nil
+	}
 
-func (r *RedisCorrelationManager) SetTimeout(ctx context.Context, correlationID string, timeout time.Duration) error {
-	panic("unimplemented")
+	pending := make(map[string]*entity.CorrelationData)
+	for _, key := range keys {
+		correlationID := r.ExtractCorrelationID(key)
+		if correlationID == "" {
+			r.logger.Warn("invalid correlation key format", zap.String("key", key))
+			continue
+		}
+
+		data, err := r.GetCorrelation(ctx, correlationID)
+		if err != nil {
+			r.logger.Error("failed to get correlation data", 
+				zap.String("correlationID", correlationID), 
+				zap.Error(err))
+			continue
+		}
+
+		pending[correlationID] = data
+	}
+
+	r.logger.Debug("retrieved all pending correlations", zap.Int("count", len(pending)))
+	return pending, nil
 }
 
 func (r *RedisCorrelationManager) CleanupExpired(ctx context.Context) error {
 	pattern := fmt.Sprintf("%s:correlation:*", r.prefix)
 	var cursor uint64
 	var keys []string
+	const batchSize = 100
 
+	// Scan for all correlation keys
 	for {
 		var scanKeys []string
 		var err error
 
-		scanKeys, cursor, err = r.client.Scan(ctx, cursor, pattern, 100).Result()
+		scanKeys, cursor, err = r.client.Scan(ctx, cursor, pattern, batchSize).Result()
 		if err != nil {
 			r.logger.Error("failed to scan for expired correlations", zap.Error(err))
 			return fmt.Errorf("failed to scan for expired correlations: %w", err)
@@ -122,6 +203,7 @@ func (r *RedisCorrelationManager) CleanupExpired(ctx context.Context) error {
 		}
 	}
 
+	// Check and remove expired keys
 	expiredCount := 0
 	for _, key := range keys {
 		ttl, err := r.client.TTL(ctx, key).Result()
@@ -130,12 +212,17 @@ func (r *RedisCorrelationManager) CleanupExpired(ctx context.Context) error {
 			continue
 		}
 
-		if ttl <= 0 {
+		// TTL -2 means key doesn't exist, TTL -1 means key exists but no TTL
+		if ttl == -2 || ttl <= 0 {
 			correlationID := r.ExtractCorrelationID(key)
 			if correlationID != "" {
-				r.client.Del(ctx, key)
-				r.callbackManager.RemoveCallback(correlationID)
-				expiredCount++
+				if err := r.client.Del(ctx, key).Err(); err != nil {
+					r.logger.Error("failed to delete expired key", 
+						zap.String("key", key), 
+						zap.Error(err))
+				} else {
+					expiredCount++
+				}
 			}
 		}
 	}
@@ -144,52 +231,6 @@ func (r *RedisCorrelationManager) CleanupExpired(ctx context.Context) error {
 		r.logger.Info("cleaned up expired correlations", zap.Int("count", expiredCount))
 	}
 	return nil
-}
-
-func (r *RedisCorrelationManager) GetAllPending(ctx context.Context) (map[string]*entity.AsyncRequest, error) {
-	pattern := fmt.Sprintf("%s:correlation:*", r.prefix)
-	keys, err := r.client.Keys(ctx, pattern).Result()
-	if err != nil {
-		r.logger.Error("failed to get all pending correlations", zap.Error(err))
-		return nil, fmt.Errorf("failed to get all pending correlations: %w", err)
-	}
-
-	if len(keys) == 0 {
-		return nil, nil
-	}
-
-	pending := make(map[string]*entity.AsyncRequest)
-	for _, key := range keys {
-		correlationID := r.ExtractCorrelationID(key)
-		if correlationID == "" {
-			r.logger.Warn("invalid correlation key format", zap.String("key", key))
-			continue
-		}
-		result, err := r.client.HGetAll(ctx, key).Result()
-		if err != nil {
-			r.logger.Error("failed to get correlation data", zap.String("key", key), zap.Error(err))
-			continue
-		}
-		if len(result) == 0 {
-			continue
-		}
-
-		requestData, ok := result["request"]
-		if !ok {
-			r.logger.Warn("request data not found for correlation", zap.String("correlationID", correlationID))
-			continue
-		}
-		var request entity.AsyncRequest
-		if err := json.Unmarshal([]byte(requestData), &request); err != nil {
-			r.logger.Error("failed to unmarshal request data", zap.String("correlationID", correlationID), zap.Error(err))
-			continue
-		}
-
-		pending[correlationID] = &request
-	}
-
-	r.logger.Info("retrieved all pending correlations", zap.Int("count", len(pending)))
-	return pending, nil
 }
 
 func (r *RedisCorrelationManager) GetCorrelationKey(correlationID string) string {
@@ -202,14 +243,4 @@ func (r *RedisCorrelationManager) ExtractCorrelationID(key string) string {
 		return ""
 	}
 	return parts[2]
-}
-
-func NewRedisCorrelationManager(client *redis.Client, logger *zap.Logger, prefix string, ttl time.Duration) port.ICorrelationPort {
-	return &RedisCorrelationManager{
-		client:          client,
-		logger:          logger,
-		prefix:          prefix,
-		ttl:             ttl,
-		callbackManager: NewCallbackManager(),
-	}
 }

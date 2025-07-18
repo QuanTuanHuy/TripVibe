@@ -1,8 +1,10 @@
 package entity
 
-import "time"
+import (
+	"time"
+)
 
-// AsyncReply represents an asynchronous reply
+// AsyncReply represents an asynchronous reply - Pure entity
 type AsyncReply struct {
 	ID            string                 `json:"id"`
 	CorrelationID string                 `json:"correlation_id"`
@@ -14,8 +16,23 @@ type AsyncReply struct {
 	Duration      time.Duration          `json:"duration"`
 }
 
-// AsyncCallback represents a callback function for async operations
+// Business logic methods
+func (r *AsyncReply) IsSuccess() bool {
+	return r.Status == AsyncRequestStatusCompleted && r.Error == ""
+}
+
+func (r *AsyncReply) IsFailure() bool {
+	return r.Status == AsyncRequestStatusFailed || r.Error != ""
+}
+
+func (r *AsyncReply) IsTimeout() bool {
+	return r.Status == AsyncRequestStatusTimeout
+}
+
+// Value objects for callbacks - moved from entity to prevent coupling
 type AsyncCallback func(reply *AsyncReply)
 
-// AsyncRequestHandler represents a handler for async requests
-type AsyncRequestHandler func(request *AsyncRequest) (*AsyncReply, error)
+// Handler interface for request processing
+type AsyncRequestHandler interface {
+	Handle(request *AsyncRequest) (*AsyncReply, error)
+}

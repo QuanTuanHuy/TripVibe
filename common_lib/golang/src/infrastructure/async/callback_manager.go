@@ -4,50 +4,57 @@ import (
 	"sync"
 
 	entity "github.com/quantuanhuy/lib/src/core/entity/async"
+	"github.com/quantuanhuy/lib/src/core/port"
 )
 
 type CallbackManager struct {
 	callbacks map[string]entity.AsyncCallback
-	mutext    sync.RWMutex
+	mutex     sync.RWMutex
 }
 
-func NewCallbackManager() *CallbackManager {
+func NewCallbackManager() port.ICallbackManager {
 	return &CallbackManager{
 		callbacks: make(map[string]entity.AsyncCallback),
 	}
 }
 
 func (cm *CallbackManager) StoreCallback(correlationID string, callback entity.AsyncCallback) {
-	cm.mutext.Lock()
-	defer cm.mutext.Unlock()
-
-	if callback != nil {
-		cm.callbacks[correlationID] = callback
+	if callback == nil {
+		return
 	}
+	
+	cm.mutex.Lock()
+	defer cm.mutex.Unlock()
+	
+	cm.callbacks[correlationID] = callback
 }
 
 func (cm *CallbackManager) GetCallback(correlationID string) (entity.AsyncCallback, bool) {
-	cm.mutext.RLock()
-	defer cm.mutext.RUnlock()
+	cm.mutex.RLock()
+	defer cm.mutex.RUnlock()
 
 	callback, exists := cm.callbacks[correlationID]
 	return callback, exists
 }
 
 func (cm *CallbackManager) HasCallback(correlationID string) bool {
-	_, exists := cm.GetCallback(correlationID)
+	cm.mutex.RLock()
+	defer cm.mutex.RUnlock()
+	
+	_, exists := cm.callbacks[correlationID]
 	return exists
 }
 
 func (cm *CallbackManager) RemoveCallback(correlationID string) {
-	cm.mutext.Lock()
-	defer cm.mutext.Unlock()
+	cm.mutex.Lock()
+	defer cm.mutex.Unlock()
+	
 	delete(cm.callbacks, correlationID)
 }
 
 func (cm *CallbackManager) GetCallbackCount() int {
-	cm.mutext.RLock()
-	defer cm.mutext.RUnlock()
+	cm.mutex.RLock()
+	defer cm.mutex.RUnlock()
 
 	return len(cm.callbacks)
 }
