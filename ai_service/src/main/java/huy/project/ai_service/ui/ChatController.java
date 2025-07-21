@@ -8,6 +8,7 @@ import huy.project.ai_service.core.service.IRAGChatService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -21,6 +22,14 @@ public class ChatController {
     @PostMapping
     public ResponseEntity<String> chat(@RequestBody ChatRequest request) {
         String response = chatService.chat(request);
+        return ResponseEntity.ok(response);
+    }
+
+    @PostMapping("/image")
+    public ResponseEntity<String> chatWithImage(
+            @RequestPart("file") MultipartFile file,
+            @RequestPart("message") String message) {
+        String response = chatService.chatWithImage(file, message);
         return ResponseEntity.ok(response);
     }
 

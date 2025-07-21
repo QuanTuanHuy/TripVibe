@@ -4,14 +4,16 @@ spring:
   ai:
     openai:
       api-key: ${GEMINI_KEY}
+      embedding:
+        options:
+          model: gemini-embedding-001
+        base-url: https://generativelanguage.googleapis.com
+        embeddings-path: /v1beta/openai/embeddings
       chat:
         base-url: https://generativelanguage.googleapis.com
         completions-path: /v1beta/openai/chat/completions
         options:
           model: gemini-2.0-flash
-
-    model:
-      embedding: transformers
 
     vectorstore:
       qdrant:

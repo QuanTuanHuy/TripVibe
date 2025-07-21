@@ -4,11 +4,13 @@ import huy.project.ai_service.core.tool.dto.request.BookingDates;
 import huy.project.ai_service.core.tool.dto.request.GuestInfo;
 import huy.project.ai_service.core.tool.dto.response.AccommodationSearchResult;
 import huy.project.ai_service.core.tool.dto.response.BookingResult;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.tool.annotation.Tool;
 import org.springframework.ai.tool.annotation.ToolParam;
 import org.springframework.stereotype.Component;
 
 @Component
+@Slf4j
 public class BookingTool {
 
     @Tool(description = "Search for accommodations based on location, dates, and number of adults/children")
@@ -19,6 +21,7 @@ public class BookingTool {
             @ToolParam(description = "Number of adults", required = false) Integer adults,
             @ToolParam(description = "Number of children", required = false) Integer children) {
 
+        log.info("Tool called: searchAccommodation");
         return AccommodationSearchResult.builder()
                 .build();
     }
@@ -28,7 +31,7 @@ public class BookingTool {
             @ToolParam(description = "Accommodation ID to book") String accommodationId,
             @ToolParam(description = "Guest information") GuestInfo guestInfo,
             @ToolParam(description = "Booking dates") BookingDates dates) {
-
+        log.info("Tool called: createBooking");
         return new BookingResult();
     }
 }

@@ -85,9 +85,9 @@ public class RAGChatService implements IRAGChatService {
     private static final String SIMPLE_CHAT_TEMPLATE = """
             Bạn là một AI assistant thông minh cho hệ thống đặt phòng khách sạn.
             Hãy trả lời câu hỏi của người dùng một cách thân thiện và hữu ích.
-            
+
             CÂU HỎI: {question}
-            
+
             TRẢ LỜI:
             """;
 
