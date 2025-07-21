@@ -10,7 +10,7 @@ public interface IDocumentIngestionService {
 
     List<DocumentModel> getAllDocuments();
 
-    void deleteDocument(String documentId);
+    void deleteDocument(Long documentId);
 
     List<DocumentModel> searchDocuments(String query);
 }

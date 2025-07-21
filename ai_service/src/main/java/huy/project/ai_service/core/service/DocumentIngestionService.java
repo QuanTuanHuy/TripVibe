@@ -1,7 +1,12 @@
 package huy.project.ai_service.core.service;
 
+import huy.project.ai_service.core.domain.constant.DocumentStatus;
+import huy.project.ai_service.core.domain.constant.ErrorCode;
 import huy.project.ai_service.core.domain.dto.request.DocumentUploadRequest;
 import huy.project.ai_service.core.domain.model.DocumentModel;
+import huy.project.ai_service.core.exception.AppException;
+import huy.project.ai_service.core.port.IDocumentRepoPort;
+import huy.project.ai_service.core.port.IFileStoragePort;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.document.Document;
@@ -10,21 +15,16 @@ import org.springframework.ai.reader.pdf.PagePdfDocumentReader;
 import org.springframework.ai.reader.pdf.config.PdfDocumentReaderConfig;
 import org.springframework.ai.reader.tika.TikaDocumentReader;
 import org.springframework.ai.transformer.splitter.TokenTextSplitter;
-import org.springframework.ai.vectorstore.SearchRequest;
 import org.springframework.ai.vectorstore.VectorStore;
 import org.springframework.ai.vectorstore.filter.Filter;
 import org.springframework.ai.vectorstore.filter.FilterExpressionBuilder;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.stereotype.Service;
-import org.springframework.util.CollectionUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.time.Instant;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 
 @Service
@@ -34,7 +34,8 @@ public class DocumentIngestionService implements IDocumentIngestionService {
     private final VectorStore vectorStore;
     private final TokenTextSplitter tokenSplitter;
 
-    private final Map<String, DocumentModel> documentStorage = new ConcurrentHashMap<>();
+    private final IFileStoragePort fileStorage;
+    private final IDocumentRepoPort documentRepoPort;
 
     private final ExecutorService executorService;
 
@@ -46,23 +47,25 @@ public class DocumentIngestionService implements IDocumentIngestionService {
 
         try {
             MultipartFile file = request.getFile();
-            String documentId = UUID.randomUUID().toString();
 
+            // 1. Store file in storage
+            String filePath = fileStorage.storeFile(file);
+
+            // 2. Save metadata in the database
             DocumentModel document = DocumentModel.builder()
-                    .id(documentId)
                     .fileName(file.getOriginalFilename())
                     .contentType(file.getContentType())
                     .size(file.getSize())
                     .uploadedAt(Instant.now())
-                    .status("PROCESSING")
-                    .metadata(request.getMetadata())
+                    .status(DocumentStatus.PROCESSING)
+                    .filePath(filePath)
                     .build();
-
-            documentStorage.put(documentId, document);
+            document = documentRepoPort.save(document);
 
             log.info("Uploading document: {} ({})", document.getFileName(), document.getId());
 
-            processDocumentAsync(documentId, file);
+            // 3. Process asynchronously
+            processDocumentAsync(document.getId());
 
             return document;
         } catch (Exception e) {
@@ -71,75 +74,54 @@ public class DocumentIngestionService implements IDocumentIngestionService {
         }
     }
 
-    private void processDocumentAsync(String documentId, MultipartFile file) {
+    private void processDocumentAsync(Long documentId) {
         executorService.submit(() -> {
             try {
-                DocumentModel document = documentStorage.get(documentId);
-                
-                document.setFileBytes(file.getBytes());
-
                 processDocument(documentId);
             } catch (Exception e) {
                 log.error("Error processing document: {}", documentId, e);
-                DocumentModel document = documentStorage.get(documentId);
-                if (document != null) {
-                    document.setStatus("FAILED");
-                }
+                documentRepoPort.getDocumentById(documentId).ifPresent(document -> {
+                    document.setStatus(DocumentStatus.FAILED);
+                    documentRepoPort.save(document);
+                });
             }
         });
     }
 
-    private List<Document> processDocument(String documentId) {
-        DocumentModel document = documentStorage.get(documentId);
+    private void processDocument(Long documentId) {
+        var document = documentRepoPort.getDocumentById(documentId).orElse(null);
         if (document == null) {
-            throw new RuntimeException("Document not found: " + documentId);
+            throw new AppException(ErrorCode.DOCUMENT_NOT_FOUND);
         }
 
-        try {
-            List<Document> documents = readDocument(document);
-
-            if (documents == null || documents.isEmpty()) {
-                log.warn("No content extracted from document: {}", documentId);
-                document.setStatus("FAILED");
-                throw new RuntimeException("No content extracted from document");
-            }
-
-            List<Document> chunks = splitDocuments(documents);
-
-            if (chunks == null || chunks.isEmpty()) {
-                log.warn("No chunks created from document: {}", documentId);
-                document.setStatus("FAILED");
-                throw new RuntimeException("No chunks created from document");
-            }
-
-            addMetadataToChunks(chunks, document);
-
-            vectorStore.add(chunks);
-
-            document.setStatus("COMPLETED");
-
-            log.info("Document processed successfully: {}, ({} chunks)", documentId, chunks.size());
-
-            return chunks;
-        } catch (Exception e) {
-            log.error("Error processing document: {}", documentId, e);
-            document.setStatus("FAILED");
-            throw new RuntimeException("Document processing failed: " + documentId, e);
+        List<Document> documents = readDocument(document);
+        if (documents == null || documents.isEmpty()) {
+            log.warn("No content extracted from document: {}", documentId);
+            return;
         }
 
+        List<Document> chunks = splitDocuments(documents);
+        if (chunks == null || chunks.isEmpty()) {
+            log.warn("No chunks created from document: {}", documentId);
+            return;
+        }
+
+        addMetadataToChunks(chunks, document);
+        vectorStore.add(chunks);
+
+        document.setStatus(DocumentStatus.COMPLETED);
+        documentRepoPort.save(document);
+
+        log.info("Document processed successfully: {}, ({} chunks)", documentId, chunks.size());
     }
 
     private void addMetadataToChunks(List<Document> chunks, DocumentModel document) {
         for (Document chunk : chunks) {
             Map<String, Object> metadata = chunk.getMetadata();
-            metadata.put("document_id", document.getId());
+            metadata.put("document_id", document.getId().toString());
             metadata.put("filename", document.getFileName());
             metadata.put("uploaded_at", document.getUploadedAt().toString());
             metadata.put("content_type", document.getContentType());
-
-            if (document.getMetadata() != null) {
-                metadata.putAll(document.getMetadata());
-            }
         }
     }
 
@@ -149,8 +131,9 @@ public class DocumentIngestionService implements IDocumentIngestionService {
 
     private List<Document> readDocument(DocumentModel document) {
         String contentType = document.getContentType();
+        byte[] fileBytes = fileStorage.loadFile(document.getFilePath());
 
-        ByteArrayResource resource = new ByteArrayResource(document.getFileBytes());
+        ByteArrayResource resource = new ByteArrayResource(fileBytes);
 
         if (contentType != null && contentType.equals("application/pdf")) {
             PagePdfDocumentReader pdfReader = new PagePdfDocumentReader(
@@ -172,14 +155,14 @@ public class DocumentIngestionService implements IDocumentIngestionService {
 
     @Override
     public List<DocumentModel> getAllDocuments() {
-        return new ArrayList<>(documentStorage.values());
+        return documentRepoPort.getAllDocuments();
     }
 
     @Override
-    public void deleteDocument(String documentId) {
-        DocumentModel document = documentStorage.get(documentId);
+    public void deleteDocument(Long documentId) {
+        DocumentModel document = documentRepoPort.getDocumentById(documentId).orElse(null);
         if (document == null) {
-            throw new RuntimeException("Document not found " + documentId);
+            throw new AppException(ErrorCode.DOCUMENT_NOT_FOUND);
         }
 
         try {
@@ -188,25 +171,10 @@ public class DocumentIngestionService implements IDocumentIngestionService {
                     .eq("document_id", documentId)
                     .build();
 
-            SearchRequest searchRequest = SearchRequest.builder()
-                    .query("")
-                    .filterExpression(filterExpression)
-                    .topK(1000)
-                    .build();
+            vectorStore.delete(filterExpression);
+            fileStorage.deleteFile(document.getFilePath());
+            documentRepoPort.deleteDocumentById(documentId);
 
-            List<Document> documentsToDelete = vectorStore.similaritySearch(searchRequest);
-            if (!CollectionUtils.isEmpty(documentsToDelete)) {
-                List<String> idsToDelete = documentsToDelete.stream()
-                        .map(Document::getId)
-                        .toList();
-                vectorStore.delete(idsToDelete);
-            }
-
-            documentStorage.remove(documentId);
-
-            assert documentsToDelete != null;
-            log.info("Document deleted successfully: {} ({}) - Removed {} vectors",
-                    document.getFileName(), documentId, documentsToDelete.size());
         } catch (Exception e) {
             log.error("Error deleting document: {}, ({})", document.getFileName(), documentId, e);
             throw new RuntimeException("Document deletion failed: " + documentId, e);
@@ -215,9 +183,8 @@ public class DocumentIngestionService implements IDocumentIngestionService {
 
     @Override
     public List<DocumentModel> searchDocuments(String query) {
-        return documentStorage.values().stream()
-                .filter(doc -> doc.getFileName().toLowerCase().contains(query.toLowerCase())
-                        || (doc.getContent() != null && doc.getContent().toLowerCase().contains(query.toLowerCase())))
+        return getAllDocuments().stream()
+                .filter(doc -> doc.getFileName().toLowerCase().contains(query.toLowerCase()))
                 .toList();
     }
 }
