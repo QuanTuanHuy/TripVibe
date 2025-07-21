@@ -1,0 +1,40 @@
+package huy.project.ai_service.ui;
+
+import huy.project.ai_service.core.domain.constant.ErrorCode;
+import huy.project.ai_service.core.exception.AppException;
+import huy.project.ai_service.ui.resource.Resource;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.ControllerAdvice;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+
+@ControllerAdvice
+@Slf4j
+public class GlobalExceptionHandler {
+
+    @ExceptionHandler(value = Exception.class)
+    public ResponseEntity<Resource<?>> handleRuntimeException(Exception e) {
+        log.error("Unexpected error", e);
+        ErrorCode errorCode = ErrorCode.UNCATEGORIZED_EXCEPTION;
+
+        return ResponseEntity
+                .status(errorCode.getHttpStatusCode())
+                .body(Resource.builder()
+                        .code(errorCode.getCode())
+                        .message(errorCode.getMessage())
+                        .build());
+    }
+
+    @ExceptionHandler(value = AppException.class)
+    public ResponseEntity<Resource<?>> handleAppException(AppException e) {
+        ErrorCode errorCode = e.getErrorCode();
+
+        return ResponseEntity
+                .status(errorCode.getHttpStatusCode())
+                .body(Resource.builder()
+                        .code(errorCode.getCode())
+                        .message(errorCode.getMessage())
+                        .build());
+    }
+
+}

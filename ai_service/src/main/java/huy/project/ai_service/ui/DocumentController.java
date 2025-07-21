@@ -3,6 +3,7 @@ package huy.project.ai_service.ui;
 import huy.project.ai_service.core.domain.dto.request.DocumentUploadRequest;
 import huy.project.ai_service.core.domain.model.DocumentModel;
 import huy.project.ai_service.core.service.IDocumentIngestionService;
+import huy.project.ai_service.ui.resource.Resource;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -17,7 +18,7 @@ public class DocumentController {
     private final IDocumentIngestionService documentIngestionService;
 
     @PostMapping("/upload")
-    public ResponseEntity<DocumentModel> uploadDocument(
+    public ResponseEntity<Resource<DocumentModel>> uploadDocument(
             @RequestParam("file") MultipartFile file,
             @RequestParam(value = "title", required = false) String title
     ) {
@@ -26,23 +27,25 @@ public class DocumentController {
         request.setTitle(title);
 
         DocumentModel document = documentIngestionService.uploadDocument(request);
-        return ResponseEntity.ok(document);
+        return ResponseEntity.ok(new Resource<>(document));
     }
 
     @GetMapping
-    public ResponseEntity<List<DocumentModel>> getAllDocuments() {
-        return ResponseEntity.ok(documentIngestionService.getAllDocuments());
+    public ResponseEntity<Resource<List<DocumentModel>>> getAllDocuments() {
+        return ResponseEntity.ok(
+                new Resource<>(documentIngestionService.getAllDocuments())
+        );
     }
 
     @GetMapping("/search")
-    public ResponseEntity<List<DocumentModel>> searchDocuments(@RequestParam String query) {
+    public ResponseEntity<Resource<List<DocumentModel>>> searchDocuments(@RequestParam String query) {
         List<DocumentModel> documents = documentIngestionService.searchDocuments(query);
-        return ResponseEntity.ok(documents);
+        return ResponseEntity.ok(new Resource<>(documents));
     }
 
     @DeleteMapping("/{documentId}")
-    public ResponseEntity<Void> deleteDocument(@PathVariable Long documentId) {
+    public ResponseEntity<Resource<?>> deleteDocument(@PathVariable Long documentId) {
         documentIngestionService.deleteDocument(documentId);
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.ok(new Resource<>(null));
     }
 }
