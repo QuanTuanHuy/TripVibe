@@ -46,7 +46,7 @@ app:
   file-storage:
 #    upload-dir: D:\User2\booking_storage
     upload-dir: C:\Users\HuyQT2\upload_ai_booking
-    allowed-extensions: jpg, jpeg, png, pdf, webp, gif, docx
+    allowed-extensions: jpg, jpeg, png, pdf, webp, gif, docx, xlsx, txt
     max-file-size: 10485760
 
 server:

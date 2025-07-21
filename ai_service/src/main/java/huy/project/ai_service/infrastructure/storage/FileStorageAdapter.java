@@ -12,6 +12,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 
 @Component
 @RequiredArgsConstructor
@@ -37,7 +38,7 @@ public class FileStorageAdapter implements IFileStoragePort {
         String fileName = generateFileName(file);
         try {
             Path targetLocation = fileStoragePath.resolve(fileName).normalize();
-            Files.write(targetLocation, file.getBytes());
+            Files.copy(file.getInputStream(), targetLocation, StandardCopyOption.REPLACE_EXISTING);
             return fileName;
         } catch (Exception e) {
             throw new AppException(ErrorCode.FILE_STORAGE_ERROR);

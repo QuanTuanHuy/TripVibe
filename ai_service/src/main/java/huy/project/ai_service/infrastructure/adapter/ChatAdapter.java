@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.prompt.ChatOptions;
 import org.springframework.ai.content.Media;
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.stereotype.Service;
 import org.springframework.util.MimeTypeUtils;
 import org.springframework.web.multipart.MultipartFile;
@@ -43,4 +44,21 @@ public class ChatAdapter implements IChatPort {
                 .call()
                 .content();
     }
+
+    @Override
+    public <T> T getStructureResponse(String prompt, Class<T> clazz) {
+        return chatClient
+                .prompt(prompt)
+                .call()
+                .entity(clazz);
+    }
+
+    @Override
+    public <T> T getStructureResponse(String prompt, ParameterizedTypeReference<T> typeReference) {
+        return chatClient
+                .prompt(prompt)
+                .call()
+                .entity(typeReference);
+    }
 }
+

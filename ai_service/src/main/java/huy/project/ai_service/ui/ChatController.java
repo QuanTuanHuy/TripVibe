@@ -2,6 +2,7 @@ package huy.project.ai_service.ui;
 
 import huy.project.ai_service.core.domain.dto.request.ChatRequest;
 import huy.project.ai_service.core.domain.dto.request.RAGChatRequest;
+import huy.project.ai_service.core.domain.dto.response.AccommodationInfo;
 import huy.project.ai_service.core.domain.dto.response.RAGChatResponse;
 import huy.project.ai_service.core.service.IChatService;
 import huy.project.ai_service.core.service.IRAGChatService;
@@ -24,6 +25,13 @@ public class ChatController {
         String response = chatService.chat(request);
         return ResponseEntity.ok(response);
     }
+
+    @PostMapping("/structure")
+    public ResponseEntity<List<AccommodationInfo>> chatWithStructureOutput(@RequestBody ChatRequest request) {
+        var response = chatService.chatWithStructureOutput(request);
+        return ResponseEntity.ok(response);
+    }
+
 
     @PostMapping("/image")
     public ResponseEntity<String> chatWithImage(
