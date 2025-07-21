@@ -2,6 +2,7 @@ package huy.project.ai_service.core.service;
 
 import huy.project.ai_service.core.domain.dto.request.RAGChatRequest;
 import huy.project.ai_service.core.domain.dto.response.RAGChatResponse;
+import huy.project.ai_service.core.service.memory.EnhancedMemoryService;
 import huy.project.ai_service.core.tool.ToolManager;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -17,7 +18,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
 
 @Service
 @RequiredArgsConstructor
@@ -25,8 +25,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public class RAGChatService implements IRAGChatService {
     private final ChatClient chatClient;
     private final VectorStore vectorStore;
-    private final Map<String, List<String>> conversationHistory = new ConcurrentHashMap<>();
-
+    private final EnhancedMemoryService memoryService;
     private final ToolManager toolManager;
 
     @Value("${rag.max-results}")
@@ -129,13 +128,7 @@ public class RAGChatService implements IRAGChatService {
             return "Chưa có lịch sử trò chuyện.";
         }
 
-        List<String> history = conversationHistory.get(conversationId);
-        if (history == null || history.isEmpty()) {
-            return "Chưa có lịch sử trò chuyện.";
-        }
-
-        int startIndex = Math.max(0, history.size() - 10);
-        return String.join("\n", history.subList(startIndex, history.size()));
+        return memoryService.getMemoryBuffer(conversationId);
     }
 
     private void saveConversationHistory(String conversationId, String question, String response) {
@@ -143,15 +136,7 @@ public class RAGChatService implements IRAGChatService {
             return;
         }
 
-        conversationHistory.computeIfAbsent(conversationId, k -> new ArrayList<>());
-        List<String> history = conversationHistory.get(conversationId);
-
-        history.add("Người dùng: " + question);
-        history.add("AI: " + response);
-
-        if (history.size() > 50) {
-            history.subList(0, history.size() - 50).clear();
-        }
+        memoryService.saveContext(conversationId, question, response);
     }
 
     private String getOrCreateConversationId(String conversationId) {

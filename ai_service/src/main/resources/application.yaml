@@ -23,6 +23,17 @@ spring:
         options:
           model: gemini-2.0-flash
 
+    # Enhanced Memory Configuration
+    memory:
+      type: BUFFER # BUFFER, SUMMARY, ENTITY, VECTOR
+      max-tokens: 4000 # Maximum tokens per conversation
+      max-turns: 20 # Maximum turns to keep in buffer memory
+      ttl-hours: 24 # Time to live in hours
+      summary-threshold: 2000 # Token threshold for summarization
+      cleanup:
+        enabled: true
+        interval: 3600000 # Cleanup interval in ms (1 hour)
+
     vectorstore:
       qdrant:
         host: localhost
