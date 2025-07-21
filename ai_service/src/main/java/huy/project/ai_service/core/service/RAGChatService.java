@@ -3,21 +3,24 @@ package huy.project.ai_service.core.service;
 import huy.project.ai_service.core.domain.dto.request.RAGChatRequest;
 import huy.project.ai_service.core.domain.dto.response.RAGChatResponse;
 import huy.project.ai_service.core.tool.ToolManager;
+import huy.project.ai_service.kernel.properties.RAGProperty;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.chat.client.ChatClient;
+import org.springframework.ai.chat.memory.ChatMemory;
+import org.springframework.ai.chat.messages.AssistantMessage;
+import org.springframework.ai.chat.messages.Message;
+import org.springframework.ai.chat.messages.UserMessage;
 import org.springframework.ai.chat.prompt.PromptTemplate;
 import org.springframework.ai.document.Document;
 import org.springframework.ai.vectorstore.SearchRequest;
 import org.springframework.ai.vectorstore.VectorStore;
 import org.springframework.ai.vectorstore.filter.Filter;
 import org.springframework.ai.vectorstore.filter.FilterExpressionBuilder;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
 
 @Service
 @RequiredArgsConstructor
@@ -25,15 +28,11 @@ import java.util.concurrent.ConcurrentHashMap;
 public class RAGChatService implements IRAGChatService {
     private final ChatClient chatClient;
     private final VectorStore vectorStore;
-    private final Map<String, List<String>> conversationHistory = new ConcurrentHashMap<>();
+    private final ChatMemory chatMemory;
 
     private final ToolManager toolManager;
 
-    @Value("${rag.max-results}")
-    private int maxResults;
-
-    @Value("${rag.similarity-threshold}")
-    private double similarityThreshold;
+    private final RAGProperty ragProperty;
 
     // private static final String RAG_PROMPT_TEMPLATE = """
     // Bạn là một AI assistant thông minh và hữu ích cho hệ thống đặt phòng khách
@@ -96,14 +95,22 @@ public class RAGChatService implements IRAGChatService {
         long startTime = System.currentTimeMillis();
 
         try {
+            // 1. search relevant documents
             List<Document> relevantDocs = searchRelevantDocuments(request);
 
+            // 2. build context from documents
             String context = buildContext(relevantDocs);
-            String history = getConversationHistory(request.getConversationId());
 
+            // 3. get conversation history
+            String conversationId = getOrCreateConversationId(request.getConversationId());
+            List<Message> messages = getConversationMessages(conversationId);
+            String history = formatMessagesAsHistory(messages);
+
+            // 4. generate response
             String response = generateResponse(request.getMessage(), context, history);
 
-            saveConversationHistory(request.getConversationId(), request.getMessage(), response);
+            // 5. save conversation history
+            saveConversationMessages(conversationId, request.getMessage(), response);
 
             List<RAGChatResponse.SourceDocument> sources = buildSourceDocuments(relevantDocs,
                     request.isIncludeSources());
@@ -121,36 +128,6 @@ public class RAGChatService implements IRAGChatService {
         } catch (Exception e) {
             log.error("Error in RAG chat", e);
             throw new RuntimeException("Failed to process RAG chat: " + e.getMessage());
-        }
-    }
-
-    private String getConversationHistory(String conversationId) {
-        if (conversationId == null) {
-            return "Chưa có lịch sử trò chuyện.";
-        }
-
-        List<String> history = conversationHistory.get(conversationId);
-        if (history == null || history.isEmpty()) {
-            return "Chưa có lịch sử trò chuyện.";
-        }
-
-        int startIndex = Math.max(0, history.size() - 10);
-        return String.join("\n", history.subList(startIndex, history.size()));
-    }
-
-    private void saveConversationHistory(String conversationId, String question, String response) {
-        if (conversationId == null) {
-            return;
-        }
-
-        conversationHistory.computeIfAbsent(conversationId, k -> new ArrayList<>());
-        List<String> history = conversationHistory.get(conversationId);
-
-        history.add("Người dùng: " + question);
-        history.add("AI: " + response);
-
-        if (history.size() > 50) {
-            history.subList(0, history.size() - 50).clear();
         }
     }
 
@@ -177,9 +154,9 @@ public class RAGChatService implements IRAGChatService {
         try {
             SearchRequest.Builder searchRequestBuilder = SearchRequest.builder()
                     .query(request.getMessage())
-                    .topK(request.getMaxResults() > 0 ? request.getMaxResults() : maxResults)
+                    .topK(request.getMaxResults() > 0 ? request.getMaxResults() : ragProperty.getMaxResults())
                     .similarityThreshold(request.getSimilarityThreshold() > 0 ? request.getSimilarityThreshold()
-                            : similarityThreshold);
+                            : ragProperty.getSimilarityThreshold());
 
             if (request.getFilters() != null && !request.getFilters().isEmpty()) {
                 Filter.Expression filterExpression = buildFilterExpression(request.getFilters());
@@ -263,7 +240,7 @@ public class RAGChatService implements IRAGChatService {
             SearchRequest searchRequest = SearchRequest.builder()
                     .query(query)
                     .topK(maxResults)
-                    .similarityThreshold(similarityThreshold)
+                    .similarityThreshold(ragProperty.getSimilarityThreshold())
                     .build();
 
             List<Document> documents = vectorStore.similaritySearch(searchRequest);
@@ -287,5 +264,59 @@ public class RAGChatService implements IRAGChatService {
                         .metadata(doc.getMetadata())
                         .build())
                 .toList();
+    }
+
+    private List<Message> getConversationMessages(String conversationId) {
+        if (conversationId == null) {
+            return Collections.emptyList();
+        }
+
+        try {
+            List<Message> messages = chatMemory.get(conversationId);
+            log.info("Found {} messages for conversation: {}", messages.size(), conversationId);
+            return messages;
+        } catch (Exception e) {
+            log.error("Error retrieving conversation messages for ID: {}", conversationId, e);
+            return Collections.emptyList();
+        }
+    }
+
+    private void saveConversationMessages(String conversationId, String question, String response) {
+        if (conversationId == null) {
+            return;
+        }
+
+        try {
+            UserMessage usermessage = new UserMessage(question);
+            chatMemory.add(conversationId, usermessage);
+
+            AssistantMessage assistantMessage = new AssistantMessage(response);
+            chatMemory.add(conversationId, assistantMessage);
+
+            log.info("Saved conversation messages for ID: {}", conversationId);
+        } catch (Exception e) {
+            log.error("Error saving conversation messages for ID: {}", conversationId, e);
+        }
+    }
+
+    private String formatMessagesAsHistory(List<Message> messages) {
+        if (messages == null || messages.isEmpty()) {
+            return "Chưa có lịch sử trò chuyện.";
+        }
+
+        StringBuilder history = new StringBuilder();
+
+        for (var message : messages) {
+            String role = switch (message.getMessageType()) {
+                case USER -> "Người dùng";
+                case ASSISTANT -> "AI";
+                case SYSTEM -> "Hệ thống";
+                default -> "Khác";
+            };
+
+            history.append(role).append(": ").append(message.getText()).append("\n");
+        }
+
+        return history.toString().trim();
     }
 }
