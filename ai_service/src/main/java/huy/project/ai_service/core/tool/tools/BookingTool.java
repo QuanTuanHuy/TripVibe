@@ -32,6 +32,11 @@ public class BookingTool {
             @ToolParam(description = "Guest information") GuestInfo guestInfo,
             @ToolParam(description = "Booking dates") BookingDates dates) {
         log.info("Tool called: createBooking");
+
+        log.info("accommodationId: {}", accommodationId);
+        log.info("guestInfo: {}", guestInfo);
+        log.info("dates: {}", dates);
+
         return new BookingResult();
     }
 }

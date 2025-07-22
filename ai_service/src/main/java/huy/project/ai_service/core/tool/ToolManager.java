@@ -2,6 +2,7 @@ package huy.project.ai_service.core.tool;
 
 import huy.project.ai_service.core.tool.dto.ToolDescriptor;
 import huy.project.ai_service.core.tool.tools.BookingTool;
+import huy.project.ai_service.core.tool.tools.TimeTool;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -22,6 +23,7 @@ public class ToolManager {
     private final Map<String, ToolDescriptor> toolDescriptors = new ConcurrentHashMap<>();
 
     private final BookingTool bookingTool;
+    private final TimeTool timeTool;
 
     @EventListener(ContextRefreshedEvent.class)
     public void initializeTools() {
@@ -29,6 +31,7 @@ public class ToolManager {
 
         try {
             registerToolClass("bookingTools", bookingTool);
+            registerToolClass("timeTools", timeTool);
         } catch (Exception e) {
             log.error("Failed to register booking tools", e);
             throw new RuntimeException("Failed to register booking tools", e);

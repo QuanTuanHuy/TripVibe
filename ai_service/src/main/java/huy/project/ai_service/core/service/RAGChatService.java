@@ -4,26 +4,24 @@ import huy.project.ai_service.core.domain.dto.request.RAGChatRequest;
 import huy.project.ai_service.core.domain.dto.response.RAGChatResponse;
 import huy.project.ai_service.core.tool.ToolManager;
 import huy.project.ai_service.kernel.properties.RAGProperty;
-import lombok.RequiredArgsConstructor;
+import io.micrometer.common.util.StringUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.chat.client.ChatClient;
+import org.springframework.ai.chat.client.advisor.MessageChatMemoryAdvisor;
 import org.springframework.ai.chat.memory.ChatMemory;
-import org.springframework.ai.chat.messages.AssistantMessage;
-import org.springframework.ai.chat.messages.Message;
-import org.springframework.ai.chat.messages.UserMessage;
 import org.springframework.ai.chat.prompt.PromptTemplate;
 import org.springframework.ai.document.Document;
 import org.springframework.ai.vectorstore.SearchRequest;
 import org.springframework.ai.vectorstore.VectorStore;
 import org.springframework.ai.vectorstore.filter.Filter;
 import org.springframework.ai.vectorstore.filter.FilterExpressionBuilder;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
 import java.util.*;
 
 @Service
-@RequiredArgsConstructor
 @Slf4j
 public class RAGChatService implements IRAGChatService {
     private final ChatClient chatClient;
@@ -34,59 +32,38 @@ public class RAGChatService implements IRAGChatService {
 
     private final RAGProperty ragProperty;
 
-    // private static final String RAG_PROMPT_TEMPLATE = """
-    // Bạn là một AI assistant thông minh và hữu ích cho hệ thống đặt phòng khách
-    // sạn.
-    //
-    // Hãy trả lời câu hỏi của người dùng dựa trên thông tin được cung cấp dưới đây.
-    // Nếu thông tin không đủ để trả lời, hãy nói rõ và đề xuất cách tìm thêm thông
-    // tin.
-    //
-    // NGUYÊN TẮC:
-    // 1. Chỉ sử dụng thông tin từ context được cung cấp
-    // 2. Trả lời chính xác, ngắn gọn và hữu ích
-    // 3. Nếu không chắc chắn, hãy thừa nhận và gợi ý
-    // 4. Luôn thân thiện và chuyên nghiệp
-    //
-    // CONTEXT:
-    // {context}
-    //
-    // LỊCH SỬ TRƯỚC ĐÓ:
-    // {history}
-    //
-    // CÂU HỎI: {question}
-    //
-    // TRẢ LỜI:
-    // """;
+    public RAGChatService(@Qualifier("memoryAwareChatClient") ChatClient chatClient,
+                          VectorStore vectorStore,
+                          ChatMemory chatMemory,
+                          ToolManager toolManager,
+                          RAGProperty ragProperty) {
+        this.chatClient = chatClient;
+        this.vectorStore = vectorStore;
+        this.chatMemory = chatMemory;
+        this.toolManager = toolManager;
+        this.ragProperty = ragProperty;
+    }
+
     private static final String RAG_PROMPT_TEMPLATE = """
-            Bạn là một AI assistant thông minh và hữu ích cho nhiệm vụ tìm kiếm thông tin từ tài liệu công nghệ.
-            
-            Hãy trả lời câu hỏi của người dùng dựa trên thông tin được cung cấp dưới đây.
-            Nếu thông tin không đủ để trả lời, hãy nói rõ và đề xuất cách tìm thêm thông tin.
-            
-            NGUYÊN TẮC:
-            1. Chỉ sử dụng thông tin từ context được cung cấp
-            2. Trả lời chính xác, ngắn gọn và hữu ích
-            3. Nếu không chắc chắn, hãy thừa nhận và gợi ý
-            4. Luôn thân thiện và chuyên nghiệp
-            
-            CONTEXT:
-            {context}
-            
-            LỊCH SỬ TRƯỚC ĐÓ:
-            {history}
-            
-            CÂU HỎI: {question}
-            
-            TRẢ LỜI:
-            """;
+                Bạn là một AI assistant thông minh và hữu ích cho nhiệm vụ trả lời các câu hỏi mà người dùng yêu cầu.
+                Hãy kết hợp kiến thức của bạn và tài liệu tôi cung cấp, cùng với các tools.
+                
+                NGUYÊN TẮC:
+                1. Trả lời chính xác, ngắn gọn và hữu ích
+                2. Nếu không chắc chắn, hãy thừa nhận và gợi ý
+                3. Luôn thân thiện và chuyên nghiệp
+                4. Sử dụng lịch sử trò chuyện để đưa ra câu trả lời có ngữ cảnh
+                
+                CONTEXT TÀI LIỆU:
+                %s
+                """;
 
     private static final String SIMPLE_CHAT_TEMPLATE = """
             Bạn là một AI assistant thông minh cho hệ thống đặt phòng khách sạn.
             Hãy trả lời câu hỏi của người dùng một cách thân thiện và hữu ích.
-
+            
             CÂU HỎI: {question}
-
+            
             TRẢ LỜI:
             """;
 
@@ -103,14 +80,18 @@ public class RAGChatService implements IRAGChatService {
 
             // 3. get conversation history
             String conversationId = getOrCreateConversationId(request.getConversationId());
-            List<Message> messages = getConversationMessages(conversationId);
-            String history = formatMessagesAsHistory(messages);
 
             // 4. generate response
-            String response = generateResponse(request.getMessage(), context, history);
-
-            // 5. save conversation history
-            saveConversationMessages(conversationId, request.getMessage(), response);
+            String response = chatClient.prompt()
+                    .system(buildSystemPromptWithContext(context))
+                    .user(request.getMessage())
+                    .advisors(advisorSpec -> {
+                            advisorSpec.param(ChatMemory.CONVERSATION_ID, conversationId);
+                            advisorSpec.advisors(MessageChatMemoryAdvisor.builder(chatMemory).build());
+                    })
+                    .toolCallbacks(toolManager.getAllTools())
+                    .call()
+                    .content();
 
             List<RAGChatResponse.SourceDocument> sources = buildSourceDocuments(relevantDocs,
                     request.isIncludeSources());
@@ -132,22 +113,7 @@ public class RAGChatService implements IRAGChatService {
     }
 
     private String getOrCreateConversationId(String conversationId) {
-        return conversationId != null ? conversationId : UUID.randomUUID().toString();
-    }
-
-    private String generateResponse(String question, String context, String history) {
-        PromptTemplate promptTemplate = new PromptTemplate(RAG_PROMPT_TEMPLATE);
-
-        Map<String, Object> promptVariables = Map.of(
-                "question", question,
-                "context", context,
-                "history", history);
-
-        return chatClient.prompt()
-                .user(promptTemplate.render(promptVariables))
-                .toolCallbacks(toolManager.getAllTools())
-                .call()
-                .content();
+        return !StringUtils.isEmpty(conversationId) ? conversationId : UUID.randomUUID().toString();
     }
 
     private List<Document> searchRelevantDocuments(RAGChatRequest request) {
@@ -266,57 +232,7 @@ public class RAGChatService implements IRAGChatService {
                 .toList();
     }
 
-    private List<Message> getConversationMessages(String conversationId) {
-        if (conversationId == null) {
-            return Collections.emptyList();
-        }
-
-        try {
-            List<Message> messages = chatMemory.get(conversationId);
-            log.info("Found {} messages for conversation: {}", messages.size(), conversationId);
-            return messages;
-        } catch (Exception e) {
-            log.error("Error retrieving conversation messages for ID: {}", conversationId, e);
-            return Collections.emptyList();
-        }
-    }
-
-    private void saveConversationMessages(String conversationId, String question, String response) {
-        if (conversationId == null) {
-            return;
-        }
-
-        try {
-            UserMessage usermessage = new UserMessage(question);
-            chatMemory.add(conversationId, usermessage);
-
-            AssistantMessage assistantMessage = new AssistantMessage(response);
-            chatMemory.add(conversationId, assistantMessage);
-
-            log.info("Saved conversation messages for ID: {}", conversationId);
-        } catch (Exception e) {
-            log.error("Error saving conversation messages for ID: {}", conversationId, e);
-        }
-    }
-
-    private String formatMessagesAsHistory(List<Message> messages) {
-        if (messages == null || messages.isEmpty()) {
-            return "Chưa có lịch sử trò chuyện.";
-        }
-
-        StringBuilder history = new StringBuilder();
-
-        for (var message : messages) {
-            String role = switch (message.getMessageType()) {
-                case USER -> "Người dùng";
-                case ASSISTANT -> "AI";
-                case SYSTEM -> "Hệ thống";
-                default -> "Khác";
-            };
-
-            history.append(role).append(": ").append(message.getText()).append("\n");
-        }
-
-        return history.toString().trim();
+    private String buildSystemPromptWithContext(String context) {
+        return String.format(RAG_PROMPT_TEMPLATE, context);
     }
 }

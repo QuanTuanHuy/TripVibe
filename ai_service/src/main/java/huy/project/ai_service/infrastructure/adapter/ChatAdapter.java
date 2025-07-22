@@ -1,10 +1,10 @@
 package huy.project.ai_service.infrastructure.adapter;
 
 import huy.project.ai_service.core.port.IChatPort;
-import lombok.RequiredArgsConstructor;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.prompt.ChatOptions;
 import org.springframework.ai.content.Media;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.stereotype.Service;
 import org.springframework.util.MimeTypeUtils;
@@ -13,9 +13,12 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.Objects;
 
 @Service
-@RequiredArgsConstructor
 public class ChatAdapter implements IChatPort {
     private final ChatClient chatClient;
+
+    public ChatAdapter(@Qualifier("chatClient") ChatClient chatClient) {
+        this.chatClient = chatClient;
+    }
 
     @Override
     public String getResponse(String prompt) {
