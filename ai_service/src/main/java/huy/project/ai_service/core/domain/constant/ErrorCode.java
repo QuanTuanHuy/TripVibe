@@ -1,0 +1,37 @@
+package huy.project.ai_service.core.domain.constant;
+
+import lombok.Getter;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
+
+@Getter
+public enum ErrorCode {
+    UNCATEGORIZED_EXCEPTION(100001, "Uncategorized error", HttpStatus.INTERNAL_SERVER_ERROR),
+    SUCCESS(0, "Success", HttpStatus.OK),
+    FILE_STORAGE_ERROR(100002, "File storage error", HttpStatus.INTERNAL_SERVER_ERROR),
+    FILE_EMPTY(100003, "File is empty", HttpStatus.BAD_REQUEST),
+    FILE_TOO_LARGE(100004, "File is too large", HttpStatus.BAD_REQUEST),
+    FILE_TYPE_NOT_SUPPORTED(100005, "File type is not supported", HttpStatus.BAD_REQUEST),
+    FILE_NOT_FOUND(100006, "File not found", HttpStatus.NOT_FOUND),
+    DELETE_FILE_ERROR(100007, "Could not delete file", HttpStatus.INTERNAL_SERVER_ERROR),
+    FORBIDDEN_DELETE_FILE(100008, "Forbidden to delete file", HttpStatus.FORBIDDEN),
+    FORBIDDEN_DOWNLOAD_FILE(100009, "Forbidden to download file", HttpStatus.FORBIDDEN),
+    READ_FILE_ERROR(100010, "read file error", HttpStatus.INTERNAL_SERVER_ERROR),
+    FILE_NAME_EMPTY(100011, "File name is empty", HttpStatus.BAD_REQUEST),
+    SAVE_DOCUMENT_ERROR(100012, "Save document error", HttpStatus.INTERNAL_SERVER_ERROR),
+    DELETE_DOCUMENT_ERROR(100013, "Delete document error", HttpStatus.INTERNAL_SERVER_ERROR),
+    DOCUMENT_NOT_FOUND(100014, "Document not found", HttpStatus.NOT_FOUND),
+    ;
+
+
+
+    ErrorCode(int code, String message, HttpStatusCode httpStatusCode) {
+        this.code = code;
+        this.message = message;
+        this.httpStatusCode = httpStatusCode;
+    }
+
+    private final int code;
+    private final String message;
+    private final HttpStatusCode httpStatusCode;
+}

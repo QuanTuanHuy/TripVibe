@@ -75,7 +75,7 @@ public class CreateAccommodationUseCase {
         var unit = createUnitUseCase.createUnitV2(accommodationId, req.getUnit(), images);
 
         // chose the first image as primary
-        var firstImage = unit.getImages().getFirst().getUrl();
+        var firstImage = unit.getImages().get(0).getUrl();
         accommodation.setThumbnailUrl(firstImage);
 
         handleAfterCreateAccommodation(accommodationId);

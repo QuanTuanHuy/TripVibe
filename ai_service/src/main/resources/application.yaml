@@ -1,0 +1,66 @@
+spring:
+  application:
+    name: ai_service
+  datasource:
+    username: user_booking
+    password: secret
+    url: jdbc:postgresql://localhost:5433/db_ai_service
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+  ai:
+    openai:
+      api-key: ${GEMINI_KEY}
+      embedding:
+        options:
+          model: gemini-embedding-001
+        base-url: https://generativelanguage.googleapis.com
+        embeddings-path: /v1beta/openai/embeddings
+      chat:
+        base-url: https://generativelanguage.googleapis.com
+        completions-path: /v1beta/openai/chat/completions
+        options:
+          model: gemini-2.0-flash
+
+    vectorstore:
+      qdrant:
+        host: localhost
+        port: 6334
+        collection-name: booking_docs
+        use-tls: false
+        initialize-schema: true
+
+    chat:
+      memory:
+        repository:
+          jdbc:
+            initialize-schema: always
+            platform: postgresql
+            schema: classpath:org/springframework/ai/chat/memory/repository/jdbc/schema-postgresql.sql
+
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 10MB
+
+rag:
+  chunk-size: 1000
+  chunk-overlap: 200
+  max-results: 5
+  similarity-threshold: 0.7
+
+  memory:
+    max-messages: 30
+    retention-days: 30
+    cleanup-intervalMs: 3600000
+
+app:
+  file-storage:
+#    upload-dir: D:\User2\booking_storage
+    upload-dir: C:\Users\HuyQT2\upload_ai_booking
+    allowed-extensions: jpg, jpeg, png, pdf, webp, gif, docx, xlsx, txt
+    max-file-size: 10485760
+
+server:
+  port: 8094

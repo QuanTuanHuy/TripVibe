@@ -1,0 +1,32 @@
+syntax = "proto3";
+
+package memo;
+
+option go_package = "memo_service/pkg/pb";
+
+message Memo {
+    int64 id = 1;
+    int64 creator_id = 2;
+    string content = 3;
+    string visibility = 4;
+    string row_status = 5;
+    bool pinned = 6;
+    int64 parent_id = 7;
+    int64 created_at = 8;
+    int64 updated_at = 9;
+}
+
+message CreateMemoDto {
+    int64 user_id = 1;
+    string content = 2;
+    string visibility = 3;
+}
+
+message GetMemoRequest {
+    int64 id = 1;
+}
+
+service MemoService {
+    rpc CreateMemo(CreateMemoDto) returns (Memo);
+    rpc GetMemoById(GetMemoRequest) returns (Memo);
+}

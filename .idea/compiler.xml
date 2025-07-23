@@ -58,6 +58,15 @@
         <module name="file_service" />
         <module name="search_service" />
       </profile>
+      <profile name="Annotation profile for ai_service" enabled="true">
+        <sourceOutputDir name="target/generated-sources/annotations" />
+        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
+        <outputRelativeToContentRoot value="true" />
+        <processorPath useClasspath="false">
+          <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok/1.18.38/lombok-1.18.38.jar" />
+        </processorPath>
+        <module name="ai_service" />
+      </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
       <module name="common_lib" target="21" />
@@ -66,6 +75,7 @@
   <component name="JavacSettings">
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
       <module name="accommodation_service" options="-parameters" />
+      <module name="ai_service" options="-parameters" />
       <module name="api_gateway" options="-parameters" />
       <module name="authentication_service" options="-parameters" />
       <module name="common_lib" options="-parameters" />

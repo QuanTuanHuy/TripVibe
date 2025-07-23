@@ -29,10 +29,10 @@ public class AccommodationModel extends AuditTable {
     @Column(name = "currency_id")
     private Long currencyId;
 
-    @Column(name = "name")
+    @Column(name = "name", length = 1000)
     private String name;
 
-    @Column(name = "description")
+    @Column(name = "description", columnDefinition = "TEXT")
     private String description;
 
     @Column(name = "thumbnail_url")
