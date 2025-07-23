@@ -1,28 +1,347 @@
 services:
+  api_gateway:
+    build:
+      context: ./api_gateway
+    container_name: api_gateway
+    ports:
+      - "8000:8080"
+    environment:
+      # Server Configuration
+      - SERVER_PORT=8080
+    depends_on:
+      - authentication_service
+      - accommodation_service
+      - search_service
+      - profile_service
+      - file_service
+      - rating_service
+      - inventory_service
+    networks:
+      - booking_network
+    restart: on-failure
+
   authentication_service:
     build:
       context: ./authentication_service
     container_name: authentication_service
     ports:
-      - "8001:8080"
+      - "8001:8081"
+    environment:
+      # Database Configuration
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://booking_postgre_db:5432/db_authentication_service
+      - SPRING_DATASOURCE_USERNAME=user_booking
+      - SPRING_DATASOURCE_PASSWORD=secret
+      - SPRING_DATASOURCE_DRIVER_CLASS_NAME=org.postgresql.Driver
+      
+      # JPA/Hibernate Configuration
+      - SPRING_JPA_HIBERNATE_DDL_AUTO=update
+      - SPRING_JPA_HIBERNATE_DIALECT=org.hibernate.dialect.PostgreSQLDialect
+      - SPRING_JPA_SHOW_SQL=true
+      
+      # Redis Configuration
+      - SPRING_DATA_REDIS_HOST=redis
+      - SPRING_DATA_REDIS_PORT=6379
+      
+      # Kafka Configuration
+      - SPRING_KAFKA_BOOTSTRAP_SERVERS=broker:9092
+      - APP_KAFKA_DEFAULT_SERVER=broker:9092
+      
+      # Service URLs
+      - APP_SERVICES_NOTIFICATION_SERVICE_URL=notification_service:8080/notification_service/
+      
+      # Server Configuration
+      - SERVER_PORT=8081
     depends_on:
-      - mysql
+      - booking_postgre_db
       - redis
       - broker
     networks:
       - booking_network
-      
-  mysql:
-    image: mysql:8.0.38
-    container_name: db_booking
-    environment:
-      MYSQL_ROOT_PASSWORD: root
+
+  accommodation_service:
+    build:
+      context: ./accommodation_service
+    container_name: accommodation_service
     ports:
-      - "3309:3306"
-    volumes:
-      - db:/var/lib/mysql
+      - "8003:8083"
+    environment:
+      # Database Configuration (PostgreSQL)
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://booking_postgre_db:5432/db_accommodation_service
+      - SPRING_DATASOURCE_USERNAME=user_booking
+      - SPRING_DATASOURCE_PASSWORD=secret
+      - SPRING_DATASOURCE_DRIVER_CLASS_NAME=org.postgresql.Driver
+      
+      # JPA/Hibernate Configuration
+      - SPRING_JPA_HIBERNATE_DDL_AUTO=update
+      - SPRING_JPA_HIBERNATE_DIALECT=org.hibernate.dialect.PostgreSQLDialect
+      - SPRING_JPA_SHOW_SQL=true
+      - SPRING_JPA_PROPERTIES_HIBERNATE_JDBC_BATCH_SIZE=50
+      
+      # File Upload Configuration
+      - SPRING_SERVLET_MULTIPART_MAX_FILE_SIZE=10MB
+      - SPRING_SERVLET_MULTIPART_MAX_REQUEST_SIZE=50MB
+      - SPRING_SERVLET_MULTIPART_ENABLED=true
+      
+      # Redis Configuration
+      - SPRING_DATA_REDIS_HOST=redis
+      - SPRING_DATA_REDIS_PORT=6379
+      
+      # Kafka Configuration
+      - SPRING_KAFKA_BOOTSTRAP_SERVERS=broker:9092
+      - APP_KAFKA_DEFAULT_SERVER=broker:9092
+      
+      # Service URLs
+      - APP_SERVICES_FILE_SERVICE_URL=file_service:8088/file_service/
+      - APP_SERVICES_RATING_SERVICE_URL=rating_service:8089/rating_service/
+      
+      # JWT Configuration
+      - APP_SECURITY_JWT_SECRET=MnAYFOKwxBOznHpxA3Wx4cJjeC3vYNtwzI6HRYT9SD++1BM9Pk32pTGETroljFsS
+      - APP_SECURITY_JWT_EXPIRATION=86400000
+      - APP_SECURITY_JWT_HEADER=Authorization
+      - APP_SECURITY_JWT_PREFIX=Bearer
+      
+      # Server Configuration
+      - SERVER_PORT=8083
+    depends_on:
+      - booking_postgre_db
+      - redis
+      - broker
     networks:
       - booking_network
+
+  rating_service:
+    build:
+      context: ./rating_service
+    container_name: rating_service
+    ports:
+      - "8009:8089"
+    environment:
+      # Database Configuration (PostgreSQL)
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://booking_postgre_db:5432/db_rating_service
+      - SPRING_DATASOURCE_USERNAME=user_booking
+      - SPRING_DATASOURCE_PASSWORD=secret
+      - SPRING_DATASOURCE_DRIVER_CLASS_NAME=org.postgresql.Driver
+      
+      # JPA/Hibernate Configuration
+      - SPRING_JPA_HIBERNATE_DDL_AUTO=update
+      - SPRING_JPA_SHOW_SQL=true
+      
+      # Redis Configuration
+      - SPRING_DATA_REDIS_HOST=redis
+      - SPRING_DATA_REDIS_PORT=6379
+      
+      # Kafka Configuration
+      - SPRING_KAFKA_BOOTSTRAP_SERVERS=broker:9092
+      
+      # Service URLs
+      - APP_SERVICES_BOOKING_SERVICE_URL=booking_service:8084/booking_service/
+      - APP_SERVICES_PROFILE_SERVICE_URL=profile_service:8086/profile_service/
+      - APP_SERVICES_ACCOMMODATION_SERVICE_URL=accommodation_service:8083/accommodation_service/
+      
+      # JWT Configuration
+      - APP_SECURITY_JWT_SECRET=MnAYFOKwxBOznHpxA3Wx4cJjeC3vYNtwzI6HRYT9SD++1BM9Pk32pTGETroljFsS
+      - APP_SECURITY_JWT_EXPIRATION=86400000
+      - APP_SECURITY_JWT_HEADER=Authorization
+      - APP_SECURITY_JWT_PREFIX=Bearer
+      
+      # Server Configuration
+      - SERVER_PORT=8089
+    depends_on:
+      - booking_postgre_db
+      - redis
+      - broker
+    networks:
+      - booking_network
+
+  profile_service:
+    build:
+      context: ./profile_service
+    container_name: profile_service
+    ports:
+      - "8006:8086"
+    environment:
+      # Database Configuration (PostgreSQL)
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://booking_postgre_db:5432/db_profile_service
+      - SPRING_DATASOURCE_USERNAME=user_booking
+      - SPRING_DATASOURCE_PASSWORD=secret
+      - SPRING_DATASOURCE_DRIVER_CLASS_NAME=org.postgresql.Driver
+      
+      # JPA/Hibernate Configuration
+      - SPRING_JPA_HIBERNATE_DDL_AUTO=update
+      - SPRING_JPA_SHOW_SQL=true
+      
+      # Redis Configuration
+      - SPRING_DATA_REDIS_HOST=redis
+      - SPRING_DATA_REDIS_PORT=6379
+      
+      # Kafka Configuration
+      - SPRING_KAFKA_BOOTSTRAP_SERVERS=broker:9092
+      - SPRING_KAFKA_CONSUMER_GROUP_ID=profile_group
+      
+      # Service URLs
+      - APP_SERVICES_ACCOMMODATION_SERVICE_URL=accommodation_service:8083/accommodation_service/
+      - APP_SERVICES_FILE_SERVICE_URL=file_service:8088/file_service/
+      
+      # JWT Configuration
+      - APP_SECURITY_JWT_SECRET=MnAYFOKwxBOznHpxA3Wx4cJjeC3vYNtwzI6HRYT9SD++1BM9Pk32pTGETroljFsS
+      - APP_SECURITY_JWT_EXPIRATION=86400000
+      - APP_SECURITY_JWT_HEADER=Authorization
+      - APP_SECURITY_JWT_PREFIX=Bearer
+      
+      # Server Configuration
+      - SERVER_PORT=8086
+    depends_on:
+      - booking_postgre_db
+      - redis
+      - broker
+    networks:
+      - booking_network
+
+  inventory_service:
+    build:
+      context: ./inventory_service
+    container_name: inventory_service
+    ports:
+      - "8013:8093"
+    environment:
+      # Database Configuration (PostgreSQL with batch optimization)
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://booking_postgre_db:5432/db_inventory_service?reWriteBatchedInserts=true
+      - SPRING_DATASOURCE_USERNAME=user_booking
+      - SPRING_DATASOURCE_PASSWORD=secret
+      - SPRING_DATASOURCE_DRIVER_CLASS_NAME=org.postgresql.Driver
+      
+      # JPA/Hibernate Configuration with Performance Optimization
+      - SPRING_JPA_HIBERNATE_DDL_AUTO=update
+      - SPRING_JPA_SHOW_SQL=true
+      - SPRING_JPA_PROPERTIES_HIBERNATE_DIALECT=org.hibernate.dialect.PostgreSQLDialect
+      - SPRING_JPA_PROPERTIES_HIBERNATE_FORMAT_SQL=true
+      - SPRING_JPA_PROPERTIES_HIBERNATE_JDBC_BATCH_SIZE=50
+      - SPRING_JPA_PROPERTIES_HIBERNATE_JDBC_BATCH_VERSIONED_DATA=true
+      - SPRING_JPA_PROPERTIES_HIBERNATE_ORDER_INSERTS=true
+      - SPRING_JPA_PROPERTIES_HIBERNATE_ORDER_UPDATES=true
+      - SPRING_JPA_PROPERTIES_HIBERNATE_GENERATE_STATISTICS=true
+      
+      # Redis Configuration
+      - SPRING_DATA_REDIS_HOST=redis
+      - SPRING_DATA_REDIS_PORT=6379
+      
+      # Kafka Configuration
+      - SPRING_KAFKA_BOOTSTRAP_SERVERS=broker:9092
+      - SPRING_KAFKA_CONSUMER_GROUP_ID=inventory_group
+      
+      # Service URLs
+      - APP_SERVICES_ACCOMMODATION_SERVICE_URL=accommodation_service:8083/accommodation_service/
+      
+      # Server Configuration
+      - SERVER_PORT=8093
+    depends_on:
+      - booking_postgre_db
+      - redis
+      - broker
+    networks:
+      - booking_network
+
+  file_service:
+    build:
+      context: ./file_service
+    container_name: file_service
+    ports:
+      - "8008:8088"
+    environment:
+      # Database Configuration (PostgreSQL)
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://booking_postgre_db:5432/db_file_service
+      - SPRING_DATASOURCE_USERNAME=user_booking
+      - SPRING_DATASOURCE_PASSWORD=secret
+      - SPRING_DATASOURCE_DRIVER_CLASS_NAME=org.postgresql.Driver
+      
+      # JPA/Hibernate Configuration
+      - SPRING_JPA_HIBERNATE_DDL_AUTO=update
+      
+      # File Upload Configuration
+      - SPRING_SERVLET_MULTIPART_MAX_FILE_SIZE=10MB
+      - SPRING_SERVLET_MULTIPART_MAX_REQUEST_SIZE=50MB
+      - SPRING_SERVLET_MULTIPART_ENABLED=true
+      
+      # Kafka Configuration
+      - SPRING_KAFKA_BOOTSTRAP_SERVERS=broker:9092
+      - SPRING_KAFKA_CONSUMER_GROUP_ID=file_group
+      
+      # File Storage Configuration
+      - APP_FILE_STORAGE_UPLOAD_DIR=/app/uploads
+      - APP_FILE_STORAGE_ALLOWED_EXTENSIONS=jpg,jpeg,png,pdf,webp,gif
+      - APP_FILE_STORAGE_MAX_FILE_SIZE=10485760
+      - APP_FILE_STORAGE_DOWNLOAD_URL=http://localhost:8008/file_service/api/public/v1/file_storage/download/
+      
+      # JWT Configuration
+      - APP_SECURITY_JWT_SECRET=MnAYFOKwxBOznHpxA3Wx4cJjeC3vYNtwzI6HRYT9SD++1BM9Pk32pTGETroljFsS
+      - APP_SECURITY_JWT_EXPIRATION=86400000
+      - APP_SECURITY_JWT_HEADER=Authorization
+      - APP_SECURITY_JWT_PREFIX=Bearer
+      
+      # Server Configuration
+      - SERVER_PORT=8088
+    volumes:
+      - file_uploads:/app/uploads
+    depends_on:
+      - booking_postgre_db
+      - broker
+    networks:
+      - booking_network
+
+  search_service:
+    build:
+      context: ./search_service
+    container_name: search_service
+    ports:
+      - "8005:8085"
+    environment:
+      # Elasticsearch Configuration
+      - SPRING_ELASTICSEARCH_URIS=http://elastic:9200
+      - SPRING_ELASTICSEARCH_CONNECTION_TIMEOUT=5s
+      - SPRING_ELASTICSEARCH_SOCKET_TIMEOUT=5s
+      
+      # Redis Configuration
+      - SPRING_DATA_REDIS_HOST=redis
+      - SPRING_DATA_REDIS_PORT=6379
+      
+      # Kafka Configuration
+      - SPRING_KAFKA_BOOTSTRAP_SERVERS=broker:9092
+      - SPRING_KAFKA_CONSUMER_GROUP_ID=search_group
+
+      # Service URLs
+      - APP_SERVICES_ACCOMMODATION_SERVICE_URL=accommodation_service:8083/accommodation_service/
+      
+      # Elasticsearch App Configuration
+      - APP_ELASTICSEARCH_URL=elastic:9200
+      - APP_ELASTICSEARCH_USERNAME=elastic
+
+      # JWT Configuration
+      - APP_SECURITY_JWT_SECRET=MnAYFOKwxBOznHpxA3Wx4cJjeC3vYNtwzI6HRYT9SD++1BM9Pk32pTGETroljFsS
+      - APP_SECURITY_JWT_EXPIRATION=86400000
+      - APP_SECURITY_JWT_HEADER=Authorization
+      - APP_SECURITY_JWT_PREFIX=Bearer
+      
+      # Server Configuration
+      - SERVER_PORT=8085
+    depends_on:
+      - elastic
+      - redis
+      - broker
+    networks:
+      - booking_network
+    restart: on-failure
+      
+  # mysql:
+  #   image: mysql:8.0.38
+  #   container_name: db_booking
+  #   environment:
+  #     MYSQL_ROOT_PASSWORD: root
+  #   ports:
+  #     - "3309:3306"
+  #   volumes:
+  #     - mysql_data:/var/lib/mysql
+  #   networks:
+  #     - booking_network
 
   redis:
     image: redis:7.2.4-alpine
@@ -31,6 +350,9 @@ services:
       - ALLOW_EMPTY_PASSWORD=yes
     ports:
       - "6379:6379"
+    volumes:
+      - redis_data:/data
+    command: redis-server --appendonly yes
     networks:
       - booking_network
 
@@ -43,7 +365,7 @@ services:
     ports:
       - "5433:5432"
     volumes:
-      - postgres:/data/postgres
+      - postgres_data:/var/lib/postgresql/data
     networks:
       - booking_network
 
@@ -56,11 +378,19 @@ services:
     environment:
       - KAFKA_CFG_NODE_ID=0
       - KAFKA_CFG_PROCESS_ROLES=controller,broker
-      - KAFKA_CFG_CONTROLLER_QUORUM_VOTERS=0@kafka:9093
+      - KAFKA_CFG_CONTROLLER_QUORUM_VOTERS=0@broker:9093
       - KAFKA_CFG_LISTENERS=PLAINTEXT://:9092,CONTROLLER://:9093,EXTERNAL://:9094
-      - KAFKA_CFG_ADVERTISED_LISTENERS=PLAINTEXT://kafka:9092,EXTERNAL://localhost:9094
+      - KAFKA_CFG_ADVERTISED_LISTENERS=PLAINTEXT://broker:9092,EXTERNAL://localhost:9094
       - KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP=CONTROLLER:PLAINTEXT,EXTERNAL:PLAINTEXT,PLAINTEXT:PLAINTEXT
       - KAFKA_CFG_CONTROLLER_LISTENER_NAMES=CONTROLLER
+      # Data persistence settings
+      - KAFKA_CFG_LOG_RETENTION_HOURS=168
+      - KAFKA_CFG_LOG_RETENTION_BYTES=1073741824
+      - KAFKA_CFG_LOG_SEGMENT_BYTES=1073741824
+    volumes:
+      - kafka_data:/bitnami/kafka
+    networks:
+      - booking_network
 
   elastic:
     image: elasticsearch:8.16.1
@@ -74,11 +404,24 @@ services:
       - es-data:/usr/share/elasticsearch/data
     networks:
       - booking_network
+
 volumes:
-  db:
+  # Database volumes
+  # mysql_data:
+  #   driver: local
+  postgres_data:
     driver: local
-  postgres:
+  
+  # Cache and messaging volumes  
+  redis_data:
+    driver: local
+  kafka_data:
+    driver: local
+  
+  # Search and file storage volumes
   es-data:
+    driver: local
+  file_uploads:
     driver: local
 
 networks:

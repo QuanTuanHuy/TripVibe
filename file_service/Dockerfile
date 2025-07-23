@@ -1,5 +1,4 @@
-
-# Multi-stage Dockerfile for Authentication Service
+# Multi-stage Dockerfile for File Service
 
 # Build stage
 FROM eclipse-temurin:21-jdk-jammy AS build
@@ -34,8 +33,11 @@ RUN groupadd -r appuser && useradd -r -g appuser appuser
 
 WORKDIR /app
 
+# Create upload directory and set permissions
+RUN mkdir -p /app/uploads && chown appuser:appuser /app/uploads
+
 # Copy the JAR file from build stage
-COPY --from=build /app/target/authentication_service-*.jar app.jar
+COPY --from=build /app/target/file_service-*.jar app.jar
 
 # Change ownership to non-root user
 RUN chown appuser:appuser app.jar
@@ -48,11 +50,11 @@ ENV JAVA_OPTS="-XX:+UseContainerSupport -XX:MaxRAMPercentage=75.0 -XX:+UseG1GC -
 USER appuser
 
 # Expose the port that the app runs on (matching application.yml)
-EXPOSE 8081
+EXPOSE 8088
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=3s --start-period=60s --retries=3 \
-  CMD curl -f http://localhost:8081/authentication_service/actuator/health || exit 1
+  CMD curl -f http://localhost:8088/file_service/actuator/health || exit 1
 
 # JVM optimization for containers  
 ENTRYPOINT ["sh", "-c", "java $JAVA_OPTS -jar app.jar"]

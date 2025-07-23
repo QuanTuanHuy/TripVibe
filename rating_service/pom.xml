@@ -146,7 +146,6 @@
 						<exclude>
 							<groupId>org.mapstruct</groupId>
 							<artifactId>mapstruct-processor</artifactId>
-							<version>${org.mapstruct.version}</version>
 						</exclude>
 					</excludes>
 				</configuration>
