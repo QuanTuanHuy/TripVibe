@@ -3,6 +3,7 @@ package kafka
 import (
 	"context"
 	"encoding/json"
+	"notification_service/core/domain/constant"
 	"notification_service/core/domain/entity"
 	"strconv"
 	"time"
@@ -31,7 +32,7 @@ type EmailNotificationEvent struct {
 func NewEmailProducer(brokers []string) *EmailProducer {
 	writer := &kafka.Writer{
 		Addr:         kafka.TCP(brokers...),
-		Topic:        "notification_service.email",
+		Topic:        constant.EmailNotificationTopic,
 		Balancer:     &kafka.LeastBytes{},
 		BatchTimeout: 10 * time.Millisecond,
 		// Enable idempotent writes to prevent duplicate messages

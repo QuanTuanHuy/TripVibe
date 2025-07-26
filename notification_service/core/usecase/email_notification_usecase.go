@@ -2,9 +2,10 @@ package usecase
 
 import (
 	"context"
-	"github.com/golibs-starter/golib/log"
 	"notification_service/core/domain/entity"
 	"notification_service/core/port"
+
+	"github.com/golibs-starter/golib/log"
 )
 
 // IEmailNotificationUseCase handles sending notifications via email

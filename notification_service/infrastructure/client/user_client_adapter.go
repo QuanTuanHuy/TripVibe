@@ -2,10 +2,12 @@ package client
 
 import (
 	"context"
-	"github.com/golibs-starter/golib/log"
+	"fmt"
+	"notification_service/core/domain/constant"
 	"notification_service/core/domain/dto/response"
 	"notification_service/core/port"
-	"strconv"
+
+	"github.com/golibs-starter/golib/log"
 )
 
 type UserClientAdapter struct {
@@ -13,9 +15,9 @@ type UserClientAdapter struct {
 }
 
 func (u UserClientAdapter) GetUserProfileByID(ctx context.Context, userID int64) (*response.UserProfileDto, error) {
-	url := "/api/public/v1/profiles/" + strconv.FormatInt(userID, 10)
+	url := fmt.Sprintf(constant.GET_PROFILE_BY_ID_PATH, userID)
 	var res response.UserProfileDto
-	err := u.apiClient.GetJSON(ctx, "profile", url, &res)
+	err := u.apiClient.GetJSON(ctx, constant.PROFILE_SERVICE, url, &res)
 	if err != nil {
 		log.Error(ctx, "get user profile failed", err)
 		return nil, err

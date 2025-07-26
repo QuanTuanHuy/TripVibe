@@ -1,0 +1,26 @@
+app:
+  datasource:
+    driver: postgres
+    host: ${DB_HOST}
+    port: ${DB_PORT}
+    database: ${DB_NAME}
+    username: ${DB_USER}
+    password: ${DB_PASSWORD}
+  redis:
+    host: ${REDIS_ADDR}
+    port: ${REDIS_PORT}
+  kafka:
+    bootstrapServers: ${KAFKA_BOOTSTRAP_SERVERS}
+    consumer:
+      groupId: notification_service
+  logging:
+    development: true
+  
+  services:
+    email:
+      apiKey: ${EMAIL_APIKEY}
+      url: ${EMAIL_URL}
+    internal:
+      - name: profile
+        uri: ${PROFILE_SERVICE_URI}
+        contextPath: /profile_service

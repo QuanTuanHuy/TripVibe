@@ -5,11 +5,12 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"github.com/golibs-starter/golib/log"
 	"io"
 	"net/http"
 	"notification_service/core/domain/dto/response"
 	"time"
+
+	"github.com/golibs-starter/golib/log"
 )
 
 // ServiceConfig chứa cấu hình cho một service cụ thể
@@ -109,7 +110,7 @@ func (c *ApiClient) executeRequest(ctx context.Context, service ServiceConfig, m
 
 	for attempt = 0; attempt <= service.MaxRetries; attempt++ {
 		if attempt > 0 {
-			log.Info("Retrying request to %s (attempt %d/%d)", url, attempt, service.MaxRetries)
+			log.Info("Retrying request to %s (attempt %d/%d) ", url, attempt, service.MaxRetries)
 			select {
 			case <-ctx.Done():
 				return nil, ctx.Err()
@@ -178,7 +179,7 @@ func (c *ApiClient) doSingleRequest(ctx context.Context, service ServiceConfig, 
 	}
 	defer resp.Body.Close()
 
-	log.Info("Response from %s: status=%d, time=%v", url, resp.StatusCode, duration)
+	log.Info("Response from %s: status=%d, time=%v ", url, resp.StatusCode, duration)
 
 	// Đọc và xử lý response
 	respBody, err := io.ReadAll(resp.Body)
@@ -188,10 +189,10 @@ func (c *ApiClient) doSingleRequest(ctx context.Context, service ServiceConfig, 
 
 	// Parse JSON response
 	var apiResp response.ApiResponse
+	log.Info("Response body: %s", string(respBody))
 	if err := json.Unmarshal(respBody, &apiResp); err != nil {
-		// Nếu không phải cấu trúc ApiResponse, thử parse trực tiếp vào data field
 		if resp.StatusCode >= 200 && resp.StatusCode < 300 {
-			var data interface{}
+			var data map[string]interface{}
 			if err := json.Unmarshal(respBody, &data); err != nil {
 				return nil, fmt.Errorf("failed to parse response: %w", err)
 			}
@@ -199,6 +200,9 @@ func (c *ApiClient) doSingleRequest(ctx context.Context, service ServiceConfig, 
 		} else {
 			return nil, fmt.Errorf("invalid response format (status: %d): %s", resp.StatusCode, string(respBody))
 		}
+	}
+	if apiResp.Data == nil {
+		apiResp.Data = string(respBody)
 	}
 
 	// Xử lý lỗi HTTP

@@ -2,6 +2,7 @@ package bootstrap
 
 import (
 	"context"
+	"notification_service/core/domain/constant"
 	"notification_service/core/port"
 	"notification_service/core/service"
 	"notification_service/core/usecase"
@@ -10,7 +11,7 @@ import (
 	"notification_service/infrastructure/client"
 	"notification_service/infrastructure/kafka"
 	"notification_service/infrastructure/repository/adapter"
-	"notification_service/kernel/utils"
+	"notification_service/kernel/properties"
 	"notification_service/ui/controller"
 	"notification_service/ui/eventhandler"
 	"notification_service/ui/router"
@@ -35,6 +36,12 @@ func All() fx.Option {
 		// redis cache instance
 		golibdata.RedisOpt(),
 		golibdata.DatasourceOpt(),
+
+		// Provide properties
+		golib.ProvideProps(properties.NewEmailProperties),
+		golib.ProvideProps(properties.NewInternalServiceProperties),
+		golib.ProvideProps(properties.NewKafkaProperties),
+		golib.ProvideProps(properties.NewEmailConsumerProperties),
 
 		//Provide port implementation
 		fx.Provide(adapter.NewNotificationAdapter),
@@ -86,32 +93,33 @@ func All() fx.Option {
 	)
 }
 
-func NewApiClient() *client.ApiClient {
-	emailSenderApiKey := utils.GetEnv("EMAIL_SENDER_API_KEY", "")
-	emailSenderUrl := utils.GetEnv("EMAIL_SENDER_URL", "https://api.brevo.com")
-
+func NewApiClient(
+	emailProperties *properties.EmailProperties,
+	internalService *properties.InternalServiceProperties) *client.ApiClient {
 	emailHeaders := map[string]string{
-		"api-key": emailSenderApiKey,
+		"api-key": emailProperties.ApiKey,
 	}
 
-	// Create API client with initial configuration
-	apiClient := client.NewApiClient(
-		client.WithService("profile", "http://localhost:8086/profile_service", 10*time.Second),
-		client.WithService("email_sender", emailSenderUrl, 10*time.Second),
+	internalServiceOptions := make([]client.ApiClientOption, 0, len(internalService.Services))
+	for _, service := range internalService.Services {
+		internalServiceOptions = append(internalServiceOptions, client.WithService(service.Name, service.Uri+service.ContextPath, 10*time.Second))
+		internalServiceOptions = append(internalServiceOptions, client.WithServiceRetry(service.Name, 3, 500*time.Millisecond))
+	}
 
-		// Set default headers for all services
+	apiClientOptions := []client.ApiClientOption{
 		client.WithDefaultHeaders(map[string]string{
 			"Content-Type": "application/json",
 			"X-API-Source": "notification-service",
 		}),
 
-		// Configure specific service with retry options
-		client.WithServiceRetry("profile", 3, 500*time.Millisecond),
-		client.WithServiceRetry("email_sender", 3, 500*time.Millisecond),
+		client.WithService(constant.EMAIL_SENDER, emailProperties.Url, 10*time.Second),
+		client.WithServiceRetry(constant.EMAIL_SENDER, 3, 500*time.Millisecond),
+		client.WithServiceHeaders(constant.EMAIL_SENDER, emailHeaders),
+	}
 
-		// Add custom headers for specific services
-		client.WithServiceHeaders("email_sender", emailHeaders),
-	)
+	apiClientOptions = append(apiClientOptions, internalServiceOptions...)
+
+	apiClient := client.NewApiClient(apiClientOptions...)
 
 	return apiClient
 }
