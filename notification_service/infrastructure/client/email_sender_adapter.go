@@ -2,10 +2,11 @@ package client
 
 import (
 	"context"
-	"errors"
-	"github.com/golibs-starter/golib/log"
+	"notification_service/core/domain/constant"
 	"notification_service/core/domain/dto/request"
 	"notification_service/core/port"
+
+	"github.com/golibs-starter/golib/log"
 )
 
 type EmailSenderAdapter struct {
@@ -13,18 +14,13 @@ type EmailSenderAdapter struct {
 }
 
 func (e EmailSenderAdapter) SendEmail(ctx context.Context, content *request.SendEmailRequest) error {
-	url := "/v3/smtp/email"
 	var res string
-	err := e.apiClient.PostJSON(ctx, "email_sender", url, content, &res)
+	err := e.apiClient.PostJSON(ctx, constant.EMAIL_SENDER, constant.SEND_EMAIL_PATH, content, &res)
 	if err != nil {
 		log.Error(ctx, "send email failed ", err)
 		return err
 	}
-	if res != "" {
-		log.Info(ctx, "send email success ", res)
-		return nil
-	}
-	return errors.New("send email failed ")
+	return nil
 }
 
 func NewEmailSenderAdapter(apiClient *ApiClient) port.IEmailSenderPort {

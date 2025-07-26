@@ -3,13 +3,16 @@ spring:
     name: authentication_service
 
   datasource:
-    username: root
-    password: root
-    url: jdbc:mysql://localhost:3309/authentication_service
-    driver-class-name: com.mysql.cj.jdbc.Driver
+    username: user_booking
+    password: secret
+    url: jdbc:postgresql://localhost:5433/db_authentication_service
+    driver-class-name: org.postgresql.Driver
   jpa:
     hibernate:
       ddl-auto: update
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
     show-sql: true
   data:
     redis:

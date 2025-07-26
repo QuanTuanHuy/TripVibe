@@ -1,29 +1,232 @@
 services:
-  authentication_service:
+  api-gateway:
     build:
-      context: ./authentication_service
-    container_name: authentication_service
+      context: ./api_gateway
+    container_name: api_gateway
     ports:
-      - "8001:8080"
+      - "8080:8080"
+    environment:
+      - APP_API_PREFIX=api/public/v1
+      
+      - SERVICES_AUTHENTICATION_URI=http://authentication-service:8081
+      - SERVICES_ACCOMMODATION_URI=http://accommodation-service:8083
+      - SERVICES_SEARCH_URI=http://search-service:8085
+      - SERVICES_BOOKING_URI=http://booking-service:8084
+      - SERVICES_FILE_URI=http://file-service:8088
+      - SERVICES_PROFILE_URI=http://profile-service:8086
+      - SERVICES_RATING_URI=http://rating-service:8089
+      - SERVICES_PROMOTION_URI=http://promotion-service:8087
+      - SERVICES_NOTIFICATION_URI=http://notification-service:8082
+      - SERVICES_CHAT_URI=http://chat-service:8090
+      - SERVICES_LOCATION_URI=http://location-service:8091
+      - SERVICES_PAYMENT_URI=http://payment-service:8092
+      - SERVICES_INVENTORY_URI=http://inventory-service:8093
     depends_on:
-      - mysql
+      - authentication-service
+      - notification-service
+    networks:
+      - booking_network
+
+  notification-service:
+    build:
+      context: ./notification_service
+    container_name: notification_service
+    ports:
+      - "8082:8082"
+    environment:
+      - APP_PROFILES=production
+      - DB_HOST=booking_postgre_db
+      - DB_PORT=5432
+      
+      - REDIS_HOST=redis
+      
+      - KAFKA_BOOTSTRAP_SERVERS=broker:9092
+
+      - PROFILE_SERVICE_URI=http://profile-service:8086
+      - SERVER_PORT=8082
+    depends_on:
+      - booking_postgre_db
       - redis
       - broker
     networks:
       - booking_network
-      
-  mysql:
-    image: mysql:8.0.38
-    container_name: db_booking
-    environment:
-      MYSQL_ROOT_PASSWORD: root
+
+  authentication-service:
+    build:
+      context: ./authentication_service
+    container_name: authentication_service
     ports:
-      - "3309:3306"
-    volumes:
-      - db:/var/lib/mysql
+      - "8081:8081"
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://booking_postgre_db:5432/db_authentication_service
+      - SPRING_DATASOURCE_USERNAME=user_booking
+      - SPRING_DATASOURCE_PASSWORD=secret
+      
+      - SPRING_DATA_REDIS_HOST=redis
+      
+      - SPRING_KAFKA_BOOTSTRAP_SERVERS=broker:9092
+      - APP_KAFKA_DEFAULT_SERVER=broker:9092
+
+      - APP_SERVICES_NOTIFICATION_SERVICE_URL=notification-service:8082/notification_service/
+
+      - SERVER_PORT=8081
+    depends_on:
+      - booking_postgre_db
+      - redis
+      - broker
     networks:
       - booking_network
 
+  accommodation-service:
+    build:
+      context: ./accommodation_service
+    container_name: accommodation_service
+    ports:
+      - "8083:8083"
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://booking_postgre_db:5432/db_accommodation_service
+      
+      - SPRING_DATA_REDIS_HOST=redis
+      
+      - SPRING_KAFKA_BOOTSTRAP_SERVERS=broker:9092
+      - APP_KAFKA_DEFAULT_SERVER=broker:9092
+
+      - APP_SERVICES_FILE_SERVICE_URL=file-service:8088/file_service/
+      - APP_SERVICES_RATING_SERVICE_URL=rating-service:8089/rating_service/
+
+      - SERVER_PORT=8083
+    depends_on:
+      - booking_postgre_db
+      - redis
+      - broker
+    networks:
+      - booking_network
+
+  rating-service:
+    build:
+      context: ./rating_service
+    container_name: rating_service
+    ports:
+      - "8089:8089"
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://booking_postgre_db:5432/db_rating_service
+
+      - SPRING_DATA_REDIS_HOST=redis
+
+      - SPRING_KAFKA_BOOTSTRAP_SERVERS=broker:9092
+
+      - APP_SERVICES_BOOKING_SERVICE_URL=booking-service:8084/booking_service/
+      - APP_SERVICES_PROFILE_SERVICE_URL=profile-service:8086/profile_service/
+      - APP_SERVICES_ACCOMMODATION_SERVICE_URL=accommodation-service:8083/accommodation_service/
+
+      - SERVER_PORT=8089
+    depends_on:
+      - booking_postgre_db
+      - redis
+      - broker
+    networks:
+      - booking_network
+
+  profile-service:
+    build:
+      context: ./profile_service
+    container_name: profile_service
+    ports:
+      - "8086:8086"
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://booking_postgre_db:5432/db_profile_service
+
+      - SPRING_DATA_REDIS_HOST=redis
+      
+      - SPRING_KAFKA_BOOTSTRAP_SERVERS=broker:9092
+
+      - APP_SERVICES_ACCOMMODATION_SERVICE_URL=accommodation-service:8083/accommodation_service/
+      - APP_SERVICES_FILE_SERVICE_URL=file-service:8088/file_service/
+
+      - SERVER_PORT=8086
+    depends_on:
+      - booking_postgre_db
+      - redis
+      - broker
+    networks:
+      - booking_network
+
+  inventory-service:
+    build:
+      context: ./inventory_service
+    container_name: inventory_service
+    ports:
+      - "8093:8093"
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://booking_postgre_db:5432/db_inventory_service?reWriteBatchedInserts=true
+      
+      - SPRING_DATA_REDIS_HOST=redis
+      
+      - SPRING_KAFKA_BOOTSTRAP_SERVERS=broker:9092
+
+      - APP_SERVICES_ACCOMMODATION_SERVICE_URL=accommodation-service:8083/accommodation_service/
+
+      - SERVER_PORT=8093
+    depends_on:
+      - booking_postgre_db
+      - redis
+      - broker
+    networks:
+      - booking_network
+
+  file-service:
+    build:
+      context: ./file_service
+    container_name: file_service
+    ports:
+      - "8088:8088"
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://booking_postgre_db:5432/db_file_service
+
+      - SPRING_KAFKA_BOOTSTRAP_SERVERS=broker:9092
+      
+      - APP_FILE_STORAGE_UPLOAD_DIR=/app/uploads
+      - APP_FILE_STORAGE_DOWNLOAD_URL=http://file-service:8088/file_service/api/public/v1/file_storage/download/
+
+      - SERVER_PORT=8088
+    volumes:
+      - file_uploads:/app/uploads
+    depends_on:
+      - booking_postgre_db
+      - broker
+    networks:
+      - booking_network
+
+  search-service:
+    build:
+      context: ./search_service
+    container_name: search_service
+    ports:
+      - "8085:8085"
+    environment:
+      # Elasticsearch Configuration
+      - SPRING_ELASTICSEARCH_URIS=http://elastic:9200
+      - SPRING_ELASTICSEARCH_CONNECTION_TIMEOUT=5s
+      - SPRING_ELASTICSEARCH_SOCKET_TIMEOUT=5s
+      
+      - SPRING_DATA_REDIS_HOST=redis
+      
+      - SPRING_KAFKA_BOOTSTRAP_SERVERS=broker:9092
+
+      - APP_SERVICES_ACCOMMODATION_SERVICE_URL=accommodation-service:8083/accommodation_service/
+
+      - APP_ELASTICSEARCH_URL=elastic:9200
+      - APP_ELASTICSEARCH_USERNAME=elastic
+
+      - SERVER_PORT=8085
+    depends_on:
+      - elastic
+      - redis
+      - broker
+    networks:
+      - booking_network
+    restart: on-failure
+      
   redis:
     image: redis:7.2.4-alpine
     container_name: redis_booking
@@ -31,6 +234,9 @@ services:
       - ALLOW_EMPTY_PASSWORD=yes
     ports:
       - "6379:6379"
+    volumes:
+      - redis_data:/data
+    command: redis-server --appendonly yes
     networks:
       - booking_network
 
@@ -43,7 +249,7 @@ services:
     ports:
       - "5433:5432"
     volumes:
-      - postgres:/data/postgres
+      - postgres_data:/var/lib/postgresql/data
     networks:
       - booking_network
 
@@ -56,11 +262,19 @@ services:
     environment:
       - KAFKA_CFG_NODE_ID=0
       - KAFKA_CFG_PROCESS_ROLES=controller,broker
-      - KAFKA_CFG_CONTROLLER_QUORUM_VOTERS=0@kafka:9093
+      - KAFKA_CFG_CONTROLLER_QUORUM_VOTERS=0@broker:9093
       - KAFKA_CFG_LISTENERS=PLAINTEXT://:9092,CONTROLLER://:9093,EXTERNAL://:9094
-      - KAFKA_CFG_ADVERTISED_LISTENERS=PLAINTEXT://kafka:9092,EXTERNAL://localhost:9094
+      - KAFKA_CFG_ADVERTISED_LISTENERS=PLAINTEXT://broker:9092,EXTERNAL://localhost:9094
       - KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP=CONTROLLER:PLAINTEXT,EXTERNAL:PLAINTEXT,PLAINTEXT:PLAINTEXT
       - KAFKA_CFG_CONTROLLER_LISTENER_NAMES=CONTROLLER
+      # Data persistence settings
+      - KAFKA_CFG_LOG_RETENTION_HOURS=168
+      - KAFKA_CFG_LOG_RETENTION_BYTES=1073741824
+      - KAFKA_CFG_LOG_SEGMENT_BYTES=1073741824
+    volumes:
+      - kafka_data:/bitnami/kafka
+    networks:
+      - booking_network
 
   elastic:
     image: elasticsearch:8.16.1
@@ -74,11 +288,19 @@ services:
       - es-data:/usr/share/elasticsearch/data
     networks:
       - booking_network
+
 volumes:
-  db:
+  postgres_data:
     driver: local
-  postgres:
+  
+  redis_data:
+    driver: local
+  kafka_data:
+    driver: local
+  
   es-data:
+    driver: local
+  file_uploads:
     driver: local
 
 networks:

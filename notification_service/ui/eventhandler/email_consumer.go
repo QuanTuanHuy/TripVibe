@@ -3,6 +3,7 @@ package eventhandler
 import (
 	"context"
 	"encoding/json"
+	"notification_service/core/domain/constant"
 	"notification_service/core/domain/dto/request"
 	"notification_service/core/service"
 	kafka2 "notification_service/infrastructure/kafka"
@@ -32,7 +33,7 @@ func NewEmailConsumer(
 	// Configure the Kafka reader
 	reader := kafka.NewReader(kafka.ReaderConfig{
 		Brokers:        brokers,
-		Topic:          "notification_service.email",
+		Topic:          constant.EmailNotificationTopic,
 		GroupID:        groupID,
 		MinBytes:       10e3, // 10KB
 		MaxBytes:       10e6, // 10MB
@@ -124,7 +125,7 @@ func (c *EmailConsumer) processMessage(ctx context.Context, message kafka.Messag
 	})
 
 	if err != nil {
-		log.Error(ctx, "Failed to send email notification: ", err)
+		log.Error(ctx, "Failed to send email notification: ", err.Error())
 
 		// Handle retry logic
 		success := c.retryService.ScheduleRetry(ctx, event.NotificationID)
