@@ -23,7 +23,7 @@ RUN groupadd -r appuser && useradd -r -g appuser appuser
 
 WORKDIR /app
 
-COPY --from=build /app/target/authentication_service-*.jar app.jar
+COPY --from=build /app/target/profile_service-*.jar app.jar
 
 RUN chown appuser:appuser app.jar
 
@@ -32,9 +32,9 @@ ENV JAVA_OPTS="-XX:+UseContainerSupport -XX:MaxRAMPercentage=75.0 -XX:+UseG1GC -
 
 USER appuser
 
-EXPOSE 8081
+EXPOSE 8086
 
 HEALTHCHECK --interval=30s --timeout=3s --start-period=60s --retries=3 \
-  CMD curl -f http://localhost:8081/authentication_service/actuator/health || exit 1
+  CMD curl -f http://localhost:8086/profile_service/actuator/health || exit 1
 
 ENTRYPOINT ["sh", "-c", "java $JAVA_OPTS -jar app.jar"]

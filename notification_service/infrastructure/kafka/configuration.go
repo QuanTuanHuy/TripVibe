@@ -1,5 +1,7 @@
 package kafka
 
+import "notification_service/kernel/properties"
+
 type Configuration struct {
 	Brokers              []string `mapstructure:"brokers"`
 	ConsumerGroupID      string   `mapstructure:"consumer-group-id"`
@@ -9,10 +11,10 @@ type Configuration struct {
 }
 
 // NewConfiguration creates a default configuration
-func NewConfiguration() *Configuration {
+func NewConfiguration(kafkaProperty *properties.KafkaProperties, consumerProperty *properties.EmailConsumerProperties) *Configuration {
 	return &Configuration{
-		Brokers:              []string{"localhost:9094"},
-		ConsumerGroupID:      "notification-service",
+		Brokers:              kafkaProperty.BootstrapServers,
+		ConsumerGroupID:      consumerProperty.GroupId,
 		MaxRetryCount:        3,
 		EmailProducerEnabled: true,
 		EmailConsumerEnabled: true,
