@@ -1,0 +1,48 @@
+app:
+  api-prefix: api/public/v1
+
+  services:
+    authentication:
+      uri: http://authentication-service:8081
+      name: authentication_service
+    accommodation:
+      uri: http://accommodation-service:8083
+      name: accommodation_service
+    search:
+      uri: http://search-service:8085
+      name: search_service
+    booking:
+      uri: http://booking-service:8084
+      name: booking_service
+    file:
+      uri: http://file-service:8088
+      name: file_service
+    profile:
+      uri: http://profile-service:8086
+      name: profile_service
+    rating:
+      uri: http://rating-service:8089
+      name: rating_service
+    promotion:
+      uri: http://promotion-service:8087
+      name: promotion_service
+    notification:
+      uri: http://notification-service:8082
+      name: notification_service
+    chat:
+      uri: http://chat-service:8090
+      name: chat_service
+    location:
+      uri: http://location-service:8091
+      name: location_service
+    payment:
+      uri: http://payment-service:8092
+      name: payment_service
+    inventory:
+      uri: http://inventory-service:8093
+      name: inventory_service
+
+spring:
+  application:
+    name: api_gateway
+  

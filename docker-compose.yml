@@ -1,5 +1,32 @@
 services:
-  authentication_service:
+  api-gateway:
+    build:
+      context: ./api_gateway
+    container_name: api_gateway
+    ports:
+      - "8080:8080"
+    environment:
+      - APP_API_PREFIX=api/public/v1
+      
+      - SERVICES_AUTHENTICATION_URI=http://authentication-service:8081
+      - SERVICES_ACCOMMODATION_URI=http://accommodation-service:8083
+      - SERVICES_SEARCH_URI=http://search-service:8085
+      - SERVICES_BOOKING_URI=http://booking-service:8084
+      - SERVICES_FILE_URI=http://file-service:8088
+      - SERVICES_PROFILE_URI=http://profile-service:8086
+      - SERVICES_RATING_URI=http://rating-service:8089
+      - SERVICES_PROMOTION_URI=http://promotion-service:8087
+      - SERVICES_NOTIFICATION_URI=http://notification-service:8082
+      - SERVICES_CHAT_URI=http://chat-service:8090
+      - SERVICES_LOCATION_URI=http://location-service:8091
+      - SERVICES_PAYMENT_URI=http://payment-service:8092
+      - SERVICES_INVENTORY_URI=http://inventory-service:8093
+    depends_on:
+      - authentication-service
+    networks:
+      - booking_network
+
+  authentication-service:
     build:
       context: ./authentication_service
     container_name: authentication_service
@@ -14,9 +41,9 @@ services:
       
       - SPRING_KAFKA_BOOTSTRAP_SERVERS=broker:9092
       - APP_KAFKA_DEFAULT_SERVER=broker:9092
-      
-      - APP_SERVICES_NOTIFICATION_SERVICE_URL=notification_service:8080/notification_service/
-      
+
+      - APP_SERVICES_NOTIFICATION_SERVICE_URL=notification-service:8080/notification_service/
+
       - SERVER_PORT=8081
     depends_on:
       - booking_postgre_db
@@ -25,7 +52,7 @@ services:
     networks:
       - booking_network
 
-  accommodation_service:
+  accommodation-service:
     build:
       context: ./accommodation_service
     container_name: accommodation_service
@@ -39,9 +66,9 @@ services:
       - SPRING_KAFKA_BOOTSTRAP_SERVERS=broker:9092
       - APP_KAFKA_DEFAULT_SERVER=broker:9092
 
-      - APP_SERVICES_FILE_SERVICE_URL=file_service:8088/file_service/
-      - APP_SERVICES_RATING_SERVICE_URL=rating_service:8089/rating_service/
-      
+      - APP_SERVICES_FILE_SERVICE_URL=file-service:8088/file_service/
+      - APP_SERVICES_RATING_SERVICE_URL=rating-service:8089/rating_service/
+
       - SERVER_PORT=8083
     depends_on:
       - booking_postgre_db
@@ -50,7 +77,7 @@ services:
     networks:
       - booking_network
 
-  rating_service:
+  rating-service:
     build:
       context: ./rating_service
     container_name: rating_service
@@ -63,10 +90,10 @@ services:
 
       - SPRING_KAFKA_BOOTSTRAP_SERVERS=broker:9092
 
-      - APP_SERVICES_BOOKING_SERVICE_URL=booking_service:8084/booking_service/
-      - APP_SERVICES_PROFILE_SERVICE_URL=profile_service:8086/profile_service/
-      - APP_SERVICES_ACCOMMODATION_SERVICE_URL=accommodation_service:8083/accommodation_service/
-      
+      - APP_SERVICES_BOOKING_SERVICE_URL=booking-service:8084/booking_service/
+      - APP_SERVICES_PROFILE_SERVICE_URL=profile-service:8086/profile_service/
+      - APP_SERVICES_ACCOMMODATION_SERVICE_URL=accommodation-service:8083/accommodation_service/
+
       - SERVER_PORT=8089
     depends_on:
       - booking_postgre_db
@@ -75,7 +102,7 @@ services:
     networks:
       - booking_network
 
-  profile_service:
+  profile-service:
     build:
       context: ./profile_service
     container_name: profile_service
@@ -87,10 +114,10 @@ services:
       - SPRING_DATA_REDIS_HOST=redis
       
       - SPRING_KAFKA_BOOTSTRAP_SERVERS=broker:9092
-      
-      - APP_SERVICES_ACCOMMODATION_SERVICE_URL=accommodation_service:8083/accommodation_service/
-      - APP_SERVICES_FILE_SERVICE_URL=file_service:8088/file_service/
-      
+
+      - APP_SERVICES_ACCOMMODATION_SERVICE_URL=accommodation-service:8083/accommodation_service/
+      - APP_SERVICES_FILE_SERVICE_URL=file-service:8088/file_service/
+
       - SERVER_PORT=8086
     depends_on:
       - booking_postgre_db
@@ -99,7 +126,7 @@ services:
     networks:
       - booking_network
 
-  inventory_service:
+  inventory-service:
     build:
       context: ./inventory_service
     container_name: inventory_service
@@ -111,9 +138,9 @@ services:
       - SPRING_DATA_REDIS_HOST=redis
       
       - SPRING_KAFKA_BOOTSTRAP_SERVERS=broker:9092
-      
-      - APP_SERVICES_ACCOMMODATION_SERVICE_URL=accommodation_service:8083/accommodation_service/
-      
+
+      - APP_SERVICES_ACCOMMODATION_SERVICE_URL=accommodation-service:8083/accommodation_service/
+
       - SERVER_PORT=8093
     depends_on:
       - booking_postgre_db
@@ -122,7 +149,7 @@ services:
     networks:
       - booking_network
 
-  file_service:
+  file-service:
     build:
       context: ./file_service
     container_name: file_service
@@ -134,7 +161,7 @@ services:
       - SPRING_KAFKA_BOOTSTRAP_SERVERS=broker:9092
       
       - APP_FILE_STORAGE_UPLOAD_DIR=/app/uploads
-      - APP_FILE_STORAGE_DOWNLOAD_URL=http://localhost:8088/file_service/api/public/v1/file_storage/download/
+      - APP_FILE_STORAGE_DOWNLOAD_URL=http://file-service:8088/file_service/api/public/v1/file_storage/download/
 
       - SERVER_PORT=8088
     volumes:
@@ -145,7 +172,7 @@ services:
     networks:
       - booking_network
 
-  search_service:
+  search-service:
     build:
       context: ./search_service
     container_name: search_service
@@ -161,8 +188,8 @@ services:
       
       - SPRING_KAFKA_BOOTSTRAP_SERVERS=broker:9092
 
-      - APP_SERVICES_ACCOMMODATION_SERVICE_URL=accommodation_service:8083/accommodation_service/
-      
+      - APP_SERVICES_ACCOMMODATION_SERVICE_URL=accommodation-service:8083/accommodation_service/
+
       - APP_ELASTICSEARCH_URL=elastic:9200
       - APP_ELASTICSEARCH_USERNAME=elastic
 

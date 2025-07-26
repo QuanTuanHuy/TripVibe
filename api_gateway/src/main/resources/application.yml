@@ -4,72 +4,60 @@ server:
 app:
   api-prefix: api/public/v1
 
+  services:
+    authentication:
+      uri: http://localhost:8081
+      name: authentication_service
+    accommodation:
+      uri: http://localhost:8083
+      name: accommodation_service
+    search:
+      uri: http://localhost:8085
+      name: search_service
+    booking:
+      uri: http://localhost:8084
+      name: booking_service
+    file:
+      uri: http://localhost:8088
+      name: file_service
+    profile:
+      uri: http://localhost:8086
+      name: profile_service
+    rating:
+      uri: http://localhost:8089
+      name: rating_service
+    promotion:
+      uri: http://localhost:8087
+      name: promotion_service
+    notification:
+      uri: http://localhost:8082
+      name: notification_service
+    chat:
+      uri: http://localhost:8090
+      name: chat_service
+    location:
+      uri: http://localhost:8091
+      name: location_service
+    payment:
+      uri: http://localhost:8092
+      name: payment_service
+    inventory:
+      uri: http://localhost:8093
+      name: inventory_service
+
 spring:
   application:
     name: api_gateway
   cloud:
     gateway:
-      mvc:
-        routes:
-          - id: authentication_service
-            uri: http://localhost:8081
-            predicates:
-              - Path=/authentication_service/${app.api-prefix}/**
-          - id: accommodation_service
-            uri: http://localhost:8083
-            predicates:
-              - Path=/accommodation_service/${app.api-prefix}/**
-          - id: search_service
-            uri: http://localhost:8085
-            predicates:
-              - Path=/search_service/${app.api-prefix}/**
-          - id: booking_service
-            uri: http://localhost:8084
-            predicates:
-              - Path=/booking_service/${app.api-prefix}/**
-          - id: file_service
-            uri: http://localhost:8088
-            predicates:
-              - Path=/file_service/${app.api-prefix}/**
-          - id: profile_service
-            uri: http://localhost:8086
-            predicates:
-              - Path=/profile_service/${app.api-prefix}/**
-          - id: rating_service
-            uri: http://localhost:8089
-            predicates:
-              - Path=/rating_service/${app.api-prefix}/**
-          - id: promotion_service
-            uri: http://localhost:8087
-            predicates:
-              - Path=/promotion_service/${app.api-prefix}/**
-          - id: notification_service
-            uri: http://localhost:8082
-            predicates:
-              - Path=/notification_service/${app.api-prefix}/**
-          - id: chat_service
-            uri: http://localhost:8090
-            predicates:
-              - Path=/chat_service/${app.api-prefix}/**
-          - id: location_service
-            uri: http://localhost:8091
-            predicates:
-              - Path=/location_service/${app.api-prefix}/**
-          - id: payment_service
-            uri: http://localhost:8092
-            predicates:
-              - Path=/payment_service/${app.api-prefix}/**
-          - id: inventory_service
-            uri: http://localhost:8093
-            predicates:
-              - Path=/inventory_service/${app.api-prefix}/**
-      # Cấu hình global CORS
+      # Global CORS configuration
       globalcors:
-        corsConfigurations:
+        cors-configurations:
           '[/**]':
             allowedOrigins:
               - "http://localhost:3000"
-              - "https://yourdomain.com" # Thay thế bằng domain frontend của bạn
+              - "http://localhost:3001"
+              - "https://tripvibe-quantuanhuys-projects.vercel.app"
             allowedMethods:
               - GET
               - POST
@@ -84,3 +72,121 @@ spring:
               - Accept
             allowCredentials: true
             maxAge: 3600
+      
+      routes:
+        - id: authentication_service
+          uri: ${app.services.authentication.uri}
+          predicates:
+            - Path=/authentication_service/${app.api-prefix}/**
+          filters:
+            - name: Retry
+              args:
+                retries: 3
+                
+        - id: accommodation_service
+          uri: ${app.services.accommodation.uri}
+          predicates:
+            - Path=/accommodation_service/${app.api-prefix}/**
+          filters:
+            - name: Retry
+              args:
+                retries: 3
+                
+        - id: search_service
+          uri: ${app.services.search.uri}
+          predicates:
+            - Path=/search_service/${app.api-prefix}/**
+          filters:
+            - name: Retry
+              args:
+                retries: 3
+                
+        - id: booking_service
+          uri: ${app.services.booking.uri}
+          predicates:
+            - Path=/booking_service/${app.api-prefix}/**
+          filters:
+            - name: Retry
+              args:
+                retries: 3
+                
+        - id: file_service
+          uri: ${app.services.file.uri}
+          predicates:
+            - Path=/file_service/${app.api-prefix}/**
+          filters:
+            - name: Retry
+              args:
+                retries: 3
+                
+        - id: profile_service
+          uri: ${app.services.profile.uri}
+          predicates:
+            - Path=/profile_service/${app.api-prefix}/**
+          filters:
+            - name: Retry
+              args:
+                retries: 3
+                
+        - id: rating_service
+          uri: ${app.services.rating.uri}
+          predicates:
+            - Path=/rating_service/${app.api-prefix}/**
+          filters:
+            - name: Retry
+              args:
+                retries: 3
+                
+        - id: promotion_service
+          uri: ${app.services.promotion.uri}
+          predicates:
+            - Path=/promotion_service/${app.api-prefix}/**
+          filters:
+            - name: Retry
+              args:
+                retries: 3
+                
+        - id: notification_service
+          uri: ${app.services.notification.uri}
+          predicates:
+            - Path=/notification_service/${app.api-prefix}/**
+          filters:
+            - name: Retry
+              args:
+                retries: 3
+                
+        - id: chat_service
+          uri: ${app.services.chat.uri}
+          predicates:
+            - Path=/chat_service/${app.api-prefix}/**
+          filters:
+            - name: Retry
+              args:
+                retries: 3
+                
+        - id: location_service
+          uri: ${app.services.location.uri}
+          predicates:
+            - Path=/location_service/${app.api-prefix}/**
+          filters:
+            - name: Retry
+              args:
+                retries: 3
+                
+        - id: payment_service
+          uri: ${app.services.payment.uri}
+          predicates:
+            - Path=/payment_service/${app.api-prefix}/**
+          filters:
+            - name: Retry
+              args:
+                retries: 3
+                
+        - id: inventory_service
+          uri: ${app.services.inventory.uri}
+          predicates:
+            - Path=/inventory_service/${app.api-prefix}/**
+          filters:
+            - name: Retry
+              args:
+                retries: 3
